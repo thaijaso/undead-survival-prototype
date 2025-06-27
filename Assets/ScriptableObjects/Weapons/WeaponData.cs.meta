@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ac1be3d29626fab4ea91501ab9171782
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - weaponPrefab: {instanceID: 0}
+  - aimIKOffsets: {instanceID: 0}
+  - hitDecalPrefab: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
