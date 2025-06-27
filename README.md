@@ -20,21 +20,18 @@ This is a third-person zombie survival game prototype developed in Unity, featur
 
 ## 🧠 Current Systems Implemented
 
-| System       | Description                                      |
-| ------------ | ------------------------------------------------ |
-| 🎯 Combat    | Rigidbody bullets, ragdoll impact, hit detection |
-| 🦟 Zombie AI | Basic AI states (idle, aggro, attack, death)     |
+| System           | Description                                      |
+| ---------------- | ------------------------------------------------ |
+| 🎯 Combat        | Rigidbody bullets, ragdoll impact, hit detection |
+| 🦟 Zombie AI     | Basic AI states (idle, aggro, attack, death)     |
+| 🧴 Character Rig | Blender > Unity pipeline with facial rig + jaw   |
+| 🏟 Level Design  | Gated looting zone inspired by                   |
 
-|   |
-| - |
-
-| **(WIP)**        |                                                                  |
-| ---------------- | ---------------------------------------------------------------- |
-| 🧴 Character Rig | Blender > Unity pipeline with facial rig + jaw                   |
-| 🏟 Level Design  | Gated looting zone inspired by *Resident Evil 4* **(WIP)**       |
-| 🛒 Shop Phase    | Placeholder logic for day-time selling/upgrades **(WIP)**        |
-| 📽 Animation     | PuppetMaster ragdoll integration (head dismemberment functional) |
-| 📆 Inventory     | Lightweight inventory system **(WIP)**                           |
+| *Resident Evil 4* **(WIP)** |                                                                  |
+| --------------------------- | ---------------------------------------------------------------- |
+| 🛒 Shop Phase               | Placeholder logic for day-time selling/upgrades **(WIP)**        |
+| 📽 Animation                | PuppetMaster ragdoll integration (head dismemberment functional) |
+| 📆 Inventory                | Lightweight inventory system **(WIP)**                           |
 
 ---
 
@@ -89,9 +86,9 @@ These assets were used for prototyping visuals, sound, and tooling. All gameplay
 
 ```
 /Assets/               # Unity game files
-/blend/                # Blender source files
-/exports/              # Final FBX exports
-/docs/                 # Rig + pipeline documentation
+/Blend/                # Blender source files
+/Exports/              # Final FBX exports
+/Docs/                 # Rig + pipeline documentation
 ```
 
 ---
@@ -139,5 +136,5 @@ This project highlights skills in system design, gameplay programming, and techn
 
 ## 📬 Contact
 
-Questions or feedback? Feel free to reach out via email at [thaijaso@gmail.com](mailto\:thaijaso@gmail.com).
+Questions or feedback? Feel free to reach out via email at [thaijaso@gmail.com](mailto\:thaijaso@gmail.com).
 
