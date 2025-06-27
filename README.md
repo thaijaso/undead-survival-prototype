@@ -27,6 +27,9 @@ This is a third-person zombie survival game prototype developed in Unity, featur
 | 🧴 Character Rig | Blender > Unity pipeline with facial rig + jaw   |
 | 🏟 Level Design  | Gated looting zone inspired by                   |
 
+|   |
+| - |
+
 | *Resident Evil 4* **(WIP)** |                                                                  |
 | --------------------------- | ---------------------------------------------------------------- |
 | 🛒 Shop Phase               | Placeholder logic for day-time selling/upgrades **(WIP)**        |
@@ -36,8 +39,6 @@ This is a third-person zombie survival game prototype developed in Unity, featur
 ---
 
 ## 🖼️ Screenshots / Demo
-
-
 
 > Physics-driven bullet impact on ragdoll zombies in looting phase
 
