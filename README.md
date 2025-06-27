@@ -51,7 +51,7 @@ This is a third-person zombie survival game prototype developed in Unity, featur
 
 ## 🗃️ Technical Docs
 
-- [`Zombie Rig Export Pipeline`](docs/Zombie_Rig_Export_Pipeline.md):\
+- [`Zombie Rig Export Pipeline`](Docs/Zombie_Rig_Export_Pipeline.md):\
   Blender-to-Unity rigging process using Auto-Rig Pro, with jaw bone, clean FBX export, and dismemberment prep.
 
 More docs coming soon (AI logic, item system, loot tables, etc.)
