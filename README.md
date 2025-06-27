@@ -22,6 +22,8 @@ This is a third-person zombie survival game prototype developed in Unity, featur
 
 ### ✅ Completed Systems
 
+
+
 | System           | Description                                      |
 | ---------------- | ------------------------------------------------ |
 | 🎯 Combat        | Rigidbody bullets, ragdoll impact, hit detection |
@@ -40,7 +42,6 @@ This is a third-person zombie survival game prototype developed in Unity, featur
 | 📽 Animation    | PuppetMaster ragdoll integration (head dismemberment functional) **(WIP)** |
 | 📆 Inventory    | Lightweight inventory system with slot UI and item drag/drop **(WIP)**     |
 | 💾 Save System  | Saving inventory, money, and upgrades between scenes **(WIP)**             |
-|                 |                                                                            |
 
 
 
