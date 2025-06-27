@@ -30,16 +30,17 @@ This is a third-person zombie survival game prototype developed in Unity, featur
 
 ### 🚧 Work in Progress
 
-| System          | Description                     |
-| --------------- | ------------------------------- |
-| 🏟 Level Design | Gated looting zone inspired by  |
+|   |
+| - |
 
-| *Resident Evil 4* **(WIP)** |                                                                            |
-| --------------------------- | -------------------------------------------------------------------------- |
-| 🛒 Shop Phase               | Placeholder logic for day-time selling/upgrades **(WIP)**                  |
-| 📽 Animation                | PuppetMaster ragdoll integration (head dismemberment functional) **(WIP)** |
-| 📆 Inventory                | Lightweight inventory system with slot UI and item drag/drop **(WIP)**     |
-| 💾 Save System              | Saving inventory, money, and upgrades between scenes **(WIP)**             |
+| **System**      | **Description**                                                            |
+| --------------- | -------------------------------------------------------------------------- |
+| 🏟 Level Design | Gated looting zone inspired by *Resident Evil 4* **(WIP)**                 |
+| 🛒 Shop Phase   | Placeholder logic for day-time selling/upgrades **(WIP)**                  |
+| 📽 Animation    | PuppetMaster ragdoll integration (head dismemberment functional) **(WIP)** |
+| 📆 Inventory    | Lightweight inventory system with slot UI and item drag/drop **(WIP)**     |
+| 💾 Save System  | Saving inventory, money, and upgrades between scenes **(WIP)**             |
+|                 |                                                                            |
 
 
 
