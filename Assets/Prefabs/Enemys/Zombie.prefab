@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 1441862226520998414}
   - component: {fileID: 6711429343625208286}
   - component: {fileID: 7591723288152965580}
+  - component: {fileID: 5681820806501405950}
   m_Layer: 8
   m_Name: ZombieARP
   m_TagString: Untagged
@@ -84,7 +85,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: b489ab0f8b795fa4aa55914af59025ed, type: 3}
   m_Controller: {fileID: 9100000, guid: 411728ec8fb1fde45b8b971451115f05, type: 2}
-  m_CullingMode: 1
+  m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -134,7 +135,7 @@ MonoBehaviour:
   movement:
     follower:
       rotationSpeed: 600
-      speed: 1
+      speed: 3
       maxRotationSpeed: 720
       maxOnSpotRotationSpeed: 720
       slowdownTime: 0.5
@@ -189,6 +190,26 @@ MonoBehaviour:
   version: 1073741824
   target: {fileID: 0}
   useRotation: 0
+--- !u!114 &5681820806501405950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 111758880463491367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &196940988817082545
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,7 +221,7 @@ GameObject:
   - component: {fileID: 3528137030536893090}
   - component: {fileID: 7426361629015694686}
   - component: {fileID: 1497459375537914855}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: foot.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1126,7 +1147,9 @@ GameObject:
   - component: {fileID: 4855560374678348080}
   - component: {fileID: 3084687971466211758}
   - component: {fileID: 1065322408399735326}
-  m_Layer: 9
+  - component: {fileID: 8539290745100116933}
+  - component: {fileID: 6646705220675857631}
+  m_Layer: 10
   m_Name: head.x
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1298,6 +1321,46 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.16612768
   m_Center: {x: 0.0000000014458705, y: 0.06737265, z: 0.004008661}
+--- !u!114 &8539290745100116933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1615843008742827773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 0
+  Prefab: {fileID: 3840368411979377713, guid: d517729f052d5344cb62fa69b473c5bf, type: 3}
+  Instance: {fileID: 1993163134193747984}
+  Bone: {fileID: 7301242476134178127}
+  Health: 100
+  ragdollRigidbody: {fileID: 4855560374678348080}
+  ragdollCollider: {fileID: 1065322408399735326}
+  Template: {fileID: 11400000, guid: 06d30cc6435a00846834ffc3d9816dae, type: 2}
+--- !u!114 &6646705220675857631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1615843008742827773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1629520963587338055
 GameObject:
   m_ObjectHideFlags: 0
@@ -1310,7 +1373,7 @@ GameObject:
   - component: {fileID: 7971540526822167963}
   - component: {fileID: 9054799727951585183}
   - component: {fileID: 4242261358194172343}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: hand.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1340,7 +1403,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1629520963587338055}
   serializedVersion: 5
-  m_Mass: 0.495
+  m_Mass: 4
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1678,7 +1741,7 @@ GameObject:
   - component: {fileID: 5060856537076244734}
   - component: {fileID: 3620191250518056452}
   - component: {fileID: 1876156157659742970}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: forearm_stretch.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1896,7 +1959,7 @@ GameObject:
   - component: {fileID: 256985551127667344}
   - component: {fileID: 5826675318424230411}
   - component: {fileID: 4923881300502417932}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: thigh_stretch.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2232,7 +2295,7 @@ GameObject:
   - component: {fileID: 6793845924991412648}
   - component: {fileID: 8203613711996056769}
   - component: {fileID: 4677268801361550061}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: forearm_stretch.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2615,7 +2678,7 @@ GameObject:
   - component: {fileID: 2561174116617098486}
   - component: {fileID: 2543065445879816648}
   - component: {fileID: 7295414732594772478}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: arm_stretch.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2802,7 +2865,7 @@ GameObject:
   - component: {fileID: 6985758950059911034}
   - component: {fileID: 6121203584100984460}
   - component: {fileID: 2240621833851094337}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: hand.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2832,7 +2895,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3023568377934646504}
   serializedVersion: 5
-  m_Mass: 0.495
+  m_Mass: 4
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -3382,7 +3445,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5039207622939992011}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.16368, y: 0, z: -1.5665503}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3499,7 +3562,7 @@ GameObject:
   - component: {fileID: 3524433227682450517}
   - component: {fileID: 7199190948977857834}
   - component: {fileID: 752477164919954113}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: leg_stretch.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3684,7 +3747,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3314617808775383834}
   - component: {fileID: 5310592058732009220}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: PuppetMaster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4577,7 +4640,7 @@ GameObject:
   - component: {fileID: 7748137940314543715}
   - component: {fileID: 7224588362481357980}
   - component: {fileID: 5626756711913888005}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: arm_stretch.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4762,7 +4825,7 @@ GameObject:
   m_Component:
   - component: {fileID: 814588910825218553}
   - component: {fileID: 1753651493674844558}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Foot Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4915,7 +4978,7 @@ GameObject:
   - component: {fileID: 3372308836619168589}
   - component: {fileID: 6390512515497513550}
   - component: {fileID: 767353459063533373}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: leg_stretch.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5100,7 +5163,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4261671789287664708}
   - component: {fileID: 6045276952870997316}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Foot Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5186,7 +5249,7 @@ GameObject:
   - component: {fileID: 6161169728310767393}
   - component: {fileID: 4906053924826608619}
   - component: {fileID: 5591533413248648182}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: root.x
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5616,7 +5679,7 @@ GameObject:
   - component: {fileID: 4785176204675009744}
   - component: {fileID: 7250813773029230122}
   - component: {fileID: 5287560299975593252}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: foot.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5911,7 +5974,7 @@ GameObject:
   - component: {fileID: 6934168361998742099}
   - component: {fileID: 484269438429889203}
   - component: {fileID: 3844348373175279592}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: thigh_stretch.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6438,7 +6501,7 @@ GameObject:
   - component: {fileID: 5923185283885574497}
   - component: {fileID: 2958956557256292567}
   - component: {fileID: 929342028805641850}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: spine_02.x
   m_TagString: Untagged
   m_Icon: {fileID: 0}
