@@ -27,7 +27,7 @@ public class Bullet : MonoBehaviour
         // Handle enemy damage if this is a hitbox collision
         HandleEnemyHitboxImpact(collision.collider, hitPoint, hitNormal);
 
-        // Check if the bullet hits a rigidbody object (for physics impact)
+        // Apply physics force to any rigidbody (limbs, props, etc.)
         Rigidbody rb = collision.rigidbody;
         if (rb != null)
         {
@@ -38,6 +38,8 @@ public class Bullet : MonoBehaviour
                 contact.point,
                 ForceMode.Impulse
             );
+            
+            Debug.Log($"Applied force {impactForce} to {rb.gameObject.name}");
         }
 
         if (BulletDecalManager.Instance == null)

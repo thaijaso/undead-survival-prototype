@@ -93,9 +93,6 @@ public class Enemy : MonoBehaviour
         Patrol = new PatrolState(this, stateMachine, AnimationManager, "Locomotion (OH)");
         Debug.Log($"[{gameObject.name}] ✓ Patrol state initialized");
         
-        // NOTE: Chase state is intentionally replaced by Aggro state
-        Debug.Log($"[{gameObject.name}] ⚠ Chase state NOT initialized (using Aggro instead)");
-        
         Aggro = new AggroState(this, stateMachine, AnimationManager, "Aggro", PlayerTransform);
         Debug.Log($"[{gameObject.name}] ✓ Aggro state initialized");
 

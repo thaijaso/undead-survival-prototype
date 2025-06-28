@@ -81,15 +81,6 @@ public class Limb : MonoBehaviour
                 Bone.position,
                 Bone.rotation
             );
-
-            Rigidbody rb = limb.GetComponent<Rigidbody>();
-
-            if (rb != null)
-            {
-                Debug.Log("Adding force to severed limb.");
-                // Add some force to the severed limb to simulate dismemberment
-                rb.AddForce(Random.onUnitSphere * 75f, ForceMode.Impulse);
-            }
         }
     }
 
