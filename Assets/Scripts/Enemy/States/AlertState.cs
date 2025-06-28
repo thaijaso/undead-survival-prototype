@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class AlertState : EnemyState
@@ -6,6 +7,7 @@ public class AlertState : EnemyState
     public bool hasTurned = false;
     private float alertTimer = 0f;
     private float alertDuration = 5f; // Duration for which the enemy remains alert
+    private Coroutine turnCoroutine;
 
     public AlertState(
         Enemy enemy,
@@ -59,7 +61,7 @@ public class AlertState : EnemyState
             PlayTurnAnimation(angle);
 
             // Rotate the enemy
-            RotateTowardsPlayer(angle);
+            //RotateTowardsPlayer(angle);
         }
         else
         {
@@ -72,44 +74,90 @@ public class AlertState : EnemyState
     {
         Debug.Log("AlertState: Turn animation finished.");
         hasTurned = false;
+        
+        // Set the animator bool to false so the turn animation can exit
+        animationManager.SetHasTurned(false);
+        
+        // Stop the rotation coroutine if it's still running
+        if (turnCoroutine != null)
+        {
+            enemy.StopCoroutine(turnCoroutine);
+            turnCoroutine = null;
+        }
     }
 
     private void PlayTurnAnimation(float angle)
     {
-        Debug.Log("AlertState: Playing turn animation with angle: " + angle);
+        //Debug.Log("AlertState: Playing turn animation with angle: " + angle);
         if (Math.Abs(angle) > 90f)
         {
             if (!hasTurned)
             {
                 hasTurned = true;
+                
+                // Calculate target rotation
+                Vector3 directionToPlayer = enemy.GetPlayerTransform().position - enemy.transform.position;
+                directionToPlayer.y = 0f;
+                Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+                
                 if (angle > 0f)
                 {
                     // Player is to the right, turn right
                     animationManager.SetTrigger("TurnRight180");
+                    animationManager.SetHasTurned(true);
                 }
                 else
                 {
                     // Player is to the left, turn left
                     animationManager.SetTrigger("TurnLeft180");
+                    animationManager.SetHasTurned(true);
                 }
+                
+                // Start the rotation coroutine to match animation timing
+                turnCoroutine = enemy.StartCoroutine(RotateWithAnimation(targetRotation));
             }
         }
+    }
+    
+    private IEnumerator RotateWithAnimation(Quaternion targetRotation)
+    {
+        Quaternion startRotation = enemy.transform.rotation;
+        
+        // Phase 1: Slow rotation (first part of animation)
+        // Adjust these values to match your animation timing
+        float slowPhaseDuration = .667f; // Duration of slow rotation phase
+        float slowPhaseProgress = 0.2f; // How much to rotate during slow phase (30%)
+        
+        float elapsedTime = 0f;
+        while (elapsedTime < slowPhaseDuration)
+        {
+            float progress = (elapsedTime / slowPhaseDuration) * slowPhaseProgress;
+            enemy.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, progress);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        
+        // Phase 2: Fast rotation (second part of animation)
+        float fastPhaseDuration = 1f; // Duration of fast rotation phase
+        elapsedTime = 0f;
+        Quaternion midRotation = enemy.transform.rotation;
+        
+        while (elapsedTime < fastPhaseDuration)
+        {
+            float progress = elapsedTime / fastPhaseDuration;
+            enemy.transform.rotation = Quaternion.Slerp(midRotation, targetRotation, progress);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        
+        // Ensure we end up exactly at target rotation
+        enemy.transform.rotation = targetRotation;
+        turnCoroutine = null;
     }
 
     private float GetAngleToPlayer()
     {
         Vector3 directionToPlayer = enemy.GetPlayerTransform().position - enemy.transform.position;
         return Vector3.SignedAngle(enemy.transform.forward, directionToPlayer, Vector3.up);
-    }
-
-    private void RotateTowardsPlayer(float angle)
-    {
-        Quaternion targetRotation = Quaternion.LookRotation(enemy.GetPlayerTransform().position - enemy.transform.position, Vector3.up);
-
-        if (Mathf.Abs(angle) > enemy.template.turnTheshold)
-        {
-            float step = enemy.template.rotationSpeed * Time.deltaTime;
-            enemy.transform.rotation = Quaternion.RotateTowards(enemy.transform.rotation, targetRotation, step);
-        }
     }
 }

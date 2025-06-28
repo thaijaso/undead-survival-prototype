@@ -110,5 +110,10 @@ public class AnimationManager
     {
         animator.ResetTrigger(triggerName);
     }
+
+    public void SetHasTurned(bool hasTurned)
+    {
+        animator.SetBool("HasTurned", hasTurned);
+    }
 }
    

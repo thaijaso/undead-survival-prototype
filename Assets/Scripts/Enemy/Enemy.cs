@@ -150,6 +150,7 @@ public class Enemy : MonoBehaviour
 
     public void OnTurnFinished()
     {
+        Debug.Log("Enemy: Turn animation finished.");
         // This method is called directly from animation events
         // Delegate to the current state if it's AlertState
         if (stateMachine.currentState == Alert && Alert is AlertState alertState)
