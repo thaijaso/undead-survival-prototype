@@ -31,7 +31,6 @@ public class Enemy : MonoBehaviour
 
     public EnemyState Alert { get; private set; }
     public EnemyState Patrol { get; private set; }
-    // public EnemyState Chase { get; private set; }
 
     public EnemyState Aggro { get; private set; }
 
@@ -82,6 +81,8 @@ public class Enemy : MonoBehaviour
         chaseSpeed = template.chaseSpeed;
         aggroRange = template.aggroRange;
 
+        Debug.Log($"[{gameObject.name}] Enemy template loaded - patrolSpeed: {patrolSpeed}, chaseSpeed: {chaseSpeed}");
+
         Debug.Log($"[{gameObject.name}] Initializing enemy states...");
 
         Idle = new IdleState(this, stateMachine, AnimationManager, "Idle");
@@ -98,6 +99,9 @@ public class Enemy : MonoBehaviour
 
         Debug.Log($"[{gameObject.name}] All states initialized. Setting initial state to Idle...");
         stateMachine.SetState(Idle);
+        
+        // Log initial speed state
+        LogCurrentSpeed("Initial state after setup");
     }
 
     // Update is called once per frame
@@ -180,6 +184,40 @@ public class Enemy : MonoBehaviour
         if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
         {
             aggroState.OnYellFinished();
+        }
+    }
+
+    // Utility methods for debugging speed issues
+    public void LogCurrentSpeed(string context = "")
+    {
+        var followerEntity = GetComponent<FollowerEntity>();
+        if (followerEntity != null)
+        {
+            Debug.Log($"[{gameObject.name}] SPEED DEBUG{(string.IsNullOrEmpty(context) ? "" : $" ({context})")}: " +
+                     $"FollowerEntity.maxSpeed = {followerEntity.maxSpeed}, " +
+                     $"Current State = {stateMachine.currentState?.GetType().Name ?? "None"}, " +
+                     $"PatrolSpeed = {patrolSpeed}, ChaseSpeed = {chaseSpeed}");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] No FollowerEntity component found for speed debugging");
+        }
+    }
+
+    public void SetAndLogSpeed(float newSpeed, string source)
+    {
+        var followerEntity = GetComponent<FollowerEntity>();
+        if (followerEntity != null)
+        {
+            float oldSpeed = followerEntity.maxSpeed;
+            followerEntity.maxSpeed = newSpeed;
+            Debug.Log($"[{gameObject.name}] SPEED CHANGE ({source}): {oldSpeed} -> {newSpeed}");
+            
+            // Add stack trace for debugging (can be commented out in production)
+            if (Application.isEditor)
+            {
+                Debug.Log($"[{gameObject.name}] Speed change stack trace:\n{System.Environment.StackTrace}");
+            }
         }
     }
 }

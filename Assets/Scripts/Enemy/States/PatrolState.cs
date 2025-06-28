@@ -21,7 +21,6 @@ namespace EnemyStates
             animationName
         )
         {
-            followerEntity.maxSpeed = enemy.GetPatrolSpeed();
         }
 
         public override void Enter()
@@ -33,7 +32,11 @@ namespace EnemyStates
             animationManager.SetMoveParams(0f, .5f);
 
             SetNextPatrolPoint();
+
             destinationSetter.enabled = true;
+            
+            float patrolSpeed = enemy.GetPatrolSpeed();
+            enemy.SetAndLogSpeed(patrolSpeed, "PatrolState.Enter()");
         }
 
         private void SetNextPatrolPoint()

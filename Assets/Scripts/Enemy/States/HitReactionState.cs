@@ -44,10 +44,6 @@ public class HitReactionState : EnemyState
         animationManager.SetIsHit(true);
         animationManager.SetHitReactionParams(90f, 1f);
 
-        destinationSetter.enabled = false; // Stop moving during hit reaction
-
-        followerEntity.maxSpeed = 0f; // Stop movement speed during hit reaction
-
         if (limb != null)
         {
             limb.TakeDamage(damage); // Apply damage to the limb

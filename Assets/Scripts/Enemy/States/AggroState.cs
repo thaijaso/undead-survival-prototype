@@ -1,4 +1,5 @@
 using UnityEngine;
+using Pathfinding;
 
 public class AggroState : EnemyState
 {
@@ -22,10 +23,13 @@ public class AggroState : EnemyState
         Debug.Log("AggroState: Entering Aggro state - yell animation should start");
         animationManager.SetIsAggro(true); // Set aggro state in animation manager
     }
-
     public void OnYellFinished()
     {
         Debug.Log("AggroState: Yell animation finished - enabling AI movement");
         enemy.AIDestinationSetter.enabled = true;
+
+        // Set chase speed when starting to move
+        float chaseSpeed = enemy.GetChaseSpeed();
+        enemy.SetAndLogSpeed(chaseSpeed, "AggroState.OnYellFinished()");
     }
 }
