@@ -24,6 +24,7 @@ public class Weapon : MonoBehaviour
         {
             bulletRb.linearVelocity = muzzleTransform.forward * weaponData.bulletSpeed;
             bulletScript.impactForce = weaponData.impactForce;
+            Debug.Log($"Firing bullet with impact force: {weaponData.impactForce}");
         }
         else
         {

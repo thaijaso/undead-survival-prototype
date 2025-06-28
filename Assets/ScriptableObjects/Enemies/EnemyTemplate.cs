@@ -14,8 +14,10 @@ public class EnemyTemplate : ScriptableObject
     public float alertDuration = 5f; // Duration for which the enemy remains alert
 
     public float rotationSpeed = 20f; // Speed at which the enemy turns towards the player
-    
-    public float turnTheshold = 5f; // Threshold angle for turning towards the player
 
     public float aggroRange = 10f;
+
+    public float turn180Phase1Duration = 0.7f; // Duration of the first phase of turning
+
+    public float turn180Phase2Duration = 0.6f; // Duration of the second phase of turning
 }

@@ -15,10 +15,15 @@ public class AggroState : EnemyState
         animationName)
     {
     }
-    
+
     public override void Enter()
     {
         base.Enter();
         animationManager.SetIsAggro(true); // Set aggro state in animation manager
+    }
+
+    public void OnYellFinished()
+    {
+        enemy.AIDestinationSetter.enabled = true;
     }
 }

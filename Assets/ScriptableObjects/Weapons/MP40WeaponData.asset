@@ -28,4 +28,4 @@ MonoBehaviour:
   damage: 10
   weaponSway: 0.1
   impactForce: 100
-  bulletSpeed: 1
+  bulletSpeed: 100

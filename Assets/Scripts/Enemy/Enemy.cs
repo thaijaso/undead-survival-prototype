@@ -1,12 +1,15 @@
 using UnityEngine;
 using EnemyStates;
 using System.Collections.Generic;
+using Pathfinding;
 
 public class Enemy : MonoBehaviour
 {
     public AnimationManager AnimationManager { get; private set; }
 
     public HealthManager HealthManager { get; private set; }
+
+    public AIDestinationSetter AIDestinationSetter { get; private set; }
 
     [SerializeField]
     private Transform PlayerTransform;
@@ -48,6 +51,7 @@ public class Enemy : MonoBehaviour
     {
         SetupAnimator();
         HealthManager = GetComponent<HealthManager>();
+        AIDestinationSetter = GetComponent<AIDestinationSetter>();
         stateMachine = new StateMachine<EnemyState>(gameObject.name);
     }
 
@@ -156,6 +160,16 @@ public class Enemy : MonoBehaviour
         if (stateMachine.currentState == Alert && Alert is AlertState alertState)
         {
             alertState.OnTurnFinished();
+        }
+    }
+
+    public void OnYellFinished()
+    {
+        Debug.Log("Enemy: Yell animation finished.");
+
+        if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
+        {
+            aggroState.OnYellFinished();
         }
     }
 }

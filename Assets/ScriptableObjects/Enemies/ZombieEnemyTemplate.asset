@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: ZombieEnemyTemplate
   m_EditorClassIdentifier: 
   maxHealth: 100
-  alertRange: 5
+  alertRange: 8
   patrolSpeed: 1
-  chaseSpeed: 3
+  chaseSpeed: 5
   bloodEffectPrefab: {fileID: 1026642433091512, guid: 720698b0d96323248a1d2f3571f4ddf0, type: 3}
   alertDuration: 2
   rotationSpeed: 100
-  turnTheshold: 5
-  aggroRange: 2
+  aggroRange: 5
+  turn180Phase1Duration: 0.7
+  turn180Phase2Duration: 0.6

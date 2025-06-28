@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    [HideInInspector]
     public float impactForce = 10f; // Force applied on impact
     private bool hasHit = false; // Prevent multiple hits
 

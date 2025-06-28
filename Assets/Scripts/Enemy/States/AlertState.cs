@@ -125,7 +125,7 @@ public class AlertState : EnemyState
         
         // Phase 1: Slow rotation (first part of animation)
         // Adjust these values to match your animation timing
-        float slowPhaseDuration = .7f; // Duration of slow rotation phase
+        float slowPhaseDuration = enemy.template.turn180Phase1Duration; // Duration of slow rotation phase
         float slowPhaseProgress = 0.2f; // How much to rotate during slow phase (30%)
         
         float elapsedTime = 0f;
@@ -138,7 +138,7 @@ public class AlertState : EnemyState
         }
         
         // Phase 2: Fast rotation (second part of animation)
-        float fastPhaseDuration = .6f; // Duration of fast rotation phase
+        float fastPhaseDuration = enemy.template.turn180Phase2Duration; // Duration of fast rotation phase
         elapsedTime = 0f;
         Quaternion midRotation = enemy.transform.rotation;
         
