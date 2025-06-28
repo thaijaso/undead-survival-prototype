@@ -22,17 +22,31 @@ public class StateMachine<T> where T : IState<T>
 
     public void SetState(T newState)
     {
-        if (ReferenceEquals(currentState, newState))
+        // CRITICAL: Check for null state before doing anything
+        if (newState == null)
         {
-            Debug.Log($"State {newState.GetType().Name} is already active.");
+            Debug.LogError($"[{ownerName}] CRITICAL: Attempted to transition to NULL state from {currentState?.GetType().Name ?? "None"}!");
+            Debug.LogError($"[{ownerName}] Stack trace for null state transition:");
+            Debug.LogError(System.Environment.StackTrace);
             return;
         }
+
+        if (ReferenceEquals(currentState, newState))
+        {
+            Debug.Log($"[{ownerName}] State {newState.GetType().Name} is already active.");
+            return;
+        }
+
+        string previousStateName = currentState?.GetType().Name ?? "None";
+        string newStateName = newState.GetType().Name;
+        
+        Debug.Log($"[{ownerName}] State transition: {previousStateName} -> {newStateName}");
 
         currentState?.Exit(newState);
         currentState = newState;
         currentState.Enter();
 
-        Debug.Log($"{ownerName} transitioned to state: {newState.GetType().Name}");
+        Debug.Log($"[{ownerName}] Successfully entered {newStateName}");
     }
 
     public void LogicUpdate()

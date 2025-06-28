@@ -31,7 +31,7 @@ public class Enemy : MonoBehaviour
 
     public EnemyState Alert { get; private set; }
     public EnemyState Patrol { get; private set; }
-    public EnemyState Chase { get; private set; }
+    // public EnemyState Chase { get; private set; }
 
     public EnemyState Aggro { get; private set; }
 
@@ -82,11 +82,24 @@ public class Enemy : MonoBehaviour
         chaseSpeed = template.chaseSpeed;
         aggroRange = template.aggroRange;
 
-        Idle = new IdleState(this, stateMachine, AnimationManager, "Idle");
-        Alert = new AlertState(this, stateMachine, AnimationManager, "Alert");
-        Patrol = new PatrolState(this, stateMachine, AnimationManager, "Locomotion (OH)");
-        Aggro = new AggroState(this, stateMachine, AnimationManager, "Aggro", PlayerTransform);
+        Debug.Log($"[{gameObject.name}] Initializing enemy states...");
 
+        Idle = new IdleState(this, stateMachine, AnimationManager, "Idle");
+        Debug.Log($"[{gameObject.name}] ✓ Idle state initialized");
+        
+        Alert = new AlertState(this, stateMachine, AnimationManager, "Alert");
+        Debug.Log($"[{gameObject.name}] ✓ Alert state initialized");
+        
+        Patrol = new PatrolState(this, stateMachine, AnimationManager, "Locomotion (OH)");
+        Debug.Log($"[{gameObject.name}] ✓ Patrol state initialized");
+        
+        // NOTE: Chase state is intentionally replaced by Aggro state
+        Debug.Log($"[{gameObject.name}] ⚠ Chase state NOT initialized (using Aggro instead)");
+        
+        Aggro = new AggroState(this, stateMachine, AnimationManager, "Aggro", PlayerTransform);
+        Debug.Log($"[{gameObject.name}] ✓ Aggro state initialized");
+
+        Debug.Log($"[{gameObject.name}] All states initialized. Setting initial state to Idle...");
         stateMachine.SetState(Idle);
     }
 

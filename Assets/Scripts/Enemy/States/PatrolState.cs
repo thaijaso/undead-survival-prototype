@@ -87,7 +87,7 @@ namespace EnemyStates
             if (IsPlayerInDetectionRange())
             {
                 // change to chase state
-                stateMachine.SetState(enemy.Chase);
+                stateMachine.SetState(enemy.Aggro);
             }
         }
 

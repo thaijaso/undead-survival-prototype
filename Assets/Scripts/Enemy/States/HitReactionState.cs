@@ -44,9 +44,8 @@ public class HitReactionState : EnemyState
         animationManager.SetIsHit(true);
         animationManager.SetHitReactionParams(90f, 1f);
 
-        animationManager.animator.Play(animationName, 0, 0f);
-
         destinationSetter.enabled = false; // Stop moving during hit reaction
+
         followerEntity.maxSpeed = 0f; // Stop movement speed during hit reaction
 
         if (limb != null)
@@ -56,7 +55,7 @@ public class HitReactionState : EnemyState
         }
         else
         {
-            Debug.LogWarning("Limb is null in HitReactionState. Is there a limb component on the hitbox.");
+            Debug.LogWarning("Limb is null in HitReactionState. Is there a limb component on the hitbox?");
         }
     }
 
@@ -82,7 +81,17 @@ public class HitReactionState : EnemyState
         // Only transition if both the timer and animation are finished
         if (timer >= duration)
         {
-            stateMachine.SetState(enemy.Chase);
+            Debug.Log($"[{enemy.gameObject.name}] HitReactionState: Timer expired ({timer:F2}s), transitioning to Aggro state...");
+            
+            // Safety check for null state before transitioning
+            if (enemy.Aggro == null)
+            {
+                Debug.LogError($"[{enemy.gameObject.name}] CRITICAL: enemy.Aggro is NULL! Cannot transition from HitReactionState!");
+                Debug.LogError($"[{enemy.gameObject.name}] Available states: Idle={enemy.Idle != null}, Alert={enemy.Alert != null}, Patrol={enemy.Patrol != null}, Aggro={enemy.Aggro != null}");
+                return;
+            }
+            
+            stateMachine.SetState(enemy.Aggro);
         }
     }
 
