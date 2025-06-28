@@ -147,4 +147,14 @@ public class Enemy : MonoBehaviour
         float sqrDistanceToPlayer = (transform.position - PlayerTransform.position).sqrMagnitude;
         return sqrDistanceToPlayer <= aggroRange * aggroRange;
     }
+
+    public void OnTurnFinished()
+    {
+        // This method is called directly from animation events
+        // Delegate to the current state if it's AlertState
+        if (stateMachine.currentState == Alert && Alert is AlertState alertState)
+        {
+            alertState.OnTurnFinished();
+        }
+    }
 }

@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 
 public class AlertState : EnemyState
 {
+    public bool hasTurned = false;
     private float alertTimer = 0f;
     private float alertDuration = 5f; // Duration for which the enemy remains alert
 
@@ -53,9 +55,8 @@ public class AlertState : EnemyState
             // If player is still in range, stay in alert state
             animationManager.SetAlertState(true);
 
-            // Turn towards the player
             float angle = GetAngleToPlayer();
-            animationManager.SetTurnAngle(angle);
+            PlayTurnAnimation(angle);
 
             // Rotate the enemy
             RotateTowardsPlayer(angle);
@@ -64,6 +65,34 @@ public class AlertState : EnemyState
         {
             // If player is out of range, transition to idle state
             stateMachine.SetState(enemy.Idle);
+        }
+    }
+
+    public void OnTurnFinished()
+    {
+        Debug.Log("AlertState: Turn animation finished.");
+        hasTurned = false;
+    }
+
+    private void PlayTurnAnimation(float angle)
+    {
+        Debug.Log("AlertState: Playing turn animation with angle: " + angle);
+        if (Math.Abs(angle) > 90f)
+        {
+            if (!hasTurned)
+            {
+                hasTurned = true;
+                if (angle > 0f)
+                {
+                    // Player is to the right, turn right
+                    animationManager.SetTrigger("TurnRight180");
+                }
+                else
+                {
+                    // Player is to the left, turn left
+                    animationManager.SetTrigger("TurnLeft180");
+                }
+            }
         }
     }
 

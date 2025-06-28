@@ -100,5 +100,15 @@ public class AnimationManager
     {
         animator.SetBool("IsAggro", isAggro);
     }
+
+    public void SetTrigger(string triggerName)
+    {
+        animator.SetTrigger(triggerName);
+    }
+
+    public void ResetTrigger(string triggerName)
+    {
+        animator.ResetTrigger(triggerName);
+    }
 }
    
