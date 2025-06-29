@@ -113,45 +113,9 @@ public class AlertState : EnemyState
                     animationManager.SetHasTurned(true);
                 }
                 
-                // Start the rotation coroutine to match animation timing
+                // Start the rotation coroutine to match animation timing (uses base class method)
                 turnCoroutine = enemy.StartCoroutine(RotateWithAnimation(targetRotation));
             }
         }
-    }
-    
-    private IEnumerator RotateWithAnimation(Quaternion targetRotation)
-    {
-        Quaternion startRotation = enemy.transform.rotation;
-        
-        // Phase 1: Slow rotation (first part of animation)
-        // Adjust these values to match your animation timing
-        float slowPhaseDuration = enemy.template.turn180Phase1Duration; // Duration of slow rotation phase
-        float slowPhaseProgress = 0.2f; // How much to rotate during slow phase (30%)
-        
-        float elapsedTime = 0f;
-        while (elapsedTime < slowPhaseDuration)
-        {
-            float progress = (elapsedTime / slowPhaseDuration) * slowPhaseProgress;
-            enemy.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, progress);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        
-        // Phase 2: Fast rotation (second part of animation)
-        float fastPhaseDuration = enemy.template.turn180Phase2Duration; // Duration of fast rotation phase
-        elapsedTime = 0f;
-        Quaternion midRotation = enemy.transform.rotation;
-        
-        while (elapsedTime < fastPhaseDuration)
-        {
-            float progress = elapsedTime / fastPhaseDuration;
-            enemy.transform.rotation = Quaternion.Slerp(midRotation, targetRotation, progress);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        
-        // Ensure we end up exactly at target rotation
-        enemy.transform.rotation = targetRotation;
-        turnCoroutine = null;
     }
 }
