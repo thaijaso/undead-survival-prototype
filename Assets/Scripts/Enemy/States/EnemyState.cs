@@ -39,7 +39,7 @@ public class EnemyState : IState<EnemyState>
     }
 
     private void SetupDestinationSetter()
-    { 
+    {
         destinationSetter = enemy.GetComponent<AIDestinationSetter>();
         if (destinationSetter == null)
         {
@@ -72,5 +72,11 @@ public class EnemyState : IState<EnemyState>
 
         float sqrDistance = (enemy.GetPlayerTransform().position - enemy.transform.position).sqrMagnitude;
         return sqrDistance <= detectionRange * detectionRange;
+    }
+    
+    protected float GetAngleToPlayer()
+    {
+        Vector3 directionToPlayer = enemy.GetPlayerTransform().position - enemy.transform.position;
+        return Vector3.SignedAngle(enemy.transform.forward, directionToPlayer, Vector3.up);
     }
 }

@@ -21,7 +21,7 @@ public class Enemy : MonoBehaviour
 
     private float patrolSpeed = 1f;
 
-    private float chaseSpeed = 3f;
+    private float chaseSpeed = 2f;
 
     private float aggroRange = 10f;
 
@@ -87,19 +87,19 @@ public class Enemy : MonoBehaviour
 
         Idle = new IdleState(this, stateMachine, AnimationManager, "Idle");
         Debug.Log($"[{gameObject.name}] ✓ Idle state initialized");
-        
+
         Alert = new AlertState(this, stateMachine, AnimationManager, "Alert");
         Debug.Log($"[{gameObject.name}] ✓ Alert state initialized");
-        
+
         Patrol = new PatrolState(this, stateMachine, AnimationManager, "Locomotion (OH)");
         Debug.Log($"[{gameObject.name}] ✓ Patrol state initialized");
-        
+
         Aggro = new AggroState(this, stateMachine, AnimationManager, "Aggro", PlayerTransform);
         Debug.Log($"[{gameObject.name}] ✓ Aggro state initialized");
 
         Debug.Log($"[{gameObject.name}] All states initialized. Setting initial state to Idle...");
         stateMachine.SetState(Idle);
-        
+
         // Log initial speed state
         LogCurrentSpeed("Initial state after setup");
     }
@@ -212,7 +212,7 @@ public class Enemy : MonoBehaviour
             float oldSpeed = followerEntity.maxSpeed;
             followerEntity.maxSpeed = newSpeed;
             Debug.Log($"[{gameObject.name}] SPEED CHANGE ({source}): {oldSpeed} -> {newSpeed}");
-            
+
             // Add stack trace for debugging (can be commented out in production)
             if (Application.isEditor)
             {

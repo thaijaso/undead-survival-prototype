@@ -154,10 +154,4 @@ public class AlertState : EnemyState
         enemy.transform.rotation = targetRotation;
         turnCoroutine = null;
     }
-
-    private float GetAngleToPlayer()
-    {
-        Vector3 directionToPlayer = enemy.GetPlayerTransform().position - enemy.transform.position;
-        return Vector3.SignedAngle(enemy.transform.forward, directionToPlayer, Vector3.up);
-    }
 }
