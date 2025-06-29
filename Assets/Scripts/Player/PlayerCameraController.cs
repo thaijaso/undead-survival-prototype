@@ -100,16 +100,30 @@ public class PlayerCameraController : MonoBehaviour
         Ray ray = unityCam.ScreenPointToRay(screenCenter);
 
         RaycastHit hit;
-        float maxDistance = 100f; // TODO: create a weapon data field for max distance of weapon
+        float maxDistance = 10f; // TODO: create a weapon data field for max distance of weapon
+        float minDistance = 4f; // Minimum distance for aim target
+
+        Vector3 targetPosition;
 
         if (Physics.Raycast(ray, out hit, maxDistance))
         {
-            aimTarget.position = hit.point;
+            float hitDistance = Vector3.Distance(ray.origin, hit.point);
+            if (hitDistance < minDistance)
+            {
+                // If hit is too close, set target at minimum distance
+                targetPosition = ray.origin + ray.direction * minDistance;
+            }
+            else
+            {
+                targetPosition = hit.point;
+            }
         }
         else
         {
-            aimTarget.position = ray.origin + ray.direction * maxDistance;
+            targetPosition = ray.origin + ray.direction * maxDistance;
         }
+
+        aimTarget.position = targetPosition;
     }
 
     public Vector3 GetAimTarget()
