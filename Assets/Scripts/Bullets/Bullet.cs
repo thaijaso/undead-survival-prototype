@@ -32,14 +32,32 @@ public class Bullet : MonoBehaviour
         if (rb != null)
         {
             Vector3 direction = GetComponent<Rigidbody>().linearVelocity.normalized;
+            
+            // Check if this is a ragdoll limb and adjust force accordingly
+            float adjustedForce = impactForce;
+            PuppetMaster puppetMaster = rb.GetComponentInParent<PuppetMaster>();
+            
+            if (puppetMaster != null)
+            {
+                // Reduce force on dead ragdolls to prevent over-reaction
+                if (puppetMaster.state == RootMotion.Dynamics.PuppetMaster.State.Dead)
+                {
+                    adjustedForce *= 0.3f; // Reduce force by 70% for dead ragdolls
+                }
+                // Increase force on alive ragdolls to overcome muscle resistance
+                else if (puppetMaster.state == RootMotion.Dynamics.PuppetMaster.State.Alive)
+                {
+                    adjustedForce *= 2.0f; // Increase force by 100% for alive ragdolls
+                }
+            }
 
             rb.AddForceAtPosition(
-                direction * impactForce,
+                direction * adjustedForce,
                 contact.point,
                 ForceMode.Impulse
             );
             
-            Debug.Log($"Applied force {impactForce} to {rb.gameObject.name}");
+            Debug.Log($"Applied force {adjustedForce} to {rb.gameObject.name} (PuppetMaster state: {puppetMaster?.state})");
         }
 
         if (BulletDecalManager.Instance == null)
@@ -58,7 +76,7 @@ public class Bullet : MonoBehaviour
         // Destroy the bullet after impact
         Destroy(gameObject);
     }
-    
+
     private void HandleEnemyHitboxImpact(Collider hitCollider, Vector3 hitPoint, Vector3 hitNormal)
     {
         // Check if the hit object is on the Hitbox layer
@@ -90,25 +108,13 @@ public class Bullet : MonoBehaviour
             Debug.LogWarning("Limb component not found in parent hierarchy.");
         }
 
-        // Do damage to the enemy
+        // Do damage to the enemy and limb:
         enemy.ProcessHit(damage, limb);
 
         // Spawn blood effect regardless of body part presence
         SpawnBloodEffect(hitPoint, hitNormal, enemy);
 
-        // Create and set the hit reaction state
-        var hitReaction = new HitReactionState(
-            enemy,
-            enemy.stateMachine,
-            enemy.AnimationManager,
-            "Hit Reaction",
-            limb,
-            damage,
-            -hitNormal,
-            impactForce
-        );
-
-        enemy.stateMachine.SetState(hitReaction);
+        enemy.stateMachine.SetState(enemy.Aggro);
     }
     
     private void SpawnBloodEffect(Vector3 hitPoint, Vector3 hitNormal, Enemy enemy)

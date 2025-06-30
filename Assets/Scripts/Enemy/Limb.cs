@@ -83,16 +83,4 @@ public class Limb : MonoBehaviour
             );
         }
     }
-
-    public void AddForce(Vector3 direction, float force)
-    {
-        if (ragdollRigidbody != null)
-        {
-            ragdollRigidbody.AddForce(direction * force, ForceMode.Impulse);
-        }
-        else
-        {
-            Debug.LogWarning("Ragdoll Rigidbody is not assigned on " + name);
-        }
-    }
 }

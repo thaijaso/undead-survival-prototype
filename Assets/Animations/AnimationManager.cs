@@ -63,17 +63,6 @@ public class AnimationManager
         animator.SetBool("IsMoving", isMoving);
     }
 
-    public void SetHitReactionParams(float hitAngle, float impactForce)
-    {
-        animator.SetFloat("HitAngle", hitAngle);
-        animator.SetFloat("ImpactForce", impactForce);
-    }
-
-    public void SetIsHit(bool isHit)
-    {
-        animator.SetBool("IsHit", isHit);
-    }
-
     public void SetLayerWeight(int layerIndex, float weight)
     {
         animator.SetLayerWeight(layerIndex, weight);

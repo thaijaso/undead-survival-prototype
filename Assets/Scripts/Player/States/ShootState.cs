@@ -219,19 +219,7 @@ public class ShootState : AimState
         // Spawn blood effect regardless of body part presence
         SpawnBloodEffect(hit, enemy);
 
-        // Create and set the hit reaction state
-        var hitReaction = new HitReactionState(
-            enemy,
-            enemy.stateMachine,
-            enemy.AnimationManager,
-            "Hit Reaction",
-            limb,
-            weaponManager.CurrentWeaponData.damage,
-            -hit.normal,
-            weaponManager.CurrentWeaponData.impactForce
-        );
-
-        enemy.stateMachine.SetState(hitReaction);
+        enemy.stateMachine.SetState(enemy.Aggro);
     }
 
     private void SpawnBloodEffect(RaycastHit hit, Enemy enemy)

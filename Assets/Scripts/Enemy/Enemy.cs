@@ -183,6 +183,7 @@ public class Enemy : MonoBehaviour
             return;
         }
 
+        limb.TakeDamage(damage);
         HealthManager.TakeDamage(damage);
         Debug.Log($"{name} took {damage} damage. Remaining health: {HealthManager.currentHealth}");
 
