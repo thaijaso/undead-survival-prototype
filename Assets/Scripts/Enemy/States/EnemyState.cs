@@ -16,6 +16,9 @@ public class EnemyState : IState<EnemyState>
     private float detectionRange;
 
     protected List<Transform> patrolPoints;
+    
+    // Turn animation tracking
+    protected bool IsTurning = false;
 
     public AIDestinationSetter destinationSetter { get; private set; }
 

@@ -50,8 +50,6 @@ public class Enemy : MonoBehaviour
 
     public EnemyTemplate template;
 
-    public int health = 100;
-
     // Speed blending fields
     private Coroutine speedBlendCoroutine;
 
