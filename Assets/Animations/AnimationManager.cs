@@ -100,9 +100,9 @@ public class AnimationManager
         animator.ResetTrigger(triggerName);
     }
 
-    public void SetHasTurned(bool hasTurned)
+    public void SetIsTurning(bool isTurning)
     {
-        animator.SetBool("HasTurned", hasTurned);
+        animator.SetBool("IsTurning", isTurning);
     }
 
     public void SetIsDead(bool isDead)

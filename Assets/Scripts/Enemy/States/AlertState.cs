@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AlertState : EnemyState
 {
-    public bool hasTurned = false;
+    public bool IsTurning = false;
     private float alertTimer = 0f;
     private float alertDuration = 5f; // Duration for which the enemy remains alert
     private Coroutine turnCoroutine;
@@ -70,10 +70,10 @@ public class AlertState : EnemyState
     public void OnTurnFinished()
     {
         Debug.Log("AlertState: Turn animation finished.");
-        hasTurned = false;
+        IsTurning = false;
         
         // Set the animator bool to false so the turn animation can exit
-        animationManager.SetHasTurned(false);
+        animationManager.SetIsTurning(false);
         
         // Stop the rotation coroutine if it's still running
         if (turnCoroutine != null)
@@ -88,9 +88,9 @@ public class AlertState : EnemyState
         //Debug.Log("AlertState: Playing turn animation with angle: " + angle);
         if (Math.Abs(angle) > 90f)
         {
-            if (!hasTurned)
+            if (!IsTurning)
             {
-                hasTurned = true;
+                IsTurning = true;
                 
                 // Calculate target rotation
                 Vector3 directionToPlayer = enemy.GetPlayerTransform().position - enemy.transform.position;
@@ -101,13 +101,13 @@ public class AlertState : EnemyState
                 {
                     // Player is to the right, turn right
                     animationManager.SetTrigger("TurnRight180");
-                    animationManager.SetHasTurned(true);
+                    animationManager.SetIsTurning(true);
                 }
                 else
                 {
                     // Player is to the left, turn left
                     animationManager.SetTrigger("TurnLeft180");
-                    animationManager.SetHasTurned(true);
+                    animationManager.SetIsTurning(true);
                 }
                 
                 // Start the rotation coroutine to match animation timing (uses base class method)

@@ -169,6 +169,12 @@ public class Enemy : MonoBehaviour
 
         Debug.Log($"[{gameObject.name}] Enemy template loaded - patrolSpeed: {template.patrolSpeed}, chaseSpeed: {template.chaseSpeed}");
 
+        // Initialize HealthManager with template data now that template is confirmed available
+        if (HealthManager != null)
+        {
+            HealthManager.Initialize(template.maxHealth);
+        }
+
         Debug.Log($"[{gameObject.name}] Initializing enemy states...");
 
         Idle = new IdleState(this, stateMachine, AnimationManager, "Idle");

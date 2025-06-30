@@ -11,9 +11,21 @@ public class HealthManager : MonoBehaviour
     public UnityEvent onDamaged;
     public UnityEvent onDeath;
 
-    void Awake()
+    public void Initialize(int templateMaxHealth)
     {
+        maxHealth = templateMaxHealth;
         currentHealth = maxHealth;
+        Debug.Log($"HealthManager initialized with {maxHealth} health from template");
+    }
+
+    void Start()
+    {
+        // Fallback initialization if Initialize() wasn't called
+        if (currentHealth == 0)
+        {
+            currentHealth = maxHealth;
+            Debug.LogWarning($"HealthManager on {gameObject.name} wasn't initialized from template, using default maxHealth: {maxHealth}");
+        }
     }
 
     public void TakeDamage(int amount)

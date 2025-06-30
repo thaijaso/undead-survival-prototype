@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37638b9b24a18c54eb14712c8fe39218, type: 3}
   m_Name: ZombieEnemyTemplate
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 10000
   alertRange: 8
   patrolSpeed: 1
   chaseSpeed: 4

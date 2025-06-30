@@ -76,26 +76,26 @@ public class AggroState : EnemyState
             if (!hasTurned)
             {
                 hasTurned = true;
-                
+
                 // Stop any existing rotation coroutine before starting new one
                 if (turnCoroutine != null)
                 {
                     enemy.StopCoroutine(turnCoroutine);
                     turnCoroutine = null;
                 }
-                
+
                 // Calculate target rotation
                 Vector3 directionToPlayer = enemy.GetPlayerTransform().position - enemy.transform.position;
                 directionToPlayer.y = 0f;
                 Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
-                
-                animationManager.SetHasTurned(true);
+
+                animationManager.SetIsTurning(true);
 
                 if (angle < 0f)
                 {
                     animationManager.animator.SetTrigger("Aggro180");
                 }
-                
+
                 // Use aggro-specific two-phase rotation timing
                 turnCoroutine = enemy.StartCoroutine(RotateWithAggroAnimation(targetRotation));
             }
@@ -105,15 +105,20 @@ public class AggroState : EnemyState
     public override void Exit(EnemyState nextState)
     {
         base.Exit(nextState);
-        
+
         // Stop any rotation coroutines when exiting the state
         if (turnCoroutine != null)
         {
             enemy.StopCoroutine(turnCoroutine);
             turnCoroutine = null;
         }
-        
+
         Debug.Log("AggroState: Exiting Aggro state");
+    }
+
+    public void OnTurnFinished()
+    {
+        animationManager.SetIsTurning(false);
     }
 
 }
