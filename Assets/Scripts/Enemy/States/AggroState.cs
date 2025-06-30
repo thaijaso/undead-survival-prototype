@@ -45,7 +45,8 @@ public class AggroState : EnemyState
         //enemy.transform.rotation = targetRotationAfterAggro;
 
         // Enable AI movement
-        //enemy.AIDestinationSetter.enabled = true;
+        enemy.AIDestinationSetter.enabled = true;
+        enemy.FollowerEntity.enabled = true;
     }
 
     private void PlayTurnAnimation(float angle)

@@ -12,6 +12,8 @@ public class Enemy : MonoBehaviour
 
     public AIDestinationSetter AIDestinationSetter { get; private set; }
 
+    public FollowerEntity FollowerEntity { get; private set; }
+
     // Reference to PuppetMaster component (could be on this GameObject or a sibling)
     [SerializeField] private PuppetMaster puppetMasterReference;
     public PuppetMaster PuppetMaster { get; private set; }
@@ -56,11 +58,10 @@ public class Enemy : MonoBehaviour
     private void Awake()
     {
         SetupAnimator();
-        HealthManager = GetComponent<HealthManager>();
-        AIDestinationSetter = GetComponent<AIDestinationSetter>();
-        
-        // Find PuppetMaster - could be on this GameObject or a sibling
+        SetupHealthManager();
+        SetupAIDestinationSetter();
         SetupPuppetMaster();
+        SetupFollowerEntity();
         
         stateMachine = new StateMachine<EnemyState>(gameObject.name);
     }
@@ -75,6 +76,32 @@ public class Enemy : MonoBehaviour
         }
 
         AnimationManager = new AnimationManager(animator);
+    }
+
+    private void SetupHealthManager()
+    {
+        HealthManager = GetComponent<HealthManager>();
+        if (HealthManager == null)
+        {
+            Debug.LogError("HealthManager component is missing on the Enemy GameObject.");
+        }
+        else
+        {
+            Debug.Log($"[{gameObject.name}] HealthManager initialized successfully.");
+        }
+    }
+
+    private void SetupAIDestinationSetter()
+    {
+        AIDestinationSetter = GetComponent<AIDestinationSetter>();
+        if (AIDestinationSetter == null)
+        {
+            Debug.LogError("AIDestinationSetter component is missing on the Enemy GameObject.");
+        }
+        else
+        {
+            Debug.Log($"[{gameObject.name}] AIDestinationSetter initialized successfully.");
+        }
     }
 
     private void SetupPuppetMaster()
@@ -115,6 +142,19 @@ public class Enemy : MonoBehaviour
         else
         {
             Debug.Log($"[{gameObject.name}] PuppetMaster found automatically on: {PuppetMaster.gameObject.name}");
+        }
+    }
+
+    public void SetupFollowerEntity()
+    {
+        FollowerEntity = GetComponent<FollowerEntity>();
+        if (FollowerEntity == null)
+        {
+            Debug.LogError("FollowerEntity component is missing on the Enemy GameObject.");
+        }
+        else
+        {
+            Debug.Log($"[{gameObject.name}] FollowerEntity initialized successfully.");
         }
     }
 
