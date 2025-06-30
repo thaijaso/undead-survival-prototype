@@ -130,7 +130,7 @@ public class EnemyState : IState<EnemyState>
         
         // Phase 1: Slow rotation (first part of Aggro180 animation)
         float slowPhaseDuration = enemy.template.aggro180Phase1Duration * 0.5f; // 50% faster
-        float slowPhaseProgress = 0.7f; // How much to rotate during slow phase - increased for faster feel
+        float slowPhaseProgress = 0.5f; // How much to rotate during slow phase - increased for faster feel
         
         float elapsedTime = 0f;
         while (elapsedTime < slowPhaseDuration)
