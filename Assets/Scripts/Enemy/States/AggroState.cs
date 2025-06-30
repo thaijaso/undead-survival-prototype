@@ -72,7 +72,7 @@ public class AggroState : EnemyState
                 
                 animationManager.SetHasTurned(true);
 
-                if (angle > 0f)
+                if (angle < 0f)
                 {
                     animationManager.animator.SetTrigger("Aggro180");
                 }

@@ -127,9 +127,9 @@ public class EnemyState : IState<EnemyState>
         Debug.Log($"[{enemy.name}] Starting RotateWithAggroAnimation - Target: {targetRotation.eulerAngles}");
         
         Quaternion startRotation = enemy.transform.rotation;
-        
+
         // Phase 1: Slow rotation (first part of Aggro180 animation)
-        float slowPhaseDuration = enemy.template.aggro180Phase1Duration * 0.5f; // 50% faster
+        float slowPhaseDuration = enemy.template.aggro180Phase1Duration;
         float slowPhaseProgress = 0.5f; // How much to rotate during slow phase - increased for faster feel
         
         float elapsedTime = 0f;
