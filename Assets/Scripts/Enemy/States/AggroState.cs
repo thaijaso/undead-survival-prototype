@@ -32,11 +32,12 @@ public class AggroState : EnemyState
             enemy.StopCoroutine(turnCoroutine);
             turnCoroutine = null;
         }
-        
+
         // Reset turn state
         hasTurned = false;
 
         animationManager.SetIsAggro(true); // Set aggro state in animation manager
+        enemy.SetAndLogSpeed(0, "AggroState.Enter()");
     }
     public override void LogicUpdate()
     {
@@ -64,6 +65,7 @@ public class AggroState : EnemyState
         // Enable AI movement
         enemy.AIDestinationSetter.enabled = true;
         enemy.FollowerEntity.enabled = true;
+        enemy.SetAndLogSpeed(enemy.GetChaseSpeed(), "AggroState.OnYellFinished()");
     }
 
     private void PlayTurnAnimation(float angle)

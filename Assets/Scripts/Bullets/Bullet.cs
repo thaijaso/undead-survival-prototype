@@ -120,7 +120,7 @@ public class Bullet : MonoBehaviour
         // Add hit reaction if enemy is alive
         if (puppetMaster.state == PuppetMaster.State.Alive)
         {
-            ApplyHitReaction(puppetMaster, limb);
+            //ApplyHitReaction(puppetMaster, limb);
         }
 
         // Spawn blood effect regardless of body part presence
@@ -140,15 +140,16 @@ public class Bullet : MonoBehaviour
         Destroy(bloodEffect, 2f);
     }
 
+    // this is causing the zombies head to spin LOL
     private void ApplyHitReaction(PuppetMaster puppetMaster, Limb hitLimb)
     {
         // Store original muscle weights for restoration
         float[] originalWeights = new float[puppetMaster.muscles.Length];
-        
+
         for (int i = 0; i < puppetMaster.muscles.Length; i++)
         {
             originalWeights[i] = puppetMaster.muscles[i].props.muscleWeight;
-            
+
             // If we hit a specific limb, reduce its muscle weight more
             if (hitLimb != null && puppetMaster.muscles[i].rigidbody == hitLimb.GetComponent<Rigidbody>())
             {
@@ -159,7 +160,7 @@ public class Bullet : MonoBehaviour
                 puppetMaster.muscles[i].props.muscleWeight *= 0.6f; // More conservative reduction for other muscles
             }
         }
-        
+
         // Start coroutine to restore muscle strength
         StartCoroutine(RestoreMuscleStrength(puppetMaster, originalWeights, 0.5f)); // Faster recovery
     }

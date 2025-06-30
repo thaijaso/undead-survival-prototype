@@ -3,6 +3,7 @@ using EnemyStates;
 using System.Collections.Generic;
 using Pathfinding;
 using RootMotion.Dynamics;
+using UnityEngine.UIElements;
 
 public class Enemy : MonoBehaviour
 {
@@ -24,16 +25,6 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private List<Transform> patrolPoints;
 
-    private float alertRange = 15f;
-
-    private float patrolSpeed = 1f;
-
-    private float chaseSpeed = 2f;
-
-    private float aggroRange = 10f;
-
-    private float attackRange = 2f;
-
     public StateMachine<EnemyState> stateMachine { get; private set; }
 
     public EnemyState Idle { get; private set; }
@@ -49,17 +40,20 @@ public class Enemy : MonoBehaviour
 
     public Transform GetPlayerTransform() => PlayerTransform;
     public List<Transform> GetPatrolPoints() => patrolPoints;
-    public float GetAlertRange() => alertRange;
-    public float GetPatrolSpeed() => patrolSpeed;
-    public float GetChaseSpeed() => chaseSpeed;
+    public float GetAlertRange() => template.alertRange;
+    public float GetPatrolSpeed() => template.patrolSpeed;
+    public float GetChaseSpeed() => template.chaseSpeed;
 
-    public float GetAggroRange() => aggroRange;
+    public float GetAggroRange() => template.aggroRange;
 
-    public float GetAttackRange() => attackRange;
+    public float GetAttackRange() => template.attackRange;
 
     public EnemyTemplate template;
 
     public int health = 100;
+
+    // Speed blending fields
+    private Coroutine speedBlendCoroutine;
 
     private void Awake()
     {
@@ -68,7 +62,7 @@ public class Enemy : MonoBehaviour
         SetupAIDestinationSetter();
         SetupPuppetMaster();
         SetupFollowerEntity();
-        
+
         stateMachine = new StateMachine<EnemyState>(gameObject.name);
     }
 
@@ -122,16 +116,16 @@ public class Enemy : MonoBehaviour
 
         // Fallback to automatic search if no reference is assigned
         Debug.Log($"[{gameObject.name}] No PuppetMaster reference assigned, searching automatically...");
-        
+
         // Option 1: Try to find on this GameObject first (fastest)
         PuppetMaster = GetComponent<PuppetMaster>();
-        
+
         if (PuppetMaster == null)
         {
             // Option 2: Look for it in the parent (moderate cost)
             PuppetMaster = GetComponentInParent<PuppetMaster>();
         }
-        
+
         if (PuppetMaster == null)
         {
             // Option 3: Look for it in siblings (most expensive)
@@ -140,7 +134,7 @@ public class Enemy : MonoBehaviour
                 PuppetMaster = transform.parent.GetComponentInChildren<PuppetMaster>();
             }
         }
-        
+
         if (PuppetMaster == null)
         {
             Debug.LogWarning($"[{gameObject.name}] PuppetMaster component not found on this GameObject, parent, or siblings.");
@@ -173,14 +167,7 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        health = template.maxHealth;
-        alertRange = template.alertRange;
-        patrolSpeed = template.patrolSpeed;
-        chaseSpeed = template.chaseSpeed;
-        aggroRange = template.aggroRange;
-        attackRange = template.attackRange;
-
-        Debug.Log($"[{gameObject.name}] Enemy template loaded - patrolSpeed: {patrolSpeed}, chaseSpeed: {chaseSpeed}");
+        Debug.Log($"[{gameObject.name}] Enemy template loaded - patrolSpeed: {template.patrolSpeed}, chaseSpeed: {template.chaseSpeed}");
 
         Debug.Log($"[{gameObject.name}] Initializing enemy states...");
 
@@ -254,7 +241,7 @@ public class Enemy : MonoBehaviour
         }
 
         float sqrDistanceToPlayer = (transform.position - PlayerTransform.position).sqrMagnitude;
-        return sqrDistanceToPlayer <= alertRange * alertRange;
+        return sqrDistanceToPlayer <= template.alertRange * template.alertRange;
     }
 
     public bool IsPlayerInAggroRange()
@@ -266,7 +253,7 @@ public class Enemy : MonoBehaviour
         }
 
         float sqrDistanceToPlayer = (transform.position - PlayerTransform.position).sqrMagnitude;
-        return sqrDistanceToPlayer <= aggroRange * aggroRange;
+        return sqrDistanceToPlayer <= template.aggroRange * template.aggroRange;
     }
 
     public bool IsPlayerInAttackRange()
@@ -278,7 +265,7 @@ public class Enemy : MonoBehaviour
         }
 
         float sqrDistanceToPlayer = (transform.position - PlayerTransform.position).sqrMagnitude;
-        return sqrDistanceToPlayer <= attackRange * attackRange;
+        return sqrDistanceToPlayer <= template.attackRange * template.attackRange;
     }
 
     public void OnTurnFinished()
@@ -309,7 +296,7 @@ public class Enemy : MonoBehaviour
             Debug.Log($"[{gameObject.name}] SPEED DEBUG{(string.IsNullOrEmpty(context) ? "" : $" ({context})")}: " +
                      $"FollowerEntity.maxSpeed = {followerEntity.maxSpeed}, " +
                      $"Current State = {stateMachine.currentState?.GetType().Name ?? "None"}, " +
-                     $"PatrolSpeed = {patrolSpeed}, ChaseSpeed = {chaseSpeed}");
+                     $"PatrolSpeed = {template.patrolSpeed}, ChaseSpeed = {template.chaseSpeed}");
         }
         else
         {
@@ -317,20 +304,76 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void SetAndLogSpeed(float newSpeed, string source)
+    public void SetAndLogSpeed(float newSpeed, string source, float blendTime = 0.3f)
     {
         var followerEntity = GetComponent<FollowerEntity>();
         if (followerEntity != null)
         {
-            float oldSpeed = followerEntity.maxSpeed;
-            followerEntity.maxSpeed = newSpeed;
-            Debug.Log($"[{gameObject.name}] SPEED CHANGE ({source}): {oldSpeed} -> {newSpeed}");
-
-            // Add stack trace for debugging (can be commented out in production)
-            if (Application.isEditor)
+            // Stop any existing speed blend
+            if (speedBlendCoroutine != null)
             {
-                Debug.Log($"[{gameObject.name}] Speed change stack trace:\n{System.Environment.StackTrace}");
+                StopCoroutine(speedBlendCoroutine);
             }
+            
+            // Start new speed blend
+            speedBlendCoroutine = StartCoroutine(BlendSpeed(followerEntity.maxSpeed, newSpeed, blendTime, source));
+        }
+    }
+    
+    private System.Collections.IEnumerator BlendSpeed(float fromSpeed, float toSpeed, float duration, string source)
+    {
+        var followerEntity = GetComponent<FollowerEntity>();
+        float elapsed = 0f;
+        
+        Debug.Log($"[{gameObject.name}] SPEED BLEND START ({source}): {fromSpeed:F1} -> {toSpeed:F1} over {duration:F1}s");
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            followerEntity.maxSpeed = Mathf.Lerp(fromSpeed, toSpeed, t);
+            yield return null;
+        }
+        
+        followerEntity.maxSpeed = toSpeed;
+        Debug.Log($"[{gameObject.name}] SPEED BLEND COMPLETE ({source}): Final speed = {toSpeed:F1}");
+        
+        speedBlendCoroutine = null;
+    }
+
+    public void SetSpeed(float speed)
+    {
+        var followerEntity = GetComponent<FollowerEntity>();
+        if (followerEntity != null)
+        {
+            followerEntity.maxSpeed = speed;
+            Debug.Log($"[{gameObject.name}] Speed set to {speed}");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] No FollowerEntity component found to set speed");
+        }
+    }
+
+    public void OnAttackFinished()
+    {
+        Debug.Log("Enemy: Attack animation finished.");
+        // This method is called directly from animation events
+        // Delegate to the current state if it's AttackState
+        if (stateMachine.currentState == Attack && Attack is AttackState attackState)
+        {
+            attackState.OnAttackFinished();
+        }
+    }
+
+    public void OnAttackLostMomentum()
+    {
+        Debug.Log("Enemy: Attack lost momentum.");
+        // This method is called directly from animation events
+        // Delegate to the current state if it's AttackState
+        if (stateMachine.currentState == Attack && Attack is AttackState attackState)
+        {
+            attackState.OnAttackLostMomentum();
         }
     }
 }

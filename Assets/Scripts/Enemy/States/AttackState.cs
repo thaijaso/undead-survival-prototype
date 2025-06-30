@@ -20,8 +20,42 @@ public class AttackState : EnemyState
     {
         base.Enter();
         Debug.Log("AttackState: Entering Attack state - attack animation should start");
+    }
 
-        animationManager.SetIsInAttackRange(true); // Set the attack animation
-        enemy.FollowerEntity.maxSpeed = 0f; // Stop movement during attack
+    public override void Exit(EnemyState nextState)
+    {
+        base.Exit(nextState);
+    }
+
+    public override void LogicUpdate()
+    {
+        base.LogicUpdate();
+
+        if (!enemy.IsPlayerInAttackRange())
+        {
+            Debug.Log("AttackState: Player out of attack range - transitioning to Aggro state");
+            // Transition back to Aggro state if player is out of attack range
+            animationManager.SetIsAttacking(false); // Reset attacking state in animation manager
+            animationManager.SetIsInAttackRange(false); // Reset attack range in animation manager
+            stateMachine.SetState(enemy.Aggro);
+            return;
+        }
+
+        animationManager.SetIsAttacking(true); // Set attacking state in animation manager
+        animationManager.SetIsInAttackRange(true); // Ensure attack range is set in animation manager
+    }
+
+    public void OnAttackFinished()
+    {
+        Debug.Log("AttackState: Attack animation finished - transitioning to Aggro state");
+
+        // Transition back to Aggro state
+        stateMachine.SetState(enemy.Aggro);
+    }
+
+    public void OnAttackLostMomentum()
+    {
+        Debug.Log("AttackState: Attack lost momentum - transitioning to Aggro state");
+        enemy.SetAndLogSpeed(0, "AttackState.OnAttackLostMomentum()", 0f);
     }
 }
