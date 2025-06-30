@@ -85,10 +85,10 @@ public class EnemyState : IState<EnemyState>
     protected IEnumerator RotateWithAnimation(Quaternion targetRotation)
     {
         // Two-phase rotation for AlertState (default behavior)
-        return RotateWithTwoPhaseAnimation(targetRotation);
+        return RotateWithAlertAnimation(targetRotation);
     }
 
-    protected IEnumerator RotateWithTwoPhaseAnimation(Quaternion targetRotation)
+    protected IEnumerator RotateWithAlertAnimation(Quaternion targetRotation)
     {
         Quaternion startRotation = enemy.transform.rotation;
         

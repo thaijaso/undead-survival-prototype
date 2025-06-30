@@ -2,6 +2,7 @@ using UnityEngine;
 using EnemyStates;
 using System.Collections.Generic;
 using Pathfinding;
+using RootMotion.Dynamics;
 
 public class Enemy : MonoBehaviour
 {
@@ -10,6 +11,10 @@ public class Enemy : MonoBehaviour
     public HealthManager HealthManager { get; private set; }
 
     public AIDestinationSetter AIDestinationSetter { get; private set; }
+
+    // Reference to PuppetMaster component (could be on this GameObject or a sibling)
+    [SerializeField] private PuppetMaster puppetMasterReference;
+    public PuppetMaster PuppetMaster { get; private set; }
 
     [SerializeField]
     private Transform PlayerTransform;
@@ -34,6 +39,8 @@ public class Enemy : MonoBehaviour
 
     public EnemyState Aggro { get; private set; }
 
+    public EnemyState Death { get; private set; }
+
     public Transform GetPlayerTransform() => PlayerTransform;
     public List<Transform> GetPatrolPoints() => patrolPoints;
     public float GetAlertRange() => alertRange;
@@ -51,6 +58,10 @@ public class Enemy : MonoBehaviour
         SetupAnimator();
         HealthManager = GetComponent<HealthManager>();
         AIDestinationSetter = GetComponent<AIDestinationSetter>();
+        
+        // Find PuppetMaster - could be on this GameObject or a sibling
+        SetupPuppetMaster();
+        
         stateMachine = new StateMachine<EnemyState>(gameObject.name);
     }
 
@@ -64,6 +75,47 @@ public class Enemy : MonoBehaviour
         }
 
         AnimationManager = new AnimationManager(animator);
+    }
+
+    private void SetupPuppetMaster()
+    {
+        // Use serialized reference first (best performance)
+        if (puppetMasterReference != null)
+        {
+            PuppetMaster = puppetMasterReference;
+            Debug.Log($"[{gameObject.name}] Using serialized PuppetMaster reference: {PuppetMaster.gameObject.name}");
+            return;
+        }
+
+        // Fallback to automatic search if no reference is assigned
+        Debug.Log($"[{gameObject.name}] No PuppetMaster reference assigned, searching automatically...");
+        
+        // Option 1: Try to find on this GameObject first (fastest)
+        PuppetMaster = GetComponent<PuppetMaster>();
+        
+        if (PuppetMaster == null)
+        {
+            // Option 2: Look for it in the parent (moderate cost)
+            PuppetMaster = GetComponentInParent<PuppetMaster>();
+        }
+        
+        if (PuppetMaster == null)
+        {
+            // Option 3: Look for it in siblings (most expensive)
+            if (transform.parent != null)
+            {
+                PuppetMaster = transform.parent.GetComponentInChildren<PuppetMaster>();
+            }
+        }
+        
+        if (PuppetMaster == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] PuppetMaster component not found on this GameObject, parent, or siblings.");
+        }
+        else
+        {
+            Debug.Log($"[{gameObject.name}] PuppetMaster found automatically on: {PuppetMaster.gameObject.name}");
+        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -97,6 +149,9 @@ public class Enemy : MonoBehaviour
         Aggro = new AggroState(this, stateMachine, AnimationManager, "Aggro", PlayerTransform);
         Debug.Log($"[{gameObject.name}] ✓ Aggro state initialized");
 
+        Death = new DeathState(this, stateMachine, AnimationManager, "Death");
+        Debug.Log($"[{gameObject.name}] ✓ Death state initialized");
+
         Debug.Log($"[{gameObject.name}] All states initialized. Setting initial state to Idle...");
         stateMachine.SetState(Idle);
 
@@ -128,17 +183,14 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        if (limb.LimbType == LimbType.Head || limb.LimbType == LimbType.Torso)
-        {
-            HealthManager.TakeDamage(damage);
-            Debug.Log($"{name} took {damage} damage. Remaining health: {HealthManager.currentHealth}");
-        }
+        HealthManager.TakeDamage(damage);
+        Debug.Log($"{name} took {damage} damage. Remaining health: {HealthManager.currentHealth}");
 
         if (HealthManager.currentHealth <= 0)
         {
             // Enter death state
             Debug.Log($"{name} has died.");
-            //RagdollUtility.EnableRagdoll();
+            stateMachine.SetState(new DeathState(this, stateMachine, AnimationManager, "Death"));
         }
     }
 

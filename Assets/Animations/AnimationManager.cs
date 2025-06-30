@@ -115,5 +115,9 @@ public class AnimationManager
     {
         animator.SetBool("HasTurned", hasTurned);
     }
+
+    public void SetIsDead(bool isDead)
+    {
+        animator.SetBool("IsDead", isDead);
+    }
 }
-   

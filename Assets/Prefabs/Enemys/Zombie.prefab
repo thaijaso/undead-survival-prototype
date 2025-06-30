@@ -84,7 +84,7 @@ Animator:
   m_GameObject: {fileID: 111758880463491367}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: b489ab0f8b795fa4aa55914af59025ed, type: 3}
-  m_Controller: {fileID: 9100000, guid: 411728ec8fb1fde45b8b971451115f05, type: 2}
+  m_Controller: {fileID: 9100000, guid: 6b3b6edb8b1c6d94ca86b7d8d0607f0f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -108,6 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cca7e412c9b84b74284042bce6cc47c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  puppetMasterReference: {fileID: 5310592058732009220}
   PlayerTransform: {fileID: 0}
   patrolPoints:
   - {fileID: 0}
@@ -123,7 +124,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 111758880463491367}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cfe9431ea8ad072f2aecd3041b1524dd, type: 3}
   m_Name: 
@@ -144,7 +145,7 @@ MonoBehaviour:
       leadInRadiusWhenApproachingDestination: 1
       allowRotatingOnSpotBacking: 1
     debugFlags: 64
-    stopDistance: 0.2
+    stopDistance: 1
     rotationSmoothing: 0
     positionSmoothing: 0
     groundMask:
