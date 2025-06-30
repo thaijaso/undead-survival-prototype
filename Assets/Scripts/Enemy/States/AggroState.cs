@@ -27,11 +27,18 @@ public class AggroState : EnemyState
         Debug.Log("AggroState: Entering Aggro state - yell animation should start");
 
         animationManager.SetIsAggro(true); // Set aggro state in animation manager
-        animationManager.animator.SetInteger("AggroType", 1);
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+
+        // Check if player is in attack range (primary condition)
+        if (enemy.IsPlayerInAttackRange())
+        {
+            // Transition to Attack state
+            stateMachine.SetState(enemy.Attack);
+            return;
+        }
 
         // Sync turn animation with transform rotation
         PlayTurnAnimation(GetAngleToPlayer());
@@ -64,6 +71,11 @@ public class AggroState : EnemyState
                 Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
                 
                 animationManager.SetHasTurned(true);
+
+                if (angle > 0f)
+                {
+                    animationManager.animator.SetTrigger("Aggro180");
+                }
                 
                 // Use aggro-specific two-phase rotation timing
                 turnCoroutine = enemy.StartCoroutine(RotateWithAggroAnimation(targetRotation));

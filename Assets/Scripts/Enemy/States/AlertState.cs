@@ -59,9 +59,6 @@ public class AlertState : EnemyState
 
             float angle = GetAngleToPlayer();
             PlayTurnAnimation(angle);
-
-            // Rotate the enemy
-            //RotateTowardsPlayer(angle);
         }
         else
         {

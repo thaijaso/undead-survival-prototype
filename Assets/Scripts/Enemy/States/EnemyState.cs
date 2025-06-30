@@ -124,11 +124,13 @@ public class EnemyState : IState<EnemyState>
 
     protected IEnumerator RotateWithAggroAnimation(Quaternion targetRotation)
     {
+        Debug.Log($"[{enemy.name}] Starting RotateWithAggroAnimation - Target: {targetRotation.eulerAngles}");
+        
         Quaternion startRotation = enemy.transform.rotation;
         
         // Phase 1: Slow rotation (first part of Aggro180 animation)
-        float slowPhaseDuration = enemy.template.aggro180Phase1Duration;
-        float slowPhaseProgress = 0.5f; // How much to rotate during slow phase
+        float slowPhaseDuration = enemy.template.aggro180Phase1Duration * 0.5f; // 50% faster
+        float slowPhaseProgress = 0.7f; // How much to rotate during slow phase - increased for faster feel
         
         float elapsedTime = 0f;
         while (elapsedTime < slowPhaseDuration)
@@ -139,41 +141,39 @@ public class EnemyState : IState<EnemyState>
             yield return null;
         }
         
+        Debug.Log($"[{enemy.name}] Phase 1 complete - Current rotation: {enemy.transform.rotation.eulerAngles}");
+        
         // Phase 2: Fast rotation (second part of Aggro180 animation)
-        float fastPhaseDuration = enemy.template.aggro180Phase2Duration;
+        float fastPhaseDuration = enemy.template.aggro180Phase2Duration * 0.5f; // 50% faster
         elapsedTime = 0f;
-        Quaternion midRotation = enemy.transform.rotation;
         
         while (elapsedTime < fastPhaseDuration)
         {
             float progress = elapsedTime / fastPhaseDuration;
-            enemy.transform.rotation = Quaternion.Slerp(midRotation, targetRotation, progress);
+            // Continue from where phase 1 left off (slowPhaseProgress) to 1.0
+            float totalProgress = slowPhaseProgress + (progress * (1.0f - slowPhaseProgress));
+            enemy.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, totalProgress);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
         
         // Ensure we end up exactly at target rotation
         enemy.transform.rotation = targetRotation;
+        
+        Debug.Log($"[{enemy.name}] RotateWithAggroAnimation complete - Final rotation: {enemy.transform.rotation.eulerAngles}");
     }
 
-    protected IEnumerator RotateWithSinglePhaseAnimation(Quaternion targetRotation, float duration)
+    // Add this method for testing
+    protected void TestDirectRotation()
     {
-        Quaternion startRotation = enemy.transform.rotation;
+        Debug.Log($"[{enemy.name}] Testing direct rotation");
+        Vector3 playerDirection = enemy.GetPlayerTransform().position - enemy.transform.position;
+        playerDirection.y = 0f;
+        Quaternion targetRotation = Quaternion.LookRotation(playerDirection);
         
-        float elapsedTime = 0f;
-        while (elapsedTime < duration)
-        {
-            float progress = elapsedTime / duration;
-            
-            // Use a smooth curve for the rotation
-            float smoothProgress = Mathf.SmoothStep(0f, 1f, progress);
-            
-            enemy.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, smoothProgress);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        
-        // Ensure we end up exactly at target rotation
+        // Direct rotation (should work immediately)
         enemy.transform.rotation = targetRotation;
+        
+        Debug.Log($"[{enemy.name}] Direct rotation applied - New rotation: {enemy.transform.rotation.eulerAngles}");
     }
 }

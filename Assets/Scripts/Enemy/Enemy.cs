@@ -32,6 +32,8 @@ public class Enemy : MonoBehaviour
 
     private float aggroRange = 10f;
 
+    private float attackRange = 2f;
+
     public StateMachine<EnemyState> stateMachine { get; private set; }
 
     public EnemyState Idle { get; private set; }
@@ -40,6 +42,8 @@ public class Enemy : MonoBehaviour
     public EnemyState Patrol { get; private set; }
 
     public EnemyState Aggro { get; private set; }
+
+    public EnemyState Attack { get; private set; }
 
     public EnemyState Death { get; private set; }
 
@@ -50,6 +54,8 @@ public class Enemy : MonoBehaviour
     public float GetChaseSpeed() => chaseSpeed;
 
     public float GetAggroRange() => aggroRange;
+
+    public float GetAttackRange() => attackRange;
 
     public EnemyTemplate template;
 
@@ -172,6 +178,7 @@ public class Enemy : MonoBehaviour
         patrolSpeed = template.patrolSpeed;
         chaseSpeed = template.chaseSpeed;
         aggroRange = template.aggroRange;
+        attackRange = template.attackRange;
 
         Debug.Log($"[{gameObject.name}] Enemy template loaded - patrolSpeed: {patrolSpeed}, chaseSpeed: {chaseSpeed}");
 
@@ -188,6 +195,9 @@ public class Enemy : MonoBehaviour
 
         Aggro = new AggroState(this, stateMachine, AnimationManager, "Aggro", PlayerTransform);
         Debug.Log($"[{gameObject.name}] ✓ Aggro state initialized");
+
+        Attack = new AttackState(this, stateMachine, AnimationManager, "Attack");
+        Debug.Log($"[{gameObject.name}] ✓ Attack state initialized");
 
         Death = new DeathState(this, stateMachine, AnimationManager, "Death");
         Debug.Log($"[{gameObject.name}] ✓ Death state initialized");
@@ -259,6 +269,18 @@ public class Enemy : MonoBehaviour
         return sqrDistanceToPlayer <= aggroRange * aggroRange;
     }
 
+    public bool IsPlayerInAttackRange()
+    {
+        if (PlayerTransform == null)
+        {
+            Debug.LogWarning("PlayerTransform is not assigned.");
+            return false;
+        }
+
+        float sqrDistanceToPlayer = (transform.position - PlayerTransform.position).sqrMagnitude;
+        return sqrDistanceToPlayer <= attackRange * attackRange;
+    }
+
     public void OnTurnFinished()
     {
         Debug.Log("Enemy: Turn animation finished.");
@@ -272,8 +294,6 @@ public class Enemy : MonoBehaviour
 
     public void OnYellFinished()
     {
-        Debug.Log("Enemy: Yell animation finished.");
-
         if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
         {
             aggroState.OnYellFinished();

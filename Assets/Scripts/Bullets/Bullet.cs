@@ -93,7 +93,6 @@ public class Bullet : MonoBehaviour
         }
 
         Enemy enemy = puppetMaster.targetRoot.GetComponent<Enemy>();
-        Limb limb = hitCollider.gameObject.GetComponent<Limb>();
 
         Debug.Log($"Bullet collision #{Time.frameCount} - Current enemy state: {enemy.stateMachine.currentState?.GetType().Name}");
 
@@ -103,16 +102,23 @@ public class Bullet : MonoBehaviour
             return;
         }
 
+        Limb limb = hitCollider.gameObject.GetComponent<Limb>();
+
         if (limb == null)
         {
-            Debug.LogWarning("Limb component not found in parent hierarchy.");
+            limb = hitCollider.GetComponentInParent<Limb>();
+
+            if (limb == null)
+            {
+                Debug.LogWarning("No Limb component found in current or parent hierarchy.");
+            }
         }
 
         // Do damage to the enemy and limb:
         enemy.ProcessHit(damage, limb);
 
         // Add hit reaction if enemy is alive
-        if (puppetMaster.state == RootMotion.Dynamics.PuppetMaster.State.Alive)
+        if (puppetMaster.state == PuppetMaster.State.Alive)
         {
             ApplyHitReaction(puppetMaster, limb);
         }
@@ -125,12 +131,13 @@ public class Bullet : MonoBehaviour
     
     private void SpawnBloodEffect(Vector3 hitPoint, Vector3 hitNormal, Enemy enemy)
     {
-        GameObject bloodEffect = Object.Instantiate(
+        GameObject bloodEffect = Instantiate(
             enemy.template.bloodEffectPrefab,
             hitPoint,
             Quaternion.LookRotation(hitNormal)
         );
-        Object.Destroy(bloodEffect, 2f);
+
+        Destroy(bloodEffect, 2f);
     }
 
     private void ApplyHitReaction(PuppetMaster puppetMaster, Limb hitLimb)

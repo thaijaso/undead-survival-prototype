@@ -17,6 +17,8 @@ public class EnemyTemplate : ScriptableObject
 
     public float aggroRange = 10f;
 
+    public float attackRange = 2f;
+
     public float turn180Phase1Duration = 0.7f; // Duration of the first phase of 180° turning (AlertState)
 
     public float turn180Phase2Duration = 0.6f; // Duration of the second phase of 180° turning (AlertState)

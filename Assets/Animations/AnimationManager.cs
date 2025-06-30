@@ -109,4 +109,14 @@ public class AnimationManager
     {
         animator.SetBool("IsDead", isDead);
     }
+
+    public void SetIsAttacking(bool isAttacking)
+    {
+        animator.SetBool("IsAttacking", isAttacking);
+    }
+
+    public void SetIsInAttackRange(bool isInAttackRange)
+    {
+        animator.SetBool("IsInAttackRange", isInAttackRange);
+    }
 }
