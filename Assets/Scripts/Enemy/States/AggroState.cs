@@ -26,6 +26,16 @@ public class AggroState : EnemyState
         base.Enter();
         Debug.Log("AggroState: Entering Aggro state - yell animation should start");
 
+        // Stop any existing rotation coroutines from previous states
+        if (turnCoroutine != null)
+        {
+            enemy.StopCoroutine(turnCoroutine);
+            turnCoroutine = null;
+        }
+        
+        // Reset turn state
+        hasTurned = false;
+
         animationManager.SetIsAggro(true); // Set aggro state in animation manager
     }
     public override void LogicUpdate()
@@ -65,6 +75,13 @@ public class AggroState : EnemyState
             {
                 hasTurned = true;
                 
+                // Stop any existing rotation coroutine before starting new one
+                if (turnCoroutine != null)
+                {
+                    enemy.StopCoroutine(turnCoroutine);
+                    turnCoroutine = null;
+                }
+                
                 // Calculate target rotation
                 Vector3 directionToPlayer = enemy.GetPlayerTransform().position - enemy.transform.position;
                 directionToPlayer.y = 0f;
@@ -81,6 +98,20 @@ public class AggroState : EnemyState
                 turnCoroutine = enemy.StartCoroutine(RotateWithAggroAnimation(targetRotation));
             }
         }
+    }
+
+    public override void Exit(EnemyState nextState)
+    {
+        base.Exit(nextState);
+        
+        // Stop any rotation coroutines when exiting the state
+        if (turnCoroutine != null)
+        {
+            enemy.StopCoroutine(turnCoroutine);
+            turnCoroutine = null;
+        }
+        
+        Debug.Log("AggroState: Exiting Aggro state");
     }
 
 }

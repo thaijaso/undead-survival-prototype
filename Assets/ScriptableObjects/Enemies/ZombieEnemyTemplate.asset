@@ -23,5 +23,5 @@ MonoBehaviour:
   attackRange: 1
   turn180Phase1Duration: 0.7
   turn180Phase2Duration: 0.6
-  aggro180Phase1Duration: 0.5
-  aggro180Phase2Duration: 0.4
+  aggro180Phase1Duration: 0.7
+  aggro180Phase2Duration: 0.6
