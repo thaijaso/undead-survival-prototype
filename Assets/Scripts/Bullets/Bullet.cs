@@ -111,6 +111,12 @@ public class Bullet : MonoBehaviour
         // Do damage to the enemy and limb:
         enemy.ProcessHit(damage, limb);
 
+        // Add hit reaction if enemy is alive
+        if (puppetMaster.state == RootMotion.Dynamics.PuppetMaster.State.Alive)
+        {
+            ApplyHitReaction(puppetMaster, limb);
+        }
+
         // Spawn blood effect regardless of body part presence
         SpawnBloodEffect(hitPoint, hitNormal, enemy);
 
@@ -125,5 +131,67 @@ public class Bullet : MonoBehaviour
             Quaternion.LookRotation(hitNormal)
         );
         Object.Destroy(bloodEffect, 2f);
+    }
+
+    private void ApplyHitReaction(PuppetMaster puppetMaster, Limb hitLimb)
+    {
+        // Store original muscle weights for restoration
+        float[] originalWeights = new float[puppetMaster.muscles.Length];
+        
+        for (int i = 0; i < puppetMaster.muscles.Length; i++)
+        {
+            originalWeights[i] = puppetMaster.muscles[i].props.muscleWeight;
+            
+            // If we hit a specific limb, reduce its muscle weight more
+            if (hitLimb != null && puppetMaster.muscles[i].rigidbody == hitLimb.GetComponent<Rigidbody>())
+            {
+                puppetMaster.muscles[i].props.muscleWeight *= 0.2f; // Less extreme for hit limb
+            }
+            else
+            {
+                puppetMaster.muscles[i].props.muscleWeight *= 0.6f; // More conservative reduction for other muscles
+            }
+        }
+        
+        // Start coroutine to restore muscle strength
+        StartCoroutine(RestoreMuscleStrength(puppetMaster, originalWeights, 0.5f)); // Faster recovery
+    }
+    
+    private System.Collections.IEnumerator RestoreMuscleStrength(PuppetMaster puppetMaster, float[] originalWeights, float duration)
+    {
+        float elapsed = 0f;
+        
+        // Store the reduced weights to interpolate from
+        float[] reducedWeights = new float[puppetMaster.muscles.Length];
+        for (int i = 0; i < puppetMaster.muscles.Length; i++)
+        {
+            reducedWeights[i] = puppetMaster.muscles[i].props.muscleWeight;
+        }
+        
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            
+            // Smoothly interpolate back to original strength
+            for (int i = 0; i < puppetMaster.muscles.Length; i++)
+            {
+                if (puppetMaster.muscles[i] != null) // Safety check
+                {
+                    puppetMaster.muscles[i].props.muscleWeight = Mathf.Lerp(reducedWeights[i], originalWeights[i], t);
+                }
+            }
+            
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        // Ensure we're back to original values
+        for (int i = 0; i < puppetMaster.muscles.Length; i++)
+        {
+            if (puppetMaster.muscles[i] != null)
+            {
+                puppetMaster.muscles[i].props.muscleWeight = originalWeights[i];
+            }
+        }
     }
 }
