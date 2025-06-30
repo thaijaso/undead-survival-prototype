@@ -144,15 +144,15 @@ public class EnemyState : IState<EnemyState>
         Debug.Log($"[{enemy.name}] Phase 1 complete - Current rotation: {enemy.transform.rotation.eulerAngles}");
         
         // Phase 2: Fast rotation (second part of Aggro180 animation)
-        float fastPhaseDuration = enemy.template.aggro180Phase2Duration * 0.5f; // 50% faster
+        float fastPhaseDuration = enemy.template.aggro180Phase2Duration; // Use template value directly
         elapsedTime = 0f;
+        Quaternion midRotation = enemy.transform.rotation; // Capture where Phase 1 ended
         
         while (elapsedTime < fastPhaseDuration)
         {
             float progress = elapsedTime / fastPhaseDuration;
-            // Continue from where phase 1 left off (slowPhaseProgress) to 1.0
-            float totalProgress = slowPhaseProgress + (progress * (1.0f - slowPhaseProgress));
-            enemy.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, totalProgress);
+            // Continue from midRotation (where Phase 1 ended) to target
+            enemy.transform.rotation = Quaternion.Slerp(midRotation, targetRotation, progress);
             elapsedTime += Time.deltaTime;
             yield return null;
         }

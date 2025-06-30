@@ -24,4 +24,4 @@ MonoBehaviour:
   turn180Phase1Duration: 0.7
   turn180Phase2Duration: 0.6
   aggro180Phase1Duration: 0.7
-  aggro180Phase2Duration: 0.6
+  aggro180Phase2Duration: 0.35
