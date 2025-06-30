@@ -27,5 +27,5 @@ MonoBehaviour:
   range: 50
   damage: 10
   weaponSway: 0.1
-  impactForce: 100
+  impactForce: 15
   bulletSpeed: 100
