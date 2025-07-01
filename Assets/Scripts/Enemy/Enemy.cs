@@ -3,7 +3,6 @@ using EnemyStates;
 using System.Collections.Generic;
 using Pathfinding;
 using RootMotion.Dynamics;
-using UnityEngine.UIElements;
 
 public class Enemy : MonoBehaviour
 {
@@ -52,6 +51,21 @@ public class Enemy : MonoBehaviour
 
     // Speed blending fields
     private Coroutine speedBlendCoroutine;
+    
+    // Shared turn animation state across all states
+    private bool _isTurning = false;
+    public bool IsTurning 
+    { 
+        get => _isTurning;
+        set 
+        {
+            if (_isTurning != value)
+            {
+                Debug.Log($"[{name}] ENEMY IsTurning changed from {_isTurning} to {value}");
+                _isTurning = value;
+            }
+        }
+    }
 
     private void Awake()
     {
@@ -274,12 +288,22 @@ public class Enemy : MonoBehaviour
 
     public void OnTurnFinished()
     {
-        Debug.Log("Enemy: Turn animation finished.");
+        Debug.Log($"Enemy: Turn animation finished. Current state: {stateMachine.currentState.GetType().Name}");
         // This method is called directly from animation events
         // Delegate to the current state if it's AlertState
         if (stateMachine.currentState == Alert && Alert is AlertState alertState)
         {
+            Debug.Log("Enemy: Delegating OnTurnFinished to AlertState");
             alertState.OnTurnFinished();
+        }
+        else if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
+        {
+            Debug.Log("Enemy: Delegating OnTurnFinished to AggroState");
+            aggroState.OnTurnFinished();
+        }
+        else
+        {
+            Debug.Log($"Enemy: OnTurnFinished called but current state ({stateMachine.currentState.GetType().Name}) doesn't handle it");
         }
     }
 

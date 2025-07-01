@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class AlertState : EnemyState
 {
-    public bool IsTurning = false;
     private float alertTimer = 0f;
     private float alertDuration = 5f; // Duration for which the enemy remains alert
     private Coroutine turnCoroutine;
@@ -70,10 +69,22 @@ public class AlertState : EnemyState
     public void OnTurnFinished()
     {
         Debug.Log("AlertState: Turn animation finished.");
-        IsTurning = false;
         
-        // Set the animator bool to false so the turn animation can exit
-        animationManager.SetIsTurning(false);
+        // Only reset IsTurning if we're still in AlertState
+        // If we've transitioned to another state, let that state manage IsTurning
+        if (stateMachine.currentState == this)
+        {
+            Debug.Log("AlertState: We're still in AlertState, resetting IsTurning to false");
+            enemy.IsTurning = false;
+            Debug.Log("AlertState.OnTurnFinished() IsTurning= " + enemy.IsTurning);
+            
+            // Set the animator bool to false so the turn animation can exit
+            animationManager.SetIsTurning(false);
+        }
+        else
+        {
+            Debug.Log($"AlertState: OnTurnFinished called but current state is {stateMachine.currentState.GetType().Name}, not AlertState. Not resetting IsTurning.");
+        }
         
         // Stop the rotation coroutine if it's still running
         if (turnCoroutine != null)
@@ -88,9 +99,10 @@ public class AlertState : EnemyState
         //Debug.Log("AlertState: Playing turn animation with angle: " + angle);
         if (Math.Abs(angle) > 90f)
         {
-            if (!IsTurning)
+            if (!enemy.IsTurning)
             {
-                IsTurning = true;
+                enemy.IsTurning = true;
+                Debug.Log($"AlertState: Starting Alert180 turn for angle: {angle:F1}° - IsTurning was {enemy.IsTurning}");
                 
                 // Calculate target rotation
                 Vector3 directionToPlayer = enemy.GetPlayerTransform().position - enemy.transform.position;
