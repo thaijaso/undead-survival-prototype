@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class SprintState : MoveState
 {
     private float sprintSpeed = 5.0f; // Speed of the player movement when sprinting
@@ -19,6 +21,7 @@ public class SprintState : MoveState
 
     public override void Enter()
     {
+        Debug.Log($"[{player.name}] SprintState.Enter(): Entering Sprint state");
         base.Enter();
         // Set the sprinting animation
         animationManager.SetIsSprinting(true);
@@ -26,6 +29,7 @@ public class SprintState : MoveState
 
     public override void Exit(PlayerState nextState)
     {
+        Debug.Log($"[{player.name}] SprintState.Exit(): Exiting to {nextState.GetType().Name}");
         base.Exit(nextState);
         // Reset the sprinting animation
         animationManager.SetIsSprinting(false);

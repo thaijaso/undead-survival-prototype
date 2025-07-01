@@ -47,13 +47,14 @@ public class ShootState : AimState
             mainCamera = Camera.main;
             if (mainCamera == null)
             {
-                Debug.LogError("Main camera not found. Ensure a camera with the 'MainCamera' tag is present in the scene.");
+                Debug.LogError($"[{player.name}] ShootState.SetupCamera(): Main camera not found. Ensure a camera with the 'MainCamera' tag is present in the scene.");
             }
         }
     }   
 
     public override void Enter()
     {
+        Debug.Log($"[{player.name}] ShootState.Enter(): Entering Shoot state");
         SetupShootState();
         SetupWeaponDataForShooting();
         SetupWeaponDataForCameraRecoil();
@@ -86,6 +87,7 @@ public class ShootState : AimState
 
     public override void Exit(PlayerState nextState)
     {
+        Debug.Log($"[{player.name}] ShootState.Exit(): Exiting to {nextState.GetType().Name}");
         base.Exit(nextState);
         animationManager.SetIsShooting(false);
         weaponManager.StopMuzzleEffect();
@@ -111,6 +113,7 @@ public class ShootState : AimState
 
     private void Shoot()
     {
+        Debug.Log($"[{player.name}] ShootState.Shoot(): Firing weapon");
         ApplyAnimationRecoil();
         ApplyCameraRecoil();
 
@@ -195,7 +198,7 @@ public class ShootState : AimState
 
         if (puppetMaster == null)
         {
-            Debug.LogWarning("PuppetMaster component not found in parent hierarchy.");
+            Debug.LogWarning($"[{player.name}] ShootState.HandleEnemyHitboxImpact(): PuppetMaster component not found in parent hierarchy.");
             return;
         }
 
@@ -204,13 +207,13 @@ public class ShootState : AimState
 
         if (enemy == null)
         {
-            Debug.LogWarning("Enemy component not found in parent hierarchy.");
+            Debug.LogWarning($"[{player.name}] ShootState.HandleEnemyHitboxImpact(): Enemy component not found in parent hierarchy.");
             return;
         }
 
         if (limb == null)
         {
-            Debug.LogWarning("Limb component not found in parent hierarchy.");
+            Debug.LogWarning($"[{player.name}] ShootState.HandleEnemyHitboxImpact(): Limb component not found in parent hierarchy.");
         }
 
         // Do damage to the enemy

@@ -23,6 +23,7 @@ public class AimState : StrafeState
 
     public override void Enter()
     {
+        Debug.Log($"[{player.name}] AimState.Enter(): Entering Aim state");
         base.Enter();
 
         animationManager.SetIsAiming(true);
@@ -42,7 +43,7 @@ public class AimState : StrafeState
         float bulletSpreadVertical = weaponManager.CurrentWeaponData.bulletSpreadVertical;
 
         player.CrosshairController.EnableCrosshair();
-        Debug.Log("SetupCrosshair expandandcontract called");
+        Debug.Log($"[{player.name}] AimState.SetupCrosshair(): Expanding and contracting crosshair");
         player.CrosshairController.ExpandAndContractCrosshair(
             bulletSpreadHorizontal,
             bulletSpreadVertical,
@@ -61,7 +62,7 @@ public class AimState : StrafeState
         }
         else
         {
-            Debug.LogWarning("AimTransform not set on weapon prefab!");
+            Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): AimTransform not set on weapon prefab!");
         }
 
         weaponManager.SetAimIKOffsets();
@@ -69,6 +70,7 @@ public class AimState : StrafeState
 
     public override void Exit(PlayerState nextState)
     {
+        Debug.Log($"[{player.name}] AimState.Exit(): Exiting to {nextState.GetType().Name}");
         base.Exit(nextState);
 
         if (nextState is IdleState || (nextState is StrafeState && nextState is not ShootState && nextState is not AimState) || nextState is SprintState)

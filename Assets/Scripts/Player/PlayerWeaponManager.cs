@@ -17,7 +17,7 @@ public class PlayerWeaponManager : MonoBehaviour
 
         if (player == null)
         {
-            Debug.LogError("Player component is missing!");
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.Awake(): Player component is missing!");
         }
     }
 
@@ -30,7 +30,7 @@ public class PlayerWeaponManager : MonoBehaviour
     {
         if (CurrentWeaponData == null)
         {
-            Debug.LogError("SpawnWeaponInWeaponHand - CurrentWeaponData is not set!");
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponInWeaponHand(): CurrentWeaponData is not set!");
             return null;
         }
 
@@ -56,7 +56,7 @@ public class PlayerWeaponManager : MonoBehaviour
     {
         if (CurrentWeaponData == null)
         {
-            Debug.LogError("DespawnWeaponInWeaponHand - CurrentWeaponData is not set!");
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.DespawnWeaponInWeaponHand(): CurrentWeaponData is not set!");
             return;
         }
 
@@ -74,7 +74,7 @@ public class PlayerWeaponManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("No weapon instance to despawn!");
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DespawnWeaponInWeaponHand(): No weapon instance to despawn!");
         }
     }
 
@@ -82,7 +82,7 @@ public class PlayerWeaponManager : MonoBehaviour
     {
         if (CurrentWeaponInstance == null)
         {
-            Debug.LogError("PlayMuzzleEffect - No weapon instance to play muzzle effect on!");
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.PlayMuzzleEffect(): No weapon instance to play muzzle effect on!");
             return;
         }
 
@@ -90,7 +90,7 @@ public class PlayerWeaponManager : MonoBehaviour
 
         if (weaponScript == null)
         {
-            Debug.LogError("Weapon script not found on the weapon instance!");
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.PlayMuzzleEffect(): Weapon script not found on the weapon instance!");
             return;
         }
 
@@ -101,7 +101,7 @@ public class PlayerWeaponManager : MonoBehaviour
     {
         if (CurrentWeaponInstance == null)
         {
-            Debug.LogWarning("StopMuzzleEffect - No weapon instance to stop muzzle effect on!");
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.StopMuzzleEffect(): No weapon instance to stop muzzle effect on!");
             return;
         }
 
@@ -109,7 +109,7 @@ public class PlayerWeaponManager : MonoBehaviour
 
         if (weaponScript == null)
         {
-            Debug.LogError("Weapon script not found on the weapon instance!");
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.StopMuzzleEffect(): Weapon script not found on the weapon instance!");
             return;
         }
 
@@ -120,7 +120,7 @@ public class PlayerWeaponManager : MonoBehaviour
     {
         if (CurrentWeaponInstance == null)
         {
-            Debug.LogError("PlayGunshotSound - No weapon instance to play gunshot sound on!");
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.PlayGunshotSound(): No weapon instance to play gunshot sound on!");
             return;
         }
 
@@ -128,7 +128,7 @@ public class PlayerWeaponManager : MonoBehaviour
 
         if (weaponScript == null)
         {
-            Debug.LogError("Weapon script not found on the weapon instance!");
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.PlayGunshotSound(): Weapon script not found on the weapon instance!");
             return;
         }
 

@@ -21,11 +21,13 @@ public class StrafeState : MoveState
 
     public override void Enter()
     {
+        Debug.Log($"[{player.name}] StrafeState.Enter(): Entering Strafe state");
         animationManager.SetIsStrafing(true);
     }
 
     public override void Exit(PlayerState nextState)
     {
+        Debug.Log($"[{player.name}] StrafeState.Exit(): Exiting to {nextState.GetType().Name}");
         base.Exit(nextState);
         animationManager.SetIsStrafing(false);
     }
@@ -66,5 +68,5 @@ public class StrafeState : MoveState
     }
 }
 
-    
+
 

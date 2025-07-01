@@ -20,7 +20,7 @@ public class BulletDecalManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Debug.LogWarning("Multiple BulletDecalManager instances detected! Destroying duplicate.");
+            Debug.LogWarning($"[{gameObject.name}] BulletDecalManager.Awake(): Multiple BulletDecalManager instances detected! Destroying duplicate.");
             Destroy(gameObject);
             return;
         }

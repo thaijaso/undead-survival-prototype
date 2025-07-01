@@ -61,7 +61,7 @@ public class Player : MonoBehaviour
         PlayerInput = GetComponent<PlayerInput>();
 
         if (PlayerInput == null)
-            Debug.LogError("PlayerInput component is missing!");
+            Debug.LogError($"[{gameObject.name}] Player.SetupPlayerInput(): PlayerInput component is missing!");
     }
 
     private void SetupPlayerCharacterController()
@@ -69,7 +69,7 @@ public class Player : MonoBehaviour
         PlayerCharacterController = GetComponent<PlayerCharacterController>();
 
         if (PlayerCharacterController == null)
-            Debug.LogError("PlayerCharacterController component is missing!");
+            Debug.LogError($"[{gameObject.name}] Player.SetupPlayerCharacterController(): PlayerCharacterController component is missing!");
     }
 
     private void SetupPlayerCameraController()
@@ -77,7 +77,7 @@ public class Player : MonoBehaviour
         PlayerCameraController = GetComponent<PlayerCameraController>();
 
         if (PlayerCameraController == null)
-            Debug.LogError("PlayerCameraController component is missing!");
+            Debug.LogError($"[{gameObject.name}] Player.SetupPlayerCameraController(): PlayerCameraController component is missing!");
     }
 
     private void SetupAnimator()
@@ -86,7 +86,7 @@ public class Player : MonoBehaviour
 
         if (animator == null)
         {
-            Debug.LogError("Animator component is missing!");
+            Debug.LogError($"[{gameObject.name}] Player.SetupAnimator(): Animator component is missing!");
             return;
         }
 
@@ -98,7 +98,7 @@ public class Player : MonoBehaviour
         PlayerIKController = GetComponent<PlayerIKController>();
 
         if (PlayerIKController == null)
-            Debug.LogError("PlayerIKController component is missing!");
+            Debug.LogError($"[{gameObject.name}] Player.SetupPlayerIKController(): PlayerIKController component is missing!");
     }
 
     private void SetupWeaponManager()
@@ -106,7 +106,7 @@ public class Player : MonoBehaviour
         WeaponManager = GetComponent<PlayerWeaponManager>();
 
         if (WeaponManager == null)
-            Debug.LogError("PlayerWeaponManager component is missing!");
+            Debug.LogError($"[{gameObject.name}] Player.SetupWeaponManager(): PlayerWeaponManager component is missing!");
     }
 
     private void SetupRecoil()
@@ -114,7 +114,7 @@ public class Player : MonoBehaviour
         Recoil = GetComponent<IKRecoil>();
 
         if (Recoil == null)
-            Debug.LogError("Recoil component is missing!");
+            Debug.LogError($"[{gameObject.name}] Player.SetupRecoil(): Recoil component is missing!");
     }
 
     private void SetupBulletHitscan()
@@ -122,7 +122,7 @@ public class Player : MonoBehaviour
         BulletHitscan = GetComponent<BulletHitscan>();
 
         if (BulletHitscan == null)
-            Debug.LogError("BulletHitscan component is missing!");
+            Debug.LogError($"[{gameObject.name}] Player.SetupBulletHitscan(): BulletHitscan component is missing!");
     }
 
     private void SetupBulletDecalManager()
@@ -130,7 +130,7 @@ public class Player : MonoBehaviour
         BulletDecalManager = GetComponent<BulletDecalManager>();
 
         if (BulletDecalManager == null)
-            Debug.LogError("BulletDecalManager component is missing!");
+            Debug.LogError($"[{gameObject.name}] Player.SetupBulletDecalManager(): BulletDecalManager component is missing!");
     }
 
     void Start()

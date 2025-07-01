@@ -8,11 +8,11 @@ public class BulletHitscan : MonoBehaviour
     {
         if (Physics.Raycast(origin, direction, out hit, range, hitMask))
         {
-            Debug.Log($"Hit: {hit.collider.name}");
+            Debug.Log($"[{gameObject.name}] BulletHitscan.Fire(): Hit {hit.collider.name}");
             return true;
         }
 
-        Debug.Log("No hit detected.");
+        Debug.Log($"[{gameObject.name}] BulletHitscan.Fire(): No hit detected");
         return false;
     }
 }

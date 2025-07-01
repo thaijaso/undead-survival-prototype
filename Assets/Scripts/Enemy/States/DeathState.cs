@@ -24,7 +24,7 @@ public class DeathState : EnemyState
     public override void Enter()
     {
         base.Enter();
-        Debug.Log($"[{enemy.gameObject.name}] Entering Death state");
+        Debug.Log($"[{enemy.gameObject.name}] DeathState.Enter(): Entering Death state");
 
         // Disable AI movement immediately
         if (enemy.AIDestinationSetter != null)
@@ -58,7 +58,7 @@ public class DeathState : EnemyState
 
         if (enemy.PuppetMaster != null)
         {
-            Debug.Log($"[{enemy.gameObject.name}] Activating ragdoll");
+            Debug.Log($"[{enemy.gameObject.name}] DeathState.ActivateRagdoll(): Activating ragdoll");
 
             // Activate ragdoll physics
             enemy.PuppetMaster.state = RootMotion.Dynamics.PuppetMaster.State.Dead;
@@ -66,7 +66,7 @@ public class DeathState : EnemyState
         }
         else
         {
-            Debug.LogWarning($"[{enemy.gameObject.name}] No PuppetMaster found, cannot activate ragdoll");
+            Debug.LogWarning($"[{enemy.gameObject.name}] DeathState.ActivateRagdoll(): No PuppetMaster found, cannot activate ragdoll");
         }
     }
 }

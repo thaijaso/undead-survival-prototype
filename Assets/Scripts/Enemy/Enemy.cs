@@ -240,12 +240,12 @@ public class Enemy : MonoBehaviour
 
         limb.TakeDamage(damage);
         HealthManager.TakeDamage(damage);
-        Debug.Log($"[{name}] Enemy: Took {damage} damage. Remaining health: {HealthManager.currentHealth}");
+        Debug.Log($"[{name}] Enemy.ProcessHit(): Took {damage} damage. Remaining health: {HealthManager.currentHealth}");
 
         if (HealthManager.currentHealth <= 0)
         {
             // Enter death state
-            Debug.Log($"[{name}] Enemy: Has died");
+            Debug.Log($"[{name}] Enemy.ProcessHit(): Has died");
             stateMachine.SetState(new DeathState(this, stateMachine, AnimationManager, "Death"));
         }
     }
@@ -288,37 +288,37 @@ public class Enemy : MonoBehaviour
 
     public void OnTurnFinished()
     {
-        Debug.Log($"[{name}] Enemy: Turn animation finished. Current state: {stateMachine.currentState.GetType().Name}");
+        Debug.Log($"[{name}] Enemy.OnTurnFinished(): Turn animation finished. Current state: {stateMachine.currentState.GetType().Name}");
         // This method is called directly from animation events
         // Delegate to the current state if it's AlertState
         if (stateMachine.currentState == Alert && Alert is AlertState alertState)
         {
-            Debug.Log($"[{name}] Enemy: Delegating OnTurnFinished to AlertState");
+            Debug.Log($"[{name}] Enemy.OnTurnFinished(): Delegating to AlertState");
             alertState.OnTurnFinished();
         }
         else if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
         {
-            Debug.Log($"[{name}] Enemy: Delegating OnTurnFinished to AggroState");
+            Debug.Log($"[{name}] Enemy.OnTurnFinished(): Delegating to AggroState");
             aggroState.OnTurnFinished();
         }
         else
         {
-            Debug.Log($"[{name}] Enemy: OnTurnFinished called but current state ({stateMachine.currentState.GetType().Name}) doesn't handle it");
+            Debug.Log($"[{name}] Enemy.OnTurnFinished(): Called but current state ({stateMachine.currentState.GetType().Name}) doesn't handle it");
         }
     }
 
     public void OnAggroAnimationFinished()
     {
-        Debug.Log($"[{name}] Enemy: Aggro animation finished. Current state: " + stateMachine.currentState.GetType().Name);
+        Debug.Log($"[{name}] Enemy.OnAggroAnimationFinished(): Current state: " + stateMachine.currentState.GetType().Name);
 
         if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
         {
-            Debug.Log($"[{name}] Enemy: Delegating OnAggroFinished to AggroState");
+            Debug.Log($"[{name}] Enemy.OnAggroAnimationFinished(): Delegating to AggroState");
             aggroState.OnAggroAnimationFinished();
         }
         else
         {
-            Debug.LogWarning($"[{name}] Enemy: OnAggroFinished called but current state ({stateMachine.currentState.GetType().Name}) doesn't handle it");
+            Debug.LogWarning($"[{name}] Enemy.OnAggroAnimationFinished(): Called but current state ({stateMachine.currentState.GetType().Name}) doesn't handle it");
         }
     }
 
@@ -382,17 +382,17 @@ public class Enemy : MonoBehaviour
         if (followerEntity != null)
         {
             followerEntity.maxSpeed = speed;
-            Debug.Log($"[{name}] Enemy: Speed set to {speed}");
+            Debug.Log($"[{name}] Enemy.SetSpeed(): Speed set to {speed}");
         }
         else
         {
-            Debug.LogWarning($"[{name}] Enemy: No FollowerEntity component found to set speed");
+            Debug.LogWarning($"[{name}] Enemy.SetSpeed(): No FollowerEntity component found to set speed");
         }
     }
 
     public void OnAttackFinished()
     {
-        Debug.Log($"[{name}] Enemy: Attack animation finished");
+        Debug.Log($"[{name}] Enemy.OnAttackFinished(): Current state: " + stateMachine.currentState.GetType().Name);
         // This method is called directly from animation events
         // Delegate to the current state if it's AttackState
         if (stateMachine.currentState == Attack && Attack is AttackState attackState)
@@ -403,7 +403,7 @@ public class Enemy : MonoBehaviour
 
     public void OnAttackLostMomentum()
     {
-        Debug.Log($"[{name}] Enemy: Attack lost momentum");
+        Debug.Log($"[{name}] Enemy.OnAttackLostMomentum(): Current state: " + stateMachine.currentState.GetType().Name);
         // This method is called directly from animation events
         // Delegate to the current state if it's AttackState
         if (stateMachine.currentState == Attack && Attack is AttackState attackState)

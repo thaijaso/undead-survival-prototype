@@ -32,7 +32,7 @@ public class PlayerInput : MonoBehaviour
         // Initialize the Input System
         if (InputSystem.settings == null)
         {
-            Debug.LogError("Input System settings not found.");
+            Debug.LogError($"[{gameObject.name}] PlayerInput.Awake(): Input System settings not found.");
         }
 
         moveAction = InputSystem.actions.FindAction("Move");

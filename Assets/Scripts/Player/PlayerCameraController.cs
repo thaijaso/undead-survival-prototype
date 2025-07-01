@@ -54,7 +54,7 @@ public class PlayerCameraController : MonoBehaviour
         noise = playerCamera.GetCinemachineComponent(CinemachineCore.Stage.Noise) as CinemachineBasicMultiChannelPerlin;
         if (noise == null)
         {
-            Debug.LogError("CinemachineBasicMultiChannelPerlin component not found on the follow camera.");
+            Debug.LogError($"[{gameObject.name}] PlayerCameraController.SetupCameraSway(): CinemachineBasicMultiChannelPerlin component not found on the follow camera.");
         }
     }
 
@@ -63,7 +63,7 @@ public class PlayerCameraController : MonoBehaviour
         orbitalFollow = playerCamera.GetCinemachineComponent(CinemachineCore.Stage.Body) as CinemachineOrbitalFollow;
         if (orbitalFollow == null)
         {
-            Debug.LogError("CinemachineOrbitalFollow component not found on the follow camera.");
+            Debug.LogError($"[{gameObject.name}] PlayerCameraController.SetupOrbitalFollow(): CinemachineOrbitalFollow component not found on the follow camera.");
         }
     }
 
@@ -208,7 +208,7 @@ public class PlayerCameraController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("CameraRecoil component not found on the player camera.");
+            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.ApplyCameraRecoil(): CameraRecoil component not found on the player camera.");
         }
     }
 
@@ -224,7 +224,7 @@ public class PlayerCameraController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("CameraRecoil component not found on the player camera.");
+            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetCameraRecoilFromWeaponData(): CameraRecoil component not found on the player camera.");
         }
     }
 }
