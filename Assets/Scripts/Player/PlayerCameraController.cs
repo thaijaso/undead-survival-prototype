@@ -32,21 +32,31 @@ public class PlayerCameraController : MonoBehaviour
 
     private float currentVerticalAxisValue;
 
-    private bool lockCursor = true; // Whether to lock the cursor in the center of the screen
+    private bool lockCursor = false; // Whether to lock the cursor in the center of the screen
+    private bool lastLockCursorState = false; // Track previous cursor lock state
 
     private CameraRecoil cameraRecoil;
+    private CinemachineInputAxisController inputAxisController;
 
     private void Awake()
     {
         SetupNoise();
         SetupOrbitalFollow();
         SetupCameraRecoil();
+        SetupCinemachineInputAxisController();
     }
 
     private void Start()
     {
         currentHorizontalAxisValue = orbitalFollow.HorizontalAxis.Value;
         currentVerticalAxisValue = orbitalFollow.VerticalAxis.Value;
+        
+        // Initialize cursor to unlocked state so user can see it initially
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        
+        // Force initial cursor lock state detection
+        HandleCursorLock();
     }
 
     private void SetupNoise()
@@ -72,6 +82,17 @@ public class PlayerCameraController : MonoBehaviour
         cameraRecoil = playerCamera.GetComponent<CameraRecoil>();
     }
 
+    private void SetupCinemachineInputAxisController()
+    {
+        inputAxisController = playerCamera.GetComponent<CinemachineInputAxisController>();
+        Debug.Log($"PlayerCameraController.SetupCinemachineInputAxisController(): CinemachineInputAxisController found: {(inputAxisController != null)}");
+        
+        if (inputAxisController != null)
+        {
+            Debug.Log($"PlayerCameraController.SetupCinemachineInputAxisController(): Initial inputAxisController.enabled state: {inputAxisController.enabled}");
+        }
+    }
+
     void Update()
     {
         HandleCursorLock();
@@ -80,8 +101,42 @@ public class PlayerCameraController : MonoBehaviour
 
     private void HandleCursorLock()
     {
-        Cursor.lockState = lockCursor ? CursorLockMode.Locked : CursorLockMode.None;
-        Cursor.visible = lockCursor ? false : true;
+        // Fallback ESC key handling - detect ESC press and unlock cursor manually
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Log("PlayerCameraController.HandleCursorLock(): ESC key detected - unlocking cursor");
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        
+        // Detect mouse click to re-lock cursor
+        if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked)
+        {
+            Debug.Log("PlayerCameraController.HandleCursorLock(): Mouse click detected - locking cursor");
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        
+        // Monitor Unity's cursor state - check both lockState and visibility
+        // Sometimes Unity changes visibility without changing lockState
+        bool currentCursorLocked = (Cursor.lockState == CursorLockMode.Locked) && !Cursor.visible;
+        
+        // Only update inputAxisController if cursor lock state has changed
+        if (lastLockCursorState != currentCursorLocked)
+        {
+            Debug.Log($"PlayerCameraController.HandleCursorLock(): Cursor lock state changed to: {currentCursorLocked} " +
+                     $"(lockState: {Cursor.lockState}, visible: {Cursor.visible})");
+            
+            // Enable/disable input axis controller based on cursor lock state
+            if (inputAxisController != null)
+            {
+                inputAxisController.enabled = currentCursorLocked;
+                Debug.Log($"PlayerCameraController.HandleCursorLock(): Set inputAxisController.enabled to: {currentCursorLocked}");
+            }
+            
+            lastLockCursorState = currentCursorLocked;
+            lockCursor = currentCursorLocked; // Keep our internal state in sync
+        }
     }
 
     private void UpdateRotationSpeed()
