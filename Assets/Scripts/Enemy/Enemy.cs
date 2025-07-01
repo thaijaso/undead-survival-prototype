@@ -1,5 +1,6 @@
 using UnityEngine;
 using EnemyStates;
+using System.Collections;
 using System.Collections.Generic;
 using Pathfinding;
 using RootMotion.Dynamics;
@@ -355,7 +356,7 @@ public class Enemy : MonoBehaviour
         }
     }
     
-    private System.Collections.IEnumerator BlendSpeed(float fromSpeed, float toSpeed, float duration, string source)
+    private IEnumerator BlendSpeed(float fromSpeed, float toSpeed, float duration, string source)
     {
         var followerEntity = GetComponent<FollowerEntity>();
         float elapsed = 0f;
@@ -409,6 +410,11 @@ public class Enemy : MonoBehaviour
         if (stateMachine.currentState == Attack && Attack is AttackState attackState)
         {
             attackState.OnAttackLostMomentum();
+        }
+
+        if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
+        {
+            aggroState.OnAttackLostMomentum();
         }
     }
 }

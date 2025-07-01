@@ -40,7 +40,7 @@ public class AggroState : EnemyState
         }
 
         float angleToPlayer = GetAngleToPlayer();
-    
+
         if (Mathf.Abs(angleToPlayer) > 90f && !enemy.IsTurning)
         {
             Debug.Log($"[{enemy.name}] AggroState.LogicUpdate(): Starting turn animation - IsTurning is currently {enemy.IsTurning}");
@@ -107,5 +107,11 @@ public class AggroState : EnemyState
         Debug.Log($"[{enemy.name}] AggroState.OnTurnFinished(): Turn animation finished - resetting IsTurning to false");
         animationManager.SetIsTurning(false);
         enemy.IsTurning = false; // Reset shared flag
+    }
+    
+    public void OnAttackLostMomentum()
+    {
+        Debug.Log($"[{enemy.name}] AggroState.OnAttackLostMomentum(): Attack lost momentum - resetting speed to 0");
+        enemy.SetAndLogSpeed(0, "AggroState.OnAttackLostMomentum()", 0f);
     }
 }
