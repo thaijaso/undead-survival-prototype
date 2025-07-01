@@ -68,22 +68,22 @@ public class AlertState : EnemyState
 
     public void OnTurnFinished()
     {
-        Debug.Log("AlertState: Turn animation finished.");
+        Debug.Log($"[{enemy.name}] AlertState: Turn animation finished");
         
         // Only reset IsTurning if we're still in AlertState
         // If we've transitioned to another state, let that state manage IsTurning
         if (stateMachine.currentState == this)
         {
-            Debug.Log("AlertState: We're still in AlertState, resetting IsTurning to false");
+            Debug.Log($"[{enemy.name}] AlertState: Still in AlertState, resetting IsTurning to false");
             enemy.IsTurning = false;
-            Debug.Log("AlertState.OnTurnFinished() IsTurning= " + enemy.IsTurning);
+            Debug.Log($"[{enemy.name}] AlertState: IsTurning = {enemy.IsTurning}");
             
             // Set the animator bool to false so the turn animation can exit
             animationManager.SetIsTurning(false);
         }
         else
         {
-            Debug.Log($"AlertState: OnTurnFinished called but current state is {stateMachine.currentState.GetType().Name}, not AlertState. Not resetting IsTurning.");
+            Debug.Log($"[{enemy.name}] AlertState: OnTurnFinished called but current state is {stateMachine.currentState.GetType().Name}, not AlertState - not resetting IsTurning");
         }
         
         // Stop the rotation coroutine if it's still running
@@ -102,7 +102,7 @@ public class AlertState : EnemyState
             if (!enemy.IsTurning)
             {
                 enemy.IsTurning = true;
-                Debug.Log($"AlertState: Starting Alert180 turn for angle: {angle:F1}° - IsTurning was {enemy.IsTurning}");
+                Debug.Log($"[{enemy.name}] AlertState: Starting Alert180 turn for angle {angle:F1}° - IsTurning was {enemy.IsTurning}");
                 
                 // Calculate target rotation
                 Vector3 directionToPlayer = enemy.GetPlayerTransform().position - enemy.transform.position;

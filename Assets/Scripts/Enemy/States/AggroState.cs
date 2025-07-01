@@ -22,13 +22,10 @@ public class AggroState : EnemyState
 
     public override void Enter()
     {
-        Debug.Log($"AggroState.Enter() - IsTurning is {enemy.IsTurning} at start");
+        Debug.Log($"[{enemy.name}] AggroState: Entering - IsTurning is {enemy.IsTurning}");
         base.Enter();
-        Debug.Log($"AggroState.Enter() - IsTurning is {enemy.IsTurning} after base.Enter()");
-        
-        Debug.Log("AggroState: Entering Aggro state - yell animation should start");
+        Debug.Log($"[{enemy.name}] AggroState: Aggro animation should start");
         animationManager.SetIsAggro(true);
-        Debug.Log($"AggroState.Enter() - IsTurning is {enemy.IsTurning} at end");
     }
     public override void LogicUpdate()
     {
@@ -43,32 +40,32 @@ public class AggroState : EnemyState
         }
 
         float angleToPlayer = GetAngleToPlayer();
-        Debug.Log($"AggroState.LogicUpdate: angleToPlayer={angleToPlayer:F1}°, IsTurning={enemy.IsTurning}");
+    
         if (Mathf.Abs(angleToPlayer) > 90f && !enemy.IsTurning)
         {
-            Debug.Log($"AggroState: About to call PlayTurnAnimation - IsTurning is currently {enemy.IsTurning}");
+            Debug.Log($"[{enemy.name}] AggroState: Starting turn animation - IsTurning is currently {enemy.IsTurning}");
             PlayTurnAnimation(angleToPlayer);
         }
     }
 
-    public void OnYellFinished()
+    public void OnAggroAnimationFinished()
     {
-        Debug.Log("AggroState: Yell animation finished - enabling AI movement");
+        Debug.Log($"[{enemy.name}] AggroState: Aggro180 animation finished - enabling AI movement");
 
-        // Set the final rotation after the 180° turn animation completes
-        //enemy.transform.rotation = targetRotationAfterAggro;
+        // Reset turning flag
+        enemy.IsTurning = false;
 
         // Enable AI movement
         enemy.AIDestinationSetter.enabled = true;
         enemy.FollowerEntity.enabled = true;
-        enemy.SetAndLogSpeed(enemy.GetChaseSpeed(), "AggroState.OnYellFinished()");
+        enemy.SetAndLogSpeed(enemy.GetChaseSpeed(), "AggroState.OnAggro180Finished()");
     }
 
     private void PlayTurnAnimation(float angle)
     {
-        Debug.Log($"AggroState: Starting Aggro180 turn for angle: {angle:F1}° - IsTurning was {enemy.IsTurning}");
+        Debug.Log($"[{enemy.name}] AggroState: Starting Aggro180 turn for angle {angle:F1}° - IsTurning was {enemy.IsTurning}");
         enemy.IsTurning = true; // Set shared flag
-        Debug.Log($"AggroState: Set IsTurning to {enemy.IsTurning}");
+        Debug.Log($"[{enemy.name}] AggroState: Set IsTurning to {enemy.IsTurning}");
 
         // Stop any existing rotation coroutine before starting new one
         if (turnCoroutine != null)
@@ -102,12 +99,12 @@ public class AggroState : EnemyState
             turnCoroutine = null;
         }
 
-        Debug.Log("AggroState: Exiting Aggro state");
+        Debug.Log($"[{enemy.name}] AggroState: Exiting state");
     }
 
     public void OnTurnFinished()
     {
-        Debug.Log("AggroState: OnTurnFinished() called - resetting IsTurning to false");
+        Debug.Log($"[{enemy.name}] AggroState: Turn animation finished - resetting IsTurning to false");
         animationManager.SetIsTurning(false);
         enemy.IsTurning = false; // Reset shared flag
     }
