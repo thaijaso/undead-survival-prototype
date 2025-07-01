@@ -104,9 +104,12 @@ public class AggroState : EnemyState
     public override void Exit(EnemyState nextState)
     {
         base.Exit(nextState);
-        
+
         // Clean up animation state
-        animationManager.SetIsAggro(false);
+        if (nextState != enemy.Attack)
+        {
+            animationManager.SetIsAggro(false);
+        }
 
         // Stop any rotation coroutines when exiting the state
         if (turnCoroutine != null)
