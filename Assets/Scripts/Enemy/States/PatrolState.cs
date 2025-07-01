@@ -86,6 +86,12 @@ namespace EnemyStates
 
         private void HandlePlayerDetection()
         {
+            // Skip automatic transitions if debug mode is enabled
+            if (enemy.DebugModeEnabled)
+            {
+                return;
+            }
+            
             // Logic to detect player and transition to chase state if player is within detection range
             if (IsPlayerInDetectionRange())
             {

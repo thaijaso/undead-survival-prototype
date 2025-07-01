@@ -27,9 +27,22 @@ public class AggroState : EnemyState
         Debug.Log($"[{enemy.name}] AggroState.Enter(): Aggro animation should start");
         animationManager.SetIsAggro(true);
     }
+    
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+
+        // Skip automatic transitions if debug mode is enabled
+        if (enemy.DebugModeEnabled)
+        {
+            // Still handle turning animation if needed
+            float debugAngleToPlayer = GetAngleToPlayer();
+            if (Mathf.Abs(debugAngleToPlayer) > 90f && !enemy.IsTurning)
+            {
+                PlayTurnAnimation(debugAngleToPlayer);
+            }
+            return;
+        }
 
         // Check if player is in attack range (primary condition)
         if (enemy.IsPlayerInAttackRange())
@@ -91,6 +104,9 @@ public class AggroState : EnemyState
     public override void Exit(EnemyState nextState)
     {
         base.Exit(nextState);
+        
+        // Clean up animation state
+        animationManager.SetIsAggro(false);
 
         // Stop any rotation coroutines when exiting the state
         if (turnCoroutine != null)

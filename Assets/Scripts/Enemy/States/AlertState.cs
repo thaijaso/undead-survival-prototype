@@ -41,6 +41,18 @@ public class AlertState : EnemyState
         base.LogicUpdate();
         alertTimer += Time.deltaTime; // Increment the alert timer
 
+        // Skip all automatic transitions if debug mode is enabled
+        if (enemy.DebugModeEnabled)
+        {
+            // Still handle turning animation if player is in range
+            if (enemy.IsPlayerInAlertRange())
+            {
+                float angle = GetAngleToPlayer();
+                PlayTurnAnimation(angle);
+            }
+            return; // Exit early to prevent any state transitions
+        }
+
         // Check if zombie is in aggro range
         if (enemy.IsPlayerInAggroRange())
         {

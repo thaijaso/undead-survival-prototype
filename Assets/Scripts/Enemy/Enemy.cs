@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Pathfinding;
 using RootMotion.Dynamics;
+using Sirenix.OdinInspector;
 
 public class Enemy : MonoBehaviour
 {
@@ -16,26 +17,54 @@ public class Enemy : MonoBehaviour
     public FollowerEntity FollowerEntity { get; private set; }
 
     // Reference to PuppetMaster component (could be on this GameObject or a sibling)
+    [TabGroup("Setup")]
     [SerializeField] private PuppetMaster puppetMasterReference;
     public PuppetMaster PuppetMaster { get; private set; }
 
+    [TabGroup("Setup")]
+    [Required]
     [SerializeField]
     private Transform PlayerTransform;
 
+    [TabGroup("Setup")]
     [SerializeField]
+    [ListDrawerSettings(ShowFoldout = true, DraggableItems = true)]
     private List<Transform> patrolPoints;
 
     public StateMachine<EnemyState> stateMachine { get; private set; }
 
+    [TabGroup("Debug")]
+    [ShowInInspector, ReadOnly]
+    [ShowIf("@stateMachine != null")]
+    public string CurrentState => stateMachine?.currentState?.GetType().Name ?? "None";
+
+    [TabGroup("Debug")]
+    [ShowInInspector, ReadOnly]
+    [ShowIf("@FollowerEntity != null")]
+    public float CurrentSpeed => FollowerEntity?.maxSpeed ?? 0f;
+
+    [TabGroup("Debug")]
+    [ShowInInspector, ReadOnly]
     public EnemyState Idle { get; private set; }
 
+    [TabGroup("Debug")]
+    [ShowInInspector, ReadOnly]
     public EnemyState Alert { get; private set; }
+    
+    [TabGroup("Debug")]
+    [ShowInInspector, ReadOnly]
     public EnemyState Patrol { get; private set; }
 
+    [TabGroup("Debug")]
+    [ShowInInspector, ReadOnly]
     public EnemyState Aggro { get; private set; }
 
+    [TabGroup("Debug")]
+    [ShowInInspector, ReadOnly]
     public EnemyState Attack { get; private set; }
 
+    [TabGroup("Debug")]
+    [ShowInInspector, ReadOnly]
     public EnemyState Death { get; private set; }
 
     public Transform GetPlayerTransform() => PlayerTransform;
@@ -48,12 +77,23 @@ public class Enemy : MonoBehaviour
 
     public float GetAttackRange() => template.attackRange;
 
+    [TabGroup("Configuration")]
+    [Required]
+    [AssetsOnly]
     public EnemyTemplate template;
 
     // Speed blending fields
     private Coroutine speedBlendCoroutine;
     
+    // Debug mode to override automatic state transitions
+    [TabGroup("Debug")]
+    [ShowInInspector]
+    [InfoBox("When enabled, prevents automatic state transitions based on player distance. Allows manual state control.", InfoMessageType.Info)]
+    public bool DebugModeEnabled = false;
+    
     // Shared turn animation state across all states
+    [TabGroup("Debug")]
+    [ShowInInspector, ReadOnly]
     private bool _isTurning = false;
     public bool IsTurning 
     { 
@@ -247,12 +287,15 @@ public class Enemy : MonoBehaviour
         {
             // Enter death state
             Debug.Log($"[{name}] Enemy.ProcessHit(): Has died");
-            stateMachine.SetState(new DeathState(this, stateMachine, AnimationManager, "Death"));
+            stateMachine.SetState(Death);
         }
     }
 
     public bool IsPlayerInAlertRange()
     {
+        // If debug mode is enabled, return false to prevent automatic transitions
+        if (DebugModeEnabled) return false;
+        
         if (PlayerTransform == null)
         {
             Debug.LogWarning("PlayerTransform is not assigned.");
@@ -265,6 +308,9 @@ public class Enemy : MonoBehaviour
 
     public bool IsPlayerInAggroRange()
     {
+        // If debug mode is enabled, return false to prevent automatic transitions
+        if (DebugModeEnabled) return false;
+        
         if (PlayerTransform == null)
         {
             Debug.LogWarning("PlayerTransform is not assigned.");
@@ -277,6 +323,9 @@ public class Enemy : MonoBehaviour
 
     public bool IsPlayerInAttackRange()
     {
+        // If debug mode is enabled, return false to prevent automatic transitions
+        if (DebugModeEnabled) return false;
+        
         if (PlayerTransform == null)
         {
             Debug.LogWarning("PlayerTransform is not assigned.");
@@ -415,6 +464,175 @@ public class Enemy : MonoBehaviour
         if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
         {
             aggroState.OnAttackLostMomentum();
+        }
+    }
+
+    // Debug buttons for testing in play mode
+    [TabGroup("Debug")]
+    [Button("Toggle Debug Mode"), EnableIf("@Application.isPlaying")]
+    private void ToggleDebugMode()
+    {
+        DebugModeEnabled = !DebugModeEnabled;
+        string status = DebugModeEnabled ? "ENABLED" : "DISABLED";
+        Debug.Log($"[{name}] Debug Mode {status} - Automatic state transitions are now {(DebugModeEnabled ? "blocked" : "active")}");
+        
+        if (DebugModeEnabled)
+        {
+            // Stop the enemy from moving when debug mode is enabled
+            SetSpeed(0f);
+        }
+    }
+    
+    [TabGroup("Debug")]
+    [Button("Stop Movement"), EnableIf("@Application.isPlaying")]
+    private void StopMovement()
+    {
+        SetSpeed(0f);
+        Debug.Log($"[{name}] Movement stopped (speed set to 0)");
+    }
+    
+    [TabGroup("Debug")]
+    [Button("Resume Movement"), EnableIf("@Application.isPlaying")]
+    private void ResumeMovement()
+    {
+        // Set speed based on current state
+        if (stateMachine.currentState == Patrol)
+        {
+            SetSpeed(template.patrolSpeed);
+        }
+        else if (stateMachine.currentState == Alert || stateMachine.currentState == Aggro)
+        {
+            SetSpeed(template.chaseSpeed);
+        }
+        else if (stateMachine.currentState == Idle)
+        {
+            SetSpeed(0f); // Idle should not move
+        }
+        else if (stateMachine.currentState == Attack)
+        {
+            SetSpeed(0f); // Attack typically doesn't move
+        }
+        else
+        {
+            // Default fallback
+            SetSpeed(template.patrolSpeed);
+        }
+        Debug.Log($"[{name}] Movement resumed for state: {stateMachine.currentState?.GetType().Name}");
+    }
+
+    [TabGroup("Debug")]
+    [Button("Log Current Speed"), EnableIf("@Application.isPlaying")]
+    private void DebugLogCurrentSpeed()
+    {
+        LogCurrentSpeed("Manual Debug");
+    }
+
+    [TabGroup("Debug")]
+    [HorizontalGroup("Debug/StateButtons")]
+    [Button("→ Idle"), EnableIf("@Application.isPlaying")]
+    private void DebugSetIdleState()
+    {
+        if (Idle != null)
+        {
+            stateMachine.SetState(Idle);
+            Debug.Log($"[{name}] Manually set to Idle state" + (DebugModeEnabled ? "" : " (may auto-transition if player is close)"));
+        }
+    }
+
+    [TabGroup("Debug")]
+    [HorizontalGroup("Debug/StateButtons")]
+    [Button("→ Alert"), EnableIf("@Application.isPlaying")]
+    private void DebugSetAlertState()
+    {
+        if (Alert != null)
+        {
+            stateMachine.SetState(Alert);
+            Debug.Log($"[{name}] Manually set to Alert state" + (DebugModeEnabled ? "" : " (may auto-transition if player distance changes)"));
+        }
+    }
+
+    [TabGroup("Debug")]
+    [HorizontalGroup("Debug/StateButtons")]
+    [Button("→ Patrol"), EnableIf("@Application.isPlaying")]
+    private void DebugSetPatrolState()
+    {
+        if (Patrol != null)
+        {
+            stateMachine.SetState(Patrol);
+            Debug.Log($"[{name}] Manually set to Patrol state" + (DebugModeEnabled ? "" : " (may auto-transition if player is close)"));
+        }
+    }
+    
+    [TabGroup("Debug")]
+    [HorizontalGroup("Debug/StateButtons2")]
+    [Button("→ Aggro"), EnableIf("@Application.isPlaying")]
+    private void DebugSetAggroState()
+    {
+        if (Aggro != null)
+        {
+            stateMachine.SetState(Aggro);
+            Debug.Log($"[{name}] Manually set to Aggro state" + (DebugModeEnabled ? "" : " (may auto-transition if player distance changes)"));
+        }
+    }
+    
+    [TabGroup("Debug")]
+    [HorizontalGroup("Debug/StateButtons2")]
+    [Button("→ Attack"), EnableIf("@Application.isPlaying")]
+    private void DebugSetAttackState()
+    {
+        if (Attack != null)
+        {
+            stateMachine.SetState(Attack);
+            Debug.Log($"[{name}] Manually set to Attack state" + (DebugModeEnabled ? "" : " (may auto-transition if player distance changes)"));
+        }
+    }
+    
+    [TabGroup("Debug")]
+    [HorizontalGroup("Debug/StateButtons2")]
+    [Button("→ Death"), EnableIf("@Application.isPlaying")]
+    private void DebugSetDeathState()
+    {
+        if (Death != null)
+        {
+            stateMachine.SetState(Death);
+            Debug.Log($"[{name}] Manually set to Death state");
+        }
+    }
+
+    [TabGroup("Debug")]
+    [Button("Force Take Damage"), EnableIf("@Application.isPlaying")]
+    private void DebugTakeDamage([MinValue(1)] int damage = 10)
+    {
+        if (HealthManager != null)
+        {
+            HealthManager.TakeDamage(damage);
+            Debug.Log($"[{name}] Debug: Took {damage} damage. Health: {HealthManager.currentHealth}");
+        }
+    }
+
+    [TabGroup("Debug")]
+    [Button("Revive Zombie"), EnableIf("@Application.isPlaying")]
+    private void DebugReviveZombie()
+    {
+        if (HealthManager != null)
+        {
+            // Restore health
+            HealthManager.Initialize(template.maxHealth);
+            Debug.Log($"[{name}] Debug: Restored health to {HealthManager.currentHealth}");
+        }
+
+        // Revive PuppetMaster if it's dead
+        if (PuppetMaster != null && PuppetMaster.state == PuppetMaster.State.Dead)
+        {
+            PuppetMaster.Resurrect();
+            Debug.Log($"[{name}] Debug: Resurrected PuppetMaster");
+        }
+
+        // Transition to idle state
+        if (Idle != null)
+        {
+            stateMachine.SetState(Idle);
+            Debug.Log($"[{name}] Debug: Set to Idle state after revival");
         }
     }
 }

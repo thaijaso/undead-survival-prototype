@@ -126,7 +126,16 @@ public class Bullet : MonoBehaviour
         // Spawn blood effect regardless of body part presence
         SpawnBloodEffect(hitPoint, hitNormal, enemy);
 
-        enemy.stateMachine.SetState(enemy.Aggro);
+        // Only force aggro transition if the enemy is not in debug mode
+        if (!enemy.DebugModeEnabled)
+        {
+            enemy.stateMachine.SetState(enemy.Aggro);
+            Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Forced enemy to Aggro state");
+        }
+        else
+        {
+            Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Enemy in debug mode - not forcing Aggro transition");
+        }
     }
     
     private void SpawnBloodEffect(Vector3 hitPoint, Vector3 hitNormal, Enemy enemy)

@@ -222,7 +222,16 @@ public class ShootState : AimState
         // Spawn blood effect regardless of body part presence
         SpawnBloodEffect(hit, enemy);
 
-        enemy.stateMachine.SetState(enemy.Aggro);
+        // Only force aggro transition if the enemy is not in debug mode
+        if (!enemy.DebugModeEnabled)
+        {
+            enemy.stateMachine.SetState(enemy.Aggro);
+            Debug.Log($"[{player.name}] ShootState.HandleEnemyHitboxImpact(): Forced enemy to Aggro state");
+        }
+        else
+        {
+            Debug.Log($"[{player.name}] ShootState.HandleEnemyHitboxImpact(): Enemy in debug mode - not forcing Aggro transition");
+        }
     }
 
     private void SpawnBloodEffect(RaycastHit hit, Enemy enemy)

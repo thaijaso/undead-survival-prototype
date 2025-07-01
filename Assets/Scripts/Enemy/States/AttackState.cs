@@ -25,11 +25,26 @@ public class AttackState : EnemyState
     public override void Exit(EnemyState nextState)
     {
         base.Exit(nextState);
+        
+        // Clean up attack animation states
+        animationManager.SetIsAttacking(false);
+        animationManager.SetIsInAttackRange(false);
+        
+        Debug.Log($"[{enemy.name}] AttackState.Exit(): Cleaned up attack animations");
     }
 
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+
+        // Skip automatic transitions if debug mode is enabled
+        if (enemy.DebugModeEnabled)
+        {
+            // Still set animation states appropriately
+            animationManager.SetIsAttacking(true);
+            animationManager.SetIsInAttackRange(true);
+            return;
+        }
 
         if (!enemy.IsPlayerInAttackRange())
         {
@@ -47,8 +62,16 @@ public class AttackState : EnemyState
 
     public void OnAttackFinished()
     {
-        Debug.Log($"[{enemy.name}] AttackState.OnAttackFinished(): Attack animation finished - transitioning to Aggro state");
+        Debug.Log($"[{enemy.name}] AttackState.OnAttackFinished(): Attack animation finished");
 
+        // Don't auto-transition if debug mode is enabled
+        if (enemy.DebugModeEnabled)
+        {
+            Debug.Log($"[{enemy.name}] AttackState.OnAttackFinished(): Debug mode enabled - not auto-transitioning");
+            return;
+        }
+
+        Debug.Log($"[{enemy.name}] AttackState.OnAttackFinished(): Transitioning to Aggro state");
         // Transition back to Aggro state
         stateMachine.SetState(enemy.Aggro);
     }
