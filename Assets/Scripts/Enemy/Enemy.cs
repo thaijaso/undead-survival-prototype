@@ -358,11 +358,19 @@ public class Enemy : MonoBehaviour
         return sqrDistanceToPlayer <= template.attackRange * template.attackRange;
     }
 
+    // ===============================================
+    // ANIMATION EVENTS - Called directly by Unity Animator
+    // ===============================================
+    
+    /// <summary>
+    /// Called when turn animations finish (TurnLeft180, TurnRight180, Aggro180)
+    /// Delegates to the appropriate state handler
+    /// </summary>
     public void OnTurnFinished()
     {
         Debug.Log($"[{name}] Enemy.OnTurnFinished(): Turn animation finished. Current state: {stateMachine.currentState.GetType().Name}");
-        // This method is called directly from animation events
-        // Delegate to the current state if it's AlertState
+        
+        // Delegate to the current state if it handles turn finishing
         if (stateMachine.currentState == Alert && Alert is AlertState alertState)
         {
             Debug.Log($"[{name}] Enemy.OnTurnFinished(): Delegating to AlertState");
@@ -379,6 +387,10 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Called when aggro animation sequence finishes
+    /// Transitions from Aggro to Chase state
+    /// </summary>
     public void OnAggroAnimationFinished()
     {
         Debug.Log($"[{name}] Enemy.OnAggroAnimationFinished(): Current state: " + stateMachine.currentState.GetType().Name);
@@ -393,6 +405,44 @@ public class Enemy : MonoBehaviour
             Debug.LogWarning($"[{name}] Enemy.OnAggroAnimationFinished(): Called but current state ({stateMachine.currentState.GetType().Name}) doesn't handle it");
         }
     }
+
+    /// <summary>
+    /// Called when attack animations finish
+    /// Handles post-attack state transitions
+    /// </summary>
+    public void OnAttackFinished()
+    {
+        Debug.Log($"[{name}] Enemy.OnAttackFinished(): Current state: " + stateMachine.currentState.GetType().Name);
+        
+        // Delegate to the current state if it's AttackState
+        if (stateMachine.currentState == Attack && Attack is AttackState attackState)
+        {
+            attackState.OnAttackFinished();
+        }
+    }
+
+    /// <summary>
+    /// Called when attack loses momentum/force
+    /// Used for physics-based attack feedback
+    /// </summary>
+    public void OnAttackLostMomentum()
+    {
+        Debug.Log($"[{name}] Enemy.OnAttackLostMomentum(): Current state: " + stateMachine.currentState.GetType().Name);
+        
+        // Delegate to appropriate state handlers
+        if (stateMachine.currentState == Attack && Attack is AttackState attackState)
+        {
+            attackState.OnAttackLostMomentum();
+        }
+        else if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
+        {
+            aggroState.OnAttackLostMomentum();
+        }
+    }
+
+    // ===============================================
+    // END ANIMATION EVENTS
+    // ===============================================
 
     // Utility methods for debugging speed issues
     public void LogCurrentSpeed(string context = "")
@@ -459,33 +509,6 @@ public class Enemy : MonoBehaviour
         else
         {
             Debug.LogWarning($"[{name}] Enemy.SetSpeed(): No FollowerEntity component found to set speed");
-        }
-    }
-
-    public void OnAttackFinished()
-    {
-        Debug.Log($"[{name}] Enemy.OnAttackFinished(): Current state: " + stateMachine.currentState.GetType().Name);
-        // This method is called directly from animation events
-        // Delegate to the current state if it's AttackState
-        if (stateMachine.currentState == Attack && Attack is AttackState attackState)
-        {
-            attackState.OnAttackFinished();
-        }
-    }
-
-    public void OnAttackLostMomentum()
-    {
-        Debug.Log($"[{name}] Enemy.OnAttackLostMomentum(): Current state: " + stateMachine.currentState.GetType().Name);
-        // This method is called directly from animation events
-        // Delegate to the current state if it's AttackState
-        if (stateMachine.currentState == Attack && Attack is AttackState attackState)
-        {
-            attackState.OnAttackLostMomentum();
-        }
-
-        if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
-        {
-            aggroState.OnAttackLostMomentum();
         }
     }
 
@@ -670,5 +693,67 @@ public class Enemy : MonoBehaviour
             stateMachine.SetState(Idle);
             Debug.Log($"[{name}] Debug: Set to Idle state after revival");
         }
+    }
+
+    [TabGroup("Debug")]
+    [Button("🔄 Reset to Clean Idle"), EnableIf("@UnityEngine.Application.isPlaying")]
+    [InfoBox("Resets rotation, clears all turning states, stops all coroutines, and transitions to clean idle state.", InfoMessageType.Info)]
+    private void DebugResetToCleanIdle()
+    {
+        Debug.Log($"[{name}] === RESETTING TO CLEAN IDLE ===");
+        
+        // 1. Stop all movement immediately
+        SetSpeed(0f);
+        Debug.Log($"[{name}] Reset: Speed set to 0");
+        
+        // 2. Clear all turning states
+        IsTurning = false;
+        AnimationManager?.SetIsTurning(false);
+        Debug.Log($"[{name}] Reset: IsTurning cleared");
+        
+        // 3. Stop any active turn coroutines in current state
+        if (stateMachine.currentState == Alert && Alert is AlertState alertState)
+        {
+            // Force finish any turn animation in AlertState
+            alertState.OnTurnFinished();
+            Debug.Log($"[{name}] Reset: AlertState turn finished");
+        }
+        else if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
+        {
+            // Force finish any turn animation in AggroState  
+            aggroState.OnTurnFinished();
+            Debug.Log($"[{name}] Reset: AggroState turn finished");
+        }
+        
+        // 4. Reset rotation to forward-facing
+        transform.rotation = Quaternion.identity;
+        Debug.Log($"[{name}] Reset: Rotation reset to identity");
+        
+        // 5. Clear any animation triggers that might be stuck
+        AnimationManager?.ResetTrigger("TurnRight180");
+        AnimationManager?.ResetTrigger("TurnLeft180");
+        AnimationManager?.ResetTrigger("Aggro180");
+        Debug.Log($"[{name}] Reset: Animation triggers cleared");
+        
+        // 6. Reset alert state in animation manager
+        AnimationManager?.SetAlertState(false);
+        Debug.Log($"[{name}] Reset: Alert state cleared");
+        
+        // 7. Clear HasAggroAnimFinished bool
+        AnimationManager?.SetHasAgroAnimationFinished(false);
+        Debug.Log($"[{name}] Reset: HasAggroAnimFinished cleared");
+        
+        // 8. Force transition to Idle state
+        if (Idle != null)
+        {
+            stateMachine.SetState(Idle);
+            Debug.Log($"[{name}] Reset: Transitioned to Idle state");
+        }
+        
+        // 9. Enable debug mode to prevent automatic transitions
+        DebugModeEnabled = true;
+        Debug.Log($"[{name}] Reset: Debug mode enabled to prevent auto-transitions");
+        
+        Debug.Log($"[{name}] === RESET TO CLEAN IDLE COMPLETE ===");
     }
 }
