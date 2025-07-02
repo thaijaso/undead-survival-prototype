@@ -129,7 +129,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3585594593242577515}
   serializedVersion: 5
-  m_Mass: 10
+  m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -181,3 +181,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c93e3083ff9535549bec2f24039ec5c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  impactForce: 10
+  damage: 1
+  weaponData: {fileID: 0}

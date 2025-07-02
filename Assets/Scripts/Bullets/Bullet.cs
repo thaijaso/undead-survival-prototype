@@ -40,12 +40,12 @@ public class Bullet : MonoBehaviour
             if (puppetMaster != null)
             {
                 // Reduce force on dead ragdolls to prevent over-reaction
-                if (puppetMaster.state == RootMotion.Dynamics.PuppetMaster.State.Dead)
+                if (puppetMaster.state == PuppetMaster.State.Dead)
                 {
                     adjustedForce *= 0.3f; // Reduce force by 70% for dead ragdolls
                 }
                 // Increase force on alive ragdolls to overcome muscle resistance
-                else if (puppetMaster.state == RootMotion.Dynamics.PuppetMaster.State.Alive)
+                else if (puppetMaster.state == PuppetMaster.State.Alive)
                 {
                     adjustedForce *= 2.0f; // Increase force by 100% for alive ragdolls
                 }
@@ -185,68 +185,5 @@ public class Bullet : MonoBehaviour
         );
 
         Destroy(bloodEffect, 2f);
-    }
-
-    // this is causing the zombies head to spin LOL
-    private void ApplyHitReaction(PuppetMaster puppetMaster, Limb hitLimb)
-    {
-        // Store original muscle weights for restoration
-        float[] originalWeights = new float[puppetMaster.muscles.Length];
-
-        for (int i = 0; i < puppetMaster.muscles.Length; i++)
-        {
-            originalWeights[i] = puppetMaster.muscles[i].props.muscleWeight;
-
-            // If we hit a specific limb, reduce its muscle weight more
-            if (hitLimb != null && puppetMaster.muscles[i].rigidbody == hitLimb.GetComponent<Rigidbody>())
-            {
-                puppetMaster.muscles[i].props.muscleWeight *= 0.2f; // Less extreme for hit limb
-            }
-            else
-            {
-                puppetMaster.muscles[i].props.muscleWeight *= 0.6f; // More conservative reduction for other muscles
-            }
-        }
-
-        // Start coroutine to restore muscle strength
-        StartCoroutine(RestoreMuscleStrength(puppetMaster, originalWeights, 0.5f)); // Faster recovery
-    }
-    
-    private System.Collections.IEnumerator RestoreMuscleStrength(PuppetMaster puppetMaster, float[] originalWeights, float duration)
-    {
-        float elapsed = 0f;
-        
-        // Store the reduced weights to interpolate from
-        float[] reducedWeights = new float[puppetMaster.muscles.Length];
-        for (int i = 0; i < puppetMaster.muscles.Length; i++)
-        {
-            reducedWeights[i] = puppetMaster.muscles[i].props.muscleWeight;
-        }
-        
-        while (elapsed < duration)
-        {
-            float t = elapsed / duration;
-            
-            // Smoothly interpolate back to original strength
-            for (int i = 0; i < puppetMaster.muscles.Length; i++)
-            {
-                if (puppetMaster.muscles[i] != null) // Safety check
-                {
-                    puppetMaster.muscles[i].props.muscleWeight = Mathf.Lerp(reducedWeights[i], originalWeights[i], t);
-                }
-            }
-            
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        
-        // Ensure we're back to original values
-        for (int i = 0; i < puppetMaster.muscles.Length; i++)
-        {
-            if (puppetMaster.muscles[i] != null)
-            {
-                puppetMaster.muscles[i].props.muscleWeight = originalWeights[i];
-            }
-        }
     }
 }
