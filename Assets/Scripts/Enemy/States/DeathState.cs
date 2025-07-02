@@ -4,9 +4,6 @@ using UnityEngine;
 public class DeathState : EnemyState
 {
     private bool hasActivatedRagdoll = false;
-    private bool useDeathAnimation = false; // Set this to true if you want to use animation first
-    private float animationDuration = 1.0f; // Duration to play animation before ragdoll
-    private float animationTimer = 0f;
 
     public DeathState(
         Enemy enemy,

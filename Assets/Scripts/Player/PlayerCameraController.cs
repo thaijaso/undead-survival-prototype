@@ -11,7 +11,6 @@ public class PlayerCameraController : MonoBehaviour
     [SerializeField] private Transform backwardsFollowTarget;
 
     [SerializeField] private Transform aimTarget;
-    [SerializeField] private float aimDistance = 10.0f; // Distance from the camera to the aim target
 
     [SerializeField] private float followFOV = 40f;
 
