@@ -27,7 +27,7 @@ public class Bullet : MonoBehaviour
         // Handle enemy damage if this is a hitbox collision
         HandleEnemyHitboxImpact(collision.collider, hitPoint, hitNormal);
 
-         // Apply physics force to any rigidbody (limbs, props, etc.)
+        // Apply physics force to any rigidbody (limbs, props, etc.)
         Rigidbody rb = collision.rigidbody;
         if (rb != null)
         {
