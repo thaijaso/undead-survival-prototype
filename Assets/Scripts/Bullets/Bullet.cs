@@ -126,46 +126,56 @@ public class Bullet : MonoBehaviour
         // Spawn blood effect regardless of body part presence
         SpawnBloodEffect(hitPoint, hitNormal, enemy);
 
+        // Handle state transitions based on bullet impact
+        HandleEnemyStateTransition(enemy);
+    }
+    
+    private void HandleEnemyStateTransition(Enemy enemy)
+    {
         // Only force state transitions if the enemy is not in debug mode
         if (!enemy.DebugModeEnabled)
         {
+            var currentState = enemy.stateMachine.currentState;
+            
             // Determine appropriate state based on current state and aggro history
             if (!enemy.HasAggroed)
             {
                 // First time being hit - go to Aggro state for initial reaction
                 enemy.stateMachine.SetState(enemy.Aggro);
-                Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): First aggro - transitioning to Aggro state");
+                Debug.Log($"[Bullet] HandleEnemyStateTransition(): First aggro - transitioning to Aggro state");
+            }
+            else if (currentState == enemy.Aggro)
+            {
+                // Currently in aggro state (first aggro animation) - don't interrupt it
+                Debug.Log($"[Bullet] HandleEnemyStateTransition(): Enemy in Aggro state - not interrupting aggro animation");
             }
             else
             {
-                // Already aggroed before - behavior depends on current state
-                var currentState = enemy.stateMachine.currentState;
-                
+                // Already aggroed before and not currently in Aggro - behavior depends on current state
                 if (currentState == enemy.Idle || currentState == enemy.Patrol || currentState == enemy.Alert)
                 {
                     // Re-engaging from a calm state - go to Chase (skip aggro animation)
                     enemy.stateMachine.SetState(enemy.Chase);
-                    Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Re-engaging from {currentState.GetType().Name} - transitioning to Chase");
+                    Debug.Log($"[Bullet] HandleEnemyStateTransition(): Re-engaging from {currentState.GetType().Name} - transitioning to Chase");
                 }
                 else if (currentState == enemy.Attack)
                 {
                     // Already attacking - stay in attack, let natural transitions handle it
-                    Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Enemy already attacking - no state change needed");
+                    Debug.Log($"[Bullet] HandleEnemyStateTransition(): Enemy already attacking - no state change needed");
                 }
                 else
                 {
-                    // In Aggro or Chase - go to Chase to ensure active pursuit
-                    enemy.stateMachine.SetState(enemy.Chase);
-                    Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Ensuring Chase state from {currentState.GetType().Name}");
+                    // In Chase - stay in chase, no need to force transition
+                    Debug.Log($"[Bullet] HandleEnemyStateTransition(): In Chase state - maintaining pursuit");
                 }
             }
         }
         else
         {
-            Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Enemy in debug mode - not forcing state transitions");
+            Debug.Log($"[Bullet] HandleEnemyStateTransition(): Enemy in debug mode - not forcing state transitions");
         }
     }
-    
+
     private void SpawnBloodEffect(Vector3 hitPoint, Vector3 hitNormal, Enemy enemy)
     {
         GameObject bloodEffect = Instantiate(
