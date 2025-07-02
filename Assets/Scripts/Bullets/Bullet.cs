@@ -28,17 +28,7 @@ public class Bullet : MonoBehaviour
         HandleEnemyHitboxImpact(collision.collider, hitPoint, hitNormal);
 
         // Apply physics force to any rigidbody (limbs, props, etc.)
-        Rigidbody rb = collision.rigidbody;
-        if (rb != null)
-        {
-            Vector3 direction = GetComponent<Rigidbody>().linearVelocity.normalized;
-
-            rb.AddForceAtPosition(
-                direction * impactForce,
-                contact.point,
-                ForceMode.Impulse
-            );
-        }
+        ApplyImpactForce(collision, contact);
 
         if (BulletDecalManager.Instance == null)
         {
@@ -55,6 +45,21 @@ public class Bullet : MonoBehaviour
 
         // Destroy the bullet after impact
         Destroy(gameObject);
+    }
+
+    private void ApplyImpactForce(Collision collision, ContactPoint contact)
+    {
+        Rigidbody rb = collision.rigidbody;
+        if (rb != null)
+        {
+            Vector3 direction = GetComponent<Rigidbody>().linearVelocity.normalized;
+
+            rb.AddForceAtPosition(
+                direction * impactForce,
+                contact.point,
+                ForceMode.Impulse
+            );
+        }
     }
 
     private void HandleEnemyHitboxImpact(Collider hitCollider, Vector3 hitPoint, Vector3 hitNormal)
