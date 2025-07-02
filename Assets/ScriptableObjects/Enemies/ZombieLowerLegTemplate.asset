@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   damageMultiplier: 1
-  canBeDismembered: 1
+  canBeDismembered: 0
