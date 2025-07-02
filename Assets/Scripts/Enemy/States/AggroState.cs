@@ -36,11 +36,7 @@ public class AggroState : EnemyState
         if (enemy.DebugModeEnabled)
         {
             // Still handle turning animation if needed
-            float debugAngleToPlayer = GetAngleToPlayer();
-            if (Mathf.Abs(debugAngleToPlayer) > 90f && !enemy.IsTurning)
-            {
-                PlayTurnAnimation(debugAngleToPlayer);
-            }
+            CheckAndHandleTurning();
             return;
         }
 
@@ -52,11 +48,15 @@ public class AggroState : EnemyState
             return;
         }
 
-        float angleToPlayer = GetAngleToPlayer();
+        CheckAndHandleTurning();
+    }
 
+    private void CheckAndHandleTurning()
+    {
+        float angleToPlayer = GetAngleToPlayer();
         if (Mathf.Abs(angleToPlayer) > 90f && !enemy.IsTurning)
         {
-            Debug.Log($"[{enemy.name}] AggroState.LogicUpdate(): Starting turn animation - IsTurning is currently {enemy.IsTurning}");
+            Debug.Log($"[{enemy.name}] AggroState.CheckAndHandleTurning(): Starting turn animation - IsTurning is currently {enemy.IsTurning}");
             PlayTurnAnimation(angleToPlayer);
         }
     }
