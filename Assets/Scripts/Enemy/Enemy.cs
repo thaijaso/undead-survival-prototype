@@ -488,7 +488,7 @@ public class Enemy : MonoBehaviour
 
     // Debug buttons for testing in play mode
     [TabGroup("Debug")]
-    [Button("Toggle Debug Mode"), EnableIf("@Application.isPlaying")]
+    [Button("Toggle Debug Mode"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void ToggleDebugMode()
     {
         DebugModeEnabled = !DebugModeEnabled;
@@ -503,7 +503,7 @@ public class Enemy : MonoBehaviour
     }
     
     [TabGroup("Debug")]
-    [Button("Stop Movement"), EnableIf("@Application.isPlaying")]
+    [Button("Stop Movement"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void StopMovement()
     {
         SetSpeed(0f);
@@ -511,7 +511,7 @@ public class Enemy : MonoBehaviour
     }
     
     [TabGroup("Debug")]
-    [Button("Resume Movement"), EnableIf("@Application.isPlaying")]
+    [Button("Resume Movement"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void ResumeMovement()
     {
         // Set speed based on current state
@@ -540,15 +540,16 @@ public class Enemy : MonoBehaviour
     }
 
     [TabGroup("Debug")]
-    [Button("Log Current Speed"), EnableIf("@Application.isPlaying")]
+    [Button("Log Current Speed"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugLogCurrentSpeed()
     {
         LogCurrentSpeed("Manual Debug");
     }
 
+    // State transition debug buttons - Row 1
     [TabGroup("Debug")]
-    [HorizontalGroup("Debug/StateButtons")]
-    [Button("→ Idle"), EnableIf("@Application.isPlaying")]
+    [HorizontalGroup("StateButtons1")]
+    [Button("→ Idle"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugSetIdleState()
     {
         if (Idle != null)
@@ -559,8 +560,8 @@ public class Enemy : MonoBehaviour
     }
 
     [TabGroup("Debug")]
-    [HorizontalGroup("Debug/StateButtons")]
-    [Button("→ Alert"), EnableIf("@Application.isPlaying")]
+    [HorizontalGroup("StateButtons1")]
+    [Button("→ Alert"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugSetAlertState()
     {
         if (Alert != null)
@@ -571,8 +572,8 @@ public class Enemy : MonoBehaviour
     }
 
     [TabGroup("Debug")]
-    [HorizontalGroup("Debug/StateButtons")]
-    [Button("→ Patrol"), EnableIf("@Application.isPlaying")]
+    [HorizontalGroup("StateButtons1")]
+    [Button("→ Patrol"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugSetPatrolState()
     {
         if (Patrol != null)
@@ -582,9 +583,10 @@ public class Enemy : MonoBehaviour
         }
     }
     
+    // State transition debug buttons - Row 2
     [TabGroup("Debug")]
-    [HorizontalGroup("Debug/StateButtons2")]
-    [Button("→ Aggro"), EnableIf("@Application.isPlaying")]
+    [HorizontalGroup("StateButtons2")]
+    [Button("→ Aggro"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugSetAggroState()
     {
         if (Aggro != null)
@@ -593,10 +595,22 @@ public class Enemy : MonoBehaviour
             Debug.Log($"[{name}] Manually set to Aggro state" + (DebugModeEnabled ? "" : " (may auto-transition if player distance changes)"));
         }
     }
+
+    [TabGroup("Debug")]
+    [HorizontalGroup("StateButtons2")]
+    [Button("→ Chase"), EnableIf("@UnityEngine.Application.isPlaying")]
+    private void DebugSetChaseState()
+    {
+        if (Chase != null)
+        {
+            stateMachine.SetState(Chase);
+            Debug.Log($"[{name}] Manually set to Chase state" + (DebugModeEnabled ? "" : " (may auto-transition if player distance changes)"));
+        }
+    }
     
     [TabGroup("Debug")]
-    [HorizontalGroup("Debug/StateButtons2")]
-    [Button("→ Attack"), EnableIf("@Application.isPlaying")]
+    [HorizontalGroup("StateButtons2")]
+    [Button("→ Attack"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugSetAttackState()
     {
         if (Attack != null)
@@ -607,8 +621,8 @@ public class Enemy : MonoBehaviour
     }
     
     [TabGroup("Debug")]
-    [HorizontalGroup("Debug/StateButtons2")]
-    [Button("→ Death"), EnableIf("@Application.isPlaying")]
+    [HorizontalGroup("StateButtons2")]
+    [Button("→ Death"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugSetDeathState()
     {
         if (Death != null)
@@ -619,7 +633,7 @@ public class Enemy : MonoBehaviour
     }
 
     [TabGroup("Debug")]
-    [Button("Force Take Damage"), EnableIf("@Application.isPlaying")]
+    [Button("Force Take Damage"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugTakeDamage([MinValue(1)] int damage = 10)
     {
         if (HealthManager != null)
@@ -630,7 +644,7 @@ public class Enemy : MonoBehaviour
     }
 
     [TabGroup("Debug")]
-    [Button("Revive Zombie"), EnableIf("@Application.isPlaying")]
+    [Button("Revive Zombie"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugReviveZombie()
     {
         if (HealthManager != null)
