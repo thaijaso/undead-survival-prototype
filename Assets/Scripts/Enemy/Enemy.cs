@@ -34,42 +34,12 @@ public class Enemy : MonoBehaviour
 
     public StateMachine<EnemyState> stateMachine { get; private set; }
 
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
-    [ShowIf("@stateMachine != null")]
-    public string CurrentState => stateMachine?.currentState?.GetType().Name ?? "None";
-
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
-    [ShowIf("@FollowerEntity != null")]
-    public float CurrentSpeed => FollowerEntity?.maxSpeed ?? 0f;
-
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
     public EnemyState Idle { get; private set; }
-
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
     public EnemyState Alert { get; private set; }
-    
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
     public EnemyState Patrol { get; private set; }
-
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
     public EnemyState Aggro { get; private set; }
-
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
     public EnemyState Chase { get; private set; }
-
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
     public EnemyState Attack { get; private set; }
-
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
     public EnemyState Death { get; private set; }
 
     [TabGroup("Configuration")]
@@ -89,8 +59,6 @@ public class Enemy : MonoBehaviour
 
     
     // Track if enemy has been aggroed before
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
     public bool HasAggroed { get; private set; } = false;
     
     public void SetHasAggroed(bool value)
@@ -100,8 +68,6 @@ public class Enemy : MonoBehaviour
     }
 
     // Shared turn animation state across all states
-    [TabGroup("Debug")]
-    [ShowInInspector, ReadOnly]
     private bool _isTurning = false;
     public bool IsTurning 
     { 
@@ -120,9 +86,6 @@ public class Enemy : MonoBehaviour
     private Coroutine speedBlendCoroutine;
     
     // Debug mode to override automatic state transitions
-    [TabGroup("Debug")]
-    [ShowInInspector]
-    [InfoBox("When enabled, prevents automatic state transitions based on player distance. Allows manual state control.", InfoMessageType.Info)]
     public bool DebugModeEnabled = false;
 
     private void Awake()
@@ -510,250 +473,5 @@ public class Enemy : MonoBehaviour
         {
             Debug.LogWarning($"[{name}] Enemy.SetSpeed(): No FollowerEntity component found to set speed");
         }
-    }
-
-    // Debug buttons for testing in play mode
-    [TabGroup("Debug")]
-    [Button("Toggle Debug Mode"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void ToggleDebugMode()
-    {
-        DebugModeEnabled = !DebugModeEnabled;
-        string status = DebugModeEnabled ? "ENABLED" : "DISABLED";
-        Debug.Log($"[{name}] Debug Mode {status} - Automatic state transitions are now {(DebugModeEnabled ? "blocked" : "active")}");
-        
-        if (DebugModeEnabled)
-        {
-            // Stop the enemy from moving when debug mode is enabled
-            SetSpeed(0f);
-        }
-    }
-    
-    [TabGroup("Debug")]
-    [Button("Stop Movement"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void StopMovement()
-    {
-        SetSpeed(0f);
-        Debug.Log($"[{name}] Movement stopped (speed set to 0)");
-    }
-    
-    [TabGroup("Debug")]
-    [Button("Resume Movement"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void ResumeMovement()
-    {
-        // Set speed based on current state
-        if (stateMachine.currentState == Patrol)
-        {
-            SetSpeed(template.patrolSpeed);
-        }
-        else if (stateMachine.currentState == Alert || stateMachine.currentState == Aggro)
-        {
-            SetSpeed(template.chaseSpeed);
-        }
-        else if (stateMachine.currentState == Idle)
-        {
-            SetSpeed(0f); // Idle should not move
-        }
-        else if (stateMachine.currentState == Attack)
-        {
-            SetSpeed(0f); // Attack typically doesn't move
-        }
-        else
-        {
-            // Default fallback
-            SetSpeed(template.patrolSpeed);
-        }
-        Debug.Log($"[{name}] Movement resumed for state: {stateMachine.currentState?.GetType().Name}");
-    }
-
-    [TabGroup("Debug")]
-    [Button("Log Current Speed"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void DebugLogCurrentSpeed()
-    {
-        LogCurrentSpeed("Manual Debug");
-    }
-
-    // State transition debug buttons - Row 1
-    [TabGroup("Debug")]
-    [HorizontalGroup("StateButtons1")]
-    [Button("→ Idle"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void DebugSetIdleState()
-    {
-        if (Idle != null)
-        {
-            stateMachine.SetState(Idle);
-            Debug.Log($"[{name}] Manually set to Idle state" + (DebugModeEnabled ? "" : " (may auto-transition if player is close)"));
-        }
-    }
-
-    [TabGroup("Debug")]
-    [HorizontalGroup("StateButtons1")]
-    [Button("→ Alert"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void DebugSetAlertState()
-    {
-        if (Alert != null)
-        {
-            stateMachine.SetState(Alert);
-            Debug.Log($"[{name}] Manually set to Alert state" + (DebugModeEnabled ? "" : " (may auto-transition if player distance changes)"));
-        }
-    }
-
-    [TabGroup("Debug")]
-    [HorizontalGroup("StateButtons1")]
-    [Button("→ Patrol"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void DebugSetPatrolState()
-    {
-        if (Patrol != null)
-        {
-            stateMachine.SetState(Patrol);
-            Debug.Log($"[{name}] Manually set to Patrol state" + (DebugModeEnabled ? "" : " (may auto-transition if player is close)"));
-        }
-    }
-    
-    // State transition debug buttons - Row 2
-    [TabGroup("Debug")]
-    [HorizontalGroup("StateButtons2")]
-    [Button("→ Aggro"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void DebugSetAggroState()
-    {
-        if (Aggro != null)
-        {
-            stateMachine.SetState(Aggro);
-            Debug.Log($"[{name}] Manually set to Aggro state" + (DebugModeEnabled ? "" : " (may auto-transition if player distance changes)"));
-        }
-    }
-
-    [TabGroup("Debug")]
-    [HorizontalGroup("StateButtons2")]
-    [Button("→ Chase"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void DebugSetChaseState()
-    {
-        if (Chase != null)
-        {
-            stateMachine.SetState(Chase);
-            Debug.Log($"[{name}] Manually set to Chase state" + (DebugModeEnabled ? "" : " (may auto-transition if player distance changes)"));
-        }
-    }
-    
-    [TabGroup("Debug")]
-    [HorizontalGroup("StateButtons2")]
-    [Button("→ Attack"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void DebugSetAttackState()
-    {
-        if (Attack != null)
-        {
-            stateMachine.SetState(Attack);
-            Debug.Log($"[{name}] Manually set to Attack state" + (DebugModeEnabled ? "" : " (may auto-transition if player distance changes)"));
-        }
-    }
-    
-    [TabGroup("Debug")]
-    [HorizontalGroup("StateButtons2")]
-    [Button("→ Death"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void DebugSetDeathState()
-    {
-        if (Death != null)
-        {
-            stateMachine.SetState(Death);
-            Debug.Log($"[{name}] Manually set to Death state");
-        }
-    }
-
-    [TabGroup("Debug")]
-    [Button("Force Take Damage"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void DebugTakeDamage([MinValue(1)] int damage = 10)
-    {
-        if (HealthManager != null)
-        {
-            HealthManager.TakeDamage(damage);
-            Debug.Log($"[{name}] Debug: Took {damage} damage. Health: {HealthManager.currentHealth}");
-        }
-    }
-
-    [TabGroup("Debug")]
-    [Button("Revive Zombie"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void DebugReviveZombie()
-    {
-        if (HealthManager != null)
-        {
-            // Restore health
-            HealthManager.Initialize(template.maxHealth);
-            Debug.Log($"[{name}] Debug: Restored health to {HealthManager.currentHealth}");
-        }
-
-        // Revive PuppetMaster if it's dead
-        if (PuppetMaster != null && PuppetMaster.state == PuppetMaster.State.Dead)
-        {
-            PuppetMaster.Resurrect();
-            Debug.Log($"[{name}] Debug: Resurrected PuppetMaster");
-        }
-
-        // Transition to idle state
-        if (Idle != null)
-        {
-            stateMachine.SetState(Idle);
-            Debug.Log($"[{name}] Debug: Set to Idle state after revival");
-        }
-    }
-
-    [TabGroup("Debug")]
-    [Button("🔄 Reset to Clean Idle"), EnableIf("@UnityEngine.Application.isPlaying")]
-    [InfoBox("Resets rotation, clears all turning states, stops all coroutines, and transitions to clean idle state.", InfoMessageType.Info)]
-    private void DebugResetToCleanIdle()
-    {
-        Debug.Log($"[{name}] === RESETTING TO CLEAN IDLE ===");
-        
-        // 1. Stop all movement immediately
-        SetSpeed(0f);
-        Debug.Log($"[{name}] Reset: Speed set to 0");
-        
-        // 2. Clear all turning states
-        IsTurning = false;
-        AnimationManager?.SetIsTurning(false);
-        Debug.Log($"[{name}] Reset: IsTurning cleared");
-        
-        // 3. Stop any active turn coroutines in current state
-        if (stateMachine.currentState == Alert && Alert is AlertState alertState)
-        {
-            // Force finish any turn animation in AlertState
-            alertState.OnTurnFinished();
-            Debug.Log($"[{name}] Reset: AlertState turn finished");
-        }
-        else if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
-        {
-            // Force finish any turn animation in AggroState  
-            aggroState.OnTurnFinished();
-            Debug.Log($"[{name}] Reset: AggroState turn finished");
-        }
-        
-        // 4. Reset rotation to forward-facing
-        transform.rotation = Quaternion.identity;
-        Debug.Log($"[{name}] Reset: Rotation reset to identity");
-        
-        // 5. Clear any animation triggers that might be stuck
-        AnimationManager?.ResetTrigger("TurnRight180");
-        AnimationManager?.ResetTrigger("TurnLeft180");
-        AnimationManager?.ResetTrigger("Aggro180");
-        Debug.Log($"[{name}] Reset: Animation triggers cleared");
-        
-        // 6. Reset alert state in animation manager
-        AnimationManager?.SetAlertState(false);
-        Debug.Log($"[{name}] Reset: Alert state cleared");
-        
-        // 7. Clear HasAggroAnimFinished bool
-        AnimationManager?.SetHasAgroAnimationFinished(false);
-        Debug.Log($"[{name}] Reset: HasAggroAnimFinished cleared");
-        
-        // 8. Force transition to Idle state
-        if (Idle != null)
-        {
-            stateMachine.SetState(Idle);
-            Debug.Log($"[{name}] Reset: Transitioned to Idle state");
-        }
-        
-        // 9. Enable debug mode to prevent automatic transitions
-        DebugModeEnabled = true;
-        Debug.Log($"[{name}] Reset: Debug mode enabled to prevent auto-transitions");
-        
-        Debug.Log($"[{name}] === RESET TO CLEAN IDLE COMPLETE ===");
     }
 }
