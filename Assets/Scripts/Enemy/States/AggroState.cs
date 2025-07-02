@@ -26,28 +26,24 @@ public class AggroState : EnemyState
         base.Enter();
         Debug.Log($"[{enemy.name}] AggroState.Enter(): Aggro animation should start");
         animationManager.SetIsAggro(true);
+        
+        // Mark that this enemy has been aggroed
+        enemy.SetHasAggroed(true);
     }
     
     public override void LogicUpdate()
     {
         base.LogicUpdate();
 
-        // Skip automatic transitions if debug mode is enabled
+        // In debug mode, stay in aggro state but handle turning
         if (enemy.DebugModeEnabled)
         {
-            // Still handle turning animation if needed
             CheckAndHandleTurning();
             return;
         }
 
-        // Check if player is in attack range (primary condition)
-        if (enemy.IsPlayerInAttackRange())
-        {
-            // Transition to Attack state
-            stateMachine.SetState(enemy.Attack);
-            return;
-        }
-
+        // Normal logic: aggro state should transition to chase after animation finishes
+        // The actual transition happens in OnAggroAnimationFinished()
         CheckAndHandleTurning();
     }
 
@@ -63,15 +59,16 @@ public class AggroState : EnemyState
 
     public void OnAggroAnimationFinished()
     {
-        Debug.Log($"[{enemy.name}] AggroState.OnAggroAnimationFinished(): Aggro animation finished - enabling AI movement");
+        Debug.Log($"[{enemy.name}] AggroState.OnAggroAnimationFinished(): Aggro animation finished - transitioning to Chase state");
+        animationManager.SetHasAgroAnimationFinished(true);
+        animationManager.SetIsTurning(false);
 
         // Reset turning flag
         enemy.IsTurning = false;
 
-        // Enable AI movement
-        enemy.AIDestinationSetter.enabled = true;
-        enemy.FollowerEntity.enabled = true;
-        enemy.SetAndLogSpeed(enemy.GetChaseSpeed(), "AggroState.OnAggroAnimationFinished()");
+
+        // Transition to chase state
+        stateMachine.SetState(enemy.Chase);
     }
 
     private void PlayTurnAnimation(float angle)

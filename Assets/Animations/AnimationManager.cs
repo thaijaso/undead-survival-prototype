@@ -119,4 +119,10 @@ public class AnimationManager
     {
         animator.SetBool("IsInAttackRange", isInAttackRange);
     }
+
+    public bool SetHasAgroAnimationFinished(bool hasFinished)
+    {
+        animator.SetBool("HasAggroAnimFinished", hasFinished);
+        return hasFinished;
+    }
 }

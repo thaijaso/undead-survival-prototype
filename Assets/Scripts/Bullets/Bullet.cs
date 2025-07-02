@@ -126,15 +126,43 @@ public class Bullet : MonoBehaviour
         // Spawn blood effect regardless of body part presence
         SpawnBloodEffect(hitPoint, hitNormal, enemy);
 
-        // Only force aggro transition if the enemy is not in debug mode
+        // Only force state transitions if the enemy is not in debug mode
         if (!enemy.DebugModeEnabled)
         {
-            enemy.stateMachine.SetState(enemy.Aggro);
-            Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Forced enemy to Aggro state");
+            // Determine appropriate state based on current state and aggro history
+            if (!enemy.HasAggroed)
+            {
+                // First time being hit - go to Aggro state for initial reaction
+                enemy.stateMachine.SetState(enemy.Aggro);
+                Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): First aggro - transitioning to Aggro state");
+            }
+            else
+            {
+                // Already aggroed before - behavior depends on current state
+                var currentState = enemy.stateMachine.currentState;
+                
+                if (currentState == enemy.Idle || currentState == enemy.Patrol || currentState == enemy.Alert)
+                {
+                    // Re-engaging from a calm state - go to Chase (skip aggro animation)
+                    enemy.stateMachine.SetState(enemy.Chase);
+                    Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Re-engaging from {currentState.GetType().Name} - transitioning to Chase");
+                }
+                else if (currentState == enemy.Attack)
+                {
+                    // Already attacking - stay in attack, let natural transitions handle it
+                    Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Enemy already attacking - no state change needed");
+                }
+                else
+                {
+                    // In Aggro or Chase - go to Chase to ensure active pursuit
+                    enemy.stateMachine.SetState(enemy.Chase);
+                    Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Ensuring Chase state from {currentState.GetType().Name}");
+                }
+            }
         }
         else
         {
-            Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Enemy in debug mode - not forcing Aggro transition");
+            Debug.Log($"[Bullet] HandleEnemyHitboxImpact(): Enemy in debug mode - not forcing state transitions");
         }
     }
     

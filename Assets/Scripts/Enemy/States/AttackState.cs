@@ -52,16 +52,6 @@ public class AttackState : EnemyState
             return;
         }
 
-        if (!enemy.IsPlayerInAttackRange())
-        {
-            Debug.Log($"[{enemy.name}] AttackState.LogicUpdate(): Player out of attack range - transitioning to Aggro state");
-            // Transition back to Aggro state if player is out of attack range
-            animationManager.SetIsAttacking(false); // Reset attacking state in animation manager
-            animationManager.SetIsInAttackRange(false); // Reset attack range in animation manager
-            stateMachine.SetState(enemy.Aggro);
-            return;
-        }
-
         animationManager.SetIsAttacking(true); // Set attacking state in animation manager
         animationManager.SetIsInAttackRange(true); // Ensure attack range is set in animation manager
     }
@@ -77,9 +67,21 @@ public class AttackState : EnemyState
             return;
         }
 
-        Debug.Log($"[{enemy.name}] AttackState.OnAttackFinished(): Transitioning to Aggro state");
-        // Transition back to Aggro state
-        stateMachine.SetState(enemy.Aggro);
+        if (enemy.IsPlayerInAttackRange())
+        {
+            Debug.Log($"[{enemy.name}] AttackState.OnAttackFinished(): Player still in attack range - staying in Attack state");
+            // Player is still in attack range, stay in Attack state
+            animationManager.SetIsAttacking(true);
+            animationManager.SetIsInAttackRange(true);
+        }
+        else
+        {
+            Debug.Log($"[{enemy.name}] AttackState.OnAttackFinished(): Player out of attack range - transitioning to Chase state");
+            // Player is out of attack range, transition to Chase state
+            animationManager.SetIsAttacking(false); // Reset attacking state in animation manager
+            animationManager.SetIsInAttackRange(false); // Reset attack range in animation manager
+            stateMachine.SetState(enemy.Chase);
+        }
     }
 
     public void OnAttackLostMomentum()

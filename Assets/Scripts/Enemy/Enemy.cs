@@ -61,11 +61,20 @@ public class Enemy : MonoBehaviour
 
     [TabGroup("Debug")]
     [ShowInInspector, ReadOnly]
+    public EnemyState Chase { get; private set; }
+
+    [TabGroup("Debug")]
+    [ShowInInspector, ReadOnly]
     public EnemyState Attack { get; private set; }
 
     [TabGroup("Debug")]
     [ShowInInspector, ReadOnly]
     public EnemyState Death { get; private set; }
+
+    [TabGroup("Configuration")]
+    [Required]
+    [AssetsOnly]
+    public EnemyTemplate template;
 
     public Transform GetPlayerTransform() => PlayerTransform;
     public List<Transform> GetPatrolPoints() => patrolPoints;
@@ -77,20 +86,18 @@ public class Enemy : MonoBehaviour
 
     public float GetAttackRange() => template.attackRange;
 
-    [TabGroup("Configuration")]
-    [Required]
-    [AssetsOnly]
-    public EnemyTemplate template;
-
-    // Speed blending fields
-    private Coroutine speedBlendCoroutine;
     
-    // Debug mode to override automatic state transitions
+    // Track if enemy has been aggroed before
     [TabGroup("Debug")]
-    [ShowInInspector]
-    [InfoBox("When enabled, prevents automatic state transitions based on player distance. Allows manual state control.", InfoMessageType.Info)]
-    public bool DebugModeEnabled = false;
+    [ShowInInspector, ReadOnly]
+    public bool HasAggroed { get; private set; } = false;
     
+    public void SetHasAggroed(bool value)
+    {
+        HasAggroed = value;
+        Debug.Log($"[{name}] HasAggroed set to {value}");
+    }
+
     // Shared turn animation state across all states
     [TabGroup("Debug")]
     [ShowInInspector, ReadOnly]
@@ -107,6 +114,15 @@ public class Enemy : MonoBehaviour
             }
         }
     }
+
+    // Speed blending fields
+    private Coroutine speedBlendCoroutine;
+    
+    // Debug mode to override automatic state transitions
+    [TabGroup("Debug")]
+    [ShowInInspector]
+    [InfoBox("When enabled, prevents automatic state transitions based on player distance. Allows manual state control.", InfoMessageType.Info)]
+    public bool DebugModeEnabled = false;
 
     private void Awake()
     {
@@ -241,6 +257,9 @@ public class Enemy : MonoBehaviour
 
         Aggro = new AggroState(this, stateMachine, AnimationManager, "Aggro", PlayerTransform);
         Debug.Log($"[{gameObject.name}] ✓ Aggro state initialized");
+
+        Chase = new ChaseState(this, stateMachine, AnimationManager, "Chase");
+        Debug.Log($"[{gameObject.name}] ✓ Chase state initialized");
 
         Attack = new AttackState(this, stateMachine, AnimationManager, "Attack");
         Debug.Log($"[{gameObject.name}] ✓ Attack state initialized");
