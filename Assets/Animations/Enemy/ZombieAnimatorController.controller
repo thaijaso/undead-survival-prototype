@@ -432,23 +432,23 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: -4099194241911474525}
-    m_Position: {x: 490, y: -10, z: 0}
+    m_Position: {x: 250, y: 0, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -3872949626247184245}
-    m_Position: {x: 420, y: -590, z: 0}
+    m_Position: {x: 1320, y: 180, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -6277196819579909218}
-    m_Position: {x: 300, y: 360, z: 0}
+    m_Position: {x: 250, y: 350, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 2600939440287273830}
-    m_Position: {x: 640, y: 360, z: 0}
+    m_Position: {x: 550, y: 350, z: 0}
   m_ChildStateMachines:
   - serializedVersion: 1
     m_StateMachine: {fileID: -2375820753326444947}
-    m_Position: {x: 640, y: 190, z: 0}
+    m_Position: {x: 860, y: 340, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: 2157818838627936760}
-    m_Position: {x: 820, y: -10, z: 0}
+    m_Position: {x: 850, y: 0, z: 0}
   m_AnyStateTransitions:
   - {fileID: 2454226507119146200}
   m_EntryTransitions: []
@@ -462,8 +462,8 @@ AnimatorStateMachine:
     - {fileID: 1273296313256154715}
     - {fileID: 4233269194592620699}
   m_StateMachineBehaviours: []
-  m_AnyStatePosition: {x: 310, y: -750, z: 0}
-  m_EntryPosition: {x: 180, y: 0, z: 0}
+  m_AnyStatePosition: {x: 1210, y: 20, z: 0}
+  m_EntryPosition: {x: 270, y: -170, z: 0}
   m_ExitPosition: {x: 20, y: -590, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: -4099194241911474525}
@@ -1594,12 +1594,6 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
-  - m_Name: ShouldRun
-    m_Type: 4
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
   - m_Name: TurnLeft180
     m_Type: 9
     m_DefaultFloat: 0
@@ -1649,6 +1643,12 @@ AnimatorController:
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
   - m_Name: HasAggroAnimFinished
+    m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: IsChasing
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -1788,6 +1788,9 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 2
     m_ConditionEvent: IsInAttackRange
+    m_EventTreshold: 0
+  - m_ConditionMode: 2
+    m_ConditionEvent: IsIdle
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 2600939440287273830}
