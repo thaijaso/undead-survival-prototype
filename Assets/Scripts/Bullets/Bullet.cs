@@ -32,32 +32,12 @@ public class Bullet : MonoBehaviour
         if (rb != null)
         {
             Vector3 direction = GetComponent<Rigidbody>().linearVelocity.normalized;
-            
-            // Check if this is a ragdoll limb and adjust force accordingly
-            float adjustedForce = impactForce;
-            PuppetMaster puppetMaster = rb.GetComponentInParent<PuppetMaster>();
-            
-            if (puppetMaster != null)
-            {
-                // Reduce force on dead ragdolls to prevent over-reaction
-                if (puppetMaster.state == PuppetMaster.State.Dead)
-                {
-                    adjustedForce *= 0.3f; // Reduce force by 70% for dead ragdolls
-                }
-                // Increase force on alive ragdolls to overcome muscle resistance
-                else if (puppetMaster.state == PuppetMaster.State.Alive)
-                {
-                    adjustedForce *= 2.0f; // Increase force by 100% for alive ragdolls
-                }
-            }
 
             rb.AddForceAtPosition(
-                direction * adjustedForce,
+                direction * impactForce,
                 contact.point,
                 ForceMode.Impulse
             );
-            
-            Debug.Log($"Applied force {adjustedForce} to {rb.gameObject.name} (PuppetMaster state: {puppetMaster?.state})");
         }
 
         if (BulletDecalManager.Instance == null)
@@ -116,12 +96,6 @@ public class Bullet : MonoBehaviour
 
         // Do damage to the enemy and limb:
         enemy.ProcessHit(damage, limb);
-
-        // Add hit reaction if enemy is alive
-        if (puppetMaster.state == PuppetMaster.State.Alive)
-        {
-            //ApplyHitReaction(puppetMaster, limb);
-        }
 
         // Spawn blood effect regardless of body part presence
         SpawnBloodEffect(hitPoint, hitNormal, enemy);
