@@ -13,6 +13,7 @@ public enum LimbType
     Hand
 }
 
+[DefaultExecutionOrder(-50)] // Ensure Limb runs before HealthManager but after Enemy
 public class Limb : MonoBehaviour
 {
     [Header("Dismemberment (Only needed if limb is dismemerable)")]
@@ -43,6 +44,26 @@ public class Limb : MonoBehaviour
     {
         if (HealthManager == null)
             HealthManager = GetComponent<HealthManager>();
+    }
+
+    void Start()
+    {
+        // Initialize HealthManager with template data if available
+        if (HealthManager != null && Template != null)
+        {
+            HealthManager.Initialize(Template.maxHealth);
+            Debug.Log($"[{gameObject.name}] Limb HealthManager initialized with template maxHealth: {Template.maxHealth}");
+        }
+        else if (HealthManager != null)
+        {
+            // Fallback to the Health field if no template is available
+            HealthManager.Initialize(Health);
+            Debug.Log($"[{gameObject.name}] Limb HealthManager initialized with fallback Health: {Health}");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] Limb has no HealthManager component!");
+        }
     }
 
     public void TakeDamage(int damage)

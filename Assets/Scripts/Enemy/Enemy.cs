@@ -6,6 +6,7 @@ using Pathfinding;
 using RootMotion.Dynamics;
 using Sirenix.OdinInspector;
 
+[DefaultExecutionOrder(-100)] // Ensure Enemy runs before other components
 public class Enemy : MonoBehaviour
 {
     public AnimationManager AnimationManager { get; private set; }
@@ -241,7 +242,9 @@ public class Enemy : MonoBehaviour
         // Initialize HealthManager with template data now that template is confirmed available
         if (HealthManager != null)
         {
+            Debug.Log($"[{gameObject.name}] About to initialize HealthManager. Current health: {HealthManager.currentHealth}");
             HealthManager.Initialize(template.maxHealth);
+            Debug.Log($"[{gameObject.name}] HealthManager initialized. New health: {HealthManager.currentHealth}");
         }
 
         Debug.Log($"[{gameObject.name}] Initializing enemy states...");
