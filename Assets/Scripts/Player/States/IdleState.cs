@@ -18,7 +18,7 @@ namespace PlayerStates
 
         public override void Enter()
         {
-            Debug.Log($"[{player.name}] IdleState.Enter(): Entering Idle state");
+            Debug.Log($"[{player.name}] IdleState.Enter(): Entering Idle state.");
             animationManager.SetIsIdle(true);
             animationManager.SetIsStrafing(false);
             animationManager.SetMoveParams(0f, 0f);
@@ -27,7 +27,7 @@ namespace PlayerStates
 
         public override void Exit(PlayerState nextState)
         {
-            Debug.Log($"[{player.name}] IdleState.Exit(): Exiting to {nextState.GetType().Name}");
+            Debug.Log($"[{player.name}] IdleState.Exit(): Exiting to {nextState.GetType().Name}.");
             animationManager.SetIsIdle(false);
         }
 

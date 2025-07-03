@@ -84,7 +84,7 @@ public class PlayerCameraController : MonoBehaviour
     private void SetupCinemachineInputAxisController()
     {
         inputAxisController = playerCamera.GetComponent<CinemachineInputAxisController>();
-        Debug.Log($"[{gameObject.name}] PlayerCameraController.SetupCinemachineInputAxisController(): CinemachineInputAxisController found: {(inputAxisController != null)}");
+        Debug.Log($"[{gameObject.name}] PlayerCameraController.SetupCinemachineInputAxisController(): CinemachineInputAxisController found: {(inputAxisController != null)}.");
         
         if (inputAxisController != null)
         {

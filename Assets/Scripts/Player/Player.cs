@@ -42,7 +42,7 @@ public class Player : MonoBehaviour
     [TabGroup("Configuration")]
     [Required]
     [AssetsOnly]
-    [InfoBox("Player template containing health, movement speeds, and other core stats")]
+    [InfoBox("Player template containing health, movement speeds, and other core stats.")]
     public PlayerTemplate playerTemplate;
 
     [TabGroup("References")]

@@ -139,6 +139,91 @@ public class PlayerDebugger : MonoBehaviour
         Debug.Log($"Crosshair Controller: {(player.CrosshairController != null ? "✓" : "✗")}");
     }
 
+    /// <summary>
+    /// Logs current input state and input system status
+    /// </summary>
+    public void LogInputState()
+    {
+        if (player?.PlayerInput == null)
+        {
+            Debug.LogWarning($"[{player?.name ?? name}] No PlayerInput found for input debugging");
+            return;
+        }
+
+        Debug.Log($"=== Input Debug for {player.name} ===");
+        Debug.Log($"PlayerInput Active: {player.PlayerInput != null}");
+        Debug.Log($"Current State: {GetCurrentStateName()}");
+        Debug.Log($"Input System Responsive: {(player.PlayerInput.enabled ? "✓" : "✗")}");
+    }
+
+    /// <summary>
+    /// Resets player to a safe position (useful when player gets stuck)
+    /// </summary>
+    public void ResetPlayerPosition()
+    {
+        if (player?.transform == null)
+        {
+            Debug.LogWarning($"[{player?.name ?? name}] No player transform found for position reset");
+            return;
+        }
+
+        Vector3 resetPosition = new Vector3(0f, 2f, 0f); // Safe spawn position
+        player.transform.position = resetPosition;
+        
+        // Stop any velocity if CharacterController exists
+        if (player.PlayerCharacterController?.CharacterController != null)
+        {
+            // CharacterController velocity is read-only, but moving to a position resets it
+            player.PlayerCharacterController.CharacterController.enabled = false;
+            player.PlayerCharacterController.CharacterController.enabled = true;
+        }
+        
+        Debug.Log($"[{player.name}] PlayerDebugger.ResetPlayerPosition(): Player position reset to {resetPosition}");
+    }
+
+    /// <summary>
+    /// Logs detailed physics state for debugging movement issues
+    /// </summary>
+    public void LogPhysicsState()
+    {
+        if (player?.PlayerCharacterController == null)
+        {
+            Debug.LogWarning($"[{player?.name ?? name}] No PlayerCharacterController found for physics debugging");
+            return;
+        }
+
+        Debug.Log($"=== Physics Debug for {player.name} ===");
+        Debug.Log($"Is Grounded: {player.PlayerCharacterController.CharacterController.isGrounded}");
+        Debug.Log($"Velocity: {player.PlayerCharacterController.CharacterController.velocity}");
+        Debug.Log($"Speed: {player.PlayerCharacterController.CharacterController.velocity.magnitude:F2} units/sec");
+        Debug.Log($"Position: {player.transform.position}");
+        Debug.Log($"Template Gravity: {player.playerTemplate?.gravity ?? 0f} m/s²");
+        Debug.Log($"Current State: {GetCurrentStateName()}");
+    }
+
+    /// <summary>
+    /// Logs all template data for debugging configuration issues
+    /// </summary>
+    public void LogTemplateData()
+    {
+        if (player?.playerTemplate == null)
+        {
+            Debug.LogWarning($"[{player?.name ?? name}] No PlayerTemplate found for template debugging");
+            return;
+        }
+
+        Debug.Log($"=== Template Debug for {player.name} ===");
+        Debug.Log($"Template Name: {player.playerTemplate.name}");
+        Debug.Log($"Max Health: {player.playerTemplate.maxHealth} HP");
+        Debug.Log($"Strafe Speed: {player.playerTemplate.strafeSpeed} units/sec");
+        Debug.Log($"Sprint Speed: {player.playerTemplate.sprintSpeed} units/sec");
+        Debug.Log($"Gravity: {player.playerTemplate.gravity} m/s²");
+        
+        // Validate template consistency
+        if (player.playerTemplate.sprintSpeed <= player.playerTemplate.strafeSpeed)
+            Debug.LogWarning($"[{player.name}] ⚠️ Template issue: Sprint speed ({player.playerTemplate.sprintSpeed}) should be faster than strafe speed ({player.playerTemplate.strafeSpeed})!");
+    }
+
     // ===============================================
     // INSPECTOR DEBUG BUTTONS
     // ===============================================
@@ -155,31 +240,22 @@ public class PlayerDebugger : MonoBehaviour
     [Button("Log Weapon State"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugLogWeaponState() => LogWeaponState();
 
-    // State transition debug buttons - Row 1
-    [HorizontalGroup("StateButtons1")]
-    [Button("→ Idle"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void ForceIdleState() => player?.stateMachine?.SetState(player.idle);
+    // Player-specific debug buttons
+    [HorizontalGroup("PlayerDebugButtons1")]
+    [Button("Log Input State"), EnableIf("@UnityEngine.Application.isPlaying")]
+    private void DebugLogInputState() => LogInputState();
 
-    [HorizontalGroup("StateButtons1")]
-    [Button("→ Sprint"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void ForceSprintState() => player?.stateMachine?.SetState(player.sprint);
+    [HorizontalGroup("PlayerDebugButtons1")]
+    [Button("Reset Position"), EnableIf("@UnityEngine.Application.isPlaying")]
+    private void DebugResetPosition() => ResetPlayerPosition();
 
-    [HorizontalGroup("StateButtons1")]
-    [Button("→ Strafe"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void ForceStrafeState() => player?.stateMachine?.SetState(player.strafe);
+    [HorizontalGroup("PlayerDebugButtons2")]
+    [Button("Test Physics"), EnableIf("@UnityEngine.Application.isPlaying")]
+    private void DebugTestPhysics() => LogPhysicsState();
 
-    // State transition debug buttons - Row 2
-    [HorizontalGroup("StateButtons2")]
-    [Button("→ Aim"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void ForceAimState() => player?.stateMachine?.SetState(player.aim);
-
-    [HorizontalGroup("StateButtons2")]
-    [Button("→ Shoot"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void ForceShootState() => player?.stateMachine?.SetState(player.shoot);
-
-    [HorizontalGroup("StateButtons2")]
-    [Button("→ Jump"), EnableIf("@UnityEngine.Application.isPlaying")]
-    private void ForceJumpState() => player?.stateMachine?.SetState(player.jump);
+    [HorizontalGroup("PlayerDebugButtons2")]
+    [Button("Log Template Data"), EnableIf("@UnityEngine.Application.isPlaying")]
+    private void DebugLogTemplateData() => LogTemplateData();
 
     // Health debug buttons
     [Button("Force Take Damage"), EnableIf("@UnityEngine.Application.isPlaying")]

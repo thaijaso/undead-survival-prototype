@@ -40,13 +40,13 @@ public class StateMachine<T> where T : IState<T>
         string previousStateName = currentState?.GetType().Name ?? "None";
         string newStateName = newState.GetType().Name;
         
-        Debug.Log($"[{ownerName}] State transition: {previousStateName} -> {newStateName}");
+        Debug.Log($"[{ownerName}] State transition: {previousStateName} -> {newStateName}.");
 
         currentState?.Exit(newState);
         currentState = newState;
         currentState.Enter();
 
-        Debug.Log($"[{ownerName}] Successfully entered {newStateName}");
+        Debug.Log($"[{ownerName}] Successfully entered {newStateName}.");
     }
 
     public void LogicUpdate()
