@@ -84,11 +84,11 @@ public class PlayerCameraController : MonoBehaviour
     private void SetupCinemachineInputAxisController()
     {
         inputAxisController = playerCamera.GetComponent<CinemachineInputAxisController>();
-        Debug.Log($"PlayerCameraController.SetupCinemachineInputAxisController(): CinemachineInputAxisController found: {(inputAxisController != null)}");
+        Debug.Log($"[{gameObject.name}] PlayerCameraController.SetupCinemachineInputAxisController(): CinemachineInputAxisController found: {(inputAxisController != null)}");
         
         if (inputAxisController != null)
         {
-            Debug.Log($"PlayerCameraController.SetupCinemachineInputAxisController(): Initial inputAxisController.enabled state: {inputAxisController.enabled}");
+            Debug.Log($"[{gameObject.name}] PlayerCameraController.SetupCinemachineInputAxisController(): Initial inputAxisController.enabled state: {inputAxisController.enabled}.");
         }
     }
 
@@ -103,7 +103,7 @@ public class PlayerCameraController : MonoBehaviour
         // Fallback ESC key handling - detect ESC press and unlock cursor manually
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("PlayerCameraController.HandleCursorLock(): ESC key detected - unlocking cursor");
+            Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): ESC key detected - unlocking cursor.");
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
@@ -111,7 +111,7 @@ public class PlayerCameraController : MonoBehaviour
         // Detect mouse click to re-lock cursor
         if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked)
         {
-            Debug.Log("PlayerCameraController.HandleCursorLock(): Mouse click detected - locking cursor");
+            Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Mouse click detected - locking cursor.");
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
@@ -123,14 +123,14 @@ public class PlayerCameraController : MonoBehaviour
         // Only update inputAxisController if cursor lock state has changed
         if (lastLockCursorState != currentCursorLocked)
         {
-            Debug.Log($"PlayerCameraController.HandleCursorLock(): Cursor lock state changed to: {currentCursorLocked} " +
+            Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Cursor lock state changed to: {currentCursorLocked}." +
                      $"(lockState: {Cursor.lockState}, visible: {Cursor.visible})");
             
             // Enable/disable input axis controller based on cursor lock state
             if (inputAxisController != null)
             {
                 inputAxisController.enabled = currentCursorLocked;
-                Debug.Log($"PlayerCameraController.HandleCursorLock(): Set inputAxisController.enabled to: {currentCursorLocked}");
+                Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Set inputAxisController.enabled to: {currentCursorLocked}.");
             }
             
             lastLockCursorState = currentCursorLocked;

@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 using PlayerStates;
+using Sirenix.OdinInspector;
 
+[DefaultExecutionOrder(-100)] // Ensure Player runs before other components
 [RequireComponent(typeof(PlayerInput))]
 [RequireComponent(typeof(PlayerCharacterController))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(PlayerCameraController))]
 [RequireComponent(typeof(PlayerIKController))]
 [RequireComponent(typeof(PlayerWeaponManager))]
+[RequireComponent(typeof(HealthManager))]
 [RequireComponent(typeof(IKRecoil))]
 [RequireComponent(typeof(BulletHitscan))]
 [RequireComponent(typeof(BulletDecalManager))]
@@ -20,12 +23,14 @@ public class Player : MonoBehaviour
 
     public PlayerWeaponManager WeaponManager { get; private set; }
 
+    public HealthManager HealthManager { get; private set; }
+
     public IKRecoil Recoil { get; private set; }
     public BulletHitscan BulletHitscan { get; private set; }
 
     public BulletDecalManager BulletDecalManager { get; private set; }
 
-    private StateMachine<PlayerState> stateMachine;
+    public StateMachine<PlayerState> stateMachine;
     
     internal PlayerState idle;
     internal PlayerState sprint;
@@ -34,10 +39,18 @@ public class Player : MonoBehaviour
     internal PlayerState shoot;
     internal PlayerState strafe;
 
+    [TabGroup("Configuration")]
+    [Required]
+    [AssetsOnly]
+    [InfoBox("Player template containing health, movement speeds, and other core stats")]
+    public PlayerTemplate playerTemplate;
+
+    [TabGroup("References")]
     [Header("References")]
     [SerializeField] private Transform weaponHand;
     public Transform WeaponHand => weaponHand;
 
+    [TabGroup("References")]
     [SerializeField] private CrosshairController crosshairController;
     public CrosshairController CrosshairController => crosshairController;
 
@@ -49,6 +62,7 @@ public class Player : MonoBehaviour
         SetupAnimator();
         SetupPlayerIKController();
         SetupWeaponManager();
+        SetupHealthManager();
         SetupRecoil();
         SetupBulletHitscan();
         SetupBulletDecalManager();
@@ -133,12 +147,51 @@ public class Player : MonoBehaviour
             Debug.LogError($"[{gameObject.name}] Player.SetupBulletDecalManager(): BulletDecalManager component is missing!");
     }
 
+    private void SetupHealthManager()
+    {
+        HealthManager = GetComponent<HealthManager>();
+
+        if (HealthManager == null)
+            Debug.LogError($"[{gameObject.name}] Player.SetupHealthManager(): HealthManager component is missing!");
+        else
+            Debug.Log($"[{gameObject.name}] HealthManager initialized successfully.");
+    }
+
     void Start()
 	{
+        // Initialize HealthManager with template data
+        if (HealthManager != null && playerTemplate != null)
+        {
+            Debug.Log($"[{gameObject.name}] About to initialize HealthManager. Current health: {HealthManager.currentHealth}.");
+            HealthManager.Initialize(playerTemplate.maxHealth);
+            Debug.Log($"[{gameObject.name}] HealthManager initialized. New health: {HealthManager.currentHealth}.");
+        }
+        else if (playerTemplate == null)
+        {
+            Debug.LogError($"[{gameObject.name}] PlayerTemplate is not assigned. Cannot initialize HealthManager.");
+        }
+
+        // Initialize PlayerCharacterController with template data
+        if (PlayerCharacterController != null && playerTemplate != null)
+        {
+            PlayerCharacterController.Initialize(playerTemplate.strafeSpeed, playerTemplate.sprintSpeed, playerTemplate.gravity);
+        }
+        else if (playerTemplate == null)
+        {
+            Debug.LogError($"[{gameObject.name}] PlayerTemplate is not assigned. Cannot initialize PlayerCharacterController.");
+        }
+
         // Initialize states:
+        Debug.Log($"[{gameObject.name}] Initializing player states...");
+
         idle = new IdleState(this, stateMachine, AnimationManager, "Idle");
+        Debug.Log($"[{gameObject.name}] ✓ Idle state initialized.");
+
         sprint = new SprintState(this, stateMachine, AnimationManager, "Sprint");
+        Debug.Log($"[{gameObject.name}] ✓ Sprint state initialized.");
+
         strafe = new StrafeState(this, stateMachine, AnimationManager, "Strafe");
+        Debug.Log($"[{gameObject.name}] ✓ Strafe state initialized.");
         
         aim = new AimState(
             this,
@@ -147,6 +200,7 @@ public class Player : MonoBehaviour
             "Aim",
             WeaponManager
         );
+        Debug.Log($"[{gameObject.name}] ✓ Aim state initialized.");
 
         shoot = new ShootState(
             this,
@@ -158,7 +212,9 @@ public class Player : MonoBehaviour
             BulletHitscan,
             BulletDecalManager
         );
+        Debug.Log($"[{gameObject.name}] ✓ Shoot state initialized");
 
+        Debug.Log($"[{gameObject.name}] All player states initialized. Setting initial state to Idle...");
         // Set initial state
         stateMachine.SetState(idle);
     }
@@ -177,5 +233,23 @@ public class Player : MonoBehaviour
     void LateUpdate()
     {
         stateMachine.LateUpdate();
+    }
+
+    /// <summary>
+    /// Processes damage to the player
+    /// </summary>
+    /// <param name="damage">Amount of damage to take</param>
+    public void ProcessHit(int damage)
+    {
+        if (HealthManager == null) return;
+
+        HealthManager.TakeDamage(damage);
+        Debug.Log($"[{name}] Player.ProcessHit(): Took {damage} damage. Remaining health: {HealthManager.currentHealth}");
+
+        if (HealthManager.currentHealth <= 0)
+        {
+            Debug.Log($"[{name}] Player defeated!");
+            // TODO: Handle player death (game over, respawn, etc.)
+        }
     }
 }

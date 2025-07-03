@@ -18,7 +18,7 @@ public class HealthManager : MonoBehaviour
         maxHealth = templateMaxHealth;
         currentHealth = maxHealth;
         isInitialized = true;
-        Debug.Log($"HealthManager initialized with {maxHealth} health from template");
+        Debug.Log($"[{gameObject.name}] HealthManager.Initialize(): Initialized with {maxHealth} health from template.");
     }
 
     void Start()
@@ -27,7 +27,7 @@ public class HealthManager : MonoBehaviour
         if (!isInitialized && currentHealth == 0)
         {
             currentHealth = maxHealth;
-            Debug.LogWarning($"HealthManager on {gameObject.name} wasn't initialized from template, using default maxHealth: {maxHealth}");
+            Debug.LogWarning($"[{gameObject.name}] HealthManager.Start(): Wasn't initialized from template, using default maxHealth: {maxHealth}.");
         }
     }
 

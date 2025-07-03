@@ -7,20 +7,36 @@ public class PlayerCharacterController : MonoBehaviour
     public CharacterController CharacterController { get; private set; }
     public PlayerIKController PlayerIKController { get; private set; }
 
-    [SerializeField] private float gravityValue = -9.81f;
+    // These will be set from PlayerTemplate at runtime via Initialize()
+    public float strafeSpeed { get; private set; } = 2.0f; // Default fallback
+    public float sprintSpeed { get; private set; } = 5.0f; // Default fallback
+    public float gravity { get; private set; } = -9.81f; // Default fallback
 
-    [SerializeField]
-    public float strafeSpeed = 3.0f;
-
-    [SerializeField]
-    public float sprintSpeed = 6.0f;
+    // Expose velocity for debugging
+    public Vector3 velocity => playerVelocity;
 
     private Vector3 playerVelocity;
+    private bool isInitialized = false;
 
     private void Start()
     {
         CharacterController = GetComponent<CharacterController>();
         PlayerIKController = GetComponent<PlayerIKController>();
+        
+        // Fallback initialization if Initialize() wasn't called
+        if (!isInitialized)
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerCharacterController.Start(): Wasn't initialized from template, using default values - Strafe: {strafeSpeed}, Sprint: {sprintSpeed}, Gravity: {gravity}.");
+        }
+    }
+
+    public void Initialize(float templateStrafeSpeed, float templateSprintSpeed, float templateGravity)
+    {
+        strafeSpeed = templateStrafeSpeed;
+        sprintSpeed = templateSprintSpeed;
+        gravity = templateGravity;
+        isInitialized = true;
+        Debug.Log($"[{gameObject.name}] PlayerCharacterController.Initialize(): Initialized from template - Strafe: {strafeSpeed}, Sprint: {sprintSpeed}, Gravity: {gravity}.");
     }
 
     private void LateUpdate()
@@ -37,7 +53,7 @@ public class PlayerCharacterController : MonoBehaviour
         } 
         else
         {
-            playerVelocity.y += gravityValue * Time.deltaTime;
+            playerVelocity.y += gravity * Time.deltaTime;
         }
 
         CharacterController.Move(playerVelocity * Time.deltaTime);

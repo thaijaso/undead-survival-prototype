@@ -32,7 +32,6 @@ namespace EnemyStates
             animationManager.SetIsTurning(false);
             
             // Clear movement parameters that might trigger Chase transitions
-            animationManager.SetMoveParams(0f, 0f);
             animationManager.SetIsMoving(false);
             
             // Set movement speed to 0 for idle
