@@ -15,3 +15,4 @@ MonoBehaviour:
   maxHealth: 100
   strafeSpeed: 2
   sprintSpeed: 5
+  gravity: -9.81
