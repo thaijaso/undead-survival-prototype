@@ -124,13 +124,13 @@ public class AlertState : EnemyState
                 if (angle > 0f)
                 {
                     // Player is to the right, turn right
-                    animationManager.SetTrigger("TurnRight180");
+                    animationManager.SetTrigger("TurnRight");
                     animationManager.SetIsTurning(true);
                 }
                 else
                 {
                     // Player is to the left, turn left
-                    animationManager.SetTrigger("TurnLeft180");
+                    animationManager.SetTrigger("TurnLeft");
                     animationManager.SetIsTurning(true);
                 }
                 

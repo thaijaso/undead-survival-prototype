@@ -50,9 +50,9 @@ public class AggroState : EnemyState
     private void CheckAndHandleTurning()
     {
         float angleToPlayer = GetAngleToPlayer();
-        if (Mathf.Abs(angleToPlayer) > 90f && !enemy.IsTurning)
+        if (Mathf.Abs(angleToPlayer) > 45f && !enemy.IsTurning)
         {
-            Debug.Log($"[{enemy.name}] AggroState.CheckAndHandleTurning(): Starting turn animation - IsTurning is currently {enemy.IsTurning}");
+            Debug.Log($"[{enemy.name}] AggroState.CheckAndHandleTurning(): Starting turn animation for {angleToPlayer:F1}° - IsTurning is currently {enemy.IsTurning}");
             PlayTurnAnimation(angleToPlayer);
         }
     }
@@ -73,7 +73,7 @@ public class AggroState : EnemyState
 
     private void PlayTurnAnimation(float angle)
     {
-        Debug.Log($"[{enemy.name}] AggroState.PlayTurnAnimation(): Starting Aggro180 turn for angle {angle:F1}° - IsTurning was {enemy.IsTurning}");
+        Debug.Log($"[{enemy.name}] AggroState.PlayTurnAnimation(): Starting turn for angle {angle:F1}° - IsTurning was {enemy.IsTurning}");
         enemy.IsTurning = true; // Set shared flag
         Debug.Log($"[{enemy.name}] AggroState.PlayTurnAnimation(): Set IsTurning to {enemy.IsTurning}");
 
@@ -91,8 +91,30 @@ public class AggroState : EnemyState
 
         animationManager.SetIsTurning(true);
 
-        // Trigger Aggro180 for any large turn
-        animationManager.SetTrigger("Aggro180");
+        // If player is more than 135 degrees away (left or right), use Aggro180 animation
+        if (angle > 135f)
+        { 
+            Debug.Log($"[{enemy.name}] AggroState.PlayTurnAnimation(): Player is {angle:F1}° away (>135°), using Aggro180Right animation");
+            animationManager.SetTrigger("Aggro180Right");
+        }
+        else if (angle < -135f)
+        {
+            Debug.Log($"[{enemy.name}] AggroState.PlayTurnAnimation(): Player is {angle:F1}° away (<-135°), using Aggro180Left animation");
+            animationManager.SetTrigger("Aggro180Left");
+        }
+        else if (angle > 0f)
+        {
+            // Player is to the right, turn right
+            Debug.Log($"[{enemy.name}] AggroState.PlayTurnAnimation(): Player is {angle:F1}° to the right, using TurnRight animation");
+            animationManager.SetTrigger("TurnRight");
+        }
+        else
+        {
+            // Player is to the left, turn left
+            Debug.Log($"[{enemy.name}] AggroState.PlayTurnAnimation(): Player is {angle:F1}° to the left, using TurnLeft animation");
+            animationManager.SetTrigger("TurnLeft");
+        }
+
 
         // Use aggro-specific two-phase rotation timing
         turnCoroutine = enemy.StartCoroutine(RotateWithAggroAnimation(targetRotation));

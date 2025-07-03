@@ -1,7 +1,4 @@
 using UnityEngine;
-using EnemyStates;
-using System.Collections;
-using Pathfinding;
 using RootMotion.Dynamics;
 using Sirenix.OdinInspector;
 

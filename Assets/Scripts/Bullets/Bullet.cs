@@ -209,7 +209,7 @@ public class Bullet : MonoBehaviour
                 // Set specific weights for bullet impact effect
                 muscle.props.pinWeight = 0.6f;
                 muscle.props.muscleWeight = 0.7f;
-                muscle.props.muscleDamper = 0.7f; // Reduce damping for more dramatic movement
+                muscle.props.muscleDamper = 0.5f; // Reduce damping for more dramatic movement
                 
                 // Then apply force through the muscle system for maximum effect
                 muscle.rigidbody.AddForceAtPosition(force, position, ForceMode.Impulse);

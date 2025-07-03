@@ -46,6 +46,7 @@ GameObject:
   - component: {fileID: 7591723288152965580}
   - component: {fileID: 5681820806501405950}
   - component: {fileID: 5471927317200199923}
+  - component: {fileID: 8131802128617018445}
   m_Layer: 8
   m_Name: ZombieARP
   m_TagString: Untagged
@@ -227,25 +228,25 @@ MonoBehaviour:
   fixTransforms: 1
   solver:
     executedInEditor: 0
-    IKPosition: {x: 0, y: 0, z: 0}
+    IKPosition: {x: 1.16368, y: 1.723378, z: -3.6499596}
     IKPositionWeight: 1
-    root: {fileID: 0}
+    root: {fileID: 5732510484631303316}
     target: {fileID: 0}
     spine: []
     head:
-      transform: {fileID: 0}
+      transform: {fileID: 5948639322499498651}
       weight: 1
       solverPosition: {x: 0, y: 0, z: 0}
       solverRotation: {x: 0, y: 0, z: 0, w: 1}
-      defaultLocalPosition: {x: 0, y: 0, z: 0}
-      defaultLocalRotation: {x: 0, y: 0, z: 0, w: 0}
+      defaultLocalPosition: {x: -7.9785565e-15, y: 0.05047739, z: 0.00000008299946}
+      defaultLocalRotation: {x: -0.25356779, y: 0.000000030747685, z: -0.000000008060056, w: 0.96731764}
       length: 0
       sqrMag: 0
-      axis: {x: -1, y: -0, z: -0}
+      axis: {x: -0.000000113701056, y: 1.6043114e-15, z: 1}
       baseForwardOffsetEuler: {x: 0, y: 0, z: 0}
     eyes: []
     bodyWeight: 0.5
-    headWeight: 0.5
+    headWeight: 1
     eyesWeight: 1
     clampWeight: 0.5
     clampWeightHead: 0.5
@@ -276,6 +277,20 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     spineTargetOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &8131802128617018445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 111758880463491367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9365c2bd945255647a7612d0e486ff76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemy: {fileID: 1441862226520998414}
+  DebugModeEnabled: 0
 --- !u!1 &196940988817082545
 GameObject:
   m_ObjectHideFlags: 0
@@ -320,7 +335,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 196940988817082545}
   serializedVersion: 5
-  m_Mass: 1.0875
+  m_Mass: 3
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1499,7 +1514,7 @@ Transform:
   m_GameObject: {fileID: 1629520963587338055}
   serializedVersion: 2
   m_LocalRotation: {x: 0.06560908, y: 0.017223664, z: -0.09652514, w: 0.9930165}
-  m_LocalPosition: {x: -0.00000004470349, y: 0.269122, z: 0.00000008800942}
+  m_LocalPosition: {x: -0.00000006705523, y: 0.26912194, z: 0.000000082421515}
   m_LocalScale: {x: 0.9999998, y: 1, z: 0.99999994}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1909,7 +1924,7 @@ Transform:
   m_GameObject: {fileID: 1782076224708294877}
   serializedVersion: 2
   m_LocalRotation: {x: 0.00000029802317, y: 0.000000044703473, z: 0.23406723, w: 0.9722204}
-  m_LocalPosition: {x: 0.00000022165474, y: 0.24541204, z: -0.00000021979213}
+  m_LocalPosition: {x: 0.00000022165474, y: 0.2454121, z: -0.00000021420419}
   m_LocalScale: {x: 0.9999999, y: 0.99999994, z: 0.9999999}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2972,7 +2987,7 @@ Transform:
   m_GameObject: {fileID: 2808246961853149596}
   serializedVersion: 2
   m_LocalRotation: {x: 0.53730446, y: 0.45971146, z: 0.5149393, w: -0.4845687}
-  m_LocalPosition: {x: 0.22738296, y: 0.25225505, z: -0.028129278}
+  m_LocalPosition: {x: 0.22738302, y: 0.25225505, z: -0.028129278}
   m_LocalScale: {x: 1, y: 0.9999996, z: 0.9999998}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4614,9 +4629,9 @@ MonoBehaviour:
     target: {fileID: 5530265178041160841}
     props:
       group: 3
-      mappingWeight: 0.6
-      pinWeight: 0.8
-      muscleWeight: 0.5
+      mappingWeight: 1
+      pinWeight: 1
+      muscleWeight: 1
       muscleDamper: 1
       internalCollisionIgnores:
         ignoreAll: 0
@@ -4647,9 +4662,9 @@ MonoBehaviour:
     target: {fileID: 3078308053332778898}
     props:
       group: 3
-      mappingWeight: 0.6
-      pinWeight: 0.8
-      muscleWeight: 0.5
+      mappingWeight: 1
+      pinWeight: 1
+      muscleWeight: 1
       muscleDamper: 1
       internalCollisionIgnores:
         ignoreAll: 0
@@ -4680,9 +4695,9 @@ MonoBehaviour:
     target: {fileID: 9051878783580250218}
     props:
       group: 4
-      mappingWeight: 0.6
-      pinWeight: 0.8
-      muscleWeight: 0.5
+      mappingWeight: 1
+      pinWeight: 1
+      muscleWeight: 1
       muscleDamper: 1
       internalCollisionIgnores:
         ignoreAll: 0
@@ -6240,7 +6255,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7919099417239133606}
   serializedVersion: 5
-  m_Mass: 1.0875
+  m_Mass: 3
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
