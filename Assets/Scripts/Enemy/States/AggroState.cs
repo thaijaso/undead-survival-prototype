@@ -27,6 +27,9 @@ public class AggroState : EnemyState
         Debug.Log($"[{enemy.name}] AggroState.Enter(): Aggro animation should start");
         animationManager.SetIsAggro(true);
         
+        // Enable LookAtIK for player tracking during aggro
+        enemy.LookAtIK.enabled = true;
+        
         // Mark that this enemy has been aggroed
         enemy.SetHasAggroed(true);
     }

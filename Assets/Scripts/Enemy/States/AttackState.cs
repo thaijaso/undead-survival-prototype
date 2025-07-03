@@ -20,6 +20,9 @@ public class AttackState : EnemyState
     {
         base.Enter();
         Debug.Log($"[{enemy.name}] AttackState.Enter(): Entering Attack state - attack animation should start");
+        
+        // Enable LookAtIK for player tracking during attack
+        enemy.LookAtIK.enabled = true;
     }
 
     public override void Exit(EnemyState nextState)

@@ -28,12 +28,19 @@ public class AlertState : EnemyState
         base.Enter();
         alertTimer = 0f; // Reset the alert timer
         animationManager.SetAlertState(true); // Set alert state in animation manager
+        enemy.LookAtIK.enabled = true;
     }
 
     public override void Exit(EnemyState nextState)
     {
         base.Exit(nextState);
         animationManager.SetAlertState(false); // Reset alert state in animation manager
+        
+        // Only disable LookAtIK if transitioning to a non-tracking state
+        if (nextState == enemy.Idle || nextState == enemy.Patrol || nextState == enemy.Death)
+        {
+            enemy.LookAtIK.enabled = false;
+        }
     }
 
     public override void LogicUpdate()

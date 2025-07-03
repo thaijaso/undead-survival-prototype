@@ -20,6 +20,9 @@ namespace EnemyStates
         {
             base.Enter();
             
+            // Disable LookAtIK when idle (not tracking player)
+            enemy.LookAtIK.enabled = false;
+            
             // Set animation parameters for idle state
             // Set IsIdle to true FIRST to ensure Attack -> Idle transition has priority
             animationManager.SetIsIdle(true);

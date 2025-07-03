@@ -23,6 +23,9 @@ public class DeathState : EnemyState
         base.Enter();
         Debug.Log($"[{enemy.gameObject.name}] DeathState.Enter(): Entering Death state");
 
+        // Disable LookAtIK when dead (no longer tracking player)
+        enemy.LookAtIK.enabled = false;
+
         // Disable AI movement immediately
         if (enemy.AIDestinationSetter != null)
         {

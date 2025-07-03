@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Pathfinding;
 using RootMotion.Dynamics;
 using Sirenix.OdinInspector;
+using RootMotion.FinalIK;
 
 [DefaultExecutionOrder(-100)] // Ensure Enemy runs before other components
 public class Enemy : MonoBehaviour
@@ -16,6 +17,8 @@ public class Enemy : MonoBehaviour
     public AIDestinationSetter AIDestinationSetter { get; private set; }
 
     public FollowerEntity FollowerEntity { get; private set; }
+
+    public LookAtIK LookAtIK { get; private set; }
 
     // Reference to PuppetMaster component (could be on this GameObject or a sibling)
     [TabGroup("Setup")]
@@ -95,6 +98,7 @@ public class Enemy : MonoBehaviour
         SetupAIDestinationSetter();
         SetupPuppetMaster();
         SetupFollowerEntity();
+        SetupLookAtIK();
 
         stateMachine = new StateMachine<EnemyState>(gameObject.name);
     }
@@ -188,6 +192,19 @@ public class Enemy : MonoBehaviour
         else
         {
             Debug.Log($"[{gameObject.name}] FollowerEntity initialized successfully.");
+        }
+    }
+
+    public void SetupLookAtIK()
+    {
+        LookAtIK = GetComponent<LookAtIK>();
+        if (LookAtIK == null)
+        {
+            Debug.LogError("LookAtIK component is missing on the Enemy GameObject.");
+        }
+        else
+        {
+            Debug.Log($"[{gameObject.name}] LookAtIK initialized successfully.");
         }
     }
 

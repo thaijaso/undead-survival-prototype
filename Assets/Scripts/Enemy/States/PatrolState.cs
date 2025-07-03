@@ -27,6 +27,9 @@ namespace EnemyStates
         {
             base.Enter();
 
+            // Disable LookAtIK when patrolling (not actively tracking player)
+            enemy.LookAtIK.enabled = false;
+
             // Logic for entering patrol state, e.g., setting patrol path
             animationManager.SetIsMoving(true);
             animationManager.SetMoveParams(0f, .5f);
