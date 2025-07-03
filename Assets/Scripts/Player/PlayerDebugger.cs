@@ -75,15 +75,15 @@ public class PlayerDebugger : MonoBehaviour
     public void LogComponentStatus()
     {
         Debug.Log($"=== Player Debug Info for {player?.gameObject.name ?? name} ===");
-        Debug.Log($"State Machine Initialized: {(player?.stateMachine != null ? "✓" : "✗")}");
+        Debug.Log($"State Machine Initialized: {(player?.stateMachine != null ? "✓" : "✗")}.");
         Debug.Log($"Current State: {GetCurrentStateName()}");
-        Debug.Log($"Player Template: {(player?.playerTemplate != null ? "✓" : "✗")}");
+        Debug.Log($"Player Template: {(player?.playerTemplate != null ? "✓" : "✗")}.");
         
         if (player?.playerTemplate != null)
         {
-            Debug.Log($"  Max Health: {player.playerTemplate.maxHealth}");
-            Debug.Log($"  Sprint Speed: {player.playerTemplate.sprintSpeed}");
-            Debug.Log($"  Strafe Speed: {player.playerTemplate.strafeSpeed}");
+            Debug.Log($"Max Health: {player.playerTemplate.maxHealth}.");
+            Debug.Log($"Sprint Speed: {player.playerTemplate.sprintSpeed}.");
+            Debug.Log($"Strafe Speed: {player.playerTemplate.strafeSpeed}.");
         }
     }
 
@@ -94,14 +94,14 @@ public class PlayerDebugger : MonoBehaviour
     {
         Debug.Log($"=== Component Validation for {player?.gameObject.name ?? name} ===");
         Debug.Log($"PlayerInput: {(player?.PlayerInput != null ? "✓" : "✗")}");
-        Debug.Log($"PlayerCharacterController: {(player?.PlayerCharacterController != null ? "✓" : "✗")}");
-        Debug.Log($"PlayerCameraController: {(player?.PlayerCameraController != null ? "✓" : "✗")}");
-        Debug.Log($"AnimationManager: {(player?.AnimationManager != null ? "✓" : "✗")}");
-        Debug.Log($"WeaponManager: {(player?.WeaponManager != null ? "✓" : "✗")}");
-        Debug.Log($"PlayerTemplate: {(player?.playerTemplate != null ? "✓" : "✗")}");
-        Debug.Log($"Recoil: {(player?.Recoil != null ? "✓" : "✗")}");
-        Debug.Log($"BulletHitscan: {(player?.BulletHitscan != null ? "✓" : "✗")}");
-        Debug.Log($"BulletDecalManager: {(player?.BulletDecalManager != null ? "✓" : "✗")}");
+        Debug.Log($"PlayerCharacterController: {(player?.PlayerCharacterController != null ? "✓" : "✗")}.");
+        Debug.Log($"PlayerCameraController: {(player?.PlayerCameraController != null ? "✓" : "✗")}.");
+        Debug.Log($"AnimationManager: {(player?.AnimationManager != null ? "✓" : "✗")}.");
+        Debug.Log($"WeaponManager: {(player?.WeaponManager != null ? "✓" : "✗")}.");
+        Debug.Log($"PlayerTemplate: {(player?.playerTemplate != null ? "✓" : "✗")}.");
+        Debug.Log($"Recoil: {(player?.Recoil != null ? "✓" : "✗")}.");
+        Debug.Log($"BulletHitscan: {(player?.BulletHitscan != null ? "✓" : "✗")}.");
+        Debug.Log($"BulletDecalManager: {(player?.BulletDecalManager != null ? "✓" : "✗")}.");
     }
 
     /// <summary>
@@ -111,15 +111,15 @@ public class PlayerDebugger : MonoBehaviour
     {
         if (player?.PlayerCharacterController == null)
         {
-            Debug.LogWarning($"[{player?.name ?? name}] No PlayerCharacterController found for movement debugging");
+            Debug.LogWarning($"[{player?.name ?? name}] No PlayerCharacterController found for movement debugging.");
             return;
         }
 
         Debug.Log($"=== Movement Debug for {player.name} ===");
-        Debug.Log($"Is Grounded: {player.PlayerCharacterController.CharacterController.isGrounded}");
-        Debug.Log($"Velocity: {player.PlayerCharacterController.CharacterController.velocity}");
-        Debug.Log($"Speed: {player.PlayerCharacterController.CharacterController.velocity.magnitude:F2}");
-        Debug.Log($"Current State: {GetCurrentStateName()}");
+        Debug.Log($"Is Grounded: {player.PlayerCharacterController.CharacterController.isGrounded}.");
+        Debug.Log($"Velocity: {player.PlayerCharacterController.CharacterController.velocity}.");
+        Debug.Log($"Speed: {player.PlayerCharacterController.CharacterController.velocity.magnitude:F2}.");
+        Debug.Log($"Current State: {GetCurrentStateName()}.");
     }
 
     /// <summary>
@@ -129,14 +129,14 @@ public class PlayerDebugger : MonoBehaviour
     {
         if (player?.WeaponManager == null)
         {
-            Debug.LogWarning($"[{player?.name ?? name}] No WeaponManager found for weapon debugging");
+            Debug.LogWarning($"[{player?.name ?? name}] No WeaponManager found for weapon debugging.");
             return;
         }
 
         Debug.Log($"=== Weapon Debug for {player.name} ===");
         Debug.Log($"WeaponManager Active: {player.WeaponManager != null}");
         Debug.Log($"Current State: {GetCurrentStateName()}");
-        Debug.Log($"Crosshair Controller: {(player.CrosshairController != null ? "✓" : "✗")}");
+        Debug.Log($"Crosshair Controller: {(player.CrosshairController != null ? "✓" : "✗")}.");
     }
 
     /// <summary>
@@ -146,14 +146,14 @@ public class PlayerDebugger : MonoBehaviour
     {
         if (player?.PlayerInput == null)
         {
-            Debug.LogWarning($"[{player?.name ?? name}] No PlayerInput found for input debugging");
+            Debug.LogWarning($"[{player?.name ?? name}] No PlayerInput found for input debugging.");
             return;
         }
 
         Debug.Log($"=== Input Debug for {player.name} ===");
         Debug.Log($"PlayerInput Active: {player.PlayerInput != null}");
         Debug.Log($"Current State: {GetCurrentStateName()}");
-        Debug.Log($"Input System Responsive: {(player.PlayerInput.enabled ? "✓" : "✗")}");
+        Debug.Log($"Input System Responsive: {(player.PlayerInput.enabled ? "✓" : "✗")}.");
     }
 
     /// <summary>
@@ -163,7 +163,7 @@ public class PlayerDebugger : MonoBehaviour
     {
         if (player?.transform == null)
         {
-            Debug.LogWarning($"[{player?.name ?? name}] No player transform found for position reset");
+            Debug.LogWarning($"[{player?.name ?? name}] No player transform found for position reset.");
             return;
         }
 
@@ -177,8 +177,8 @@ public class PlayerDebugger : MonoBehaviour
             player.PlayerCharacterController.CharacterController.enabled = false;
             player.PlayerCharacterController.CharacterController.enabled = true;
         }
-        
-        Debug.Log($"[{player.name}] PlayerDebugger.ResetPlayerPosition(): Player position reset to {resetPosition}");
+
+        Debug.Log($"[{player.name}] PlayerDebugger.ResetPlayerPosition(): Player position reset to {resetPosition}.");
     }
 
     /// <summary>
@@ -193,12 +193,12 @@ public class PlayerDebugger : MonoBehaviour
         }
 
         Debug.Log($"=== Physics Debug for {player.name} ===");
-        Debug.Log($"Is Grounded: {player.PlayerCharacterController.CharacterController.isGrounded}");
-        Debug.Log($"Velocity: {player.PlayerCharacterController.CharacterController.velocity}");
-        Debug.Log($"Speed: {player.PlayerCharacterController.CharacterController.velocity.magnitude:F2} units/sec");
-        Debug.Log($"Position: {player.transform.position}");
-        Debug.Log($"Template Gravity: {player.playerTemplate?.gravity ?? 0f} m/s²");
-        Debug.Log($"Current State: {GetCurrentStateName()}");
+        Debug.Log($"Is Grounded: {player.PlayerCharacterController.CharacterController.isGrounded}.");
+        Debug.Log($"Velocity: {player.PlayerCharacterController.CharacterController.velocity}.");
+        Debug.Log($"Speed: {player.PlayerCharacterController.CharacterController.velocity.magnitude:F2} units/sec.");
+        Debug.Log($"Position: {player.transform.position}.");
+        Debug.Log($"Template Gravity: {player.playerTemplate?.gravity ?? 0f} m/s².");
+        Debug.Log($"Current State: {GetCurrentStateName()}.");
     }
 
     /// <summary>
@@ -208,7 +208,7 @@ public class PlayerDebugger : MonoBehaviour
     {
         if (player?.playerTemplate == null)
         {
-            Debug.LogWarning($"[{player?.name ?? name}] No PlayerTemplate found for template debugging");
+            Debug.LogWarning($"[{player?.name ?? name}] No PlayerTemplate found for template debugging.");
             return;
         }
 
@@ -276,11 +276,11 @@ public class PlayerDebugger : MonoBehaviour
         if (player?.HealthManager != null)
         {
             player.HealthManager.TakeDamage(damage);
-            Debug.Log($"[{player.name}] PlayerDebugger.ForceTakeDamage(): Took {damage} damage. Health: {player.HealthManager.currentHealth}");
+            Debug.Log($"[{player.name}] PlayerDebugger.ForceTakeDamage(): Took {damage} damage. Health: {player.HealthManager.currentHealth}.");
         }
         else
         {
-            Debug.LogWarning($"[{player?.name ?? name}] PlayerDebugger.ForceTakeDamage(): No HealthManager found for damage testing");
+            Debug.LogWarning($"[{player?.name ?? name}] PlayerDebugger.ForceTakeDamage(): No HealthManager found for damage testing.");
         }
     }
 
@@ -292,11 +292,11 @@ public class PlayerDebugger : MonoBehaviour
         if (player?.HealthManager != null)
         {
             player.HealthManager.ResetHealth();
-            Debug.Log($"[{player.name}] PlayerDebugger.RestoreFullHealth(): Health restored to {player.HealthManager.currentHealth}");
+            Debug.Log($"[{player.name}] PlayerDebugger.RestoreFullHealth(): Health restored to {player.HealthManager.currentHealth}.");
         }
         else
         {
-            Debug.LogWarning($"[{player?.name ?? name}] PlayerDebugger.RestoreFullHealth(): No HealthManager found for health restoration");
+            Debug.LogWarning($"[{player?.name ?? name}] PlayerDebugger.RestoreFullHealth(): No HealthManager found for health restoration.");
         }
     }
 }
