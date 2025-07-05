@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using PlayerStates;
 using Sirenix.OdinInspector;
+using Unity.Cinemachine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [DefaultExecutionOrder(-100)] // Ensure Player runs before other components
 [RequireComponent(typeof(PlayerInput))]
@@ -104,6 +108,8 @@ public class Player : MonoBehaviour
             return;
         }
 
+        animator.applyRootMotion = false; // Disable root motion to control movement manually
+        animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
         AnimationManager = new AnimationManager(animator);
     }
 

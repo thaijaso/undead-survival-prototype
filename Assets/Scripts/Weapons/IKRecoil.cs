@@ -84,6 +84,27 @@ public class IKRecoil : OffsetModifier
     public Vector3 handRotationOffset;
     [Tooltip("Time of blending in another recoil when doing automatic fire.")]
     public float blendTime;
+    [Range(0f, 1f)]
+    [Tooltip("Master weight for IK recoil (per-weapon override)")]
+    public float ikRecoilWeight = 1f;
+
+    // For compatibility with WeaponData and PlayerWeaponManager
+    [System.Serializable]
+    public class OffsetSettings {
+        public Vector3 offset = new Vector3(0.02f, 0, -0.1f);
+        [Range(0f, 1f)] public float additivity = 0.5f;
+        public float maxAdditiveOffsetMag = 0.2f;
+    }
+    [Tooltip("Offset settings for IK recoil (per-weapon override)")]
+    public OffsetSettings offsetSettings = new OffsetSettings();
+
+    [System.Serializable]
+    public class EffectorLink {
+        public string effector; // e.g. "Right Hand", "Right Shoulder", "Body"
+        [Range(0f, 1f)] public float weight = 1f;
+    }
+    [Tooltip("Effector links for IK recoil (per-weapon override)")]
+    public EffectorLink[] effectorLinks;
 
     [Space(10)]
 

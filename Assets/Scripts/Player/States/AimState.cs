@@ -66,6 +66,7 @@ public class AimState : StrafeState
         }
 
         weaponManager.SetAimIKOffsets();
+        weaponManager.SetRecoilIKSettings();
     }
 
     public override void Exit(PlayerState nextState)

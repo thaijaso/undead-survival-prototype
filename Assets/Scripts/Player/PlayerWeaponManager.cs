@@ -134,4 +134,48 @@ public class PlayerWeaponManager : MonoBehaviour
 
         weaponScript.PlayGunshotSound();
     }
+
+    public void SetRecoilIKSettings()
+    {
+        if (CurrentWeaponData == null)
+        {
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.ApplyIKRecoilSettingsToComponent(): CurrentWeaponData is not set!");
+            return;
+        }
+        if (player == null || player.Recoil == null)
+        {
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.ApplyIKRecoilSettingsToComponent(): Player or IKRecoil component is missing!");
+            return;
+        }
+
+        var recoil = player.Recoil;
+        var data = CurrentWeaponData;
+        recoil.ikRecoilWeight = data.ikRecoilWeight;
+        recoil.aimIKSolvedLast = data.aimIKSolvedLast;
+        recoil.handedness = (IKRecoil.Handedness)data.handedness;
+        recoil.twoHanded = data.twoHanded;
+        recoil.recoilWeight = data.recoilWeight;
+        recoil.magnitudeRandom = data.magnitudeRandom;
+        recoil.rotationRandom = data.rotationRandom;
+        recoil.handRotationOffset = data.handRotationOffset;
+        recoil.blendTime = data.blendTime;
+        recoil.offsetSettings = new IKRecoil.OffsetSettings {
+            offset = data.offsets.offset,
+            additivity = data.offsets.additivity,
+            maxAdditiveOffsetMag = data.offsets.maxAdditiveOffsetMag
+        };
+        // Map EffectorLinks
+        if (data.effectorLinks != null)
+        {
+            recoil.effectorLinks = new IKRecoil.EffectorLink[data.effectorLinks.Length];
+            for (int i = 0; i < data.effectorLinks.Length; i++)
+            {
+                var src = data.effectorLinks[i];
+                recoil.effectorLinks[i] = new IKRecoil.EffectorLink {
+                    effector = src.effector,
+                    weight = src.weight
+                };
+            }
+        }
+    }
 }

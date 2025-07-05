@@ -8,7 +8,6 @@ public class PlayerCameraController : MonoBehaviour
     [SerializeField] private CinemachineCamera playerCamera;
 
     [SerializeField] private Transform forwardsFollowTarget;
-    [SerializeField] private Transform backwardsFollowTarget;
 
     [SerializeField] private Transform aimTarget;
 
@@ -25,7 +24,6 @@ public class PlayerCameraController : MonoBehaviour
     private float cameraSwayAmount = 1f; // Default sway amount
 
     public Transform GetForwardsFollowTarget() => forwardsFollowTarget;
-    public Transform GetBackwardsFollowTarget() => backwardsFollowTarget;
 
     private float currentHorizontalAxisValue;
 

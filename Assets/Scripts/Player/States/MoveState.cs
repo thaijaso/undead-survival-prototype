@@ -52,12 +52,29 @@ public class MoveState : PlayerState
 
         if (direction.z < 0) // Player is trying to move backwards
         {
-            // Cast a short ray behind the player to check for a wall
+            // Cast a ray from chest height behind the player to check for actual walls
+            Vector3 rayStart = player.transform.position + Vector3.up * 1f; // Start from chest height
             Vector3 back = -player.transform.forward;
-            if (Physics.Raycast(player.transform.position, back, out RaycastHit wallHit, 0.6f))
+            
+            if (Physics.Raycast(rayStart, back, out RaycastHit wallHit, 0.8f))
             {
-                // Project moveDirection onto the plane of the wall's normal to allow sliding along the wall
-                moveDirection = Vector3.ProjectOnPlane(moveDirection, wallHit.normal);
+                float wallAngle = Vector3.Angle(wallHit.normal, Vector3.up);
+                Debug.Log($"[MoveState] Wall raycast hit: {wallHit.collider.name}, angle: {wallAngle:F1}");
+                if (wallAngle > 45f) // Only walls steeper than 45 degrees
+                {
+                    float dotProduct = Vector3.Dot(moveDirection.normalized, -wallHit.normal);
+                    Debug.Log($"[MoveState] Wall is steep enough. Dot product with moveDirection: {dotProduct:F2}");
+                    if (dotProduct > 0.1f) // Only if we're moving somewhat towards the wall
+                    {
+                        Debug.Log($"[MoveState] Wall sliding triggered! Sliding along: {wallHit.collider.name} at point {wallHit.point}");
+                        // Project moveDirection onto the plane of the wall's normal to allow sliding along the wall
+                        moveDirection = Vector3.ProjectOnPlane(moveDirection, wallHit.normal);
+                        
+                        // Debug visualization for wall detection
+                        Debug.DrawRay(rayStart, back * 0.8f, Color.yellow);
+                        Debug.DrawRay(wallHit.point, wallHit.normal, Color.magenta);
+                    }
+                }
             }
         }
 

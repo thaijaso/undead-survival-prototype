@@ -16,7 +16,7 @@ public class PlayerInput : MonoBehaviour
     public bool IsAttacking { get; internal set; }
 
     [SerializeField]
-    private float MovementThreshold = 0.2f;
+    private float movementThreshold = 0.2f;
 
     [SerializeField]
     private float animationSmoothTime = 0.05f;
@@ -44,7 +44,7 @@ public class PlayerInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        IsMoving = Mathf.Abs(moveAction.ReadValue<Vector2>().x) > MovementThreshold || Mathf.Abs(moveAction.ReadValue<Vector2>().y) > MovementThreshold;
+        IsMoving = Mathf.Abs(moveAction.ReadValue<Vector2>().x) > movementThreshold || Mathf.Abs(moveAction.ReadValue<Vector2>().y) > movementThreshold;
         IsSprinting = sprintAction.ReadValue<float>() > 0.0f;
         IsAiming = aimAction.ReadValue<float>() > 0.0f;
         IsAttacking = attackAction.ReadValue<float>() > 0.0f;
@@ -60,7 +60,7 @@ public class PlayerInput : MonoBehaviour
         Vector3 direction = ClampInput(horizontal, vertical);
 
         // If input is below threshold, set direction to zero
-        if (Mathf.Abs(horizontal) < MovementThreshold && Mathf.Abs(vertical) < MovementThreshold)
+        if (Mathf.Abs(horizontal) < movementThreshold && Mathf.Abs(vertical) < movementThreshold)
         {
             currentAnimationBlendVector = Vector3.zero; // Reset animation blend vector when no input
         }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Sirenix.OdinInspector;
+ using UnityEngine.InputSystem;
 
 [CreateAssetMenu(fileName = "PlayerTemplate", menuName = "ScriptableObjects/PlayerTemplate")]
 public class PlayerTemplate : ScriptableObject
@@ -10,23 +11,87 @@ public class PlayerTemplate : ScriptableObject
     public int maxHealth = 100;
 
     [TabGroup("Movement")]
-    [BoxGroup("Speed Settings", ShowLabel = true)]
     [MinValue(0.1f)]
     [SuffixLabel("units/sec")]
     public float strafeSpeed = 2f;
     
     [TabGroup("Movement")]
-    [BoxGroup("Speed Settings")]
     [MinValue(0.1f)]
     [SuffixLabel("units/sec")]
     public float sprintSpeed = 5f;
 
     [TabGroup("Movement")]
-    [BoxGroup("Physics Settings", ShowLabel = true)]
     [Range(-20f, -5f)]
     [SuffixLabel("m/s²")]
     [InfoBox("Negative values pull the player downward. Standard Earth gravity is -9.81 m/s²")]
     public float gravity = -9.81f;
+
+    [TabGroup("Animation")]
+    [InfoBox("Assign the animator controller for this player template.")]
+    public RuntimeAnimatorController animatorController;
+
+    [TabGroup("References")]
+    [InfoBox("Prefab or reference for the AimFollowTarget child object.")]
+    public GameObject aimFollowTargetPrefab;
+
+    [TabGroup("References")]
+    [InfoBox("Prefab or reference for the ForwardFollowTarget child object.")]
+    public GameObject forwardFollowTargetPrefab;
+
+    [TabGroup("References")]
+    [InfoBox("Prefab or reference for the AimTarget child object.")]
+    public GameObject aimTargetPrefab;
+
+    [TabGroup("References")]
+    [InfoBox("Prefab or reference for the Player's WeaponHand.")]
+    public GameObject weaponHandPrefab;
+
+    [TabGroup("Camera")]
+    [MinValue(1f)]
+    [SuffixLabel("deg")] public float followFOV = 60f;
+    [TabGroup("Camera")]
+    [MinValue(1f)]
+    [SuffixLabel("deg")] public float aimFOV = 40f;
+    [TabGroup("Camera")]
+    [MinValue(0.01f)]
+    [SuffixLabel("units/sec")] public float zoomSpeed = 8f;
+
+    [TabGroup("PlayerInput")]
+    [InfoBox("Player input settings. Tune input thresholds for this player template.\n- movementThreshold: Minimum input magnitude to register movement.\n- animationSmoothTime: Smoothing time for input-driven animation blending.\n- maxInputThreshold: Maximum input magnitude for full movement response.")]
+    public float movementThreshold = 0.2f;
+    [TabGroup("PlayerInput")]
+    public float animationSmoothTime = 0.05f;
+    [TabGroup("PlayerInput")]
+    public float maxInputThreshold = 0.6f;
+
+    [TabGroup("CharacterController")]
+    [MinValue(0f)]
+    [SuffixLabel("deg")]
+    public float slopeLimit = 45f;
+    [TabGroup("CharacterController")]
+    [MinValue(0f)]
+    public float stepOffset = 0.3f;
+    [TabGroup("CharacterController")]
+    [MinValue(0f)]
+    public float skinWidth = 0.08f;
+    [TabGroup("CharacterController")]
+    [MinValue(0f)]
+    public float minMoveDistance = 0.001f;
+    [TabGroup("CharacterController")]
+    public Vector3 center = new Vector3(0f, 1.01f, 0f);
+    [TabGroup("CharacterController")]
+    [MinValue(0f)]
+    public float radius = 0.28f;
+    [TabGroup("CharacterController")]
+    [MinValue(0f)]
+    public float height = 1.8f;
+
+    [TabGroup("CharacterController")]
+    public int layerOverridePriority = 0;
+    [TabGroup("CharacterController")]
+    public LayerMask includeLayers = 0;
+    [TabGroup("CharacterController")]
+    public LayerMask excludeLayers = 0;
 
     [TabGroup("Debug")]
     [Button("Validate Settings")]
@@ -38,6 +103,9 @@ public class PlayerTemplate : ScriptableObject
         Debug.Log($"[PlayerTemplate]   Strafe Speed: {strafeSpeed} units/sec");
         Debug.Log($"[PlayerTemplate]   Sprint Speed: {sprintSpeed} units/sec");
         Debug.Log($"[PlayerTemplate]   Gravity: {gravity} m/s²");
+        Debug.Log($"[PlayerTemplate]   Follow FOV: {followFOV} deg");
+        Debug.Log($"[PlayerTemplate]   Aim FOV: {aimFOV} deg");
+        Debug.Log($"[PlayerTemplate]   Zoom Speed: {zoomSpeed} units/sec");
         
         if (sprintSpeed <= strafeSpeed)
             Debug.LogWarning("[PlayerTemplate] ⚠️ Sprint speed should be faster than strafe speed!");

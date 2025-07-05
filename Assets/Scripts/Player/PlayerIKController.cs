@@ -29,19 +29,31 @@ public class PlayerIKController : MonoBehaviour
 
     protected void Awake()
     {
-        // Find the IK components
+        // Find the IK components (they may be null if not present)
         aimIK = GetComponent<AimIK>();
         fullBodyBipedIK = GetComponent<FullBodyBipedIK>();
         lookAtIK = GetComponent<LookAtIK>();
 
-        fullBodyBipedIK.solver.OnPreRead += OnPreRead;
+        // Only setup FBBIK if it exists
+        if (fullBodyBipedIK != null)
+        {
+            fullBodyBipedIK.solver.OnPreRead += OnPreRead;
+            
+            // Disable the FBBIK component to manage its updating
+            fullBodyBipedIK.enabled = false;
+            
+            // Presuming head is rotated towards character forward at Start
+            headLookAxis = fullBodyBipedIK.references.head.InverseTransformVector(fullBodyBipedIK.references.root.forward);
+        }
 
-        // Disable the IK components to manage their updating
-        aimIK.enabled = false;
-        fullBodyBipedIK.enabled = false;
+        // Only disable AimIK if it exists
+        if (aimIK != null)
+        {
+            aimIK.enabled = false;
+        }
 
-        // Presuming head is rotated towards character forward at Start
-        headLookAxis = fullBodyBipedIK.references.head.InverseTransformVector(fullBodyBipedIK.references.root.forward);
+        // Log which components were found for debugging
+        Debug.Log($"[PlayerIKController] Components found - AimIK: {aimIK != null}, FBBIK: {fullBodyBipedIK != null}, LookAtIK: {lookAtIK != null}");
     }
 
     public void UpdateIKs(Vector3 faceDirection, Vector3 aimTarget)
@@ -74,21 +86,33 @@ public class PlayerIKController : MonoBehaviour
 
     private void Read()
     {
-        // Remember the position and rotation of the left hand relative to the right hand
-        leftHandPosRelToRightHand = fullBodyBipedIK.references.rightHand.InverseTransformPoint(fullBodyBipedIK.references.leftHand.position);
-        leftHandRotRelToRightHand = Quaternion.Inverse(fullBodyBipedIK.references.rightHand.rotation) * fullBodyBipedIK.references.leftHand.rotation;
+        // Only read hand positions if FBBIK is available
+        if (fullBodyBipedIK != null && fullBodyBipedIK.references.rightHand != null && fullBodyBipedIK.references.leftHand != null)
+        {
+            // Remember the position and rotation of the left hand relative to the right hand
+            leftHandPosRelToRightHand = fullBodyBipedIK.references.rightHand.InverseTransformPoint(fullBodyBipedIK.references.leftHand.position);
+            leftHandRotRelToRightHand = Quaternion.Inverse(fullBodyBipedIK.references.rightHand.rotation) * fullBodyBipedIK.references.leftHand.rotation;
+        }
     }
 
     private void AimIK()
     {
-        // Set AimIK target position and update
-        aimIK.solver.IKPosition = aimTarget;
-        aimIK.solver.Update(); // Update AimIK
+        // Only update AimIK if it exists
+        if (aimIK != null)
+        {
+            // Set AimIK target position and update
+            aimIK.solver.IKPosition = aimTarget;
+            aimIK.solver.Update(); // Update AimIK
+        }
     }
 
     // Positioning the left hand on the gun after aiming has finished
     private void FBBIK()
     {
+        // Only update FBBIK if it exists
+        if (fullBodyBipedIK == null || fullBodyBipedIK.references.rightHand == null || fullBodyBipedIK.references.leftHand == null)
+            return;
+
         // Store the current rotation of the right hand
         rightHandRotation = fullBodyBipedIK.references.rightHand.rotation;
 
@@ -118,6 +142,10 @@ public class PlayerIKController : MonoBehaviour
     // Here we set the left hand position relative to the position and rotation of the right hand.
     private void OnPreRead()
     {
+        // Only execute if FBBIK is available
+        if (fullBodyBipedIK == null || fullBodyBipedIK.references.rightHand == null || fullBodyBipedIK.references.leftHand == null)
+            return;
+
         Quaternion r = recoil != null ? recoil.rotationOffset * rightHandRotation : rightHandRotation;
         Vector3 leftHandTarget = fullBodyBipedIK.references.rightHand.position + fullBodyBipedIK.solver.rightHandEffector.positionOffset + r * leftHandPosRelToRightHand;
         fullBodyBipedIK.solver.leftHandEffector.positionOffset += leftHandTarget - fullBodyBipedIK.references.leftHand.position - fullBodyBipedIK.solver.leftHandEffector.positionOffset + r * leftHandOffset;
@@ -126,6 +154,10 @@ public class PlayerIKController : MonoBehaviour
     // Rotating the head to look at the target
     private void HeadLookAt(Vector3 lookAtTarget)
     {
+        // Only execute if FBBIK is available
+        if (fullBodyBipedIK == null || fullBodyBipedIK.references.head == null)
+            return;
+
         Quaternion headRotationTarget = Quaternion.FromToRotation(fullBodyBipedIK.references.head.rotation * headLookAxis, lookAtTarget - fullBodyBipedIK.references.head.position);
         fullBodyBipedIK.references.head.rotation = Quaternion.Lerp(Quaternion.identity, headRotationTarget, headLookWeight) * fullBodyBipedIK.references.head.rotation;
     }
@@ -139,9 +171,15 @@ public class PlayerIKController : MonoBehaviour
     public void SetIKWeights(float weight)
     {
         currentIKWeight = weight;
-        aimIK.solver.IKPositionWeight = currentIKWeight;
-        fullBodyBipedIK.solver.IKPositionWeight = currentIKWeight;
-        lookAtIK.solver.IKPositionWeight = currentIKWeight;
+        
+        if (aimIK != null)
+            aimIK.solver.IKPositionWeight = currentIKWeight;
+        
+        if (fullBodyBipedIK != null)
+            fullBodyBipedIK.solver.IKPositionWeight = currentIKWeight;
+        
+        if (lookAtIK != null)
+            lookAtIK.solver.IKPositionWeight = currentIKWeight;
     }
 
     public void SetIKTargetWeight(float target)
@@ -157,6 +195,9 @@ public class PlayerIKController : MonoBehaviour
 
     public void SetAimTransform(Transform aimTransform)
     {
-        aimIK.solver.transform = aimTransform;
+        if (aimIK != null)
+        {
+            aimIK.solver.transform = aimTransform;
+        }
     }
 }
