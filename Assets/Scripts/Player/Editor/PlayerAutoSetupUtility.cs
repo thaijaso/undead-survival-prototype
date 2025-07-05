@@ -23,6 +23,7 @@ public static class PlayerAutoSetupUtility
         SetupPlayerWeaponHand(player);
         SetupPlayerAimIK(player, overwriteExisting);
         SetupRecoilIK(player, overwriteExisting);
+        SetupFBBIK(player, overwriteExisting);
         SetupBulletDecalManager(player);
 
         // Set layer to Player for this GameObject and all children
@@ -799,6 +800,28 @@ public static class PlayerAutoSetupUtility
         if (pwm != null)
         {
             var weaponData = pwm.CurrentWeaponData;
+            if (weaponData == null)
+            {
+                // Try to auto-assign a WeaponData asset if one exists
+                string[] guids = UnityEditor.AssetDatabase.FindAssets("t:WeaponData");
+                if (guids != null && guids.Length > 0)
+                {
+                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                    var defaultWeaponData = UnityEditor.AssetDatabase.LoadAssetAtPath<WeaponData>(path);
+                    if (defaultWeaponData != null)
+                    {
+                        var currentWeaponDataField = pwm.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (currentWeaponDataField != null)
+                        {
+                            currentWeaponDataField.SetValue(pwm, defaultWeaponData);
+                            weaponData = defaultWeaponData;
+                            Debug.Log($"[AutoSetup] Auto-assigned default WeaponData '{defaultWeaponData.name}' to PlayerWeaponManager for {player.gameObject.name}.");
+                            EditorUtility.SetDirty(pwm);
+                            PrefabUtility.RecordPrefabInstancePropertyModifications(pwm);
+                        }
+                    }
+                }
+            }
             if (weaponData != null)
             {
                 // Map WeaponData fields to RecoilIK fields
@@ -835,7 +858,7 @@ public static class PlayerAutoSetupUtility
             }
             else
             {
-                Debug.LogWarning($"[AutoSetup] CurrentWeaponData is null on PlayerWeaponManager for {player.gameObject.name}.");
+                Debug.LogWarning($"[AutoSetup] CurrentWeaponData is null on PlayerWeaponManager for {player.gameObject.name} (even after attempting auto-assign).");
             }
         }
         else
@@ -846,6 +869,55 @@ public static class PlayerAutoSetupUtility
         // Mark RecoilIK as dirty so changes persist
         EditorUtility.SetDirty(recoilIK);
         PrefabUtility.RecordPrefabInstancePropertyModifications(recoilIK);
+    }
+
+    private static void SetupFBBIK(Player player, bool overwriteExisting = true)
+    {
+        if (player == null)
+            return;
+
+        var fbbik = player.GetComponent<FullBodyBipedIK>();
+        if (fbbik == null)
+        {
+            fbbik = player.gameObject.AddComponent<FullBodyBipedIK>();
+            Debug.Log($"[AutoSetup] FullBodyBipedIK component added to {player.gameObject.name}.");
+        }
+
+        var references = fbbik.references;
+        bool needsSetup = overwriteExisting || !references.isFilled;
+        if (needsSetup)
+        {
+            references.root = player.transform;
+            references.pelvis = FindChildRecursive(player.transform, "pelvis");
+            // Setup spine array (spine_01.x, spine_02.x, spine_03.x)
+            var spineList = new System.Collections.Generic.List<Transform>();
+            var s1 = FindChildRecursive(player.transform, "spine_01.x");
+            var s2 = FindChildRecursive(player.transform, "spine_02.x");
+            var s3 = FindChildRecursive(player.transform, "spine_03.x");
+            if (s1 != null) spineList.Add(s1);
+            if (s2 != null) spineList.Add(s2);
+            if (s3 != null) spineList.Add(s3);
+            references.spine = spineList.ToArray();
+            references.head = FindChildRecursive(player.transform, "head");
+            references.leftThigh = FindChildRecursive(player.transform, "thigh_stretch.l");
+            references.leftCalf = FindChildRecursive(player.transform, "calf_stretch.l");
+            references.leftFoot = FindChildRecursive(player.transform, "foot.l");
+            references.rightThigh = FindChildRecursive(player.transform, "thigh_stretch.r");
+            references.rightCalf = FindChildRecursive(player.transform, "calf_stretch.r");
+            references.rightFoot = FindChildRecursive(player.transform, "foot.r");
+            references.leftUpperArm = FindChildRecursive(player.transform, "upperarm_stretch.l");
+            references.leftForearm = FindChildRecursive(player.transform, "forearm_stretch.l");
+            references.leftHand = FindChildRecursive(player.transform, "hand.l");
+            references.rightUpperArm = FindChildRecursive(player.transform, "upperarm_stretch.r");
+            references.rightForearm = FindChildRecursive(player.transform, "forearm_stretch.r");
+            references.rightHand = FindChildRecursive(player.transform, "hand.r");
+            fbbik.references = references;
+            Debug.Log($"[AutoSetup] FullBodyBipedIK bone references assigned for {player.gameObject.name}.");
+        }
+
+        fbbik.enabled = false;
+        EditorUtility.SetDirty(fbbik);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(fbbik);
     }
 
     private static void SetupBulletDecalManager(Player player)

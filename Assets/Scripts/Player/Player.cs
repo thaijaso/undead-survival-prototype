@@ -15,9 +15,10 @@ using UnityEditor;
 [RequireComponent(typeof(PlayerCameraController))]
 [RequireComponent(typeof(PlayerIKController))]
 [RequireComponent(typeof(AimIK))]
+[RequireComponent(typeof(FullBodyBipedIK))]
+[RequireComponent(typeof(RecoilIK))]
 [RequireComponent(typeof(PlayerWeaponManager))]
 [RequireComponent(typeof(HealthManager))]
-[RequireComponent(typeof(RecoilIK))]
 [RequireComponent(typeof(BulletHitscan))]
 [RequireComponent(typeof(BulletDecalManager))]
 public class Player : MonoBehaviour
