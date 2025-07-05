@@ -170,21 +170,21 @@ public class PlayerIKController : MonoBehaviour
 
     public void SetIKWeights(float weight)
     {
+        Debug.Log($"[PlayerIKController] SetIKWeights called with: {weight}");
         currentIKWeight = weight;
-        
         if (aimIK != null)
             aimIK.solver.IKPositionWeight = currentIKWeight;
-        
         if (fullBodyBipedIK != null)
             fullBodyBipedIK.solver.IKPositionWeight = currentIKWeight;
-        
         if (lookAtIK != null)
             lookAtIK.solver.IKPositionWeight = currentIKWeight;
     }
 
     public void SetIKTargetWeight(float target)
     {
+        Debug.Log($"[PlayerIKController] SetIKTargetWeight called with: {target}");
         targetIKWeight = Mathf.Clamp01(target);
+        // Do not call SetIKWeights here for smooth blending
     }
 
     public void BlendIKWeights()
@@ -213,5 +213,10 @@ public class PlayerIKController : MonoBehaviour
         var aimIK = GetComponent<RootMotion.FinalIK.AimIK>();
         if (aimIK != null)
             aimIK.enabled = false;
+    }
+
+    void Update()
+    {
+        BlendIKWeights(); // Ensure smooth blending every frame
     }
 }

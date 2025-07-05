@@ -103,6 +103,26 @@ public class AimState : StrafeState
 
         player.PlayerCameraController.ZoomIn();
 
+        // Always update IK offsets, even in debug mode
+        weaponManager.SetAimIKOffsets();
+
+        // Prevent automatic transitions if debug mode is active
+        if (PlayerDebugger.ForceAimDebugMode)
+        {
+            animationManager.BlendLayerWeight(1, 1f);
+            player.PlayerIKController.SetIKTargetWeight(1f); // Ensure IK weight is set every frame in debug mode
+            if (player.PlayerInput.IsMoving)
+            {
+                player.CrosshairController.ExpandAndContractCrosshair(
+                    1f,
+                    weaponManager.CurrentWeaponData.bulletSpreadHorizontal,
+                    weaponManager.CurrentWeaponData.bulletSpreadVertical,
+                    0.1f
+                );
+            }
+            return;
+        }
+
         if (player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming)
         {
             stateMachine.SetState(player.strafe);

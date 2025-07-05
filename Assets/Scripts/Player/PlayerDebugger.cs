@@ -278,6 +278,31 @@ public class PlayerDebugger : MonoBehaviour
     [Button("Restore Full Health"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugRestoreHealth() => RestoreFullHealth();
 
+    // Debug flag to lock AimState
+    public static bool ForceAimDebugMode = false;
+
+    [Button("Force Aim State"), EnableIf("@UnityEngine.Application.isPlaying")]
+    private void DebugForceAimState()
+    {
+        if (player?.stateMachine != null && player.aim != null)
+        {
+            ForceAimDebugMode = true;
+            player.stateMachine.SetState(player.aim);
+            Debug.Log($"[{player.name}] PlayerDebugger: Forced Aim state (Debug Mode ON).");
+        }
+        else
+        {
+            Debug.LogWarning($"[{player?.name ?? name}] PlayerDebugger: Cannot force Aim state (missing stateMachine or aim state).");
+        }
+    }
+
+    [Button("Exit Aim Debug Mode"), EnableIf("@UnityEngine.Application.isPlaying && @PlayerDebugger.ForceAimDebugMode")]
+    private void DebugExitAimDebugMode()
+    {
+        ForceAimDebugMode = false;
+        Debug.Log($"[{player?.name ?? name}] PlayerDebugger: Aim Debug Mode OFF.");
+    }
+
     // ===============================================
     // HEALTH DEBUG METHODS
     // ===============================================

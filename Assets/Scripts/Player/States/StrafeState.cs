@@ -40,6 +40,12 @@ public class StrafeState : MoveState
             return;
         }
 
+        // Prevent automatic transitions if debug mode is active
+        if (IsDebugAimLockActive)
+        {
+            return;
+        }
+
         base.LogicUpdate();
 
         if (!player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming)

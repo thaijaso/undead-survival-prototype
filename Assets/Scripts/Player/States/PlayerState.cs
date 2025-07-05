@@ -5,6 +5,11 @@
     protected AnimationManager animationManager;
     protected string animationName;
 
+    /// <summary>
+    /// Returns true if debug aim lock is active (prevents automatic state transitions for offset editing)
+    /// </summary>
+    protected virtual bool IsDebugAimLockActive => PlayerDebugger.ForceAimDebugMode;
+
     public PlayerState(
         Player player,
         StateMachine<PlayerState> stateMachine,
