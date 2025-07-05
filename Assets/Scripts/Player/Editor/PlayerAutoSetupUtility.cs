@@ -1,6 +1,6 @@
+using RootMotion.FinalIK;
 using UnityEngine;
 using UnityEditor;
-using Sirenix.OdinInspector;
 
 public static class PlayerAutoSetupUtility
 {
@@ -21,6 +21,9 @@ public static class PlayerAutoSetupUtility
         SetupCharacterControllerFromTemplate(player, overwriteExisting);
         SetupPlayerWeaponManager(player, overwriteExisting);
         SetupPlayerWeaponHand(player);
+        SetupPlayerAimIK(player, overwriteExisting);
+        SetupRecoilIK(player, overwriteExisting);
+        SetupBulletDecalManager(player);
 
         // Set layer to Player for this GameObject and all children
         if (player.gameObject != null)
@@ -134,14 +137,22 @@ public static class PlayerAutoSetupUtility
             type.GetProperty("PlayerCameraController")?.SetValue(player, playerCameraController);
         var playerIKController = player.GetComponent<PlayerIKController>();
         if (playerIKController != null)
+        {
             type.GetProperty("PlayerIKController")?.SetValue(player, playerIKController);
+            EditorUtility.SetDirty(playerIKController);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(playerIKController);
+        }
         var weaponManager = player.GetComponent<PlayerWeaponManager>();
         if (weaponManager != null)
+        {
             type.GetProperty("WeaponManager")?.SetValue(player, weaponManager);
+            EditorUtility.SetDirty(weaponManager);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(weaponManager);
+        }
         var healthManager = player.GetComponent<HealthManager>();
         if (healthManager != null)
             type.GetProperty("HealthManager")?.SetValue(player, healthManager);
-        var recoil = player.GetComponent<IKRecoil>();
+        var recoil = player.GetComponent<RecoilIK>();
         if (recoil != null)
             type.GetProperty("Recoil")?.SetValue(player, recoil);
         var bulletHitscan = player.GetComponent<BulletHitscan>();
@@ -637,6 +648,282 @@ public static class PlayerAutoSetupUtility
             }
         }
     }
+
+    private static void SetupPlayerAimIK(Player player, bool overwriteExisting = true)
+    {
+        if (player == null)
+            return;
+
+        var aimIK = player.GetComponent<AimIK>();
+        if (aimIK == null)
+        {
+            aimIK = player.gameObject.AddComponent<AimIK>();
+            Debug.Log($"[AutoSetup] AimIK component added to {player.gameObject.name}.");
+        }
+        // Always disable AimIK after setup
+        aimIK.enabled = false;
+
+        // Assign PoleTarget: use prefab from PlayerTemplate if available, else find or create
+        Transform poleTarget = null;
+        if (player.playerTemplate != null && player.playerTemplate.poleTargetPrefab != null)
+        {
+            // Check if already exists as a child
+            poleTarget = FindChildRecursive(player.transform, "PoleTarget");
+            if (poleTarget == null || overwriteExisting)
+            {
+                // If overwriteExisting is true and PoleTarget exists, destroy it first
+                if (overwriteExisting && poleTarget != null)
+                {
+                    Object.DestroyImmediate(poleTarget.gameObject);
+                    Debug.Log($"[AutoSetup] Overwriting existing PoleTarget for {player.gameObject.name}.");
+                    poleTarget = null; // Clear reference to destroyed object
+                }
+                GameObject poleTargetObj = (GameObject)PrefabUtility.InstantiatePrefab(player.playerTemplate.poleTargetPrefab, player.transform);
+                poleTargetObj.name = "PoleTarget";
+                poleTarget = poleTargetObj.transform;
+                // Do not override prefab transform values if using prefab
+                // (leave localPosition, localRotation, localScale as set by prefab)
+                Debug.Log($"[AutoSetup] Instantiated PoleTarget prefab for {player.gameObject.name}.");
+            }
+        }
+        else
+        {
+            poleTarget = FindChildRecursive(player.transform, "PoleTarget");
+            if (poleTarget == null)
+            {
+                // Fallback: create empty PoleTarget
+                GameObject poleTargetObj = new GameObject("PoleTarget");
+                poleTargetObj.transform.SetParent(player.transform);
+                poleTargetObj.transform.localPosition = new Vector3(-1.251f, 1.745f, 0f);
+                poleTargetObj.transform.localRotation = Quaternion.identity;
+                poleTargetObj.transform.localScale = Vector3.one;
+                poleTarget = poleTargetObj.transform;
+                Debug.Log($"[AutoSetup] Created empty PoleTarget for {player.gameObject.name}.");
+            }
+        }
+
+        // Assign targets
+        aimIK.solver.target = FindChildRecursive(player.transform, "AimTarget");
+        aimIK.solver.poleTarget = poleTarget;
+        aimIK.solver.axis = new Vector3(0, 0, 1);
+        aimIK.solver.poleAxis = new Vector3(0, 1, 0);
+        aimIK.solver.IKPositionWeight = 0f; // Ensure IK position weight is set
+        aimIK.solver.poleWeight = 1f;
+        aimIK.solver.tolerance = 0f;
+        aimIK.solver.maxIterations = 4;
+        aimIK.solver.clampWeight = 0.1f;
+        aimIK.solver.clampSmoothing = (int)2f;
+        aimIK.solver.useRotationLimits = true;
+        // aimIK.solver.fixTransforms = true; // Not present on solver
+        // If your version supports clamp, set it here:
+        // aimIK.solver.clamp = IKSolverAim.Clamp.Absolute;
+
+        // Set up the bones array with correct references and weights
+        aimIK.solver.bones = new IKSolverAim.Bone[] {
+            new IKSolverAim.Bone(FindChildRecursive(player.transform, "spine_01.x"), 0f),
+            new IKSolverAim.Bone(FindChildRecursive(player.transform, "spine_02.x"), 0f),
+            new IKSolverAim.Bone(FindChildRecursive(player.transform, "spine_03.x"), 0.769f),
+            new IKSolverAim.Bone(FindChildRecursive(player.transform, "arm_stretch.r"), 1f),
+            new IKSolverAim.Bone(FindChildRecursive(player.transform, "forearm_stretch.r"), 1f),
+            new IKSolverAim.Bone(FindChildRecursive(player.transform, "hand.r"), 1f)
+        };
+
+        // Mark AimIK as dirty so changes persist
+        EditorUtility.SetDirty(aimIK);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(aimIK);
+
+        Debug.Log($"[AutoSetup] AimIK component set up for {player.gameObject.name} (disabled by default).");
+    }
+
+    private static void SetAimIKBoneWeight(AimIK aimIK, string boneName, float weight)
+    {
+        if (aimIK?.solver?.bones == null) return;
+        foreach (var bone in aimIK.solver.bones)
+        {
+            if (bone != null && bone.transform != null && bone.transform.name == boneName)
+            {
+                bone.weight = weight;
+                return;
+            }
+        }
+        Debug.LogWarning($"[AutoSetup] Could not find bone '{boneName}' in AimIK.bones array.");
+    }
+
+    private static void SetupRecoilIK(Player player, bool overwriteExisting = true)
+    {
+        if (player == null)
+            return;
+
+        var recoilIK = player.GetComponent<RecoilIK>();
+        if (recoilIK == null)
+        {
+            recoilIK = player.gameObject.AddComponent<RecoilIK>();
+            Debug.Log($"[AutoSetup] IKRecoil component added to {player.gameObject.name}.");
+        }
+        else
+        {
+            Debug.Log($"[AutoSetup] IKRecoil component already exists on {player.gameObject.name}.");
+        }
+
+        // Assign AimIK reference if available
+        var aimIK = player.GetComponent<AimIK>();
+        if (aimIK != null)
+        {
+            var aimIKField = recoilIK.GetType().GetField("aimIK", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (aimIKField != null)
+            {
+                aimIKField.SetValue(recoilIK, aimIK);
+                Debug.Log($"[AutoSetup] Assigned AimIK reference to RecoilIK on {player.gameObject.name}.");
+            }
+            else
+            {
+                var aimIKProp = recoilIK.GetType().GetProperty("aimIK", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (aimIKProp != null && aimIKProp.CanWrite)
+                {
+                    aimIKProp.SetValue(recoilIK, aimIK);
+                    Debug.Log($"[AutoSetup] Assigned AimIK property to RecoilIK on {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not find 'aimIK' field or property on RecoilIK for {player.gameObject.name}.");
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[AutoSetup] AimIK component not found on {player.gameObject.name}, cannot assign to RecoilIK.");
+        }
+
+        // --- NEW: Assign RecoilIK settings from PlayerWeaponManager's CurrentWeaponData ---
+        var pwm = player.GetComponent<PlayerWeaponManager>();
+        if (pwm != null)
+        {
+            var weaponData = pwm.CurrentWeaponData;
+            if (weaponData != null)
+            {
+                // Map WeaponData fields to RecoilIK fields
+                var recoil = recoilIK;
+                var data = weaponData;
+                recoil.ikRecoilWeight = data.ikRecoilWeight;
+                recoil.aimIKSolvedLast = data.aimIKSolvedLast;
+                recoil.handedness = (RecoilIK.Handedness)data.handedness;
+                recoil.twoHanded = data.twoHanded;
+                recoil.recoilWeight = data.recoilWeight;
+                recoil.magnitudeRandom = data.magnitudeRandom;
+                recoil.rotationRandom = data.rotationRandom;
+                recoil.handRotationOffset = data.handRotationOffset;
+                recoil.blendTime = data.blendTime;
+                recoil.offsetSettings = new RecoilIK.OffsetSettings {
+                    offset = data.offsets.offset,
+                    additivity = data.offsets.additivity,
+                    maxAdditiveOffsetMag = data.offsets.maxAdditiveOffsetMag
+                };
+                // Map EffectorLinks
+                if (data.effectorLinks != null)
+                {
+                    recoil.effectorLinks = new RecoilIK.EffectorLink[data.effectorLinks.Length];
+                    for (int i = 0; i < data.effectorLinks.Length; i++)
+                    {
+                        var src = data.effectorLinks[i];
+                        recoil.effectorLinks[i] = new RecoilIK.EffectorLink {
+                            effector = src.effector,
+                            weight = src.weight
+                        };
+                    }
+                }
+                Debug.Log($"[AutoSetup] RecoilIK settings assigned from PlayerWeaponManager.CurrentWeaponData for {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] CurrentWeaponData is null on PlayerWeaponManager for {player.gameObject.name}.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[AutoSetup] PlayerWeaponManager not found on {player.gameObject.name}.");
+        }
+
+        // Mark RecoilIK as dirty so changes persist
+        EditorUtility.SetDirty(recoilIK);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(recoilIK);
+    }
+
+    private static void SetupBulletDecalManager(Player player)
+    {
+        if (player == null) return;
+        var bulletDecalManager = player.GetComponent<BulletDecalManager>();
+        if (bulletDecalManager == null) return;
+        var defaultDecal = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Effects/BulletDecals/SM_Prop_BulletHoles_01.prefab");
+        if (defaultDecal != null)
+        {
+            var field = bulletDecalManager.GetType().GetField("defaultDecal", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                field.SetValue(bulletDecalManager, defaultDecal);
+                Debug.Log($"[AutoSetup] BulletDecalManager.defaultDecal set to SM_Prop_BulletHoles_01.prefab for {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] Could not find 'defaultDecal' field on BulletDecalManager for {player.gameObject.name}.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[AutoSetup] Could not load BulletDecal prefab at Assets/Prefabs/Effects/BulletDecals/SM_Prop_BulletHoles_01.prefab");
+        }
+
+        // Setup Material Decals
+        var materialDecalsField = bulletDecalManager.GetType().GetField("materialDecals", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (materialDecalsField != null)
+        {
+            // Load all 3 bullet hole prefabs
+            var decal1 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Effects/BulletDecals/SM_Prop_BulletHoles_01.prefab");
+            var decal2 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Effects/BulletDecals/SM_Prop_BulletHoles_02.prefab");
+            var decal3 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Effects/BulletDecals/SM_Prop_BulletHoles_03.prefab");
+            var bulletDecalPrefabs = new GameObject[] { decal1, decal2, decal3 };
+            var materials = UnityEditor.AssetDatabase.FindAssets("t:PhysicsMaterial", new[] { "Assets/PhysicsMaterials" });
+            var materialDecalsList = new System.Collections.Generic.List<object>();
+            foreach (var guid in materials)
+            {
+                var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+                var mat = UnityEditor.AssetDatabase.LoadAssetAtPath<PhysicsMaterial>(path);
+                if (mat != null)
+                {
+                    // Try to create a material decal entry (assumes a struct/class with 'material' and 'bulletDecalPrefabs' fields)
+                    var decalType = materialDecalsField.FieldType.GetElementType() ?? materialDecalsField.FieldType.GetGenericArguments()[0];
+                    var decalEntry = System.Activator.CreateInstance(decalType);
+                    var matField = decalType.GetField("material");
+                    var prefabsField = decalType.GetField("bulletDecalPrefabs");
+                    if (matField != null && prefabsField != null)
+                    {
+                        matField.SetValue(decalEntry, mat);
+                        prefabsField.SetValue(decalEntry, bulletDecalPrefabs);
+                        materialDecalsList.Add(decalEntry);
+                    }
+                }
+            }
+            // Assign the array/list to the field
+            var elementType = materialDecalsField.FieldType.IsArray
+                ? materialDecalsField.FieldType.GetElementType()
+                : materialDecalsField.FieldType.GetGenericArguments()[0];
+            if (materialDecalsField.FieldType.IsArray)
+            {
+                var typedArray = System.Array.CreateInstance(elementType, materialDecalsList.Count);
+                for (int i = 0; i < materialDecalsList.Count; i++)
+                    typedArray.SetValue(materialDecalsList[i], i);
+                materialDecalsField.SetValue(bulletDecalManager, typedArray);
+            }
+            else
+            {
+                materialDecalsField.SetValue(bulletDecalManager, materialDecalsList);
+            }
+            Debug.Log($"[AutoSetup] BulletDecalManager.materialDecals set up with {materialDecalsList.Count} entries for {player.gameObject.name}.");
+        }
+        else
+        {
+            Debug.LogWarning($"[AutoSetup] Could not find 'materialDecals' field on BulletDecalManager for {player.gameObject.name}.");
+        }
+    }
 }
 
 #if UNITY_EDITOR
@@ -644,6 +931,7 @@ public static class PlayerAutoSetupUtility
 public class PlayerAutoSetupEditor : Editor
 {
     private bool overwriteExisting = false;
+    private static bool autoSetupLocked = false;
 
     public override void OnInspectorGUI()
     {
@@ -651,17 +939,23 @@ public class PlayerAutoSetupEditor : Editor
         EditorGUILayout.Space();
         overwriteExisting = EditorGUILayout.ToggleLeft("Overwrite Existing Values", overwriteExisting);
         EditorGUILayout.HelpBox("If checked, all values will be overwritten with those from the PlayerTemplate asset.", MessageType.Info);
+        EditorGUILayout.Space();
+        // Lock toggle
+        autoSetupLocked = EditorGUILayout.ToggleLeft("\U0001F512 Lock Auto Setup Button (prevent accidental press)", autoSetupLocked);
+        EditorGUILayout.Space();
         // Make the button larger and more visually prominent
         GUIStyle bigButton = new GUIStyle(GUI.skin.button);
         bigButton.fontSize = 16;
         bigButton.fontStyle = FontStyle.Bold;
         bigButton.fixedHeight = 40;
         bigButton.margin = new RectOffset(0, 0, 10, 10);
-        if (GUILayout.Button("Auto Setup References", bigButton))
+        EditorGUI.BeginDisabledGroup(autoSetupLocked);
+        if (GUILayout.Button(autoSetupLocked ? "Auto Setup Player (Locked)" : "Auto Setup Player", bigButton))
         {
             var player = (Player)target;
             PlayerAutoSetupUtility.AutoSetupReferences(player, overwriteExisting);
         }
+        EditorGUI.EndDisabledGroup();
     }
 }
 #endif

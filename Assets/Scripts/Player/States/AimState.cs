@@ -1,5 +1,6 @@
 using UnityEngine;
 using PlayerStates;
+using RootMotion.FinalIK;
 
 public class AimState : StrafeState
 {
@@ -25,6 +26,9 @@ public class AimState : StrafeState
     {
         Debug.Log($"[{player.name}] AimState.Enter(): Entering Aim state");
         base.Enter();
+
+        // Enable AimIK via PlayerIKController
+        player.PlayerIKController.EnableAimIK();
 
         animationManager.SetIsAiming(true);
         player.PlayerIKController.SetIKTargetWeight(1f);
@@ -83,6 +87,7 @@ public class AimState : StrafeState
             player.PlayerCameraController.DisableCameraSway();
 
             player.CrosshairController.DisableCrosshair();
+            player.PlayerIKController.DisableAimIK();
         }
     }
 

@@ -152,14 +152,14 @@ public class PlayerWeaponManager : MonoBehaviour
         var data = CurrentWeaponData;
         recoil.ikRecoilWeight = data.ikRecoilWeight;
         recoil.aimIKSolvedLast = data.aimIKSolvedLast;
-        recoil.handedness = (IKRecoil.Handedness)data.handedness;
+        recoil.handedness = (RecoilIK.Handedness)data.handedness;
         recoil.twoHanded = data.twoHanded;
         recoil.recoilWeight = data.recoilWeight;
         recoil.magnitudeRandom = data.magnitudeRandom;
         recoil.rotationRandom = data.rotationRandom;
         recoil.handRotationOffset = data.handRotationOffset;
         recoil.blendTime = data.blendTime;
-        recoil.offsetSettings = new IKRecoil.OffsetSettings {
+        recoil.offsetSettings = new RecoilIK.OffsetSettings {
             offset = data.offsets.offset,
             additivity = data.offsets.additivity,
             maxAdditiveOffsetMag = data.offsets.maxAdditiveOffsetMag
@@ -167,11 +167,11 @@ public class PlayerWeaponManager : MonoBehaviour
         // Map EffectorLinks
         if (data.effectorLinks != null)
         {
-            recoil.effectorLinks = new IKRecoil.EffectorLink[data.effectorLinks.Length];
+            recoil.effectorLinks = new RecoilIK.EffectorLink[data.effectorLinks.Length];
             for (int i = 0; i < data.effectorLinks.Length; i++)
             {
                 var src = data.effectorLinks[i];
-                recoil.effectorLinks[i] = new IKRecoil.EffectorLink {
+                recoil.effectorLinks[i] = new RecoilIK.EffectorLink {
                     effector = src.effector,
                     weight = src.weight
                 };

@@ -4,7 +4,7 @@ using UnityEngine;
 public class ShootState : AimState
 {
     private Camera mainCamera;
-    private readonly IKRecoil ikRecoil;
+    private readonly RecoilIK recoilIK;
     private readonly BulletHitscan bulletHitscan;
 
     private readonly BulletDecalManager bulletDecalManager;
@@ -22,7 +22,7 @@ public class ShootState : AimState
         AnimationManager animationManager,
         string animationName,
         PlayerWeaponManager weaponManager,
-        IKRecoil ikRecoil,
+        RecoilIK recoilIK,
         BulletHitscan bulletHitscan,
         BulletDecalManager bulletDecalManager
     ) : base(
@@ -35,7 +35,7 @@ public class ShootState : AimState
     {
         SetupCamera();
 
-        this.ikRecoil = ikRecoil;
+        this.recoilIK = recoilIK;
         this.bulletHitscan = bulletHitscan;
         this.bulletDecalManager = bulletDecalManager;
     }
@@ -142,7 +142,7 @@ public class ShootState : AimState
     // Apply visual recoil to weapon and animation:
     private void ApplyAnimationRecoil()
     {
-        ikRecoil.Fire(animationRecoilMagnitude);
+        recoilIK.Fire(animationRecoilMagnitude);
     }
 
     private void ApplyCameraRecoil()

@@ -46,6 +46,10 @@ public class PlayerTemplate : ScriptableObject
     [InfoBox("Prefab or reference for the Player's WeaponHand.")]
     public GameObject weaponHandPrefab;
 
+    [TabGroup("References")]
+    [InfoBox("Prefab or reference for the PoleTarget child object.")]
+    public GameObject poleTargetPrefab;
+
     [TabGroup("Camera")]
     [MinValue(1f)]
     [SuffixLabel("deg")] public float followFOV = 60f;

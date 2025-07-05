@@ -21,6 +21,7 @@ MonoBehaviour:
   forwardFollowTargetPrefab: {fileID: 1023884460089752387, guid: b55d4511b0bef1842a74479affa5ce41, type: 3}
   aimTargetPrefab: {fileID: 957673483385557115, guid: 01ca10346d9923e4db981614b0dfe610, type: 3}
   weaponHandPrefab: {fileID: 7043368164534432167, guid: d5b6f3aaa243f2246bf9632173a1071c, type: 3}
+  poleTargetPrefab: {fileID: 2270644548778651205, guid: d7e7b3073fb4ec5408f4e3b1565d1293, type: 3}
   followFOV: 40
   aimFOV: 28.7
   zoomSpeed: 5
@@ -41,55 +42,3 @@ MonoBehaviour:
   excludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  ikRecoilWeight: 1
-  aimIKSolvedLast: 0
-  handedness: 0
-  twoHanded: 1
-  recoilWeight:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 6.2845216
-      outSlope: 6.2845216
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.05757141
-      value: 0.36180878
-      inSlope: 2.1849685
-      outSlope: 2.1849685
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.24696037
-      value: -0.000792481
-      inSlope: -1.9145849
-      outSlope: -1.9145849
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  magnitudeRandom: 0.1
-  rotationRandom: {x: 0, y: 30, z: 0}
-  handRotationOffset: {x: 0, y: 0, z: 0}
-  blendTime: 0.1
-  offsets:
-    offset: {x: 0.02, y: 0, z: -0.1}
-    additivity: 0.5
-    maxAdditiveOffsetMag: 0.2
-  effectorLinks:
-  - effector: Right Hand
-    weight: 1
-  - effector: Right Shoulder
-    weight: 0.3
-  - effector: Body
-    weight: 0.1

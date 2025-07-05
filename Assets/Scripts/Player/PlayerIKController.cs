@@ -13,7 +13,7 @@ public class PlayerIKController : MonoBehaviour
 
     public Vector3 gunHoldOffset;
     public Vector3 leftHandOffset;
-    public IKRecoil recoil;
+    public RecoilIK recoil;
 
     // The IK components
     private AimIK aimIK;
@@ -199,5 +199,19 @@ public class PlayerIKController : MonoBehaviour
         {
             aimIK.solver.transform = aimTransform;
         }
+    }
+
+    public void EnableAimIK()
+    {
+        var aimIK = GetComponent<RootMotion.FinalIK.AimIK>();
+        if (aimIK != null)
+            aimIK.enabled = true;
+    }
+
+    public void DisableAimIK()
+    {
+        var aimIK = GetComponent<RootMotion.FinalIK.AimIK>();
+        if (aimIK != null)
+            aimIK.enabled = false;
     }
 }

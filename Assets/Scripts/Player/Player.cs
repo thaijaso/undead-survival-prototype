@@ -2,6 +2,8 @@
 using PlayerStates;
 using Sirenix.OdinInspector;
 using Unity.Cinemachine;
+using RootMotion.FinalIK;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -12,9 +14,10 @@ using UnityEditor;
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(PlayerCameraController))]
 [RequireComponent(typeof(PlayerIKController))]
+[RequireComponent(typeof(AimIK))]
 [RequireComponent(typeof(PlayerWeaponManager))]
 [RequireComponent(typeof(HealthManager))]
-[RequireComponent(typeof(IKRecoil))]
+[RequireComponent(typeof(RecoilIK))]
 [RequireComponent(typeof(BulletHitscan))]
 [RequireComponent(typeof(BulletDecalManager))]
 public class Player : MonoBehaviour
@@ -29,7 +32,7 @@ public class Player : MonoBehaviour
 
     public HealthManager HealthManager { get; private set; }
 
-    public IKRecoil Recoil { get; private set; }
+    public RecoilIK Recoil { get; private set; }
     public BulletHitscan BulletHitscan { get; private set; }
 
     public BulletDecalManager BulletDecalManager { get; private set; }
@@ -131,7 +134,7 @@ public class Player : MonoBehaviour
 
     private void SetupRecoil()
     {
-        Recoil = GetComponent<IKRecoil>();
+        Recoil = GetComponent<RecoilIK>();
 
         if (Recoil == null)
             Debug.LogError($"[{gameObject.name}] Player.SetupRecoil(): Recoil component is missing!");

@@ -18,12 +18,26 @@ public class PlayerDebugger : MonoBehaviour
     public string CurrentState => GetCurrentStateName();
 
     [ShowInInspector, ReadOnly]
-    [ShowIf("@player != null && player.PlayerCharacterController != null")]
-    public bool IsGrounded => player?.PlayerCharacterController?.CharacterController.isGrounded ?? false;
+    [ShowIf("@player != null && (player.PlayerCharacterController != null || player.GetComponent<CharacterController>() != null)")]
+    public bool IsGrounded {
+        get {
+            if (player?.PlayerCharacterController?.CharacterController != null)
+                return player.PlayerCharacterController.CharacterController.isGrounded;
+            var cc = player != null ? player.GetComponent<CharacterController>() : null;
+            return cc != null && cc.isGrounded;
+        }
+    }
 
     [ShowInInspector, ReadOnly]
-    [ShowIf("@player != null && player.PlayerCharacterController != null")]
-    public Vector3 CurrentVelocity => player?.PlayerCharacterController?.CharacterController.velocity ?? Vector3.zero;
+    [ShowIf("@player != null && (player.PlayerCharacterController != null || player.GetComponent<CharacterController>() != null)")]
+    public Vector3 CurrentVelocity {
+        get {
+            if (player?.PlayerCharacterController?.CharacterController != null)
+                return player.PlayerCharacterController.CharacterController.velocity;
+            var cc = player != null ? player.GetComponent<CharacterController>() : null;
+            return cc != null ? cc.velocity : Vector3.zero;
+        }
+    }
 
     [ShowInInspector, ReadOnly]
     [ShowIf("@player != null && player.playerTemplate != null")]
