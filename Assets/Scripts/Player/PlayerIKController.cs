@@ -1,4 +1,5 @@
 using RootMotion.FinalIK;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 public class PlayerIKController : MonoBehaviour
@@ -9,7 +10,15 @@ public class PlayerIKController : MonoBehaviour
     // IK weight blending
     private float currentIKWeight = 0f;
     private float targetIKWeight = 1f;
+
+    [Header("IK Blending Settings")]
+    [Range(0.1f, 20f)]
+    [SerializeField]
     private float blendSpeed = 5f;
+
+    [Range(0f, 1f)]
+    [SerializeField]
+    private float inspectorTargetIKWeight = 1f;
 
     public Vector3 gunHoldOffset;
     public Vector3 leftHandOffset;
@@ -26,6 +35,11 @@ public class PlayerIKController : MonoBehaviour
     private Vector3 aimTarget;
     private Quaternion rightHandRotation;
 
+    // Debug flag to allow inspector override of IK weights
+    [Header("Debug")]
+    [SerializeField]
+    public bool DebugOverrideIKWeight = false;
+
 
     protected void Awake()
     {
@@ -38,10 +52,10 @@ public class PlayerIKController : MonoBehaviour
         if (fullBodyBipedIK != null)
         {
             fullBodyBipedIK.solver.OnPreRead += OnPreRead;
-            
+
             // Disable the FBBIK component to manage its updating
             fullBodyBipedIK.enabled = false;
-            
+
             // Presuming head is rotated towards character forward at Start
             headLookAxis = fullBodyBipedIK.references.head.InverseTransformVector(fullBodyBipedIK.references.root.forward);
         }
@@ -170,7 +184,6 @@ public class PlayerIKController : MonoBehaviour
 
     public void SetIKWeights(float weight)
     {
-        Debug.Log($"[PlayerIKController] SetIKWeights called with: {weight}");
         currentIKWeight = weight;
         if (aimIK != null)
             aimIK.solver.IKPositionWeight = currentIKWeight;
@@ -182,7 +195,7 @@ public class PlayerIKController : MonoBehaviour
 
     public void SetIKTargetWeight(float target)
     {
-        Debug.Log($"[PlayerIKController] SetIKTargetWeight called with: {target}");
+        if (DebugOverrideIKWeight) return; // Prevent state machine from overriding in debug mode
         targetIKWeight = Mathf.Clamp01(target);
         // Do not call SetIKWeights here for smooth blending
     }
@@ -215,8 +228,37 @@ public class PlayerIKController : MonoBehaviour
             aimIK.enabled = false;
     }
 
+    [Button("Apply IK Weights"), Sirenix.OdinInspector.EnableIf("@UnityEngine.Application.isPlaying")]
+    public void ApplyIKWeights()
+    {
+        SetIKTargetWeight(inspectorTargetIKWeight);
+        SetIKWeights(inspectorTargetIKWeight);
+    }
+
     void Update()
     {
+        // Skip all IK blending and updates if debug mode disables IK
+        if (PlayerDebugger.DebugDisableIK)
+        {
+            SetIKWeights(0f);
+            return;
+        }
+        if (DebugOverrideIKWeight)
+        {
+            SetIKWeights(inspectorTargetIKWeight); // Directly set from inspector
+            return;
+        }
         BlendIKWeights(); // Ensure smooth blending every frame
+        // Optionally, for live inspector changes:
+        // SetIKTargetWeight(inspectorTargetIKWeight);
+    }
+
+    void LateUpdate()
+    {
+        if (aimIK != null && aimIK.enabled)
+        {
+            Debug.DrawLine(aimIK.solver.transform.position, aimIK.solver.target.position, Color.green);
+            Debug.DrawRay(aimIK.solver.transform.position, aimIK.solver.transform.forward * 2f, Color.red);
+        }
     }
 }

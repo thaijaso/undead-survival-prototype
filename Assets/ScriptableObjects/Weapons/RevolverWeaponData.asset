@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac1be3d29626fab4ea91501ab9171782, type: 3}
+  m_Name: RevolverWeaponData
+  m_EditorClassIdentifier: 
+  weaponName: 
+  weaponPrefab: {fileID: 1111015175407080, guid: 702ed7b699550064daef972ba3bec67f, type: 3}
+  aimIKOffsets: {fileID: 11400000, guid: 49e7c97ed590d154eb704e0befb36162, type: 2}
+  animationRecoilMagnitude: 0.5
+  cameraRecoilX: 0
+  cameraRecoilY: 0
+  cameraRecoilZ: 0
+  cameraRecoilSnapiness: 0
+  cameraRecoilReturnSpeed: 0
+  bulletSpreadHorizontal: 0.5
+  bulletSpreadVertical: 0.5
+  fireRate: 0.1
+  range: 100
+  damage: 1
+  weaponSway: 0.3
+  impactForce: 10
+  bulletSpeed: 20
+  ikRecoilWeight: 1
+  aimIKSolvedLast: 0
+  handedness: 0
+  twoHanded: 1
+  recoilWeight:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0.1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  magnitudeRandom: 0.1
+  rotationRandom: {x: 0, y: 30, z: 0}
+  handRotationOffset: {x: 0, y: 0, z: 0}
+  blendTime: 0.1
+  offsets:
+    offset: {x: 0.02, y: 0, z: -0.1}
+    additivity: 0.5
+    maxAdditiveOffsetMag: 0.2
+  effectorLinks:
+  - effector: Right Hand
+    weight: 1
+  - effector: Right Shoulder
+    weight: 0.3
+  - effector: Body
+    weight: 0.1

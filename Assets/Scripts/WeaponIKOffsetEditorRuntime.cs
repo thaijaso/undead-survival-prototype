@@ -11,6 +11,53 @@ public class WeaponIKOffsetEditorRuntime : MonoBehaviour
     public Transform leftHandTransform;
     public Camera playerCamera;
 
+    // Recursively search for a child transform by name
+    private Transform FindDeepChild(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name)
+                return child;
+            var result = FindDeepChild(child, name);
+            if (result != null)
+                return result;
+        }
+        return null;
+    }
+
+    void Awake()
+    {
+        if (playerCamera == null)
+        {
+            playerCamera = Camera.main;
+            if (playerCamera == null)
+                Debug.LogWarning($"[{nameof(WeaponIKOffsetEditorRuntime)}] Could not find MainCamera in the scene.", this);
+        }
+
+        // Try to find the player root in the parent chain
+        Transform playerRoot = null;
+        var playerComponent = GetComponentInParent<Player>();
+        if (playerComponent != null)
+            playerRoot = playerComponent.transform;
+        else
+            playerRoot = transform.root;
+
+        if (gunHoldTransform == null)
+        {
+            if (playerRoot != null)
+                gunHoldTransform = FindDeepChild(playerRoot, "WeaponHand");
+            if (gunHoldTransform == null)
+                Debug.LogWarning($"[{nameof(WeaponIKOffsetEditorRuntime)}] Could not find 'WeaponHand' under player root (recursive search).", this);
+        }
+        if (leftHandTransform == null)
+        {
+            if (playerRoot != null)
+                leftHandTransform = FindDeepChild(playerRoot, "hand.l");
+            if (leftHandTransform == null)
+                Debug.LogWarning($"[{nameof(WeaponIKOffsetEditorRuntime)}] Could not find 'hand.l' under player root (recursive search).", this);
+        }
+    }
+
     void OnDrawGizmos()
     {
     #if UNITY_EDITOR

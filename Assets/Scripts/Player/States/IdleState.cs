@@ -54,7 +54,6 @@ namespace PlayerStates
             }
 
             player.PlayerIKController.BlendIKWeights();
-            animationManager.BlendLayerWeight(1, 0f);
         }
 
         public override void PhysicsUpdate()

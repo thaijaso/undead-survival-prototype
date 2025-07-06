@@ -109,7 +109,6 @@ public class AimState : StrafeState
         // Prevent automatic transitions if debug mode is active
         if (PlayerDebugger.ForceAimDebugMode)
         {
-            animationManager.BlendLayerWeight(1, 1f);
             player.PlayerIKController.SetIKTargetWeight(1f); // Ensure IK weight is set every frame in debug mode
             if (player.PlayerInput.IsMoving)
             {
@@ -134,8 +133,6 @@ public class AimState : StrafeState
             stateMachine.SetState(player.shoot);
             return;
         }
-
-        animationManager.BlendLayerWeight(1, 1f);
 
         if (player.PlayerInput.IsMoving)
         {

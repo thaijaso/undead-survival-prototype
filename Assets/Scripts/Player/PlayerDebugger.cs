@@ -64,6 +64,18 @@ public class PlayerDebugger : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (ForceAimDebugMode && player?.stateMachine != null && player.aim != null)
+        {
+            if (player.stateMachine.currentState != player.aim)
+            {
+                player.stateMachine.SetState(player.aim);
+                Debug.Log($"[{player.name}] PlayerDebugger: Re-forced Aim state (Debug Mode ON).");
+            }
+        }
+    }
+
     // ===============================================
     // UTILITY METHODS
     // ===============================================
@@ -284,6 +296,7 @@ public class PlayerDebugger : MonoBehaviour
     [Button("Force Aim State"), EnableIf("@UnityEngine.Application.isPlaying")]
     private void DebugForceAimState()
     {
+        DebugExitAimDebugMode(); // Always exit first to reset state
         if (player?.stateMachine != null && player.aim != null)
         {
             ForceAimDebugMode = true;
@@ -296,11 +309,28 @@ public class PlayerDebugger : MonoBehaviour
         }
     }
 
-    [Button("Exit Aim Debug Mode"), EnableIf("@UnityEngine.Application.isPlaying && @PlayerDebugger.ForceAimDebugMode")]
+    [Button("Exit Aim Debug Mode"), EnableIf("@UnityEngine.Application.isPlaying && PlayerDebugger.ForceAimDebugMode")]
     private void DebugExitAimDebugMode()
     {
         ForceAimDebugMode = false;
         Debug.Log($"[{player?.name ?? name}] PlayerDebugger: Aim Debug Mode OFF.");
+    }
+
+    // Debug flag to disable IK for weapon positioning
+    public static bool DebugDisableIK = false;
+
+    [Button("Disable IK (Debug)", ButtonSizes.Large), EnableIf("@UnityEngine.Application.isPlaying && !PlayerDebugger.DebugDisableIK")]
+    private void DebugDisableIKButton()
+    {
+        DebugDisableIK = true;
+        Debug.Log($"[{player?.name ?? name}] PlayerDebugger: IK Disabled for weapon positioning.");
+    }
+
+    [Button("Enable IK (Debug)", ButtonSizes.Large), EnableIf("@UnityEngine.Application.isPlaying && PlayerDebugger.DebugDisableIK")]
+    private void DebugEnableIKButton()
+    {
+        DebugDisableIK = false;
+        Debug.Log($"[{player?.name ?? name}] PlayerDebugger: IK Enabled.");
     }
 
     // ===============================================
