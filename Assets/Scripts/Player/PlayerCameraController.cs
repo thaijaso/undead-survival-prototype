@@ -10,10 +10,13 @@ public class PlayerCameraController : MonoBehaviour
     private CinemachineCamera playerCamera;
 
     [SerializeField]
-    private Transform forwardsFollowTarget;
+    private Transform followTarget;
 
     [SerializeField]
-    private Transform aimTarget;
+    private Transform aimIKTarget;
+
+    [SerializeField]
+    private Transform bulletHitTarget;
 
     [SerializeField]
     private float followFOV = 40f;
@@ -33,7 +36,7 @@ public class PlayerCameraController : MonoBehaviour
 
     private float cameraSwayAmount = 1f; // Default sway amount
 
-    public Transform GetForwardsFollowTarget() => forwardsFollowTarget;
+    public Transform GetForwardsFollowTarget() => followTarget;
 
     private float currentHorizontalAxisValue;
 
@@ -203,12 +206,12 @@ public class PlayerCameraController : MonoBehaviour
             targetPosition = ray.origin + ray.direction * maxDistance;
         }
 
-        aimTarget.position = targetPosition;
+        aimIKTarget.position = targetPosition;
     }
 
     public Vector3 GetAimTarget()
     {
-        return aimTarget.position;
+        return aimIKTarget.position;
     }
 
     public Transform GetFollowCamTransform()

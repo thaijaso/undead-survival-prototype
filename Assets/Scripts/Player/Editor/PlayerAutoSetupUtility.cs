@@ -403,18 +403,20 @@ public static class PlayerAutoSetupUtility
 
         // Only create FollowTarget and AimTarget
         Transform followTarget = FindDirectChildByName(player.transform, "FollowTarget");
-        Transform aimTarget = FindDirectChildByName(player.transform, "AimTarget");
+        Transform aimIKTarget = FindDirectChildByName(player.transform, "AimIKTarget");
+        Transform bulletHitTarget = FindDirectChildByName(player.transform, "BulletHitTarget");
 
         followTarget = GetOrCreateCameraTarget(player, followTarget, "FollowTarget", player.playerTemplate?.followTargetPrefab, new Vector3(0f, 1.775f, -0.009f));
-        aimTarget = GetOrCreateCameraTarget(player, aimTarget, "AimTarget", player.playerTemplate?.aimIKTargetPrefab, Vector3.zero);
+        aimIKTarget = GetOrCreateCameraTarget(player, aimIKTarget, "AimIKTarget", player.playerTemplate?.aimIKTargetPrefab, Vector3.zero);
+        bulletHitTarget = GetOrCreateCameraTarget(player, bulletHitTarget, "BulletHitTarget", player.playerTemplate?.bulletHitTargetPrefab, Vector3.zero);
 
         SetCinemachineFollow(player, followTarget, overwriteExisting);
-        SetCameraControllerTargets(player, followTarget, aimTarget, overwriteExisting);
+        SetCameraControllerTargets(player, followTarget, aimIKTarget, bulletHitTarget, overwriteExisting);
         SetPlayerCameraField(player, overwriteExisting);
         SetCameraSettings(player, overwriteExisting);
 
         if (followTarget == null) Debug.LogWarning("FollowTarget not found as child of Player.");
-        if (aimTarget == null) Debug.LogWarning("AimTarget not found as child of Player.");
+        if (aimIKTarget == null) Debug.LogWarning("AimIKTarget not found as child of Player.");
     }
 
     private static Transform GetOrCreateCameraTarget(Player player, Transform existing, string name, GameObject prefab, Vector3 defaultPosition)
@@ -471,48 +473,105 @@ public static class PlayerAutoSetupUtility
         }
     }
 
-    private static void SetCameraControllerTargets(Player player, Transform followTarget, Transform aimTarget, bool overwriteExisting)
+    private static void SetCameraControllerTargets(Player player, Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget, bool overwriteExisting)
     {
-        var followTargetField = player.PlayerCameraController.GetType().GetField("forwardsFollowTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (followTargetField != null && followTarget != null)
+        SetCameraControllerFollowTarget(player, followTarget, overwriteExisting);
+        SetCameraControllerAimIKTarget(player, aimIKTarget, overwriteExisting);
+        SetCameraBulletHitTarget(player, bulletHitTarget, overwriteExisting);
+    }
+
+    private static void SetCameraControllerFollowTarget(Player player, Transform followTarget, bool overwriteExisting)
+    {
+        var followTargetField = player.PlayerCameraController.GetType().GetField("followTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (followTargetField != null)
         {
-            var before = followTargetField.GetValue(player.PlayerCameraController) as Transform;
-            if (overwriteExisting)
+            if (followTarget != null)
             {
-                Debug.Log($"[AutoSetup] PlayerCameraController.forwardsFollowTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {followTarget.name} (ID: {followTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
-                if (before != followTarget)
-                    Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.forwardsFollowTarget: {(before != null ? before.name : "null")} -> {followTarget.name}");
-                followTargetField.SetValue(player.PlayerCameraController, followTarget);
+                var before = followTargetField.GetValue(player.PlayerCameraController) as Transform;
+                if (overwriteExisting)
+                {
+                    Debug.Log($"[AutoSetup] PlayerCameraController.followTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {followTarget.name} (ID: {followTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
+                    if (before != followTarget)
+                        Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.followTarget: {(before != null ? before.name : "null")} -> {followTarget.name}");
+                    followTargetField.SetValue(player.PlayerCameraController, followTarget);
+                }
+                else if (before == null)
+                {
+                    followTargetField.SetValue(player.PlayerCameraController, followTarget);
+                }
+                if (overwriteExisting)
+                {
+                    var after = followTargetField.GetValue(player.PlayerCameraController) as Transform;
+                    Debug.Log($"[AutoSetup] PlayerCameraController.followTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
+                }
             }
-            else if (before == null)
+            else
             {
-                followTargetField.SetValue(player.PlayerCameraController, followTarget);
-            }
-            if (overwriteExisting)
-            {
-                var after = followTargetField.GetValue(player.PlayerCameraController) as Transform;
-                Debug.Log($"[AutoSetup] PlayerCameraController.forwardsFollowTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
+                Debug.LogWarning("[AutoSetup] PlayerCameraController.followTarget: No follow target reference was set.");
             }
         }
-        var aimTargetField = player.PlayerCameraController.GetType().GetField("aimTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (aimTargetField != null && aimTarget != null)
+    }
+
+    private static void SetCameraControllerAimIKTarget(Player player, Transform aimIKTarget, bool overwriteExisting)
+    {
+        var aimIKTargetField = player.PlayerCameraController.GetType().GetField("aimIKTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (aimIKTargetField != null)
         {
-            var before = aimTargetField.GetValue(player.PlayerCameraController) as Transform;
-            if (overwriteExisting)
+            if (aimIKTarget != null)
             {
-                Debug.Log($"[AutoSetup] PlayerCameraController.aimTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {aimTarget.name} (ID: {aimTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
-                if (before != aimTarget)
-                    Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.aimTarget: {(before != null ? before.name : "null")} -> {aimTarget.name}");
-                aimTargetField.SetValue(player.PlayerCameraController, aimTarget);
+                var before = aimIKTargetField.GetValue(player.PlayerCameraController) as Transform;
+                if (overwriteExisting)
+                {
+                    Debug.Log($"[AutoSetup] PlayerCameraController.aimIKTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {aimIKTarget.name} (ID: {aimIKTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
+                    if (before != aimIKTarget)
+                        Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.aimIKTarget: {(before != null ? before.name : "null")} -> {aimIKTarget.name}");
+                    aimIKTargetField.SetValue(player.PlayerCameraController, aimIKTarget);
+                }
+                else if (before == null)
+                {
+                    aimIKTargetField.SetValue(player.PlayerCameraController, aimIKTarget);
+                }
+                if (overwriteExisting)
+                {
+                    var after = aimIKTargetField.GetValue(player.PlayerCameraController) as Transform;
+                    Debug.Log($"[AutoSetup] PlayerCameraController.aimIKTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
+                }
             }
-            else if (before == null)
+            else
             {
-                aimTargetField.SetValue(player.PlayerCameraController, aimTarget);
+                Debug.LogWarning("[AutoSetup] PlayerCameraController.aimIKTarget: No aim IK target reference was set.");
             }
-            if (overwriteExisting)
+        }
+    }
+
+    private static void SetCameraBulletHitTarget(Player player, Transform bulletHitTarget, bool overwriteExisting)
+    {
+        var bulletHitTargetField = player.PlayerCameraController.GetType().GetField("bulletHitTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (bulletHitTargetField != null)
+        {
+            if (bulletHitTarget != null)
             {
-                var after = aimTargetField.GetValue(player.PlayerCameraController) as Transform;
-                Debug.Log($"[AutoSetup] PlayerCameraController.aimTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
+                var before = bulletHitTargetField.GetValue(player.PlayerCameraController) as Transform;
+                if (overwriteExisting)
+                {
+                    Debug.Log($"[AutoSetup] PlayerCameraController.bulletHitTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {bulletHitTarget.name} (ID: {bulletHitTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
+                    if (before != bulletHitTarget)
+                        Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.bulletHitTarget: {(before != null ? before.name : "null")} -> {bulletHitTarget.name}");
+                    bulletHitTargetField.SetValue(player.PlayerCameraController, bulletHitTarget);
+                }
+                else if (before == null)
+                {
+                    bulletHitTargetField.SetValue(player.PlayerCameraController, bulletHitTarget);
+                }
+                if (overwriteExisting)
+                {
+                    var after = bulletHitTargetField.GetValue(player.PlayerCameraController) as Transform;
+                    Debug.Log($"[AutoSetup] PlayerCameraController.bulletHitTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[AutoSetup] PlayerCameraController.bulletHitTarget: No bullet hit target reference was set.");
             }
         }
     }
@@ -651,48 +710,8 @@ public static class PlayerAutoSetupUtility
         // Always disable AimIK after setup
         aimIK.enabled = false;
 
-        // Assign PoleTarget: use prefab from PlayerTemplate if available, else find or create
-        Transform poleTarget = null;
-        if (player.playerTemplate != null && player.playerTemplate.poleTargetPrefab != null)
-        {
-            // Check if already exists as a child
-            poleTarget = FindChildRecursive(player.transform, "PoleTarget");
-            if (poleTarget == null || overwriteExisting)
-            {
-                // If overwriteExisting is true and PoleTarget exists, destroy it first
-                if (overwriteExisting && poleTarget != null)
-                {
-                    Object.DestroyImmediate(poleTarget.gameObject);
-                    Debug.Log($"[AutoSetup] Overwriting existing PoleTarget for {player.gameObject.name}.");
-                    poleTarget = null; // Clear reference to destroyed object
-                }
-                GameObject poleTargetObj = (GameObject)PrefabUtility.InstantiatePrefab(player.playerTemplate.poleTargetPrefab, player.transform);
-                poleTargetObj.name = "PoleTarget";
-                poleTarget = poleTargetObj.transform;
-                // Do not override prefab transform values if using prefab
-                // (leave localPosition, localRotation, localScale as set by prefab)
-                Debug.Log($"[AutoSetup] Instantiated PoleTarget prefab for {player.gameObject.name}.");
-            }
-        }
-        else
-        {
-            poleTarget = FindChildRecursive(player.transform, "PoleTarget");
-            if (poleTarget == null)
-            {
-                // Fallback: create empty PoleTarget
-                GameObject poleTargetObj = new GameObject("PoleTarget");
-                poleTargetObj.transform.SetParent(player.transform);
-                poleTargetObj.transform.localPosition = new Vector3(-1.251f, 1.745f, 0f);
-                poleTargetObj.transform.localRotation = Quaternion.identity;
-                poleTargetObj.transform.localScale = Vector3.one;
-                poleTarget = poleTargetObj.transform;
-                Debug.Log($"[AutoSetup] Created empty PoleTarget for {player.gameObject.name}.");
-            }
-        }
-
         // Assign targets
         aimIK.solver.target = FindChildRecursive(player.transform, "AimTarget");
-        //aimIK.solver.poleTarget = poleTarget; // Disable by default
         aimIK.solver.axis = new Vector3(0, 0, 1);
         aimIK.solver.poleAxis = new Vector3(0, 1, 0);
         aimIK.solver.IKPositionWeight = 0f; // Ensure IK position weight is set
