@@ -52,13 +52,17 @@ public class PlayerTemplate : ScriptableObject
 
     [TabGroup("Camera")]
     [MinValue(1f)]
-    [SuffixLabel("deg")] public float followFOV = 60f;
+    [SuffixLabel("deg")] public float followFOV = 40f;
     [TabGroup("Camera")]
     [MinValue(1f)]
-    [SuffixLabel("deg")] public float aimFOV = 40f;
+    [SuffixLabel("deg")] public float aimFOV = 28.7f;
     [TabGroup("Camera")]
     [MinValue(0.01f)]
-    [SuffixLabel("units/sec")] public float zoomSpeed = 8f;
+    [SuffixLabel("units/sec")] public float zoomSpeed = 5f;
+    [TabGroup("Camera")]
+    [SuffixLabel("units")] public float aimCamOffsetX = 0.5f;
+    [TabGroup("Camera")]
+    [SuffixLabel("units/sec")] public float offsetLerpSpeed = 5f;
 
     [TabGroup("PlayerInput")]
     [InfoBox("Player input settings. Tune input thresholds for this player template.\n- movementThreshold: Minimum input magnitude to register movement.\n- animationSmoothTime: Smoothing time for input-driven animation blending.\n- maxInputThreshold: Maximum input magnitude for full movement response.")]

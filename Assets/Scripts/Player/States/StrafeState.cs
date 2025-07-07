@@ -21,6 +21,7 @@ public class StrafeState : MoveState
 
     public override void Enter()
     {
+        base.Enter();
         Debug.Log($"[{player.name}] StrafeState.Enter(): Entering Strafe state");
         animationManager.SetIsStrafing(true);
     }

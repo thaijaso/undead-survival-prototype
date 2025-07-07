@@ -37,6 +37,7 @@ public class AimState : StrafeState
 
         player.PlayerCameraController.SetCameraSwayAmount(weaponManager.CurrentWeaponData.weaponSway);
         player.PlayerCameraController.EnableCameraSway();
+        player.PlayerCameraController.SetCameraOffset();
 
         SetupWeapon();
     }
@@ -85,6 +86,7 @@ public class AimState : StrafeState
 
             player.PlayerIKController.SetIKTargetWeight(0f);
             player.PlayerCameraController.DisableCameraSway();
+            player.PlayerCameraController.ResetCameraOffset();
 
             player.CrosshairController.DisableCrosshair();
             player.PlayerIKController.DisableAimIK();

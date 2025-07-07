@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cbf6810ab2b52948b61b349b28176a2, type: 3}
   m_Name: RevolverIKOffsets
   m_EditorClassIdentifier: 
-  gunHoldOffset: {x: 0.05, y: 0.2, z: -0.04}
-  leftHandOffset: {x: -0.1, y: -0.15, z: -0.02}
+  gunHoldOffset: {x: 0, y: 0, z: 0}
+  leftHandOffset: {x: 0, y: 0, z: 0}

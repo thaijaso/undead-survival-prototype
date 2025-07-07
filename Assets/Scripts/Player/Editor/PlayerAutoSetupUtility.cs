@@ -388,22 +388,19 @@ public static class PlayerAutoSetupUtility
         if (player == null || player.PlayerCameraController == null)
             return;
 
-        // Always create new targets instead of searching for existing ones
-        Transform aimFollowTarget = FindDirectChildByName(player.transform, "AimFollowTarget");
-        Transform forwardFollowTarget = FindDirectChildByName(player.transform, "ForwardFollowTarget");
+        // Only create FollowTarget and AimTarget
+        Transform followTarget = FindDirectChildByName(player.transform, "FollowTarget");
         Transform aimTarget = FindDirectChildByName(player.transform, "AimTarget");
 
-        aimFollowTarget = GetOrCreateCameraTarget(player, aimFollowTarget, "AimFollowTarget", player.playerTemplate?.aimFollowTargetPrefab, new Vector3(0.36f, 1.6f, -0.013f));
-        forwardFollowTarget = GetOrCreateCameraTarget(player, forwardFollowTarget, "ForwardFollowTarget", player.playerTemplate?.forwardFollowTargetPrefab, new Vector3(0f, 1.775f, -0.009f));
+        followTarget = GetOrCreateCameraTarget(player, followTarget, "FollowTarget", player.playerTemplate?.forwardFollowTargetPrefab, new Vector3(0f, 1.775f, -0.009f));
         aimTarget = GetOrCreateCameraTarget(player, aimTarget, "AimTarget", player.playerTemplate?.aimTargetPrefab, Vector3.zero);
 
-        SetCinemachineFollow(player, forwardFollowTarget, overwriteExisting);
-        SetCameraControllerTargets(player, forwardFollowTarget, aimTarget, overwriteExisting);
+        SetCinemachineFollow(player, followTarget, overwriteExisting);
+        SetCameraControllerTargets(player, followTarget, aimTarget, overwriteExisting);
         SetPlayerCameraField(player, overwriteExisting);
-        SetCameraFOVAndZoom(player, overwriteExisting);
+        SetCameraSettings(player, overwriteExisting);
 
-        if (aimFollowTarget == null) Debug.LogWarning("AimFollowTarget not found as child of Player.");
-        if (forwardFollowTarget == null) Debug.LogWarning("ForwardFollowTarget not found as child of Player.");
+        if (followTarget == null) Debug.LogWarning("FollowTarget not found as child of Player.");
         if (aimTarget == null) Debug.LogWarning("AimTarget not found as child of Player.");
     }
 
@@ -435,10 +432,10 @@ public static class PlayerAutoSetupUtility
         }
     }
 
-    private static void SetCinemachineFollow(Player player, Transform forwardFollowTarget, bool overwriteExisting)
+    private static void SetCinemachineFollow(Player player, Transform followTarget, bool overwriteExisting)
     {
         var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
-        if (playerCameraGO != null && forwardFollowTarget != null)
+        if (playerCameraGO != null && followTarget != null)
         {
             var cinemachineCamera = playerCameraGO.GetComponent<Unity.Cinemachine.CinemachineCamera>();
             if (cinemachineCamera != null)
@@ -446,41 +443,41 @@ public static class PlayerAutoSetupUtility
                 var before = cinemachineCamera.Follow;
                 if (overwriteExisting)
                 {
-                    Debug.Log($"[AutoSetup] CinemachineCamera.Follow before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {forwardFollowTarget.name} (ID: {forwardFollowTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
-                    if (before != forwardFollowTarget)
-                        Debug.Log($"[AutoSetup] Overwriting CinemachineCamera.Follow: {(before != null ? before.name : "null")} -> {forwardFollowTarget.name}");
-                    cinemachineCamera.Follow = forwardFollowTarget;
+                    Debug.Log($"[AutoSetup] CinemachineCamera.Follow before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {followTarget.name} (ID: {followTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
+                    if (before != followTarget)
+                        Debug.Log($"[AutoSetup] Overwriting CinemachineCamera.Follow: {(before != null ? before.name : "null")} -> {followTarget.name}");
+                    cinemachineCamera.Follow = followTarget;
                     var after = cinemachineCamera.Follow;
                     Debug.Log($"[AutoSetup] CinemachineCamera.Follow after: {after.name} (ID: {after.GetInstanceID()})");
                 }
                 else if (cinemachineCamera.Follow == null)
                 {
-                    cinemachineCamera.Follow = forwardFollowTarget;
+                    cinemachineCamera.Follow = followTarget;
                 }
             }
         }
     }
 
-    private static void SetCameraControllerTargets(Player player, Transform forwardFollowTarget, Transform aimTarget, bool overwriteExisting)
+    private static void SetCameraControllerTargets(Player player, Transform followTarget, Transform aimTarget, bool overwriteExisting)
     {
-        var forwardsFollowTargetField = player.PlayerCameraController.GetType().GetField("forwardsFollowTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (forwardsFollowTargetField != null && forwardFollowTarget != null)
+        var followTargetField = player.PlayerCameraController.GetType().GetField("forwardsFollowTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (followTargetField != null && followTarget != null)
         {
-            var before = forwardsFollowTargetField.GetValue(player.PlayerCameraController) as Transform;
+            var before = followTargetField.GetValue(player.PlayerCameraController) as Transform;
             if (overwriteExisting)
             {
-                Debug.Log($"[AutoSetup] PlayerCameraController.forwardsFollowTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {forwardFollowTarget.name} (ID: {forwardFollowTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
-                if (before != forwardFollowTarget)
-                    Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.forwardsFollowTarget: {(before != null ? before.name : "null")} -> {forwardFollowTarget.name}");
-                forwardsFollowTargetField.SetValue(player.PlayerCameraController, forwardFollowTarget);
+                Debug.Log($"[AutoSetup] PlayerCameraController.forwardsFollowTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {followTarget.name} (ID: {followTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
+                if (before != followTarget)
+                    Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.forwardsFollowTarget: {(before != null ? before.name : "null")} -> {followTarget.name}");
+                followTargetField.SetValue(player.PlayerCameraController, followTarget);
             }
             else if (before == null)
             {
-                forwardsFollowTargetField.SetValue(player.PlayerCameraController, forwardFollowTarget);
+                followTargetField.SetValue(player.PlayerCameraController, followTarget);
             }
             if (overwriteExisting)
             {
-                var after = forwardsFollowTargetField.GetValue(player.PlayerCameraController) as Transform;
+                var after = followTargetField.GetValue(player.PlayerCameraController) as Transform;
                 Debug.Log($"[AutoSetup] PlayerCameraController.forwardsFollowTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
             }
         }
@@ -548,68 +545,45 @@ public static class PlayerAutoSetupUtility
         }
     }
 
-    private static void SetCameraFOVAndZoom(Player player, bool overwriteExisting)
+    private static void SetCameraSettings(Player player, bool overwriteExisting)
     {
         if (player.playerTemplate != null)
         {
-            var followFOVField = player.PlayerCameraController.GetType().GetField("followFOV", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (followFOVField != null)
-            {
-                var before = (float)followFOVField.GetValue(player.PlayerCameraController);
-                if (overwriteExisting)
-                {
-                    Debug.Log($"[AutoSetup] PlayerCameraController.followFOV before: {before}, template: {player.playerTemplate.followFOV}, overwrite: {overwriteExisting}");
-                    if (before != player.playerTemplate.followFOV)
-                        Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.followFOV: {before} -> {player.playerTemplate.followFOV}");
-                    followFOVField.SetValue(player.PlayerCameraController, player.playerTemplate.followFOV);
-                    var after = (float)followFOVField.GetValue(player.PlayerCameraController);
-                    Debug.Log($"[AutoSetup] PlayerCameraController.followFOV after: {after}");
-                }
-                else if (before == default(float))
-                {
-                    followFOVField.SetValue(player.PlayerCameraController, player.playerTemplate.followFOV);
-                }
-            }
-            var aimFOVField = player.PlayerCameraController.GetType().GetField("aimFOV", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (aimFOVField != null)
-            {
-                var before = (float)aimFOVField.GetValue(player.PlayerCameraController);
-                if (overwriteExisting)
-                {
-                    Debug.Log($"[AutoSetup] PlayerCameraController.aimFOV before: {before}, template: {player.playerTemplate.aimFOV}, overwrite: {overwriteExisting}");
-                    if (overwriteExisting && before != player.playerTemplate.aimFOV)
-                        Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.aimFOV: {before} -> {player.playerTemplate.aimFOV}");
-                    aimFOVField.SetValue(player.PlayerCameraController, player.playerTemplate.aimFOV);
-                    var after = (float)aimFOVField.GetValue(player.PlayerCameraController);
-                    Debug.Log($"[AutoSetup] PlayerCameraController.aimFOV after: {after}");
-                }
-                else if (before == default(float))
-                {
-                    aimFOVField.SetValue(player.PlayerCameraController, player.playerTemplate.aimFOV);
-                }
-            }
-            var zoomSpeedField = player.PlayerCameraController.GetType().GetField("zoomSpeed", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (zoomSpeedField != null)
-            {
-                var before = (float)zoomSpeedField.GetValue(player.PlayerCameraController);
-                if (overwriteExisting)
-                {
-                    Debug.Log($"[AutoSetup] PlayerCameraController.zoomSpeed before: {before}, template: {player.playerTemplate.zoomSpeed}, overwrite: {overwriteExisting}");
-                    if (overwriteExisting && before != player.playerTemplate.zoomSpeed)
-                        Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.zoomSpeed: {before} -> {player.playerTemplate.zoomSpeed}");
-                    zoomSpeedField.SetValue(player.PlayerCameraController, player.playerTemplate.zoomSpeed);
-                    var after = (float)zoomSpeedField.GetValue(player.PlayerCameraController);
-                    Debug.Log($"[AutoSetup] PlayerCameraController.zoomSpeed after: {after}");
-                }
-                else if (before == default(float))
-                {
-                    zoomSpeedField.SetValue(player.PlayerCameraController, player.playerTemplate.zoomSpeed);
-                }
-            }
+            SetCameraSettingFloat(player, "followFOV", player.playerTemplate.followFOV, overwriteExisting);
+            SetCameraSettingFloat(player, "aimFOV", player.playerTemplate.aimFOV, overwriteExisting);
+            SetCameraSettingFloat(player, "zoomSpeed", player.playerTemplate.zoomSpeed, overwriteExisting);
+            SetCameraSettingFloat(player, "aimCamOffsetX", player.playerTemplate.aimCamOffsetX, overwriteExisting);
+            SetCameraSettingFloat(player, "offsetLerpSpeed", player.playerTemplate.offsetLerpSpeed, overwriteExisting);
             if (overwriteExisting)
             {
                 Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Set camera FOV and zoom speed from PlayerTemplate. Overwrite: {overwriteExisting}");
             }
+        }
+    }
+
+    private static void SetCameraSettingFloat(Player player, string fieldName, float templateValue, bool overwriteExisting)
+    {
+        var field = player.PlayerCameraController.GetType().GetField(fieldName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (field != null)
+        {
+            var before = (float)field.GetValue(player.PlayerCameraController);
+            if (overwriteExisting)
+            {
+                Debug.Log($"[AutoSetup] PlayerCameraController.{fieldName} before: {before}, template: {templateValue}, overwrite: {overwriteExisting}");
+                if (before != templateValue)
+                    Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.{fieldName}: {before} -> {templateValue}");
+                field.SetValue(player.PlayerCameraController, templateValue);
+                var after = (float)field.GetValue(player.PlayerCameraController);
+                Debug.Log($"[AutoSetup] PlayerCameraController.{fieldName} after: {after}");
+            }
+            else if (before == default(float))
+            {
+                field.SetValue(player.PlayerCameraController, templateValue);
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"PlayerCameraController.{fieldName} field not found.");
         }
     }
 
@@ -705,7 +679,7 @@ public static class PlayerAutoSetupUtility
 
         // Assign targets
         aimIK.solver.target = FindChildRecursive(player.transform, "AimTarget");
-        aimIK.solver.poleTarget = poleTarget;
+        //aimIK.solver.poleTarget = poleTarget; // Disable by default
         aimIK.solver.axis = new Vector3(0, 0, 1);
         aimIK.solver.poleAxis = new Vector3(0, 1, 0);
         aimIK.solver.IKPositionWeight = 0f; // Ensure IK position weight is set
@@ -721,12 +695,12 @@ public static class PlayerAutoSetupUtility
 
         // Set up the bones array with correct references and weights
         aimIK.solver.bones = new IKSolverAim.Bone[] {
-            new IKSolverAim.Bone(FindChildRecursive(player.transform, "spine_01.x"), 0f),
-            new IKSolverAim.Bone(FindChildRecursive(player.transform, "spine_02.x"), 0f),
-            new IKSolverAim.Bone(FindChildRecursive(player.transform, "spine_03.x"), 0.769f),
-            new IKSolverAim.Bone(FindChildRecursive(player.transform, "arm_stretch.r"), 1f),
-            new IKSolverAim.Bone(FindChildRecursive(player.transform, "forearm_stretch.r"), 1f),
-            new IKSolverAim.Bone(FindChildRecursive(player.transform, "hand.r"), 1f)
+            new(FindChildRecursive(player.transform, "spine_01.x"), 0f),
+            new(FindChildRecursive(player.transform, "spine_02.x"), 0f),
+            new(FindChildRecursive(player.transform, "spine_03.x"), 0.769f),
+            new(FindChildRecursive(player.transform, "arm_stretch.r"), 1f),
+            new(FindChildRecursive(player.transform, "forearm_stretch.r"), 1f),
+            new(FindChildRecursive(player.transform, "hand.r"), 1f)
         };
 
         // Mark AimIK as dirty so changes persist

@@ -24,6 +24,7 @@ public class MoveState : PlayerState
 
         Vector3 direction = player.PlayerInput.GetInputDirection();
         animationManager.SetMoveParams(direction.x, direction.z);
+        animationManager.SetIsMoving(direction.magnitude > 0.1f);
 
         player.PlayerIKController.BlendIKWeights();
     }

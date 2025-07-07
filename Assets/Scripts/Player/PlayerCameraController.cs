@@ -5,17 +5,27 @@ public class PlayerCameraController : MonoBehaviour
 {
     public float CameraHorizontalRotationSpeed { get; private set; }
     private float previousHorizontalAxisValue = 0f;
-    [SerializeField] private CinemachineCamera playerCamera;
 
-    [SerializeField] private Transform forwardsFollowTarget;
+    [SerializeField]
+    private CinemachineCamera playerCamera;
 
-    [SerializeField] private Transform aimTarget;
+    [SerializeField]
+    private Transform forwardsFollowTarget;
 
-    [SerializeField] private float followFOV = 40f;
+    [SerializeField]
+    private Transform aimTarget;
 
-    [SerializeField] private float aimFOV = 28.7f;
+    [SerializeField]
+    private float followFOV = 40f;
 
-    [SerializeField] private float zoomSpeed = 5f;
+    [SerializeField]
+    private float aimFOV = 28.7f;
+
+    [SerializeField]
+    private float zoomSpeed = 5f;
+
+    [SerializeField]
+    private float aimCamOffsetX = 0.5f;
 
     private CinemachineBasicMultiChannelPerlin noise;
 
@@ -35,23 +45,31 @@ public class PlayerCameraController : MonoBehaviour
     private CameraRecoil cameraRecoil;
     private CinemachineInputAxisController inputAxisController;
 
+    private CinemachineCameraOffset cameraOffset;
+
+    private float targetOffsetX = 0f;
+
+    [SerializeField]
+    private float offsetLerpSpeed = 5f; // Internal lerp speed
+
     private void Awake()
     {
         SetupNoise();
         SetupOrbitalFollow();
         SetupCameraRecoil();
         SetupCinemachineInputAxisController();
+        SetupCinemachineCameraOffset();
     }
 
     private void Start()
     {
         currentHorizontalAxisValue = orbitalFollow.HorizontalAxis.Value;
         currentVerticalAxisValue = orbitalFollow.VerticalAxis.Value;
-        
+
         // Initialize cursor to unlocked state so user can see it initially
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        
+
         // Force initial cursor lock state detection
         HandleCursorLock();
     }
@@ -83,10 +101,19 @@ public class PlayerCameraController : MonoBehaviour
     {
         inputAxisController = playerCamera.GetComponent<CinemachineInputAxisController>();
         Debug.Log($"[{gameObject.name}] PlayerCameraController.SetupCinemachineInputAxisController(): CinemachineInputAxisController found: {(inputAxisController != null)}.");
-        
+
         if (inputAxisController != null)
         {
             Debug.Log($"[{gameObject.name}] PlayerCameraController.SetupCinemachineInputAxisController(): Initial inputAxisController.enabled state: {inputAxisController.enabled}.");
+        }
+    }
+
+    private void SetupCinemachineCameraOffset()
+    {
+        cameraOffset = playerCamera.GetComponent<CinemachineCameraOffset>();
+        if (cameraOffset == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetupCinemachineCameraOffset(): CinemachineCameraOffset component not found on the follow camera.");
         }
     }
 
@@ -94,6 +121,7 @@ public class PlayerCameraController : MonoBehaviour
     {
         HandleCursorLock();
         UpdateRotationSpeed();
+        UpdateCameraOffsetLerp();
     }
 
     private void HandleCursorLock()
@@ -105,7 +133,7 @@ public class PlayerCameraController : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
-        
+
         // Detect mouse click to re-lock cursor
         if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked)
         {
@@ -113,24 +141,24 @@ public class PlayerCameraController : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
-        
+
         // Monitor Unity's cursor state - check both lockState and visibility
         // Sometimes Unity changes visibility without changing lockState
         bool currentCursorLocked = (Cursor.lockState == CursorLockMode.Locked) && !Cursor.visible;
-        
+
         // Only update inputAxisController if cursor lock state has changed
         if (lastLockCursorState != currentCursorLocked)
         {
             Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Cursor lock state changed to: {currentCursorLocked}." +
                      $"(lockState: {Cursor.lockState}, visible: {Cursor.visible})");
-            
+
             // Enable/disable input axis controller based on cursor lock state
             if (inputAxisController != null)
             {
                 inputAxisController.enabled = currentCursorLocked;
                 Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Set inputAxisController.enabled to: {currentCursorLocked}.");
             }
-            
+
             lastLockCursorState = currentCursorLocked;
             lockCursor = currentCursorLocked; // Keep our internal state in sync
         }
@@ -277,6 +305,46 @@ public class PlayerCameraController : MonoBehaviour
         else
         {
             Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetCameraRecoilFromWeaponData(): CameraRecoil component not found on the player camera.");
+        }
+    }
+
+    public void SetCameraOffsetLerp(float targetX, float? lerpSpeed = null)
+    {
+        targetOffsetX = targetX;
+        offsetLerpSpeed = lerpSpeed ?? offsetLerpSpeed;
+    }
+
+    private void UpdateCameraOffsetLerp()
+    {
+        if (cameraOffset != null)
+        {
+            float currentX = cameraOffset.Offset.x;
+            float newX = Mathf.Lerp(currentX, targetOffsetX, Time.deltaTime * offsetLerpSpeed);
+            cameraOffset.Offset = new Vector3(newX, cameraOffset.Offset.y, cameraOffset.Offset.z);
+        }
+    }
+
+    public void SetCameraOffset()
+    {
+        if (cameraOffset != null)
+        {
+            SetCameraOffsetLerp(aimCamOffsetX); // Uses inspector speed by default
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetCameraOffset(): CinemachineCameraOffset component not found on the player camera.");
+        }
+    }
+
+    public void ResetCameraOffset()
+    {
+        if (cameraOffset != null)
+        {
+            SetCameraOffsetLerp(0f); // Uses inspector speed by default
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.ResetCameraOffset(): CinemachineCameraOffset component not found on the player camera.");
         }
     }
 }
