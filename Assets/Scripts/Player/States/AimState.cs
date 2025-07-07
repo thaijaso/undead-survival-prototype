@@ -151,7 +151,8 @@ public class AimState : StrafeState
     {
         base.LateUpdate();
 
-        player.PlayerCameraController.MoveAimTarget();
+        player.PlayerCameraController.MoveAimIKTarget();
+        player.PlayerCameraController.MoveBulletHitTarget();
 
         Vector3 direction = player.PlayerInput.GetInputDirection();
         Vector3 aimTarget = player.PlayerCameraController.GetAimTarget();

@@ -79,13 +79,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41d0882c609770048a4e33c84e26beb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  muzzleEffect: {fileID: 3267934947292331847}
+  muzzleEffect: {fileID: 3710666316004195795, guid: 25112e5d336a2da4790de77b81f1b7f5, type: 3}
   gunshot: {fileID: -1519674205959471789}
   bulletPrefab: {fileID: 2989000923634411228, guid: dce45d8c28f04474e83d41c0dd823d5e, type: 3}
   bulletTracer: {fileID: 1502982879624081063, guid: 6d07907a30138624b96fd8349b448bd6, type: 3}
   muzzleTransform: {fileID: 7803622731766910770}
   weaponData: {fileID: 11400000, guid: d0419b312f07c5744b113ecf1925046f, type: 2}
-  aimTarget: {fileID: 0}
+  bulletHitTarget: {fileID: 0}
 --- !u!82 &-1519674205959471789
 AudioSource:
   m_ObjectHideFlags: 0

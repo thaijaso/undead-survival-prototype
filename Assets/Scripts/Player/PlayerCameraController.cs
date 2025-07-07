@@ -174,18 +174,15 @@ public class PlayerCameraController : MonoBehaviour
         previousHorizontalAxisValue = current;
     }
 
-    public void MoveAimTarget()
+    private void MoveTargetToRaycast(Transform target, float maxDistance, float minDistance)
     {
         Camera unityCam = Camera.main;
-        if (unityCam == null) return;
+        if (unityCam == null || target == null) return;
 
         Vector3 screenCenter = new(Screen.width / 2f, Screen.height / 2f, 0f);
         Ray ray = unityCam.ScreenPointToRay(screenCenter);
 
         RaycastHit hit;
-        float maxDistance = 10f; // TODO: create a weapon data field for max distance of weapon
-        float minDistance = 4f; // Minimum distance for aim target
-
         Vector3 targetPosition;
 
         if (Physics.Raycast(ray, out hit, maxDistance))
@@ -193,7 +190,6 @@ public class PlayerCameraController : MonoBehaviour
             float hitDistance = Vector3.Distance(ray.origin, hit.point);
             if (hitDistance < minDistance)
             {
-                // If hit is too close, set target at minimum distance
                 targetPosition = ray.origin + ray.direction * minDistance;
             }
             else
@@ -206,7 +202,17 @@ public class PlayerCameraController : MonoBehaviour
             targetPosition = ray.origin + ray.direction * maxDistance;
         }
 
-        aimIKTarget.position = targetPosition;
+        target.position = targetPosition;
+    }
+
+    public void MoveAimIKTarget()
+    {
+        MoveTargetToRaycast(aimIKTarget, 10f, 4f); // TODO: define max / min distance in a weapon template
+    }
+
+    public void MoveBulletHitTarget()
+    {
+        MoveTargetToRaycast(bulletHitTarget, 100f, 4f); // TODO: define max / min distance in a weapon template
     }
 
     public Vector3 GetAimTarget()

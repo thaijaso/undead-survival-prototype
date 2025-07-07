@@ -17,7 +17,12 @@ public class Weapon : MonoBehaviour
 
     public WeaponData weaponData;
 
-    public Transform aimTarget; // Added aimTarget Transform reference
+    public Transform bulletHitTarget; // Added aimTarget Transform reference
+
+    private void Awake()
+    {
+        ValidateReferences();
+    }
 
     public void Fire()
     {
@@ -28,15 +33,15 @@ public class Weapon : MonoBehaviour
         if (bulletRb != null && weaponData != null)
         {
             Vector3 direction = muzzleTransform.forward;
-            if (aimTarget != null)
+            if (bulletHitTarget != null)
             {
-                direction = (aimTarget.position - muzzleTransform.position).normalized;
+                direction = (bulletHitTarget.position - muzzleTransform.position).normalized;
             }
             bulletRb.linearVelocity = direction * weaponData.bulletSpeed;
             bulletScript.impactForce = weaponData.impactForce;
             bulletScript.damage = weaponData.damage;
             bulletScript.weaponData = weaponData;
-            Debug.Log($"Firing bullet with impact force: {weaponData.impactForce} and damage: {weaponData.damage} toward {(aimTarget != null ? aimTarget.position.ToString() : "forward")}");
+            Debug.Log($"Firing bullet with impact force: {weaponData.impactForce} and damage: {weaponData.damage} toward {(bulletHitTarget != null ? bulletHitTarget.position.ToString() : "forward")}");
         }
         else
         {
@@ -80,131 +85,34 @@ public class Weapon : MonoBehaviour
         }
     }
 
-#if UNITY_EDITOR
-    [Button("Auto-Setup References")]
-    private void AutoSetupReferences()
+    public void ValidateReferences()
     {
-        // Try to find and assign muzzleTransform (child search)
-        if (muzzleTransform == null)
-        {
-            var foundMuzzle = transform.Find("MuzzleTransform");
-            if (foundMuzzle != null)
-            {
-                muzzleTransform = foundMuzzle;
-                Debug.Log($"[Weapon] Auto-assigned muzzleTransform to child named '{foundMuzzle.name}'.");
-            }
-            else
-            {
-                Debug.LogWarning("[Weapon] Could not auto-assign muzzleTransform: No child named 'Muzzle' or 'MuzzleTransform' found.");
-            }
-        }
-        // Try to find and assign muzzleEffect from prefab if null
         if (muzzleEffect == null)
-        {
-#if UNITY_EDITOR
-            string muzzleEffectsPath = "Assets/Prefabs/Effects/MuzzleEffects";
-            var guids = UnityEditor.AssetDatabase.FindAssets("t:GameObject", new[] { muzzleEffectsPath });
-            foreach (var guid in guids)
-            {
-                string assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
-                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-                if (prefab != null)
-                {
-                    var ps = prefab.GetComponentInChildren<ParticleSystem>(true);
-                    if (ps != null)
-                    {
-                        muzzleEffect = ps;
-                        Debug.Log($"[Weapon] Auto-assigned muzzleEffect from prefab: {assetPath}");
-                        break;
-                    }
-                }
-            }
-            if (muzzleEffect == null)
-            {
-                Debug.LogWarning($"[Weapon] Could not auto-assign muzzleEffect: No ParticleSystem found in any prefab under {muzzleEffectsPath}.");
-            }
-#endif
-        }
-        // Try to find and assign aimTarget (scene search only)
-        if (aimTarget == null)
-        {
-            Transform foundAim = null;
-            // Only search the scene, not the prefab
-            Debug.Log("[Weapon] Scene mode: Searching all active objects for AimTarget.");
-            foreach (var t in FindObjectsByType<Transform>(FindObjectsSortMode.None))
-            {
-                if (string.Equals(t.name, "AimTarget", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    Debug.Log($"[Weapon] Found AimTarget at: {t.GetHierarchyPath()}");
-                    foundAim = t;
-                    break;
-                }
-            }
-            if (foundAim != null)
-            {
-                aimTarget = foundAim;
-                Debug.Log($"[Weapon] Auto-assigned aimTarget to '{foundAim.name}' in scene context.");
-            }
-            else
-            {
-                Debug.LogWarning("[Weapon] Could not auto-assign aimTarget: No 'AimTarget' found in scene context.");
-            }
-        }
-        // Check for AudioSource on this GameObject, add if missing, and assign a gunshot clip if found
+            Debug.LogWarning($"[Weapon] MuzzleEffect is not assigned on {gameObject.name}.");
         if (gunshot == null)
-        {
-            gunshot = GetComponent<AudioSource>();
-            if (gunshot == null)
-            {
-                gunshot = gameObject.AddComponent<AudioSource>();
-                gunshot.playOnAwake = false;
-                Debug.Log("[Weapon] AudioSource component was missing and has been added to the GameObject with Play On Awake disabled.");
-            }
-            else
-            {
-                Debug.Log("[Weapon] AudioSource component found and assigned.");
-            }
-        }
-        // Always assign a gunshot AudioClip if missing
-#if UNITY_EDITOR
-        if (gunshot != null && gunshot.clip == null)
-        {
-            string gunshotSoundsPath = "Assets/Prefabs/Effects/SoundEffects/GunShotSoundEffects";
-            var audioGuids = UnityEditor.AssetDatabase.FindAssets("t:AudioClip", new[] { gunshotSoundsPath });
-            if (audioGuids.Length > 0)
-            {
-                string audioPath = UnityEditor.AssetDatabase.GUIDToAssetPath(audioGuids[0]);
-                var audioClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(audioPath);
-                if (audioClip != null)
-                {
-                    gunshot.clip = audioClip;
-                    Debug.Log($"[Weapon] Auto-assigned gunshot AudioClip from: {audioPath}");
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"[Weapon] Could not auto-assign gunshot AudioClip: No AudioClip found in {gunshotSoundsPath}.");
-            }
-        }
-#endif
+            Debug.LogWarning($"[Weapon] Gunshot AudioSource is not assigned on {gameObject.name}.");
+        if (bulletPrefab == null)
+            Debug.LogWarning($"[Weapon] BulletPrefab is not assigned on {gameObject.name}.");
+        if (muzzleTransform == null)
+            Debug.LogWarning($"[Weapon] MuzzleTransform is not assigned on {gameObject.name}.");
+        if (weaponData == null)
+            Debug.LogWarning($"[Weapon] WeaponData is not assigned on {gameObject.name}.");
+        if (bulletHitTarget == null)
+            Debug.LogWarning($"[Weapon] BulletHitTarget is not assigned on {gameObject.name}.");
     }
 
-    // Recursively search for a child by name in the hierarchy, including the parent itself, with debug logs and case-insensitive
-    private Transform FindInHierarchyInclusiveDebug(Transform parent, string childName)
+#if UNITY_EDITOR
+    [BoxGroup("Auto-Setup"), PropertyOrder(-1)]
+    [ToggleLeft]
+    [ShowInInspector]
+    [LabelText("Overwrite Existing References")]
+    private bool overwriteReferences = false;
+
+    [BoxGroup("Auto-Setup")]
+    [Button("Auto-Setup References", ButtonSizes.Large)]
+    private void AutoSetupReferences()
     {
-        if (string.Equals(parent.name, childName, System.StringComparison.OrdinalIgnoreCase))
-        {
-            Debug.Log($"[Weapon] Found AimTarget at: {parent.GetHierarchyPath()}");
-            return parent;
-        }
-        foreach (Transform child in parent)
-        {
-            Debug.Log($"[Weapon] Checking child: {child.GetHierarchyPath()}");
-            var result = FindInHierarchyInclusiveDebug(child, childName);
-            if (result != null)
-                return result;
-        }
-        return null;
+        WeaponAutoSetupUtility.AutoSetupReferences(this, overwriteReferences);
     }
 #endif
 }
