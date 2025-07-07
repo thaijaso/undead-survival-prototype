@@ -38,7 +38,7 @@ public class PlayerIKController : MonoBehaviour
     // Debug flag to allow inspector override of IK weights
     [Header("Debug")]
     [SerializeField]
-    public bool DebugOverrideIKWeight = false;
+    public bool debugOverrideIKWeight = false;
 
 
     protected void Awake()
@@ -195,7 +195,7 @@ public class PlayerIKController : MonoBehaviour
 
     public void SetIKTargetWeight(float target)
     {
-        if (DebugOverrideIKWeight) return; // Prevent state machine from overriding in debug mode
+        if (debugOverrideIKWeight) return; // Prevent state machine from overriding in debug mode
         targetIKWeight = Mathf.Clamp01(target);
         // Do not call SetIKWeights here for smooth blending
     }
@@ -243,7 +243,7 @@ public class PlayerIKController : MonoBehaviour
             SetIKWeights(0f);
             return;
         }
-        if (DebugOverrideIKWeight)
+        if (debugOverrideIKWeight)
         {
             SetIKWeights(inspectorTargetIKWeight); // Directly set from inspector
             return;

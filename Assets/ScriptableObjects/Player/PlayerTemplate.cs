@@ -31,16 +31,12 @@ public class PlayerTemplate : ScriptableObject
     public RuntimeAnimatorController animatorController;
 
     [TabGroup("References")]
-    [InfoBox("Prefab or reference for the AimFollowTarget child object.")]
-    public GameObject aimFollowTargetPrefab;
-
-    [TabGroup("References")]
     [InfoBox("Prefab or reference for the ForwardFollowTarget child object.")]
-    public GameObject forwardFollowTargetPrefab;
+    public GameObject followTargetPrefab;
 
     [TabGroup("References")]
-    [InfoBox("Prefab or reference for the AimTarget child object.")]
-    public GameObject aimTargetPrefab;
+    [InfoBox("Prefab or reference for the BulletHitTarget child object.")]
+    public GameObject bulletHitTargetPrefab;
 
     [TabGroup("References")]
     [InfoBox("Prefab or reference for the Player's WeaponHand.")]
@@ -49,6 +45,10 @@ public class PlayerTemplate : ScriptableObject
     [TabGroup("References")]
     [InfoBox("Prefab or reference for the PoleTarget child object.")]
     public GameObject poleTargetPrefab;
+
+    [TabGroup("References")]
+    [InfoBox("Prefab or reference for the AimIKTarget child object.")]
+    public GameObject aimIKTargetPrefab;
 
     [TabGroup("Camera")]
     [MinValue(1f)]
@@ -86,10 +86,10 @@ public class PlayerTemplate : ScriptableObject
     [MinValue(0f)]
     public float minMoveDistance = 0.001f;
     [TabGroup("CharacterController")]
-    public Vector3 center = new Vector3(0f, 1.01f, 0f);
+    public Vector3 center = new Vector3(0f, 1f, 0f);
     [TabGroup("CharacterController")]
     [MinValue(0f)]
-    public float radius = 0.28f;
+    public float radius = 0.3f;
     [TabGroup("CharacterController")]
     [MinValue(0f)]
     public float height = 1.8f;
@@ -114,6 +114,7 @@ public class PlayerTemplate : ScriptableObject
         Debug.Log($"[PlayerTemplate]   Follow FOV: {followFOV} deg");
         Debug.Log($"[PlayerTemplate]   Aim FOV: {aimFOV} deg");
         Debug.Log($"[PlayerTemplate]   Zoom Speed: {zoomSpeed} units/sec");
+        Debug.Log($"[PlayerTemplate]   BulletHitTarget Prefab: {(bulletHitTargetPrefab != null ? bulletHitTargetPrefab.name : "null")}");
         
         if (sprintSpeed <= strafeSpeed)
             Debug.LogWarning("[PlayerTemplate] ⚠️ Sprint speed should be faster than strafe speed!");

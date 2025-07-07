@@ -27,11 +27,16 @@ public class Weapon : MonoBehaviour
 
         if (bulletRb != null && weaponData != null)
         {
-            bulletRb.linearVelocity = muzzleTransform.forward * weaponData.bulletSpeed;
+            Vector3 direction = muzzleTransform.forward;
+            if (aimTarget != null)
+            {
+                direction = (aimTarget.position - muzzleTransform.position).normalized;
+            }
+            bulletRb.linearVelocity = direction * weaponData.bulletSpeed;
             bulletScript.impactForce = weaponData.impactForce;
             bulletScript.damage = weaponData.damage;
             bulletScript.weaponData = weaponData;
-            Debug.Log($"Firing bullet with impact force: {weaponData.impactForce} and damage: {weaponData.damage}");
+            Debug.Log($"Firing bullet with impact force: {weaponData.impactForce} and damage: {weaponData.damage} toward {(aimTarget != null ? aimTarget.position.ToString() : "forward")}");
         }
         else
         {

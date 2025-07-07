@@ -1,6 +1,7 @@
 using RootMotion.FinalIK;
 using UnityEngine;
 using UnityEditor;
+using System.Linq;
 
 public static class PlayerAutoSetupUtility
 {
@@ -142,6 +143,17 @@ public static class PlayerAutoSetupUtility
             type.GetProperty("PlayerIKController")?.SetValue(player, playerIKController);
             EditorUtility.SetDirty(playerIKController);
             PrefabUtility.RecordPrefabInstancePropertyModifications(playerIKController);
+            // If auto setup is pressed and overwrite is true, set debugOverrideIKWeight to false
+            var debugOverrideField = playerIKController.GetType().GetField("debugOverrideIKWeight", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (debugOverrideField != null)
+            {
+                debugOverrideField.SetValue(playerIKController, false);
+                Debug.Log($"[AutoSetup] PlayerIKController.debugOverrideIKWeight set to false for {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] Could not find 'debugOverrideIKWeight' field on PlayerIKController for {player.gameObject.name}.");
+            }
         }
         var weaponManager = player.GetComponent<PlayerWeaponManager>();
         if (weaponManager != null)
@@ -310,7 +322,7 @@ public static class PlayerAutoSetupUtility
         Transform weaponHand = FindDirectChildByName(handBone, "WeaponHand");
         if (weaponHand == null)
         {
-            if (player.playerTemplate.forwardFollowTargetPrefab != null) // Replace with weaponHandPrefab if available
+            if (player.playerTemplate.followTargetPrefab != null) // Replace with weaponHandPrefab if available
             {
                 // If you have a weaponHandPrefab in PlayerTemplate, use it here instead of forwardFollowTargetPrefab
                 GameObject prefab = player.playerTemplate.weaponHandPrefab; // <-- Make sure this exists in PlayerTemplate
@@ -393,8 +405,8 @@ public static class PlayerAutoSetupUtility
         Transform followTarget = FindDirectChildByName(player.transform, "FollowTarget");
         Transform aimTarget = FindDirectChildByName(player.transform, "AimTarget");
 
-        followTarget = GetOrCreateCameraTarget(player, followTarget, "FollowTarget", player.playerTemplate?.forwardFollowTargetPrefab, new Vector3(0f, 1.775f, -0.009f));
-        aimTarget = GetOrCreateCameraTarget(player, aimTarget, "AimTarget", player.playerTemplate?.aimTargetPrefab, Vector3.zero);
+        followTarget = GetOrCreateCameraTarget(player, followTarget, "FollowTarget", player.playerTemplate?.followTargetPrefab, new Vector3(0f, 1.775f, -0.009f));
+        aimTarget = GetOrCreateCameraTarget(player, aimTarget, "AimTarget", player.playerTemplate?.aimIKTargetPrefab, Vector3.zero);
 
         SetCinemachineFollow(player, followTarget, overwriteExisting);
         SetCameraControllerTargets(player, followTarget, aimTarget, overwriteExisting);
@@ -684,7 +696,7 @@ public static class PlayerAutoSetupUtility
         aimIK.solver.axis = new Vector3(0, 0, 1);
         aimIK.solver.poleAxis = new Vector3(0, 1, 0);
         aimIK.solver.IKPositionWeight = 0f; // Ensure IK position weight is set
-        aimIK.solver.poleWeight = 1f;
+        aimIK.solver.poleWeight = 0f;
         aimIK.solver.tolerance = 0f;
         aimIK.solver.maxIterations = 4;
         aimIK.solver.clampWeight = 0.1f;
@@ -862,32 +874,151 @@ public static class PlayerAutoSetupUtility
         bool needsSetup = overwriteExisting || !references.isFilled;
         if (needsSetup)
         {
-            references.root = player.transform;
-            references.pelvis = FindChildRecursive(player.transform, "pelvis");
+            // Set references.root to spine_01.x for the Root Node field
+            var spine01 = FindChildRecursive(player.transform, "spine_01.x");
+            try {
+                references.root = spine01;
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.root for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.root == null)
+                Debug.LogWarning($"[AutoSetup] FBBIK: spine_01.x not found for root on {player.gameObject.name}");
+            // Also set RootNode property directly if it exists (for some FinalIK versions)
+            var rootNodeProp = fbbik.GetType().GetProperty("RootNode", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            if (rootNodeProp != null && rootNodeProp.CanWrite)
+            {
+                try {
+                    rootNodeProp.SetValue(fbbik, spine01);
+                    Debug.Log($"[AutoSetup] FBBIK RootNode property set to spine_01.x for {player.gameObject.name}.");
+                } catch (System.Exception ex) {
+                    Debug.LogError($"[AutoSetup] FBBIK: Failed to set RootNode property for {player.gameObject.name}: {ex.Message}");
+                }
+            }
+            // Also set solver.rootNode directly if property not found
+            if ((rootNodeProp == null || !rootNodeProp.CanWrite) && fbbik.solver != null)
+            {
+                try {
+                    fbbik.solver.rootNode = spine01;
+                    Debug.Log($"[AutoSetup] FBBIK.solver.rootNode set to spine_01.x for {player.gameObject.name}.");
+                } catch (System.Exception ex) {
+                    Debug.LogError($"[AutoSetup] FBBIK: Failed to set solver.rootNode for {player.gameObject.name}: {ex.Message}");
+                }
+            }
+            try {
+                references.pelvis = FindChildRecursive(player.transform, "root.x");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.pelvis for {player.gameObject.name}: {ex.Message}");
+            }
             // Setup spine array (spine_01.x, spine_02.x, spine_03.x)
             var spineList = new System.Collections.Generic.List<Transform>();
-            var s1 = FindChildRecursive(player.transform, "spine_01.x");
+            var s1 = spine01;
             var s2 = FindChildRecursive(player.transform, "spine_02.x");
             var s3 = FindChildRecursive(player.transform, "spine_03.x");
-            if (s1 != null) spineList.Add(s1);
-            if (s2 != null) spineList.Add(s2);
-            if (s3 != null) spineList.Add(s3);
-            references.spine = spineList.ToArray();
-            references.head = FindChildRecursive(player.transform, "head");
-            references.leftThigh = FindChildRecursive(player.transform, "thigh_stretch.l");
-            references.leftCalf = FindChildRecursive(player.transform, "calf_stretch.l");
-            references.leftFoot = FindChildRecursive(player.transform, "foot.l");
-            references.rightThigh = FindChildRecursive(player.transform, "thigh_stretch.r");
-            references.rightCalf = FindChildRecursive(player.transform, "calf_stretch.r");
-            references.rightFoot = FindChildRecursive(player.transform, "foot.r");
-            references.leftUpperArm = FindChildRecursive(player.transform, "upperarm_stretch.l");
-            references.leftForearm = FindChildRecursive(player.transform, "forearm_stretch.l");
-            references.leftHand = FindChildRecursive(player.transform, "hand.l");
-            references.rightUpperArm = FindChildRecursive(player.transform, "upperarm_stretch.r");
-            references.rightForearm = FindChildRecursive(player.transform, "forearm_stretch.r");
-            references.rightHand = FindChildRecursive(player.transform, "hand.r");
+            if (s1 != null) spineList.Add(s1); else Debug.LogWarning($"[AutoSetup] FBBIK: spine_01.x not found on {player.gameObject.name}");
+            if (s2 != null) spineList.Add(s2); else Debug.LogWarning($"[AutoSetup] FBBIK: spine_02.x not found on {player.gameObject.name}");
+            if (s3 != null) spineList.Add(s3); else Debug.LogWarning($"[AutoSetup] FBBIK: spine_03.x not found on {player.gameObject.name}");
+            try {
+                references.spine = spineList.ToArray();
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.spine for {player.gameObject.name}: {ex.Message}");
+            }
+            try {
+                references.head = FindChildRecursive(player.transform, "head.x");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.head for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.head == null) Debug.LogWarning($"[AutoSetup] FBBIK: head.x not found on {player.gameObject.name}");
+            try {
+                references.leftThigh = FindChildRecursive(player.transform, "thigh_stretch.l");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftThigh for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.leftThigh == null) Debug.LogWarning($"[AutoSetup] FBBIK: thigh_stretch.l not found on {player.gameObject.name}");
+            try {
+                references.leftCalf = FindChildRecursive(player.transform, "leg_stretch.l");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftCalf for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.leftCalf == null) Debug.LogWarning($"[AutoSetup] FBBIK: leg_stretch.l not found on {player.gameObject.name}");
+            try {
+                references.leftFoot = FindChildRecursive(player.transform, "foot.l");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftFoot for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.leftFoot == null) Debug.LogWarning($"[AutoSetup] FBBIK: foot.l not found on {player.gameObject.name}");
+            try {
+                references.rightThigh = FindChildRecursive(player.transform, "thigh_stretch.r");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightThigh for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.rightThigh == null) Debug.LogWarning($"[AutoSetup] FBBIK: thigh_stretch.r not found on {player.gameObject.name}");
+            try {
+                references.rightCalf = FindChildRecursive(player.transform, "leg_stretch.r");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightCalf for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.rightCalf == null) Debug.LogWarning($"[AutoSetup] FBBIK: leg_stretch.r not found on {player.gameObject.name}");
+            try {
+                references.rightFoot = FindChildRecursive(player.transform, "foot.r");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightFoot for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.rightFoot == null) Debug.LogWarning($"[AutoSetup] FBBIK: foot.r not found on {player.gameObject.name}");
+            try {
+                references.leftUpperArm = FindChildRecursive(player.transform, "arm_stretch.l");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftUpperArm for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.leftUpperArm == null) Debug.LogWarning($"[AutoSetup] FBBIK: arm_stretch.l not found on {player.gameObject.name}");
+            try {
+                references.leftForearm = FindChildRecursive(player.transform, "forearm_stretch.l");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftForearm for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.leftForearm == null) Debug.LogWarning($"[AutoSetup] FBBIK: forearm_stretch.l not found on {player.gameObject.name}");
+            try {
+                references.leftHand = FindChildRecursive(player.transform, "hand.l");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftHand for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.leftHand == null) Debug.LogWarning($"[AutoSetup] FBBIK: hand.l not found on {player.gameObject.name}");
+            try {
+                references.rightUpperArm = FindChildRecursive(player.transform, "arm_stretch.r");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightUpperArm for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.rightUpperArm == null) Debug.LogWarning($"[AutoSetup] FBBIK: arm_stretch.r not found on {player.gameObject.name}");
+            try {
+                references.rightForearm = FindChildRecursive(player.transform, "forearm_stretch.r");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightForearm for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.rightForearm == null) Debug.LogWarning($"[AutoSetup] FBBIK: forearm_stretch.r not found on {player.gameObject.name}");
+            try {
+                references.rightHand = FindChildRecursive(player.transform, "hand.r");
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightHand for {player.gameObject.name}: {ex.Message}");
+            }
+            if (references.rightHand == null) Debug.LogWarning($"[AutoSetup] FBBIK: hand.r not found on {player.gameObject.name}");
             fbbik.references = references;
-            Debug.Log($"[AutoSetup] FullBodyBipedIK bone references assigned for {player.gameObject.name}.");
+            // Log all assigned references for debugging
+            Debug.Log($"[AutoSetup] FBBIK references for {player.gameObject.name}:\n" +
+                $"root: {references.root?.name}\n" +
+                $"pelvis: {references.pelvis?.name}\n" +
+                $"spine: {string.Join(", ", references.spine.Select(t => t?.name))}\n" +
+                $"head: {references.head?.name}\n" +
+                $"leftThigh: {references.leftThigh?.name}\n" +
+                $"leftCalf: {references.leftCalf?.name}\n" +
+                $"leftFoot: {references.leftFoot?.name}\n" +
+                $"rightThigh: {references.rightThigh?.name}\n" +
+                $"rightCalf: {references.rightCalf?.name}\n" +
+                $"rightFoot: {references.rightFoot?.name}\n" +
+                $"leftUpperArm: {references.leftUpperArm?.name}\n" +
+                $"leftForearm: {references.leftForearm?.name}\n" +
+                $"leftHand: {references.leftHand?.name}\n" +
+                $"rightUpperArm: {references.rightUpperArm?.name}\n" +
+                $"rightForearm: {references.rightForearm?.name}\n" +
+                $"rightHand: {references.rightHand?.name}");
         }
 
         fbbik.enabled = false;

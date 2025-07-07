@@ -9,18 +9,6 @@ using UnityEditor;
 #endif
 
 [DefaultExecutionOrder(-100)] // Ensure Player runs before other components
-[RequireComponent(typeof(PlayerInput))]
-[RequireComponent(typeof(PlayerCharacterController))]
-[RequireComponent(typeof(Animator))]
-[RequireComponent(typeof(PlayerCameraController))]
-[RequireComponent(typeof(PlayerIKController))]
-[RequireComponent(typeof(AimIK))]
-[RequireComponent(typeof(FullBodyBipedIK))]
-[RequireComponent(typeof(RecoilIK))]
-[RequireComponent(typeof(PlayerWeaponManager))]
-[RequireComponent(typeof(HealthManager))]
-[RequireComponent(typeof(BulletHitscan))]
-[RequireComponent(typeof(BulletDecalManager))]
 public class Player : MonoBehaviour
 {
     public PlayerInput PlayerInput { get; private set; }

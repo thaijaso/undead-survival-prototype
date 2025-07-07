@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7404741437113396145}
   - component: {fileID: 3484889932538576601}
   m_Layer: 3
-  m_Name: AimTarget
+  m_Name: BulletHitTarget
   m_TagString: Aim Target
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
