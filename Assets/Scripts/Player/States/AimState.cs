@@ -61,13 +61,13 @@ public class AimState : StrafeState
         GameObject weaponInstance = weaponManager.SpawnWeaponInWeaponHand();
         Weapon weaponScript = weaponInstance.GetComponent<Weapon>();
 
-        if (weaponScript != null && weaponScript.aimTransform != null)
+        if (weaponScript != null && weaponScript.muzzleTransform != null)
         {
-            player.PlayerIKController.SetAimTransform(weaponScript.aimTransform);
+            player.PlayerIKController.SetAimTransform(weaponScript.muzzleTransform);
         }
         else
         {
-            Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): AimTransform not set on weapon prefab!");
+            Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): MuzzleTransform not set on weapon prefab!");
         }
 
         weaponManager.SetAimIKOffsets();

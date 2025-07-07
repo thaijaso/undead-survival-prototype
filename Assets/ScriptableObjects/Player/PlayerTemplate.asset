@@ -25,6 +25,8 @@ MonoBehaviour:
   followFOV: 40
   aimFOV: 28.7
   zoomSpeed: 5
+  aimCamOffsetX: 0.5
+  offsetLerpSpeed: 5
   movementThreshold: 0.2
   animationSmoothTime: 0.05
   maxInputThreshold: 0.6
@@ -32,8 +34,8 @@ MonoBehaviour:
   stepOffset: 0.3
   skinWidth: 0.08
   minMoveDistance: 0.001
-  center: {x: 0, y: 1.01, z: 0}
-  radius: 0.28
+  center: {x: 0, y: 1, z: 0}
+  radius: 0.3
   height: 1.8
   layerOverridePriority: 0
   includeLayers:

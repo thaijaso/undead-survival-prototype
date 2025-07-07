@@ -79,13 +79,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41d0882c609770048a4e33c84e26beb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aimTransform: {fileID: 6288980220063580285}
   muzzleEffect: {fileID: 3267934947292331847}
   gunshot: {fileID: -1519674205959471789}
   bulletPrefab: {fileID: 2989000923634411228, guid: dce45d8c28f04474e83d41c0dd823d5e, type: 3}
   bulletTracer: {fileID: 1502982879624081063, guid: 6d07907a30138624b96fd8349b448bd6, type: 3}
   muzzleTransform: {fileID: 7803622731766910770}
   weaponData: {fileID: 11400000, guid: d0419b312f07c5744b113ecf1925046f, type: 2}
+  aimTarget: {fileID: 0}
 --- !u!82 &-1519674205959471789
 AudioSource:
   m_ObjectHideFlags: 0
@@ -96,8 +96,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 4a6d190a8e62c47e79779e108add4d5b, type: 3}
-  m_Resource: {fileID: 8300000, guid: 4a6d190a8e62c47e79779e108add4d5b, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 3a5ab7fb5ae6fd6489445fdcf3edda71, type: 3}
+  m_Resource: {fileID: 8300000, guid: 3a5ab7fb5ae6fd6489445fdcf3edda71, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1

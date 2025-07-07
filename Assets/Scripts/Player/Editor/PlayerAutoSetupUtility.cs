@@ -177,7 +177,8 @@ public static class PlayerAutoSetupUtility
                 if (before != player.playerTemplate.animatorController)
                     Debug.Log($"[AutoSetup] Overwriting Animator.runtimeAnimatorController: {(before != null ? before.name : "null")} -> {player.playerTemplate.animatorController.name}");
                 animator.runtimeAnimatorController = player.playerTemplate.animatorController;
-                Debug.Log($"[AutoSetup] AnimatorController after: {animator.runtimeAnimatorController.name}");
+                animator.applyRootMotion = false; // Disable root motion if overwriting
+                Debug.Log($"[AutoSetup] AnimatorController after: {animator.runtimeAnimatorController.name}, applyRootMotion: {animator.applyRootMotion}");
             }
             else if (animator.runtimeAnimatorController == null)
             {
@@ -694,7 +695,7 @@ public static class PlayerAutoSetupUtility
         // aimIK.solver.clamp = IKSolverAim.Clamp.Absolute;
 
         // Set up the bones array with correct references and weights
-        aimIK.solver.bones = new IKSolverAim.Bone[] {
+        aimIK.solver.bones = new IKSolver.Bone[] {
             new(FindChildRecursive(player.transform, "spine_01.x"), 0f),
             new(FindChildRecursive(player.transform, "spine_02.x"), 0f),
             new(FindChildRecursive(player.transform, "spine_03.x"), 0.769f),
