@@ -28,29 +28,26 @@ public static class WeaponAutoSetupUtility
                 Debug.LogWarning("[Weapon] Could not auto-assign muzzleTransform: No child named 'MuzzleTransform' found in prefab or scene context.");
             }
         }
-        // Try to find and assign muzzleEffect from prefab if null
+        // Try to find and assign muzzleEffect from weapon's own hierarchy if null
         if (overwriteReferences || weapon.muzzleEffect == null)
         {
-            string muzzleEffectsPath = "Assets/Prefabs/Effects/MuzzleEffects";
-            var guids = UnityEditor.AssetDatabase.FindAssets("t:GameObject", new[] { muzzleEffectsPath });
-            foreach (var guid in guids)
+            ParticleSystem foundMuzzleEffect = null;
+            if (weapon.muzzleTransform != null)
             {
-                string assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
-                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-                if (prefab != null)
-                {
-                    var ps = prefab.GetComponentInChildren<ParticleSystem>(true);
-                    if (ps != null)
-                    {
-                        weapon.muzzleEffect = ps;
-                        Debug.Log($"[Weapon] Auto-assigned muzzleEffect from prefab: {assetPath}");
-                        break;
-                    }
-                }
+                foundMuzzleEffect = weapon.muzzleTransform.GetComponentInChildren<ParticleSystem>(true);
             }
-            if (weapon.muzzleEffect == null)
+            if (foundMuzzleEffect == null)
             {
-                Debug.LogWarning($"[Weapon] Could not auto-assign muzzleEffect: No ParticleSystem found in any prefab under {muzzleEffectsPath}.");
+                foundMuzzleEffect = weapon.GetComponentInChildren<ParticleSystem>(true);
+            }
+            if (foundMuzzleEffect != null)
+            {
+                weapon.muzzleEffect = foundMuzzleEffect;
+                Debug.Log($"[Weapon] Auto-assigned muzzleEffect to '{foundMuzzleEffect.name}' from weapon hierarchy.");
+            }
+            else
+            {
+                Debug.LogWarning("[Weapon] Could not auto-assign muzzleEffect: No ParticleSystem found in weapon hierarchy.");
             }
         }
         // Try to find and assign bulletHitTarget (scene search only)

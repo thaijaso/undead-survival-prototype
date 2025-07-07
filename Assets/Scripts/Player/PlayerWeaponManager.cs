@@ -94,6 +94,24 @@ public class PlayerWeaponManager : MonoBehaviour
             return;
         }
 
+        if (weaponScript.muzzleEffect == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.PlayMuzzleEffect(): Muzzle effect is not assigned on weapon instance!\n" +
+                $"  - Did you assign a prefab instead of a scene instance?\n" +
+                $"  - The muzzle effect should be a child of the weapon in the hierarchy, not a prefab asset.\n" +
+                $"  - Weapon instance: {CurrentWeaponInstance.name} (active: {CurrentWeaponInstance.activeInHierarchy})");
+            return;
+        }
+
+        // Check if the assigned ParticleSystem is a prefab asset (not in the scene hierarchy)
+        if (!weaponScript.muzzleEffect.gameObject.scene.IsValid())
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.PlayMuzzleEffect(): The assigned muzzle effect is not part of the active scene!\n" +
+                $"  - You probably assigned a prefab from the Project window. Assign the child ParticleSystem from the weapon hierarchy instead.\n" +
+                $"  - MuzzleEffect object: {weaponScript.muzzleEffect.name}");
+            return;
+        }
+
         weaponScript.PlayMuzzleEffect();
     }
 
@@ -129,6 +147,24 @@ public class PlayerWeaponManager : MonoBehaviour
         if (weaponScript == null)
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.PlayGunshotSound(): Weapon script not found on the weapon instance!");
+            return;
+        }
+
+        if (weaponScript.gunshot == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.PlayGunshotSound(): Gunshot AudioSource is not assigned on weapon instance!\n" +
+                $"  - Did you assign a prefab instead of a scene instance?\n" +
+                $"  - The gunshot AudioSource should be a child of the weapon in the hierarchy, not a prefab asset.\n" +
+                $"  - Weapon instance: {CurrentWeaponInstance.name} (active: {CurrentWeaponInstance.activeInHierarchy})");
+            return;
+        }
+
+        // Check if the assigned AudioSource is a prefab asset (not in the scene hierarchy)
+        if (!weaponScript.gunshot.gameObject.scene.IsValid())
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.PlayGunshotSound(): The assigned gunshot AudioSource is not part of the active scene!\n" +
+                $"  - You probably assigned a prefab from the Project window. Assign the child AudioSource from the weapon hierarchy instead.\n" +
+                $"  - Gunshot object: {weaponScript.gunshot.name}");
             return;
         }
 

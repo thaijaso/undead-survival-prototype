@@ -16,13 +16,13 @@ public static class PlayerAutoSetupUtility
         SetupPlayerComponentReferences(player);
         SetupPlayerTemplate(player);
         SetupAnimator(player, overwriteExisting);
-        SetupCameraTargetsAndSettings(player, overwriteExisting);
+        var cameraTargets = SetupCameraTargetsAndSettings(player, overwriteExisting);
         SetupCrosshairController(player);
         SetupPlayerInput(player, overwriteExisting);
         SetupCharacterControllerFromTemplate(player, overwriteExisting);
         SetupPlayerWeaponManager(player, overwriteExisting);
         SetupPlayerWeaponHand(player);
-        SetupPlayerAimIK(player, overwriteExisting);
+        SetupPlayerAimIK(player, overwriteExisting, cameraTargets.aimIKTarget);
         SetupRecoilIK(player, overwriteExisting);
         SetupFBBIK(player, overwriteExisting);
         SetupBulletDecalManager(player);
@@ -396,10 +396,10 @@ public static class PlayerAutoSetupUtility
         return null;
     }
 
-    private static void SetupCameraTargetsAndSettings(Player player, bool overwriteExisting = true)
+    private static (Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget) SetupCameraTargetsAndSettings(Player player, bool overwriteExisting = true)
     {
         if (player == null || player.PlayerCameraController == null)
-            return;
+            return (null, null, null);
 
         // Only create FollowTarget and AimTarget
         Transform followTarget = FindDirectChildByName(player.transform, "FollowTarget");
@@ -417,6 +417,7 @@ public static class PlayerAutoSetupUtility
 
         if (followTarget == null) Debug.LogWarning("FollowTarget not found as child of Player.");
         if (aimIKTarget == null) Debug.LogWarning("AimIKTarget not found as child of Player.");
+        return (followTarget, aimIKTarget, bulletHitTarget);
     }
 
     private static Transform GetOrCreateCameraTarget(Player player, Transform existing, string name, GameObject prefab, Vector3 defaultPosition)
@@ -696,7 +697,7 @@ public static class PlayerAutoSetupUtility
         }
     }
 
-    private static void SetupPlayerAimIK(Player player, bool overwriteExisting = true)
+    private static void SetupPlayerAimIK(Player player, bool overwriteExisting = true, Transform aimIKTarget = null)
     {
         if (player == null)
             return;
@@ -711,7 +712,7 @@ public static class PlayerAutoSetupUtility
         aimIK.enabled = false;
 
         // Assign targets
-        aimIK.solver.target = FindChildRecursive(player.transform, "AimTarget");
+        aimIK.solver.target = aimIKTarget != null ? aimIKTarget : FindChildRecursive(player.transform, "AimIKTarget");
         aimIK.solver.axis = new Vector3(0, 0, 1);
         aimIK.solver.poleAxis = new Vector3(0, 1, 0);
         aimIK.solver.IKPositionWeight = 0f; // Ensure IK position weight is set
@@ -739,7 +740,7 @@ public static class PlayerAutoSetupUtility
         EditorUtility.SetDirty(aimIK);
         PrefabUtility.RecordPrefabInstancePropertyModifications(aimIK);
 
-        Debug.Log($"[AutoSetup] AimIK component set up for {player.gameObject.name} (disabled by default).");
+        Debug.Log($"[AutoSetup] AimIK component set up for {player.gameObject.name} (disabled by default). Target: {aimIK.solver.target?.name}");
     }
 
     private static void SetAimIKBoneWeight(AimIK aimIK, string boneName, float weight)
@@ -772,7 +773,17 @@ public static class PlayerAutoSetupUtility
             Debug.Log($"[AutoSetup] IKRecoil component already exists on {player.gameObject.name}.");
         }
 
-        // Assign AimIK reference if available
+        AssignAimIKToRecoilIK(player, recoilIK);
+        AssignFBBIKToRecoilIK(player, recoilIK);
+        AssignRecoilIKSettingsFromWeaponManager(player, recoilIK);
+
+        // Mark RecoilIK as dirty so changes persist
+        EditorUtility.SetDirty(recoilIK);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(recoilIK);
+    }
+
+    private static void AssignAimIKToRecoilIK(Player player, RecoilIK recoilIK)
+    {
         var aimIK = player.GetComponent<AimIK>();
         if (aimIK != null)
         {
@@ -800,8 +811,44 @@ public static class PlayerAutoSetupUtility
         {
             Debug.LogWarning($"[AutoSetup] AimIK component not found on {player.gameObject.name}, cannot assign to RecoilIK.");
         }
+    }
 
-        // --- NEW: Assign RecoilIK settings from PlayerWeaponManager's CurrentWeaponData ---
+    private static void AssignFBBIKToRecoilIK(Player player, RecoilIK recoilIK)
+    {
+        var fbbik = player.GetComponent<FullBodyBipedIK>();
+        if (fbbik != null)
+        {
+            // Walk up the inheritance chain to find the 'ik' field, logging each step
+            System.Type type = recoilIK.GetType();
+            System.Reflection.FieldInfo ikField = null;
+            while (type != null && ikField == null)
+            {
+                Debug.Log($"[AutoSetup] Checking for 'ik' field in type: {type.FullName}");
+                ikField = type.GetField("ik", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (ikField != null)
+                {
+                    Debug.Log($"[AutoSetup] Found 'ik' field in type: {type.FullName}");
+                }
+                type = type.BaseType;
+            }
+            if (ikField != null)
+            {
+                ikField.SetValue(recoilIK, fbbik);
+                Debug.Log($"[AutoSetup] Assigned FBBIK reference to 'ik' field (found in {ikField.DeclaringType.Name}) of RecoilIK on {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] Could not find 'ik' field in RecoilIK or its base classes for {player.gameObject.name}.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[AutoSetup] FullBodyBipedIK component not found on {player.gameObject.name}, cannot assign to RecoilIK.");
+        }
+    }
+
+    private static void AssignRecoilIKSettingsFromWeaponManager(Player player, RecoilIK recoilIK)
+    {
         var pwm = player.GetComponent<PlayerWeaponManager>();
         if (pwm != null)
         {
@@ -831,18 +878,17 @@ public static class PlayerAutoSetupUtility
             if (weaponData != null)
             {
                 // Map WeaponData fields to RecoilIK fields
-                var recoil = recoilIK;
                 var data = weaponData;
-                recoil.ikRecoilWeight = data.ikRecoilWeight;
-                recoil.aimIKSolvedLast = data.aimIKSolvedLast;
-                recoil.handedness = (RecoilIK.Handedness)data.handedness;
-                recoil.twoHanded = data.twoHanded;
-                recoil.recoilWeight = data.recoilWeight;
-                recoil.magnitudeRandom = data.magnitudeRandom;
-                recoil.rotationRandom = data.rotationRandom;
-                recoil.handRotationOffset = data.handRotationOffset;
-                recoil.blendTime = data.blendTime;
-                recoil.offsetSettings = new RecoilIK.OffsetSettings {
+                recoilIK.ikRecoilWeight = data.ikRecoilWeight;
+                recoilIK.aimIKSolvedLast = data.aimIKSolvedLast;
+                recoilIK.handedness = (RecoilIK.Handedness)data.handedness;
+                recoilIK.twoHanded = data.twoHanded;
+                recoilIK.recoilWeight = data.recoilWeight;
+                recoilIK.magnitudeRandom = data.magnitudeRandom;
+                recoilIK.rotationRandom = data.rotationRandom;
+                recoilIK.handRotationOffset = data.handRotationOffset;
+                recoilIK.blendTime = data.blendTime;
+                recoilIK.offsetSettings = new RecoilIK.OffsetSettings {
                     offset = data.offsets.offset,
                     additivity = data.offsets.additivity,
                     maxAdditiveOffsetMag = data.offsets.maxAdditiveOffsetMag
@@ -850,11 +896,11 @@ public static class PlayerAutoSetupUtility
                 // Map EffectorLinks
                 if (data.effectorLinks != null)
                 {
-                    recoil.effectorLinks = new RecoilIK.EffectorLink[data.effectorLinks.Length];
+                    recoilIK.effectorLinks = new RecoilIK.EffectorLink[data.effectorLinks.Length];
                     for (int i = 0; i < data.effectorLinks.Length; i++)
                     {
                         var src = data.effectorLinks[i];
-                        recoil.effectorLinks[i] = new RecoilIK.EffectorLink {
+                        recoilIK.effectorLinks[i] = new RecoilIK.EffectorLink {
                             effector = src.effector,
                             weight = src.weight
                         };
@@ -871,10 +917,6 @@ public static class PlayerAutoSetupUtility
         {
             Debug.LogWarning($"[AutoSetup] PlayerWeaponManager not found on {player.gameObject.name}.");
         }
-
-        // Mark RecoilIK as dirty so changes persist
-        EditorUtility.SetDirty(recoilIK);
-        PrefabUtility.RecordPrefabInstancePropertyModifications(recoilIK);
     }
 
     private static void SetupFBBIK(Player player, bool overwriteExisting = true)
