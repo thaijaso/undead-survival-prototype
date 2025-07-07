@@ -21,6 +21,19 @@ public class Weapon : MonoBehaviour
 
     private void Awake()
     {
+        // Assign BulletHitTarget at runtime if not set (scene search)
+        if (bulletHitTarget == null)
+        {
+            foreach (var t in FindObjectsByType<Transform>(FindObjectsSortMode.None))
+            {
+                if (string.Equals(t.name, "BulletHitTarget", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    bulletHitTarget = t;
+                    Debug.Log($"[Weapon] Auto-assigned BulletHitTarget at runtime to '{t.GetHierarchyPath()}' on {gameObject.name}.");
+                    break;
+                }
+            }
+        }
         ValidateReferences();
     }
 

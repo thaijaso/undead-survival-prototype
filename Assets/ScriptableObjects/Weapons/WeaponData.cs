@@ -84,14 +84,10 @@ public class WeaponData : ScriptableObject
 
     [System.Serializable]
     public class EffectorLink {
-        public string effector; // e.g. "Right Hand", "Right Shoulder", "Body"
-        [Range(0f, 1f)] public float weight = 1f;
+        public string effector;
+        public float weight = 1f;
     }
     [TabGroup("IK Recoil")]
-    [ListDrawerSettings(ShowPaging = false, DraggableItems = true, ShowFoldout = true)]
-    public EffectorLink[] effectorLinks = new EffectorLink[] {
-        new EffectorLink { effector = "Right Hand", weight = 1f },
-        new EffectorLink { effector = "Right Shoulder", weight = 0.3f },
-        new EffectorLink { effector = "Body", weight = 0.1f }
-    };
+    [InfoBox("Effector links for IK recoil. Each entry defines which FBBIK effector is affected and by how much.")]
+    public EffectorLink[] effectorLinks;
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using RootMotion.FinalIK;
 
 public class PlayerWeaponManager : MonoBehaviour
 {
@@ -200,18 +201,24 @@ public class PlayerWeaponManager : MonoBehaviour
             additivity = data.offsets.additivity,
             maxAdditiveOffsetMag = data.offsets.maxAdditiveOffsetMag
         };
-        // Map EffectorLinks
-        if (data.effectorLinks != null)
+        // Map effectorLinks from WeaponData to RecoilIK (first offset)
+        if (recoil.offsets != null && recoil.offsets.Length > 0 && data.effectorLinks != null && data.effectorLinks.Length > 0)
         {
-            recoil.effectorLinks = new RecoilIK.EffectorLink[data.effectorLinks.Length];
-            for (int i = 0; i < data.effectorLinks.Length; i++)
+            var effectorLinks = new System.Collections.Generic.List<RecoilIK.RecoilOffset.EffectorLink>();
+            foreach (var src in data.effectorLinks)
             {
-                var src = data.effectorLinks[i];
-                recoil.effectorLinks[i] = new RecoilIK.EffectorLink {
-                    effector = src.effector,
+                var effectorEnum = IKUtility.StringToFullBodyBipedEffector(src.effector);
+                if (effectorEnum == null)
+                {
+                    Debug.LogWarning($"[PlayerWeaponManager] Could not map effector string '{src.effector}' to FullBodyBipedEffector enum for {gameObject.name}.");
+                    continue;
+                }
+                effectorLinks.Add(new RecoilIK.RecoilOffset.EffectorLink {
+                    effector = effectorEnum.Value,
                     weight = src.weight
-                };
+                });
             }
+            recoil.offsets[0].effectorLinks = effectorLinks.ToArray();
         }
     }
 }

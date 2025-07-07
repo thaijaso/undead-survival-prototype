@@ -43,7 +43,10 @@ public static class WeaponAutoSetupUtility
             if (foundMuzzleEffect != null)
             {
                 weapon.muzzleEffect = foundMuzzleEffect;
-                Debug.Log($"[Weapon] Auto-assigned muzzleEffect to '{foundMuzzleEffect.name}' from weapon hierarchy.");
+                // Disable Play On Awake by default
+                var main = foundMuzzleEffect.main;
+                main.playOnAwake = false;
+                Debug.Log($"[Weapon] Auto-assigned muzzleEffect to '{foundMuzzleEffect.name}' from weapon hierarchy and set Play On Awake to false.");
             }
             else
             {

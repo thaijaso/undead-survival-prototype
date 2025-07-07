@@ -893,20 +893,41 @@ public static class PlayerAutoSetupUtility
                     additivity = data.offsets.additivity,
                     maxAdditiveOffsetMag = data.offsets.maxAdditiveOffsetMag
                 };
-                // Map EffectorLinks
-                if (data.effectorLinks != null)
+
+                // --- Populate offsets array for runtime recoil ---
+                var offsetsList = new System.Collections.Generic.List<RecoilIK.RecoilOffset>();
+                var offset = new RecoilIK.RecoilOffset();
+                offset.offset = data.offsets.offset;
+                offset.additivity = data.offsets.additivity;
+                offset.maxAdditiveOffsetMag = data.offsets.maxAdditiveOffsetMag;
+                // Map effectorLinks from WeaponData to RecoilOffset
+                if (data.effectorLinks != null && data.effectorLinks.Length > 0)
                 {
-                    recoilIK.effectorLinks = new RecoilIK.EffectorLink[data.effectorLinks.Length];
-                    for (int i = 0; i < data.effectorLinks.Length; i++)
+                    var effectorLinks = new System.Collections.Generic.List<RecoilIK.RecoilOffset.EffectorLink>();
+                    foreach (var src in data.effectorLinks)
                     {
-                        var src = data.effectorLinks[i];
-                        recoilIK.effectorLinks[i] = new RecoilIK.EffectorLink {
-                            effector = src.effector,
+                        var effectorEnum = StringToFullBodyBipedEffector(src.effector);
+                        if (effectorEnum == null)
+                        {
+                            Debug.LogWarning($"[AutoSetup] Could not map effector string '{src.effector}' to FullBodyBipedEffector enum for {player.gameObject.name}.");
+                            continue;
+                        }
+                        effectorLinks.Add(new RecoilIK.RecoilOffset.EffectorLink {
+                            effector = effectorEnum.Value,
                             weight = src.weight
-                        };
+                        });
                     }
+                    offset.effectorLinks = effectorLinks.ToArray();
                 }
-                Debug.Log($"[AutoSetup] RecoilIK settings assigned from PlayerWeaponManager.CurrentWeaponData for {player.gameObject.name}.");
+                else
+                {
+                    offset.effectorLinks = new RecoilIK.RecoilOffset.EffectorLink[0];
+                }
+                offsetsList.Add(offset);
+                recoilIK.offsets = offsetsList.ToArray();
+                // --- END ---
+
+                Debug.Log($"[AutoSetup] RecoilIK settings assigned from PlayerWeaponManager.CurrentWeaponData for {player.gameObject.name} (offsets created, no effectorLinks from WeaponData).");
             }
             else
             {
@@ -919,6 +940,27 @@ public static class PlayerAutoSetupUtility
         }
     }
 
+    // Helper to map string effector names to FullBodyBipedEffector enum
+    public static RootMotion.FinalIK.FullBodyBipedEffector? StringToFullBodyBipedEffector(string effectorName)
+    {
+        switch (effectorName.ToLowerInvariant())
+        {
+            case "body": return RootMotion.FinalIK.FullBodyBipedEffector.Body;
+            case "left shoulder": return RootMotion.FinalIK.FullBodyBipedEffector.LeftShoulder;
+            case "right shoulder": return RootMotion.FinalIK.FullBodyBipedEffector.RightShoulder;
+            case "left thigh": return RootMotion.FinalIK.FullBodyBipedEffector.LeftThigh;
+            case "right thigh": return RootMotion.FinalIK.FullBodyBipedEffector.RightThigh;
+            case "left hand": return RootMotion.FinalIK.FullBodyBipedEffector.LeftHand;
+            case "right hand": return RootMotion.FinalIK.FullBodyBipedEffector.RightHand;
+            case "left foot": return RootMotion.FinalIK.FullBodyBipedEffector.LeftFoot;
+            case "right foot": return RootMotion.FinalIK.FullBodyBipedEffector.RightFoot;
+            default:
+                Debug.LogWarning($"[AutoSetup] Unknown effector name '{effectorName}' for FullBodyBipedEffector mapping.");
+                return null;
+        }
+    }
+
+    // Adds or assigns FullBodyBipedIK to the player if missing
     private static void SetupFBBIK(Player player, bool overwriteExisting = true)
     {
         if (player == null)
@@ -930,238 +972,33 @@ public static class PlayerAutoSetupUtility
             fbbik = player.gameObject.AddComponent<FullBodyBipedIK>();
             Debug.Log($"[AutoSetup] FullBodyBipedIK component added to {player.gameObject.name}.");
         }
-
-        var references = fbbik.references;
-        bool needsSetup = overwriteExisting || !references.isFilled;
-        if (needsSetup)
+        else
         {
-            // Set references.root to spine_01.x for the Root Node field
-            var spine01 = FindChildRecursive(player.transform, "spine_01.x");
-            try {
-                references.root = spine01;
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.root for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.root == null)
-                Debug.LogWarning($"[AutoSetup] FBBIK: spine_01.x not found for root on {player.gameObject.name}");
-            // Also set RootNode property directly if it exists (for some FinalIK versions)
-            var rootNodeProp = fbbik.GetType().GetProperty("RootNode", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            if (rootNodeProp != null && rootNodeProp.CanWrite)
-            {
-                try {
-                    rootNodeProp.SetValue(fbbik, spine01);
-                    Debug.Log($"[AutoSetup] FBBIK RootNode property set to spine_01.x for {player.gameObject.name}.");
-                } catch (System.Exception ex) {
-                    Debug.LogError($"[AutoSetup] FBBIK: Failed to set RootNode property for {player.gameObject.name}: {ex.Message}");
-                }
-            }
-            // Also set solver.rootNode directly if property not found
-            if ((rootNodeProp == null || !rootNodeProp.CanWrite) && fbbik.solver != null)
-            {
-                try {
-                    fbbik.solver.rootNode = spine01;
-                    Debug.Log($"[AutoSetup] FBBIK.solver.rootNode set to spine_01.x for {player.gameObject.name}.");
-                } catch (System.Exception ex) {
-                    Debug.LogError($"[AutoSetup] FBBIK: Failed to set solver.rootNode for {player.gameObject.name}: {ex.Message}");
-                }
-            }
-            try {
-                references.pelvis = FindChildRecursive(player.transform, "root.x");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.pelvis for {player.gameObject.name}: {ex.Message}");
-            }
-            // Setup spine array (spine_01.x, spine_02.x, spine_03.x)
-            var spineList = new System.Collections.Generic.List<Transform>();
-            var s1 = spine01;
-            var s2 = FindChildRecursive(player.transform, "spine_02.x");
-            var s3 = FindChildRecursive(player.transform, "spine_03.x");
-            if (s1 != null) spineList.Add(s1); else Debug.LogWarning($"[AutoSetup] FBBIK: spine_01.x not found on {player.gameObject.name}");
-            if (s2 != null) spineList.Add(s2); else Debug.LogWarning($"[AutoSetup] FBBIK: spine_02.x not found on {player.gameObject.name}");
-            if (s3 != null) spineList.Add(s3); else Debug.LogWarning($"[AutoSetup] FBBIK: spine_03.x not found on {player.gameObject.name}");
-            try {
-                references.spine = spineList.ToArray();
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.spine for {player.gameObject.name}: {ex.Message}");
-            }
-            try {
-                references.head = FindChildRecursive(player.transform, "head.x");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.head for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.head == null) Debug.LogWarning($"[AutoSetup] FBBIK: head.x not found on {player.gameObject.name}");
-            try {
-                references.leftThigh = FindChildRecursive(player.transform, "thigh_stretch.l");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftThigh for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.leftThigh == null) Debug.LogWarning($"[AutoSetup] FBBIK: thigh_stretch.l not found on {player.gameObject.name}");
-            try {
-                references.leftCalf = FindChildRecursive(player.transform, "leg_stretch.l");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftCalf for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.leftCalf == null) Debug.LogWarning($"[AutoSetup] FBBIK: leg_stretch.l not found on {player.gameObject.name}");
-            try {
-                references.leftFoot = FindChildRecursive(player.transform, "foot.l");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftFoot for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.leftFoot == null) Debug.LogWarning($"[AutoSetup] FBBIK: foot.l not found on {player.gameObject.name}");
-            try {
-                references.rightThigh = FindChildRecursive(player.transform, "thigh_stretch.r");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightThigh for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.rightThigh == null) Debug.LogWarning($"[AutoSetup] FBBIK: thigh_stretch.r not found on {player.gameObject.name}");
-            try {
-                references.rightCalf = FindChildRecursive(player.transform, "leg_stretch.r");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightCalf for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.rightCalf == null) Debug.LogWarning($"[AutoSetup] FBBIK: leg_stretch.r not found on {player.gameObject.name}");
-            try {
-                references.rightFoot = FindChildRecursive(player.transform, "foot.r");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightFoot for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.rightFoot == null) Debug.LogWarning($"[AutoSetup] FBBIK: foot.r not found on {player.gameObject.name}");
-            try {
-                references.leftUpperArm = FindChildRecursive(player.transform, "arm_stretch.l");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftUpperArm for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.leftUpperArm == null) Debug.LogWarning($"[AutoSetup] FBBIK: arm_stretch.l not found on {player.gameObject.name}");
-            try {
-                references.leftForearm = FindChildRecursive(player.transform, "forearm_stretch.l");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftForearm for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.leftForearm == null) Debug.LogWarning($"[AutoSetup] FBBIK: forearm_stretch.l not found on {player.gameObject.name}");
-            try {
-                references.leftHand = FindChildRecursive(player.transform, "hand.l");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.leftHand for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.leftHand == null) Debug.LogWarning($"[AutoSetup] FBBIK: hand.l not found on {player.gameObject.name}");
-            try {
-                references.rightUpperArm = FindChildRecursive(player.transform, "arm_stretch.r");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightUpperArm for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.rightUpperArm == null) Debug.LogWarning($"[AutoSetup] FBBIK: arm_stretch.r not found on {player.gameObject.name}");
-            try {
-                references.rightForearm = FindChildRecursive(player.transform, "forearm_stretch.r");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightForearm for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.rightForearm == null) Debug.LogWarning($"[AutoSetup] FBBIK: forearm_stretch.r not found on {player.gameObject.name}");
-            try {
-                references.rightHand = FindChildRecursive(player.transform, "hand.r");
-            } catch (System.Exception ex) {
-                Debug.LogError($"[AutoSetup] FBBIK: Failed to set references.rightHand for {player.gameObject.name}: {ex.Message}");
-            }
-            if (references.rightHand == null) Debug.LogWarning($"[AutoSetup] FBBIK: hand.r not found on {player.gameObject.name}");
-            fbbik.references = references;
-            // Log all assigned references for debugging
-            Debug.Log($"[AutoSetup] FBBIK references for {player.gameObject.name}:\n" +
-                $"root: {references.root?.name}\n" +
-                $"pelvis: {references.pelvis?.name}\n" +
-                $"spine: {string.Join(", ", references.spine.Select(t => t?.name))}\n" +
-                $"head: {references.head?.name}\n" +
-                $"leftThigh: {references.leftThigh?.name}\n" +
-                $"leftCalf: {references.leftCalf?.name}\n" +
-                $"leftFoot: {references.leftFoot?.name}\n" +
-                $"rightThigh: {references.rightThigh?.name}\n" +
-                $"rightCalf: {references.rightCalf?.name}\n" +
-                $"rightFoot: {references.rightFoot?.name}\n" +
-                $"leftUpperArm: {references.leftUpperArm?.name}\n" +
-                $"leftForearm: {references.leftForearm?.name}\n" +
-                $"leftHand: {references.leftHand?.name}\n" +
-                $"rightUpperArm: {references.rightUpperArm?.name}\n" +
-                $"rightForearm: {references.rightForearm?.name}\n" +
-                $"rightHand: {references.rightHand?.name}");
+            Debug.Log($"[AutoSetup] FullBodyBipedIK component already exists on {player.gameObject.name}.");
         }
-
-        fbbik.enabled = false;
+        // Optionally, you could auto-assign references here if needed
         EditorUtility.SetDirty(fbbik);
         PrefabUtility.RecordPrefabInstancePropertyModifications(fbbik);
     }
 
+    // Adds or assigns BulletDecalManager to the player if missing
     private static void SetupBulletDecalManager(Player player)
     {
-        if (player == null) return;
-        var bulletDecalManager = player.GetComponent<BulletDecalManager>();
-        if (bulletDecalManager == null) return;
-        var defaultDecal = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Effects/BulletDecals/SM_Prop_BulletHoles_01.prefab");
-        if (defaultDecal != null)
-        {
-            var field = bulletDecalManager.GetType().GetField("defaultDecal", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (field != null)
-            {
-                field.SetValue(bulletDecalManager, defaultDecal);
-                Debug.Log($"[AutoSetup] BulletDecalManager.defaultDecal set to SM_Prop_BulletHoles_01.prefab for {player.gameObject.name}.");
-            }
-            else
-            {
-                Debug.LogWarning($"[AutoSetup] Could not find 'defaultDecal' field on BulletDecalManager for {player.gameObject.name}.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[AutoSetup] Could not load BulletDecal prefab at Assets/Prefabs/Effects/BulletDecals/SM_Prop_BulletHoles_01.prefab");
-        }
+        if (player == null)
+            return;
 
-        // Setup Material Decals
-        var materialDecalsField = bulletDecalManager.GetType().GetField("materialDecals", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (materialDecalsField != null)
+        var bulletDecalManager = player.GetComponent<BulletDecalManager>();
+        if (bulletDecalManager == null)
         {
-            // Load all 3 bullet hole prefabs
-            var decal1 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Effects/BulletDecals/SM_Prop_BulletHoles_01.prefab");
-            var decal2 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Effects/BulletDecals/SM_Prop_BulletHoles_02.prefab");
-            var decal3 = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Effects/BulletDecals/SM_Prop_BulletHoles_03.prefab");
-            var bulletDecalPrefabs = new GameObject[] { decal1, decal2, decal3 };
-            var materials = UnityEditor.AssetDatabase.FindAssets("t:PhysicsMaterial", new[] { "Assets/PhysicsMaterials" });
-            var materialDecalsList = new System.Collections.Generic.List<object>();
-            foreach (var guid in materials)
-            {
-                var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
-                var mat = UnityEditor.AssetDatabase.LoadAssetAtPath<PhysicsMaterial>(path);
-                if (mat != null)
-                {
-                    // Try to create a material decal entry (assumes a struct/class with 'material' and 'bulletDecalPrefabs' fields)
-                    var decalType = materialDecalsField.FieldType.GetElementType() ?? materialDecalsField.FieldType.GetGenericArguments()[0];
-                    var decalEntry = System.Activator.CreateInstance(decalType);
-                    var matField = decalType.GetField("material");
-                    var prefabsField = decalType.GetField("bulletDecalPrefabs");
-                    if (matField != null && prefabsField != null)
-                    {
-                        matField.SetValue(decalEntry, mat);
-                        prefabsField.SetValue(decalEntry, bulletDecalPrefabs);
-                        materialDecalsList.Add(decalEntry);
-                    }
-                }
-            }
-            // Assign the array/list to the field
-            var elementType = materialDecalsField.FieldType.IsArray
-                ? materialDecalsField.FieldType.GetElementType()
-                : materialDecalsField.FieldType.GetGenericArguments()[0];
-            if (materialDecalsField.FieldType.IsArray)
-            {
-                var typedArray = System.Array.CreateInstance(elementType, materialDecalsList.Count);
-                for (int i = 0; i < materialDecalsList.Count; i++)
-                    typedArray.SetValue(materialDecalsList[i], i);
-                materialDecalsField.SetValue(bulletDecalManager, typedArray);
-            }
-            else
-            {
-                materialDecalsField.SetValue(bulletDecalManager, materialDecalsList);
-            }
-            Debug.Log($"[AutoSetup] BulletDecalManager.materialDecals set up with {materialDecalsList.Count} entries for {player.gameObject.name}.");
+            bulletDecalManager = player.gameObject.AddComponent<BulletDecalManager>();
+            Debug.Log($"[AutoSetup] BulletDecalManager component added to {player.gameObject.name}.");
         }
         else
         {
-            Debug.LogWarning($"[AutoSetup] Could not find 'materialDecals' field on BulletDecalManager for {player.gameObject.name}.");
+            Debug.Log($"[AutoSetup] BulletDecalManager component already exists on {player.gameObject.name}.");
         }
+        EditorUtility.SetDirty(bulletDecalManager);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(bulletDecalManager);
     }
 }
 

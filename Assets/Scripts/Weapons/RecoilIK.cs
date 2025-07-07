@@ -98,14 +98,6 @@ public class RecoilIK : OffsetModifier
     [Tooltip("Offset settings for IK recoil (per-weapon override)")]
     public OffsetSettings offsetSettings = new OffsetSettings();
 
-    [System.Serializable]
-    public class EffectorLink {
-        public string effector; // e.g. "Right Hand", "Right Shoulder", "Body"
-        [Range(0f, 1f)] public float weight = 1f;
-    }
-    [Tooltip("Effector links for IK recoil (per-weapon override)")]
-    public EffectorLink[] effectorLinks;
-
     [Space(10)]
 
     [Tooltip("FBBIK effector position offsets for the recoil (in aiming direction space).")]
@@ -160,14 +152,26 @@ public class RecoilIK : OffsetModifier
     /// </summary>
     public void Fire(float magnitude)
     {
+        Debug.Log($"[RecoilIK] Fire called on {gameObject.name} with magnitude {magnitude}. Offsets count: {(offsets != null ? offsets.Length : 0)}");
         float rnd = magnitude * UnityEngine.Random.value * magnitudeRandom;
         magnitudeMlp = magnitude + rnd;
 
         randomRotation = Quaternion.Euler(rotationRandom * UnityEngine.Random.value);
 
-        foreach (RecoilOffset offset in offsets)
+        if (offsets == null || offsets.Length == 0)
         {
-            offset.Start();
+            Debug.LogWarning($"[RecoilIK] No offsets assigned on {gameObject.name}. Recoil will not be applied.");
+        }
+        else
+        {
+            foreach (RecoilOffset offset in offsets)
+            {
+                if (offset.effectorLinks == null || offset.effectorLinks.Length == 0)
+                {
+                    Debug.LogWarning($"[RecoilIK] Offset on {gameObject.name} has no effectorLinks. No effectors will be moved.");
+                }
+                offset.Start();
+            }
         }
 
         if (Time.time < endTime) blendWeight = 0f;
@@ -211,6 +215,10 @@ public class RecoilIK : OffsetModifier
         // Apply FBBIK effector positionOffsets
         foreach (RecoilOffset offset in offsets)
         {
+            if (offset.effectorLinks == null || offset.effectorLinks.Length == 0)
+            {
+                Debug.LogWarning($"[RecoilIK] OnModifyOffset: Offset on {gameObject.name} has no effectorLinks. No effectors will be moved.");
+            }
             offset.Apply(ik.solver, lookRotation, w, length, endTime - Time.time);
         }
 
