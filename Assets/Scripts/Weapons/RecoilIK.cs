@@ -184,6 +184,12 @@ public class RecoilIK : OffsetModifier
 
     protected override void OnModifyOffset()
     {
+        // Guard clause: if no offsets, do nothing
+        if (offsets == null || offsets.Length == 0)
+        {
+            return;
+        }
+
         if (aimIK != null) aimIKAxis = aimIK.solver.axis;
 
         if (!initiated && ik != null)
@@ -213,11 +219,17 @@ public class RecoilIK : OffsetModifier
         lookRotation = randomRotation * lookRotation;
 
         // Apply FBBIK effector positionOffsets
+        if (offsets == null || offsets.Length == 0)
+        {
+            // No offsets assigned, skip applying effector offsets
+            return;
+        }
         foreach (RecoilOffset offset in offsets)
         {
             if (offset.effectorLinks == null || offset.effectorLinks.Length == 0)
             {
                 Debug.LogWarning($"[RecoilIK] OnModifyOffset: Offset on {gameObject.name} has no effectorLinks. No effectors will be moved.");
+                continue; // Skip this offset if it has no effector links
             }
             offset.Apply(ik.solver, lookRotation, w, length, endTime - Time.time);
         }
