@@ -17,11 +17,10 @@ MonoBehaviour:
   sprintSpeed: 5
   gravity: -9.81
   animatorController: {fileID: 9100000, guid: ce17fc9fe7ecbf8428a993275f4f863f, type: 2}
-  aimFollowTargetPrefab: {fileID: 824282209136796747, guid: 2e5628843d2c5134b9adee8468299f32, type: 3}
-  forwardFollowTargetPrefab: {fileID: 1023884460089752387, guid: b55d4511b0bef1842a74479affa5ce41, type: 3}
-  aimTargetPrefab: {fileID: 957673483385557115, guid: 01ca10346d9923e4db981614b0dfe610, type: 3}
+  followTargetPrefab: {fileID: 1023884460089752387, guid: b55d4511b0bef1842a74479affa5ce41, type: 3}
+  bulletHitTargetPrefab: {fileID: 0}
   weaponHandPrefab: {fileID: 7043368164534432167, guid: d5b6f3aaa243f2246bf9632173a1071c, type: 3}
-  poleTargetPrefab: {fileID: 2270644548778651205, guid: d7e7b3073fb4ec5408f4e3b1565d1293, type: 3}
+  aimIKTargetPrefab: {fileID: 7020015362888870630, guid: 2015b64ff3c87c4439b7161311fb9e74, type: 3}
   followFOV: 40
   aimFOV: 28.7
   zoomSpeed: 5

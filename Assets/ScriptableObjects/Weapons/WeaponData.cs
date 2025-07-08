@@ -73,21 +73,6 @@ public class WeaponData : ScriptableObject
     [InfoBox("Blend time for recoil effect.")]
     public float blendTime = 0.1f;
 
-    [System.Serializable]
-    public class OffsetSettings {
-        public Vector3 offset = new Vector3(0.02f, 0, -0.1f);
-        [Range(0f, 1f)] public float additivity = 0.5f;
-        public float maxAdditiveOffsetMag = 0.2f;
-    }
     [TabGroup("IK Recoil")]
-    public OffsetSettings offsets = new OffsetSettings();
-
-    [System.Serializable]
-    public class EffectorLink {
-        public string effector;
-        public float weight = 1f;
-    }
-    [TabGroup("IK Recoil")]
-    [InfoBox("Effector links for IK recoil. Each entry defines which FBBIK effector is affected and by how much.")]
-    public EffectorLink[] effectorLinks;
+    public RecoilIK.RecoilOffset[] offsets;
 }

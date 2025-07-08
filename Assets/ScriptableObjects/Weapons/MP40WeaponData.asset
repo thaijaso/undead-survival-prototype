@@ -71,13 +71,13 @@ MonoBehaviour:
   handRotationOffset: {x: 0, y: 0, z: 0}
   blendTime: 0.1
   offsets:
-    offset: {x: 0.02, y: 0, z: -0.1}
+  - offset: {x: 0.02, y: 0, z: -0.1}
     additivity: 0.5
     maxAdditiveOffsetMag: 0.2
-  effectorLinks:
-  - effector: Right Hand
-    weight: 1
-  - effector: Right Shoulder
-    weight: 0.3
-  - effector: Body
-    weight: 0.1
+    effectorLinks:
+    - effector: 6
+      weight: 1
+    - effector: 2
+      weight: 0.3
+    - effector: 0
+      weight: 0.1

@@ -1,7 +1,14 @@
+using UnityEngine;
+using System.Linq;
+
+#if UNITY_EDITOR
+using UnityEditor;
+using RootMotion.FinalIK;
+#else
 using RootMotion.FinalIK;
 using UnityEngine;
-using UnityEditor;
 using System.Linq;
+#endif
 
 public static class PlayerAutoSetupUtility
 {
@@ -13,19 +20,32 @@ public static class PlayerAutoSetupUtility
             return;
         }
 
-        SetupPlayerComponentReferences(player);
         SetupPlayerTemplate(player);
+
+        if (player.playerTemplate == null)
+        {
+            Debug.LogError($"[{player.gameObject.name}] AutoSetup: PlayerTemplate is not assigned. Aborting auto-setup.");
+            return;
+        }
+        
+        SetupPlayerCharacterController(player);
+        SetupPlayerComponentReferences(player);
         SetupAnimator(player, overwriteExisting);
+        SetupPlayerFollowTarget(player);
+        SetupPlayerBulletHitTarget(player);
+        SetupPlayerWeaponHand(player);
+        SetupPlayerAimIKTarget(player);
         var cameraTargets = SetupCameraTargetsAndSettings(player, overwriteExisting);
         SetupCrosshairController(player);
         SetupPlayerInput(player, overwriteExisting);
         SetupCharacterControllerFromTemplate(player, overwriteExisting);
         SetupPlayerWeaponManager(player, overwriteExisting);
-        SetupPlayerWeaponHand(player);
         SetupPlayerAimIK(player, overwriteExisting, cameraTargets.aimIKTarget);
-        SetupRecoilIK(player, overwriteExisting);
         SetupFBBIK(player, overwriteExisting);
+        SetupRecoilIK(player, overwriteExisting);
         SetupBulletDecalManager(player);
+        SetupHealthManager(player);
+        SetupBulletHitscan(player);
 
         // Set layer to Player for this GameObject and all children
         if (player.gameObject != null)
@@ -111,16 +131,44 @@ public static class PlayerAutoSetupUtility
     {
         if (player.playerTemplate == null)
         {
-            string assetPath = "Assets/ScriptableObjects/Player/PlayerTemplate.asset";
-            var loadedTemplate = AssetDatabase.LoadAssetAtPath<PlayerTemplate>(assetPath);
-            if (loadedTemplate != null)
+            // Try to find any PlayerTemplate asset in the project
+            string[] guids = UnityEditor.AssetDatabase.FindAssets("t:PlayerTemplate");
+            if (guids != null && guids.Length > 0)
             {
-                player.playerTemplate = loadedTemplate;
-                Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Assigned PlayerTemplate from {assetPath}.");
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                var mainAssembly = typeof(Player).Assembly;
+                var playerTemplateType = mainAssembly.GetType("PlayerTemplate");
+                var loadedTemplate = UnityEditor.AssetDatabase.LoadAssetAtPath(path, playerTemplateType);
+                if (loadedTemplate != null)
+                {
+                    var playerTemplateProp = typeof(Player).GetProperty("playerTemplate");
+                    if (playerTemplateProp != null && playerTemplateProp.CanWrite)
+                    {
+                        playerTemplateProp.SetValue(player, loadedTemplate);
+                        Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Assigned PlayerTemplate from {path}.");
+                    }
+                    else
+                    {
+                        var playerTemplateField = typeof(Player).GetField("playerTemplate");
+                        if (playerTemplateField != null)
+                        {
+                            playerTemplateField.SetValue(player, loadedTemplate);
+                            Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Assigned PlayerTemplate from {path} (via field).");
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: Could not assign PlayerTemplate to player (no property or field found).");
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: Could not load PlayerTemplate at {path}.");
+                }
             }
             else
             {
-                Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: Could not find PlayerTemplate at {assetPath}.");
+                Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: No PlayerTemplate asset found in project.");
             }
         }
     }
@@ -201,7 +249,35 @@ public static class PlayerAutoSetupUtility
 
     private static void SetupPlayerInput(Player player, bool overwriteExisting = true)
     {
-        if (player == null || player.playerTemplate == null || player.PlayerInput == null)
+        if (player == null || player.playerTemplate == null)
+            return;
+
+        // Ensure PlayerInput component exists
+        if (player.PlayerInput == null)
+        {
+            var playerInput = player.GetComponent<PlayerInput>();
+            if (playerInput == null)
+            {
+                playerInput = player.gameObject.AddComponent<PlayerInput>();
+                Debug.Log($"[AutoSetup] PlayerInput component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] PlayerInput component already exists on {player.gameObject.name}.");
+            }
+            // Explicitly set the property on Player for robustness
+            var prop = typeof(Player).GetProperty("PlayerInput");
+            if (prop != null && prop.CanWrite)
+            {
+                prop.SetValue(player, playerInput);
+                Debug.Log($"[AutoSetup] Explicitly set Player.PlayerInput property after ensuring component exists.");
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] Could not set PlayerInput property on Player {player.gameObject.name} (property not found or not writable).");
+            }
+        }
+        if (player.PlayerInput == null)
             return;
 
         var type = player.PlayerInput.GetType();
@@ -273,35 +349,33 @@ public static class PlayerAutoSetupUtility
             return;
         // Try to find the PlayerWeaponManager component
         var weaponManager = player.GetComponent<PlayerWeaponManager>();
-        if (weaponManager != null)
+        if (weaponManager == null)
         {
-            // Try to load the MP40WeaponData asset from a known path
-            var mp40WeaponData = AssetDatabase.LoadAssetAtPath<WeaponData>("Assets/ScriptableObjects/Weapons/MP40WeaponData.asset");
-            if (mp40WeaponData != null)
+            weaponManager = player.gameObject.AddComponent<PlayerWeaponManager>();
+            Debug.Log($"[AutoSetup] PlayerWeaponManager component added to {player.gameObject.name}.");
+        }
+        // Try to load the MP40WeaponData asset from a known path
+        var mp40WeaponData = AssetDatabase.LoadAssetAtPath<WeaponData>("Assets/ScriptableObjects/Weapons/MP40WeaponData.asset");
+        if (mp40WeaponData != null)
+        {
+            // Set the private serialized field 'currentWeaponData' via reflection
+            var currentWeaponDataField = weaponManager.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (currentWeaponDataField != null)
             {
-                // Set the private serialized field 'currentWeaponData' via reflection
-                var currentWeaponDataField = weaponManager.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (currentWeaponDataField != null)
+                if (overwriteExisting)
                 {
-                    if (overwriteExisting)
-                    {
-                        currentWeaponDataField.SetValue(weaponManager, mp40WeaponData);
-                        Debug.Log($"[AutoSetup] PlayerWeaponManager.currentWeaponData set to MP40WeaponData for {player.gameObject.name} (overwrite: true).");
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning($"[AutoSetup] Could not find currentWeaponData field on PlayerWeaponManager for {player.gameObject.name}.");
+                    currentWeaponDataField.SetValue(weaponManager, mp40WeaponData);
+                    Debug.Log($"[AutoSetup] PlayerWeaponManager.currentWeaponData set to MP40WeaponData for {player.gameObject.name} (overwrite: true).");
                 }
             }
             else
             {
-                Debug.LogWarning($"[AutoSetup] Could not find MP40WeaponData asset at Assets/ScriptableObjects/Weapons/MP40WeaponData.asset");
+                Debug.LogWarning($"[AutoSetup] Could not find currentWeaponData field on PlayerWeaponManager for {player.gameObject.name}.");
             }
         }
         else
         {
-            Debug.LogWarning($"[AutoSetup] PlayerWeaponManager component not found on {player.gameObject.name}.");
+            Debug.LogWarning($"[AutoSetup] Could not find MP40WeaponData asset at Assets/ScriptableObjects/Weapons/MP40WeaponData.asset");
         }
     }
 
@@ -371,6 +445,141 @@ public static class PlayerAutoSetupUtility
         }
     }
 
+    private static void SetupPlayerBulletHitTarget(Player player)
+    {
+        if (player == null || player.playerTemplate == null)
+            return;
+
+        // Find the BulletHitTarget in the player's hierarchy
+        Transform bulletHitTarget = FindDirectChildByName(player.transform, "BulletHitTarget");
+        if (bulletHitTarget == null)
+        {
+            GameObject prefab = player.playerTemplate.bulletHitTargetPrefab;
+            if (prefab == null)
+            {
+                // Try to find a prefab in the project named "BulletHitTarget" or of type GameObject
+                string[] guids = UnityEditor.AssetDatabase.FindAssets("BulletHitTarget t:Prefab");
+                if (guids != null && guids.Length > 0)
+                {
+                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                    prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                    Debug.Log($"[AutoSetup] Fallback: Found BulletHitTarget prefab at {path}.");
+                }
+            }
+            if (prefab != null)
+            {
+                GameObject newBulletHitTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                newBulletHitTarget.name = "BulletHitTarget";
+                bulletHitTarget = newBulletHitTarget.transform;
+                Debug.Log($"Created BulletHitTarget from prefab as child of Player for {player.gameObject.name}.");
+            }
+            else
+            {
+                GameObject newBulletHitTarget = new GameObject("BulletHitTarget");
+                newBulletHitTarget.transform.SetParent(player.transform);
+                newBulletHitTarget.transform.localPosition = Vector3.zero;
+                newBulletHitTarget.transform.localRotation = Quaternion.identity;
+                newBulletHitTarget.transform.localScale = Vector3.one;
+                bulletHitTarget = newBulletHitTarget.transform;
+                Debug.Log($"Created empty BulletHitTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
+            }
+        }
+        else
+        {
+            Debug.Log($"Found existing BulletHitTarget as child of Player for {player.gameObject.name}.");
+        }
+    }
+
+    private static void SetupPlayerFollowTarget(Player player)
+    {
+        if (player == null || player.playerTemplate == null)
+            return;
+
+        // Find the FollowTarget in the player's hierarchy
+        Transform followTarget = FindDirectChildByName(player.transform, "FollowTarget");
+        if (followTarget == null)
+        {
+            GameObject prefab = player.playerTemplate.followTargetPrefab;
+            if (prefab == null)
+            {
+                // Try to find a prefab in the project named "FollowTarget" or of type GameObject
+                string[] guids = UnityEditor.AssetDatabase.FindAssets("FollowTarget t:Prefab");
+                if (guids != null && guids.Length > 0)
+                {
+                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                    prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                    Debug.Log($"[AutoSetup] Fallback: Found FollowTarget prefab at {path}.");
+                }
+            }
+            if (prefab != null)
+            {
+                GameObject newFollowTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                newFollowTarget.name = "FollowTarget";
+                followTarget = newFollowTarget.transform;
+                Debug.Log($"Created FollowTarget from prefab as child of Player for {player.gameObject.name}.");
+            }
+            else
+            {
+                GameObject newFollowTarget = new GameObject("FollowTarget");
+                newFollowTarget.transform.SetParent(player.transform);
+                newFollowTarget.transform.localPosition = new Vector3(0f, 1.775f, -0.009f);
+                newFollowTarget.transform.localRotation = Quaternion.identity;
+                newFollowTarget.transform.localScale = Vector3.one;
+                followTarget = newFollowTarget.transform;
+                Debug.Log($"Created empty FollowTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
+            }
+        }
+        else
+        {
+            Debug.Log($"Found existing FollowTarget as child of Player for {player.gameObject.name}.");
+        }
+    }
+
+    private static void SetupPlayerAimIKTarget(Player player)
+    {
+        if (player == null || player.playerTemplate == null)
+            return;
+
+        // Find the AimIKTarget in the player's hierarchy
+        Transform aimIKTarget = FindDirectChildByName(player.transform, "AimIKTarget");
+        if (aimIKTarget == null)
+        {
+            GameObject prefab = player.playerTemplate.aimIKTargetPrefab;
+            if (prefab == null)
+            {
+                // Try to find a prefab in the project named "AimIKTarget" or of type GameObject
+                string[] guids = UnityEditor.AssetDatabase.FindAssets("AimIKTarget t:Prefab");
+                if (guids != null && guids.Length > 0)
+                {
+                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                    prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                    Debug.Log($"[AutoSetup] Fallback: Found AimIKTarget prefab at {path}.");
+                }
+            }
+            if (prefab != null)
+            {
+                GameObject newAimIKTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                newAimIKTarget.name = "AimIKTarget";
+                aimIKTarget = newAimIKTarget.transform;
+                Debug.Log($"Created AimIKTarget from prefab as child of Player for {player.gameObject.name}.");
+            }
+            else
+            {
+                GameObject newAimIKTarget = new GameObject("AimIKTarget");
+                newAimIKTarget.transform.SetParent(player.transform);
+                newAimIKTarget.transform.localPosition = Vector3.zero;
+                newAimIKTarget.transform.localRotation = Quaternion.identity;
+                newAimIKTarget.transform.localScale = Vector3.one;
+                aimIKTarget = newAimIKTarget.transform;
+                Debug.Log($"Created empty AimIKTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
+            }
+        }
+        else
+        {
+            Debug.Log($"Found existing AimIKTarget as child of Player for {player.gameObject.name}.");
+        }
+    }
+
     // Helper to find a child recursively by name
     private static Transform FindChildRecursive(Transform parent, string name)
     {
@@ -398,8 +607,39 @@ public static class PlayerAutoSetupUtility
 
     private static (Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget) SetupCameraTargetsAndSettings(Player player, bool overwriteExisting = true)
     {
-        if (player == null || player.PlayerCameraController == null)
+        if (player == null)
             return (null, null, null);
+
+        // Ensure PlayerCameraController exists
+        if (player.PlayerCameraController == null)
+        {
+            var pcc = player.GetComponent<PlayerCameraController>();
+            if (pcc == null)
+            {
+                pcc = player.gameObject.AddComponent<PlayerCameraController>();
+                Debug.Log($"[AutoSetup] PlayerCameraController component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] PlayerCameraController component already exists on {player.gameObject.name}.");
+            }
+            // Explicitly set the property on Player for robustness
+            var prop = typeof(Player).GetProperty("PlayerCameraController");
+            if (prop != null && prop.CanWrite)
+            {
+                prop.SetValue(player, pcc);
+                Debug.Log($"[AutoSetup] Explicitly set Player.PlayerCameraController property after ensuring component exists.");
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] Could not set PlayerCameraController property on Player {player.gameObject.name} (property not found or not writable).");
+            }
+        }
+        if (player.PlayerCameraController == null)
+        {
+            Debug.LogWarning($"[AutoSetup] PlayerCameraController is still null for {player.gameObject?.name} after attempting to add it.");
+            return (null, null, null);
+        }
 
         // Only create FollowTarget and AimTarget
         Transform followTarget = FindDirectChildByName(player.transform, "FollowTarget");
@@ -410,7 +650,19 @@ public static class PlayerAutoSetupUtility
         aimIKTarget = GetOrCreateCameraTarget(player, aimIKTarget, "AimIKTarget", player.playerTemplate?.aimIKTargetPrefab, Vector3.zero);
         bulletHitTarget = GetOrCreateCameraTarget(player, bulletHitTarget, "BulletHitTarget", player.playerTemplate?.bulletHitTargetPrefab, Vector3.zero);
 
-        SetCinemachineFollow(player, followTarget, overwriteExisting);
+        // Always assign the new followTarget to the CinemachineCamera.Follow, regardless of overwriteExisting
+        var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
+        if (playerCameraGO != null && followTarget != null)
+        {
+            var cinemachineCamera = playerCameraGO.GetComponent<Unity.Cinemachine.CinemachineCamera>();
+            if (cinemachineCamera != null)
+            {
+                var before = cinemachineCamera.Follow;
+                cinemachineCamera.Follow = followTarget;
+                Debug.Log($"[AutoSetup] CinemachineCamera.Follow forcibly set to {followTarget.name} (ID: {followTarget.GetInstanceID()}) for player {player.gameObject.name}.");
+            }
+        }
+
         SetCameraControllerTargets(player, followTarget, aimIKTarget, bulletHitTarget, overwriteExisting);
         SetPlayerCameraField(player, overwriteExisting);
         SetCameraSettings(player, overwriteExisting);
@@ -429,6 +681,7 @@ public static class PlayerAutoSetupUtility
             {
                 newTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
                 newTarget.name = name;
+                Debug.Log($"[AutoSetup] Instantiated {name} from prefab '{prefab.name}' as child of Player {player.gameObject.name}.");
             }
             else
             {
@@ -437,13 +690,13 @@ public static class PlayerAutoSetupUtility
                 newTarget.transform.localPosition = defaultPosition;
                 newTarget.transform.localRotation = Quaternion.identity;
                 newTarget.transform.localScale = Vector3.one;
+                Debug.Log($"[AutoSetup] Created empty {name} as child of Player {player.gameObject.name}.");
             }
-            Debug.Log($"Created {name} as child of Player.");
             return newTarget.transform;
         }
         else
         {
-            Debug.Log($"Found existing {name} as child of Player.");
+            Debug.Log($"[AutoSetup] Found existing {name} as child of Player {player.gameObject.name}.");
             return existing;
         }
     }
@@ -868,75 +1121,48 @@ public static class PlayerAutoSetupUtility
                         {
                             currentWeaponDataField.SetValue(pwm, defaultWeaponData);
                             weaponData = defaultWeaponData;
-                            Debug.Log($"[AutoSetup] Auto-assigned default WeaponData '{defaultWeaponData.name}' to PlayerWeaponManager for {player.gameObject.name}.");
-                            EditorUtility.SetDirty(pwm);
-                            PrefabUtility.RecordPrefabInstancePropertyModifications(pwm);
                         }
                     }
                 }
             }
             if (weaponData != null)
             {
-                // Map WeaponData fields to RecoilIK fields
-                var data = weaponData;
-                recoilIK.ikRecoilWeight = data.ikRecoilWeight;
-                recoilIK.aimIKSolvedLast = data.aimIKSolvedLast;
-                recoilIK.handedness = (RecoilIK.Handedness)data.handedness;
-                recoilIK.twoHanded = data.twoHanded;
-                recoilIK.recoilWeight = data.recoilWeight;
-                recoilIK.magnitudeRandom = data.magnitudeRandom;
-                recoilIK.rotationRandom = data.rotationRandom;
-                recoilIK.handRotationOffset = data.handRotationOffset;
-                recoilIK.blendTime = data.blendTime;
-                recoilIK.offsetSettings = new RecoilIK.OffsetSettings {
-                    offset = data.offsets.offset,
-                    additivity = data.offsets.additivity,
-                    maxAdditiveOffsetMag = data.offsets.maxAdditiveOffsetMag
-                };
-
-                // --- Populate offsets array for runtime recoil ---
-                var offsetsList = new System.Collections.Generic.List<RecoilIK.RecoilOffset>();
-                var offset = new RecoilIK.RecoilOffset();
-                offset.offset = data.offsets.offset;
-                offset.additivity = data.offsets.additivity;
-                offset.maxAdditiveOffsetMag = data.offsets.maxAdditiveOffsetMag;
-                // Map effectorLinks from WeaponData to RecoilOffset
-                if (data.effectorLinks != null && data.effectorLinks.Length > 0)
+                // Always assign a deep copy of offsets from WeaponData to RecoilIK
+                if (weaponData.offsets != null && weaponData.offsets.Length > 0)
                 {
-                    var effectorLinks = new System.Collections.Generic.List<RecoilIK.RecoilOffset.EffectorLink>();
-                    foreach (var src in data.effectorLinks)
+                    recoilIK.offsets = new RecoilIK.RecoilOffset[weaponData.offsets.Length];
+                    for (int i = 0; i < weaponData.offsets.Length; i++)
                     {
-                        var effectorEnum = StringToFullBodyBipedEffector(src.effector);
-                        if (effectorEnum == null)
+                        var src = weaponData.offsets[i];
+                        var dst = new RecoilIK.RecoilOffset();
+                        dst.offset = src.offset;
+                        dst.additivity = src.additivity;
+                        dst.maxAdditiveOffsetMag = src.maxAdditiveOffsetMag;
+                        if (src.effectorLinks != null && src.effectorLinks.Length > 0)
                         {
-                            Debug.LogWarning($"[AutoSetup] Could not map effector string '{src.effector}' to FullBodyBipedEffector enum for {player.gameObject.name}.");
-                            continue;
+                            dst.effectorLinks = new RecoilIK.RecoilOffset.EffectorLink[src.effectorLinks.Length];
+                            for (int j = 0; j < src.effectorLinks.Length; j++)
+                            {
+                                var srcLink = src.effectorLinks[j];
+                                var dstLink = new RecoilIK.RecoilOffset.EffectorLink();
+                                dstLink.effector = srcLink.effector;
+                                dstLink.weight = srcLink.weight;
+                                dst.effectorLinks[j] = dstLink;
+                            }
                         }
-                        effectorLinks.Add(new RecoilIK.RecoilOffset.EffectorLink {
-                            effector = effectorEnum.Value,
-                            weight = src.weight
-                        });
+                        else
+                        {
+                            dst.effectorLinks = null;
+                        }
+                        recoilIK.offsets[i] = dst;
                     }
-                    offset.effectorLinks = effectorLinks.ToArray();
                 }
                 else
                 {
-                    offset.effectorLinks = new RecoilIK.RecoilOffset.EffectorLink[0];
+                    recoilIK.offsets = null;
+                    UnityEngine.Debug.LogWarning($"[AutoSetup] No offsets found in WeaponData for {player.gameObject.name}.");
                 }
-                offsetsList.Add(offset);
-                recoilIK.offsets = offsetsList.ToArray();
-                // --- END ---
-
-                Debug.Log($"[AutoSetup] RecoilIK settings assigned from PlayerWeaponManager.CurrentWeaponData for {player.gameObject.name} (offsets created, no effectorLinks from WeaponData).");
             }
-            else
-            {
-                Debug.LogWarning($"[AutoSetup] CurrentWeaponData is null on PlayerWeaponManager for {player.gameObject.name} (even after attempting auto-assign).");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[AutoSetup] PlayerWeaponManager not found on {player.gameObject.name}.");
         }
     }
 
@@ -999,6 +1225,104 @@ public static class PlayerAutoSetupUtility
         }
         EditorUtility.SetDirty(bulletDecalManager);
         PrefabUtility.RecordPrefabInstancePropertyModifications(bulletDecalManager);
+    }
+
+    private static void SetupPlayerCharacterController(Player player)
+    {
+        if (player == null)
+            return;
+        var pcc = player.GetComponent<PlayerCharacterController>();
+        if (pcc == null)
+        {
+            pcc = player.gameObject.AddComponent<PlayerCharacterController>();
+            Debug.Log($"[AutoSetup] PlayerCharacterController component added to {player.gameObject.name}.");
+        }
+        else
+        {
+            Debug.Log($"[AutoSetup] PlayerCharacterController component already exists on {player.gameObject.name}.");
+        }
+        // Optionally, set as property if needed
+        var type = typeof(Player);
+        var prop = type.GetProperty("PlayerCharacterController");
+        if (prop != null && prop.CanWrite)
+        {
+            prop.SetValue(player, pcc);
+        }
+    }
+
+    private static void SetupHealthManager(Player player)
+    {
+        if (player == null)
+            return;
+
+        // Ensure HealthManager component exists
+        if (player.HealthManager == null)
+        {
+            var healthManager = player.GetComponent<HealthManager>();
+            if (healthManager == null)
+            {
+                healthManager = player.gameObject.AddComponent<HealthManager>();
+                Debug.Log($"[AutoSetup] HealthManager component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] HealthManager component already exists on {player.gameObject.name}.");
+            }
+            // Explicitly set the property on Player for robustness
+            var prop = typeof(Player).GetProperty("HealthManager");
+            if (prop != null && prop.CanWrite)
+            {
+                prop.SetValue(player, healthManager);
+                Debug.Log($"[AutoSetup] Explicitly set Player.HealthManager property after ensuring component exists.");
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] Could not set HealthManager property on Player {player.gameObject.name} (property not found or not writable).");
+            }
+        }
+    }
+
+    private static void SetupBulletHitscan(Player player)
+    {
+        if (player == null)
+            return;
+
+        // Ensure BulletHitscan component exists
+        var bulletHitscan = player.GetComponent<BulletHitscan>();
+        if (bulletHitscan == null)
+        {
+            bulletHitscan = player.gameObject.AddComponent<BulletHitscan>();
+            Debug.Log($"[AutoSetup] BulletHitscan component added to {player.gameObject.name}.");
+        }
+        else
+        {
+            Debug.Log($"[AutoSetup] BulletHitscan component already exists on {player.gameObject.name}.");
+        }
+
+        // Assign to Player property/field for robustness
+        var prop = typeof(Player).GetProperty("BulletHitscan");
+        if (prop != null && prop.CanWrite)
+        {
+            prop.SetValue(player, bulletHitscan);
+            Debug.Log($"[AutoSetup] Explicitly set Player.BulletHitscan property after ensuring component exists.");
+        }
+        else
+        {
+            var field = typeof(Player).GetField("bulletHitscan", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                field.SetValue(player, bulletHitscan);
+                Debug.Log($"[AutoSetup] Assigned Player.bulletHitscan field for {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] Could not set BulletHitscan property or field on Player {player.gameObject.name} (not found or not writable).");
+            }
+        }
+
+        // Mark as dirty for persistence
+        EditorUtility.SetDirty(bulletHitscan);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(bulletHitscan);
     }
 }
 

@@ -1,9 +1,13 @@
 using UnityEngine;
 using Sirenix.OdinInspector;
- using UnityEngine.InputSystem;
+using UnityEngine.InputSystem;
+#if UNITY_EDITOR
+using UnityEditor;
+using System.Reflection;
+#endif
 
 [CreateAssetMenu(fileName = "PlayerTemplate", menuName = "ScriptableObjects/PlayerTemplate")]
-public class PlayerTemplate : ScriptableObject
+public partial class PlayerTemplate : ScriptableObject
 {
     [TabGroup("Health")]
     [MinValue(1)]
@@ -41,10 +45,6 @@ public class PlayerTemplate : ScriptableObject
     [TabGroup("References")]
     [InfoBox("Prefab or reference for the Player's WeaponHand.")]
     public GameObject weaponHandPrefab;
-
-    [TabGroup("References")]
-    [InfoBox("Prefab or reference for the PoleTarget child object.")]
-    public GameObject poleTargetPrefab;
 
     [TabGroup("References")]
     [InfoBox("Prefab or reference for the AimIKTarget child object.")]
@@ -115,6 +115,19 @@ public class PlayerTemplate : ScriptableObject
         Debug.Log($"[PlayerTemplate]   Aim FOV: {aimFOV} deg");
         Debug.Log($"[PlayerTemplate]   Zoom Speed: {zoomSpeed} units/sec");
         Debug.Log($"[PlayerTemplate]   BulletHitTarget Prefab: {(bulletHitTargetPrefab != null ? bulletHitTargetPrefab.name : "null")}");
+
+        // --- Reference validation ---
+        if (animatorController == null)
+            Debug.LogWarning($"[PlayerTemplate] ⚠️ AnimatorController is not assigned!");
+        if (followTargetPrefab == null)
+            Debug.LogWarning($"[PlayerTemplate] ⚠️ FollowTargetPrefab is not assigned!");
+        if (bulletHitTargetPrefab == null)
+            Debug.LogWarning($"[PlayerTemplate] ⚠️ BulletHitTargetPrefab is not assigned!");
+        if (weaponHandPrefab == null)
+            Debug.LogWarning($"[PlayerTemplate] ⚠️ WeaponHandPrefab is not assigned!");
+        if (aimIKTargetPrefab == null)
+            Debug.LogWarning($"[PlayerTemplate] ⚠️ AimIKTargetPrefab is not assigned!");
+        // --- End reference validation ---
         
         if (sprintSpeed <= strafeSpeed)
             Debug.LogWarning("[PlayerTemplate] ⚠️ Sprint speed should be faster than strafe speed!");
@@ -125,4 +138,58 @@ public class PlayerTemplate : ScriptableObject
         if (gravity < -20f)
             Debug.LogWarning("[PlayerTemplate] ⚠️ Gravity seems too strong (player will fall too fast)!");
     }
+
+#if UNITY_EDITOR
+    [TabGroup("Debug")]
+    [Button("Auto-Setup References")]
+    [InfoBox("Automatically finds and assigns prefab references for this PlayerTemplate asset.")]
+    [ShowInInspector]
+    public void AutoSetupReferences()
+    {
+        var unityObj = this as UnityEngine.Object;
+        string assetName = unityObj != null ? unityObj.name : "(unknown)";
+        Debug.Log($"[PlayerTemplate] Auto-Setup References button pressed for {assetName}.");
+        bool changed = false;
+        changed |= TryAssignPrefabByName("followTargetPrefab", "FollowTarget");
+        changed |= TryAssignPrefabByName("bulletHitTargetPrefab", "BulletHitTarget");
+        changed |= TryAssignPrefabByName("weaponHandPrefab", "WeaponHand");
+        changed |= TryAssignPrefabByName("aimIKTargetPrefab", "AimIKTarget");
+        // Add more as needed
+        if (changed)
+        {
+            EditorUtility.SetDirty(unityObj);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[PlayerTemplate] Auto-Setup complete for {assetName}.");
+        }
+        else
+        {
+            Debug.LogWarning($"[PlayerTemplate] Auto-Setup found no assignable prefabs for {assetName}.");
+        }
+    }
+
+    private bool TryAssignPrefabByName(string fieldName, string prefabName)
+    {
+        var field = this.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        if (field == null) {
+            Debug.LogWarning($"[PlayerTemplate] Field '{fieldName}' not found.");
+            return false;
+        }
+        var current = field.GetValue(this) as GameObject;
+        if (current != null) return false;
+        string[] guids = AssetDatabase.FindAssets($"{prefabName} t:Prefab");
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (prefab != null && prefab.name.ToLower().Contains(prefabName.ToLower()))
+            {
+                field.SetValue(this, prefab);
+                Debug.Log($"[PlayerTemplate] Assigned {prefabName} prefab: {prefab.name} ({path})");
+                return true;
+            }
+        }
+        Debug.LogWarning($"[PlayerTemplate] Could not find prefab for {prefabName}.");
+        return false;
+    }
+#endif
 }

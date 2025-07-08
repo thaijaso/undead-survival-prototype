@@ -186,39 +186,50 @@ public class PlayerWeaponManager : MonoBehaviour
         }
 
         var recoil = player.Recoil;
-        var data = CurrentWeaponData;
-        recoil.ikRecoilWeight = data.ikRecoilWeight;
-        recoil.aimIKSolvedLast = data.aimIKSolvedLast;
-        recoil.handedness = (RecoilIK.Handedness)data.handedness;
-        recoil.twoHanded = data.twoHanded;
-        recoil.recoilWeight = data.recoilWeight;
-        recoil.magnitudeRandom = data.magnitudeRandom;
-        recoil.rotationRandom = data.rotationRandom;
-        recoil.handRotationOffset = data.handRotationOffset;
-        recoil.blendTime = data.blendTime;
-        recoil.offsetSettings = new RecoilIK.OffsetSettings {
-            offset = data.offsets.offset,
-            additivity = data.offsets.additivity,
-            maxAdditiveOffsetMag = data.offsets.maxAdditiveOffsetMag
-        };
-        // Map effectorLinks from WeaponData to RecoilIK (first offset)
-        if (recoil.offsets != null && recoil.offsets.Length > 0 && data.effectorLinks != null && data.effectorLinks.Length > 0)
+        var weaponData = CurrentWeaponData;
+        recoil.ikRecoilWeight = weaponData.ikRecoilWeight;
+        recoil.aimIKSolvedLast = weaponData.aimIKSolvedLast;
+        recoil.handedness = (RecoilIK.Handedness)weaponData.handedness;
+        recoil.twoHanded = weaponData.twoHanded;
+        recoil.recoilWeight = weaponData.recoilWeight;
+        recoil.magnitudeRandom = weaponData.magnitudeRandom;
+        recoil.rotationRandom = weaponData.rotationRandom;
+        recoil.handRotationOffset = weaponData.handRotationOffset;
+        recoil.blendTime = weaponData.blendTime;
+        // Direct assignment now that types match
+        if (weaponData.offsets != null && weaponData.offsets.Length > 0)
         {
-            var effectorLinks = new System.Collections.Generic.List<RecoilIK.RecoilOffset.EffectorLink>();
-            foreach (var src in data.effectorLinks)
+            recoil.offsets = new RecoilIK.RecoilOffset[weaponData.offsets.Length];
+            for (int i = 0; i < weaponData.offsets.Length; i++)
             {
-                var effectorEnum = IKUtility.StringToFullBodyBipedEffector(src.effector);
-                if (effectorEnum == null)
+                var src = weaponData.offsets[i];
+                var dst = new RecoilIK.RecoilOffset();
+                dst.offset = src.offset;
+                dst.additivity = src.additivity;
+                dst.maxAdditiveOffsetMag = src.maxAdditiveOffsetMag;
+                if (src.effectorLinks != null && src.effectorLinks.Length > 0)
                 {
-                    Debug.LogWarning($"[PlayerWeaponManager] Could not map effector string '{src.effector}' to FullBodyBipedEffector enum for {gameObject.name}.");
-                    continue;
+                    dst.effectorLinks = new RecoilIK.RecoilOffset.EffectorLink[src.effectorLinks.Length];
+                    for (int j = 0; j < src.effectorLinks.Length; j++)
+                    {
+                        var srcLink = src.effectorLinks[j];
+                        var dstLink = new RecoilIK.RecoilOffset.EffectorLink();
+                        dstLink.effector = srcLink.effector;
+                        dstLink.weight = srcLink.weight;
+                        dst.effectorLinks[j] = dstLink;
+                    }
                 }
-                effectorLinks.Add(new RecoilIK.RecoilOffset.EffectorLink {
-                    effector = effectorEnum.Value,
-                    weight = src.weight
-                });
+                else
+                {
+                    dst.effectorLinks = null;
+                }
+                recoil.offsets[i] = dst;
             }
-            recoil.offsets[0].effectorLinks = effectorLinks.ToArray();
+        }
+        else
+        {
+            recoil.offsets = null;
+            Debug.LogWarning($"[PlayerWeaponManager] No offsets found in WeaponData for {gameObject.name}.");
         }
     }
 }
