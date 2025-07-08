@@ -70,3 +70,7 @@ MonoBehaviour:
       weight: 1
     - effector: 5
       weight: 0.3
+    - effector: 0
+      weight: 0.1
+    - effector: 2
+      weight: 0.5
