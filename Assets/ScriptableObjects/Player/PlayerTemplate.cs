@@ -35,20 +35,24 @@ public partial class PlayerTemplate : ScriptableObject
     public RuntimeAnimatorController animatorController;
 
     [TabGroup("References")]
-    [InfoBox("Prefab or reference for the ForwardFollowTarget child object.")]
+    [InfoBox("Assign the prefab reference for the ForwardFollowTarget child object (not an in-game object).")]
     public GameObject followTargetPrefab;
 
     [TabGroup("References")]
-    [InfoBox("Prefab or reference for the BulletHitTarget child object.")]
+    [InfoBox("Assign the prefab reference for the BulletHitTarget child object (not an in-game object).")]
     public GameObject bulletHitTargetPrefab;
 
     [TabGroup("References")]
-    [InfoBox("Prefab or reference for the Player's WeaponHand.")]
+    [InfoBox("Assign the prefab reference for the Player's WeaponHand (not an in-game object).")]
     public GameObject weaponHandPrefab;
 
     [TabGroup("References")]
-    [InfoBox("Prefab or reference for the AimIKTarget child object.")]
+    [InfoBox("Assign the prefab reference for the AimIKTarget child object (not an in-game object).")]
     public GameObject aimIKTargetPrefab;
+
+    [TabGroup("References")]
+    [InfoBox("Assign the prefab reference for LeftHandIKTarget child object (not an in-game object).")]
+    public GameObject leftHandIKTargetPrefab;
 
     [TabGroup("Camera")]
     [MinValue(1f)]
@@ -140,7 +144,7 @@ public partial class PlayerTemplate : ScriptableObject
     }
 
 #if UNITY_EDITOR
-    [TabGroup("Debug")]
+    [TabGroup("References")]
     [Button("Auto-Setup References")]
     [InfoBox("Automatically finds and assigns prefab references for this PlayerTemplate asset.")]
     [ShowInInspector]
@@ -154,6 +158,7 @@ public partial class PlayerTemplate : ScriptableObject
         changed |= TryAssignPrefabByName("bulletHitTargetPrefab", "BulletHitTarget");
         changed |= TryAssignPrefabByName("weaponHandPrefab", "WeaponHand");
         changed |= TryAssignPrefabByName("aimIKTargetPrefab", "AimIKTarget");
+        changed |= TryAssignPrefabByName("leftHandIKTargetPrefab", "LeftHandIKTarget");
         // Add more as needed
         if (changed)
         {
@@ -176,6 +181,18 @@ public partial class PlayerTemplate : ScriptableObject
         }
         var current = field.GetValue(this) as GameObject;
         if (current != null) return false;
+
+        // First, try to find prefab at Assets/Player/Prefab/{PrefabName}.prefab
+        string directPath = $"Assets/Player/Prefab/{prefabName}.prefab";
+        var directPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(directPath);
+        if (directPrefab != null)
+        {
+            field.SetValue(this, directPrefab);
+            Debug.Log($"[PlayerTemplate] Assigned {prefabName} prefab from direct path: {directPrefab.name} ({directPath})");
+            return true;
+        }
+
+        // Fallback: search by name
         string[] guids = AssetDatabase.FindAssets($"{prefabName} t:Prefab");
         foreach (string guid in guids)
         {
