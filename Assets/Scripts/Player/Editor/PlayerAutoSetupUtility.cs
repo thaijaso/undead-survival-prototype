@@ -28,7 +28,6 @@ namespace UndeadSurvivalGame.Editor
             }
             
             SetupPlayerCharacterController(player);
-            SetupPlayerComponentReferences(player);
             SetupAnimator(player, overwriteExisting);
             SetupPlayerFollowTarget(player);
             SetupPlayerBulletHitTarget(player);
@@ -46,6 +45,8 @@ namespace UndeadSurvivalGame.Editor
             SetupBulletDecalManager(player);
             SetupHealthManager(player);
             SetupBulletHitscan(player);
+            // Move SetupPlayerComponentReferences to the end, after all components/objects are created
+            SetupPlayerComponentReferences(player);
 
             // Set layer to Player for this GameObject and all children
             if (player.gameObject != null)
@@ -201,6 +202,34 @@ namespace UndeadSurvivalGame.Editor
                 else
                 {
                     Debug.LogWarning($"[AutoSetup] Could not find 'debugOverrideIKWeight' field on PlayerIKController for {player.gameObject.name}.");
+                }
+                // Assign LeftHandIKTarget if it exists
+                var leftHandIKTarget = FindDirectChildByName(player.transform, "LeftHandIKTarget");
+                if (leftHandIKTarget != null)
+                {
+                    var leftHandIKTargetField = playerIKController.GetType().GetField("leftHandIKTarget", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (leftHandIKTargetField != null)
+                    {
+                        leftHandIKTargetField.SetValue(playerIKController, leftHandIKTarget);
+                        Debug.Log($"[AutoSetup] Assigned LeftHandIKTarget to PlayerIKController for {player.gameObject.name}.");
+                    }
+                    else
+                    {
+                        var leftHandIKTargetProp = playerIKController.GetType().GetProperty("LeftHandIKTarget", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (leftHandIKTargetProp != null && leftHandIKTargetProp.CanWrite)
+                        {
+                            leftHandIKTargetProp.SetValue(playerIKController, leftHandIKTarget);
+                            Debug.Log($"[AutoSetup] Assigned LeftHandIKTarget property to PlayerIKController for {player.gameObject.name}.");
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"[AutoSetup] Could not find field or writable property 'LeftHandIKTarget' on PlayerIKController for {player.gameObject.name}.");
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not find LeftHandIKTarget in Player hierarchy for {player.gameObject.name}.");
                 }
             }
             var weaponManager = player.GetComponent<PlayerWeaponManager>();
