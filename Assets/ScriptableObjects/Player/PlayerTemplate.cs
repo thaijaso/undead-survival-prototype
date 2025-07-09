@@ -1,13 +1,8 @@
 using UnityEngine;
 using Sirenix.OdinInspector;
-using UnityEngine.InputSystem;
-#if UNITY_EDITOR
-using UnityEditor;
-using System.Reflection;
-#endif
 
 [CreateAssetMenu(fileName = "PlayerTemplate", menuName = "ScriptableObjects/PlayerTemplate")]
-public partial class PlayerTemplate : ScriptableObject
+public class PlayerTemplate : ScriptableObject
 {
     [TabGroup("Health")]
     [MinValue(1)]
