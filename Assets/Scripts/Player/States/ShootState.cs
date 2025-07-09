@@ -104,6 +104,11 @@ public class ShootState : AimState
             stateMachine.SetState(player.aim);
             return;
         }
+    }
+
+    public override void LateUpdate()
+    {
+        base.LateUpdate();
 
         if (player.PlayerInput.IsAttacking && fireTimer <= 0f)
         {
@@ -114,18 +119,9 @@ public class ShootState : AimState
     private void Shoot()
     {
         Debug.Log($"[{player.name}] ShootState.Shoot(): Firing weapon");
+
         ApplyAnimationRecoil();
         ApplyCameraRecoil();
-
-        // Get the point where the camera is aiming
-        Vector3 origin = mainCamera.transform.position;
-        Vector3 direction = GetShotDirection();
-        float range = weaponManager.CurrentWeaponData.range;
-
-        // if (TryFireHitscanBullet(origin, direction, range, out RaycastHit hit))
-        // {
-        //     HandleBulletImpact(hit, direction);
-        // }
         FireRigidbodyBullet();
 
         player.CrosshairController.SetCrosshair(

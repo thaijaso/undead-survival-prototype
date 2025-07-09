@@ -35,6 +35,12 @@ public class PlayerIKController : MonoBehaviour
     private Vector3 aimTarget;
     private Quaternion rightHandRotation;
 
+    [SerializeField]
+    private Transform leftHandIKTarget;
+
+    [SerializeField]
+    private Transform leftHandGripSource;
+
     // Debug flag to allow inspector override of IK weights
     [Header("Debug")]
     [SerializeField]
@@ -70,8 +76,15 @@ public class PlayerIKController : MonoBehaviour
         Debug.Log($"[PlayerIKController] Components found - AimIK: {aimIK != null}, FBBIK: {fullBodyBipedIK != null}, LookAtIK: {lookAtIK != null}");
     }
 
+    public void SetLeftHandGripSource(Transform gripSource)
+    {
+        leftHandGripSource = gripSource;
+    }
+
     public void UpdateIKs(Vector3 faceDirection, Vector3 aimTarget)
     {
+        Debug.Log($"[PlayerIKController] UpdateIKs called with faceDirection: {faceDirection}, aimTarget: {aimTarget}");
+
         // Snatch the aim target from the Move call, it will be used by AimIK (Move is called by CharacterController3rdPerson that controls the actual motion of the character)
         this.aimTarget = aimTarget;
 
@@ -143,12 +156,12 @@ public class PlayerIKController : MonoBehaviour
         if (recoil != null)
         {
             fullBodyBipedIK.references.rightHand.rotation = recoil.rotationOffset * rightHandRotation;
-            fullBodyBipedIK.references.leftHand.rotation = recoil.rotationOffset * rightHandRotation * leftHandRotRelToRightHand;
+            //fullBodyBipedIK.references.leftHand.rotation = recoil.rotationOffset * rightHandRotation * leftHandRotRelToRightHand;
         }
         else
         {
             fullBodyBipedIK.references.rightHand.rotation = rightHandRotation;
-            fullBodyBipedIK.references.leftHand.rotation = rightHandRotation * leftHandRotRelToRightHand;
+            //fullBodyBipedIK.references.leftHand.rotation = rightHandRotation * leftHandRotRelToRightHand;
         }
     }
 
@@ -156,13 +169,23 @@ public class PlayerIKController : MonoBehaviour
     // Here we set the left hand position relative to the position and rotation of the right hand.
     private void OnPreRead()
     {
-        // Only execute if FBBIK is available
         if (fullBodyBipedIK == null || fullBodyBipedIK.references.rightHand == null || fullBodyBipedIK.references.leftHand == null)
             return;
 
-        Quaternion r = recoil != null ? recoil.rotationOffset * rightHandRotation : rightHandRotation;
-        Vector3 leftHandTarget = fullBodyBipedIK.references.rightHand.position + fullBodyBipedIK.solver.rightHandEffector.positionOffset + r * leftHandPosRelToRightHand;
-        fullBodyBipedIK.solver.leftHandEffector.positionOffset += leftHandTarget - fullBodyBipedIK.references.leftHand.position - fullBodyBipedIK.solver.leftHandEffector.positionOffset + r * leftHandOffset;
+        // Only apply manual offset if NOT using a grip target
+        if (fullBodyBipedIK.solver.leftHandEffector.target == null)
+        {
+            Quaternion r = recoil != null ? recoil.rotationOffset * rightHandRotation : rightHandRotation;
+            Vector3 leftHandTarget = fullBodyBipedIK.references.rightHand.position +
+                                    fullBodyBipedIK.solver.rightHandEffector.positionOffset +
+                                    r * leftHandPosRelToRightHand;
+
+            fullBodyBipedIK.solver.leftHandEffector.positionOffset +=
+                leftHandTarget -
+                fullBodyBipedIK.references.leftHand.position -
+                fullBodyBipedIK.solver.leftHandEffector.positionOffset +
+                r * leftHandOffset;
+        }
     }
 
     // Rotating the head to look at the target
@@ -216,19 +239,19 @@ public class PlayerIKController : MonoBehaviour
 
     public void EnableAimIK()
     {
-        var aimIK = GetComponent<RootMotion.FinalIK.AimIK>();
+        var aimIK = GetComponent<AimIK>();
         if (aimIK != null)
             aimIK.enabled = true;
     }
 
     public void DisableAimIK()
     {
-        var aimIK = GetComponent<RootMotion.FinalIK.AimIK>();
+        var aimIK = GetComponent<AimIK>();
         if (aimIK != null)
             aimIK.enabled = false;
     }
 
-    [Button("Apply IK Weights"), Sirenix.OdinInspector.EnableIf("@UnityEngine.Application.isPlaying")]
+    [Button("Apply IK Weights"), EnableIf("@UnityEngine.Application.isPlaying")]
     public void ApplyIKWeights()
     {
         SetIKTargetWeight(inspectorTargetIKWeight);
@@ -259,6 +282,14 @@ public class PlayerIKController : MonoBehaviour
         {
             Debug.DrawLine(aimIK.solver.transform.position, aimIK.solver.target.position, Color.green);
             Debug.DrawRay(aimIK.solver.transform.position, aimIK.solver.transform.forward * 2f, Color.red);
+        }
+    }
+    
+    public void UpdateLeftHandIKTarget()
+    {
+        if (leftHandIKTarget != null && leftHandGripSource != null)
+        {
+            leftHandIKTarget.SetPositionAndRotation(leftHandGripSource.position, leftHandGripSource.rotation);
         }
     }
 }

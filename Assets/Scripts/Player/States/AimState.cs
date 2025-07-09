@@ -72,6 +72,16 @@ public class AimState : StrafeState
 
         weaponManager.SetAimIKOffsets();
         weaponManager.SetRecoilIKSettings();
+
+        if (weaponScript != null && weaponScript.leftHandGripSource != null)
+        {
+            Debug.Log($"[{player.name}] AimState.SetupWeapon(): Setting left hand grip source to {weaponScript.leftHandGripSource.name}");
+            player.PlayerIKController.SetLeftHandGripSource(weaponScript.leftHandGripSource);
+        }
+        else
+        {
+            Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): Left hand grip source not set on weapon prefab!");
+        }
     }
 
     public override void Exit(PlayerState nextState)
@@ -82,7 +92,6 @@ public class AimState : StrafeState
         if (nextState is IdleState || (nextState is StrafeState && nextState is not ShootState && nextState is not AimState) || nextState is SprintState)
         {
             animationManager.SetIsAiming(false);
-            weaponManager.DespawnWeaponInWeaponHand(); // TODO: create WeaponIdleIKOffsets for when the weapon is not aimed
 
             player.PlayerIKController.SetIKTargetWeight(0f);
             player.PlayerCameraController.DisableCameraSway();
@@ -156,7 +165,11 @@ public class AimState : StrafeState
 
         Vector3 direction = player.PlayerInput.GetInputDirection();
         Vector3 aimTarget = player.PlayerCameraController.GetAimTarget();
+
+        // 1. Solve all IKs (AimIK, FBBIK, RecoilIK, etc.)
         player.PlayerIKController.UpdateIKs(direction, aimTarget);
+        // 2. After IK solve, update the left hand target's position/rotation for next frame
+        player.PlayerIKController.UpdateLeftHandIKTarget();
         
         // Prevent crosshair expansion if we're in ShootState
         if (stateMachine.currentState == player.shoot)

@@ -32,45 +32,39 @@ MonoBehaviour:
   ikRecoilWeight: 1
   aimIKSolvedLast: 0
   handedness: 0
-  twoHanded: 1
+  twoHanded: 0
   recoilWeight:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0.2888465
-      value: 0.9802969
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
-    - serializedVersion: 3
-      time: 0.488266
-      value: 0.021371461
-      inSlope: -0.31785265
-      outSlope: -0.31785265
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.2570994
-      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
   magnitudeRandom: 0.1
-  rotationRandom: {x: 30, y: 5, z: 3}
-  handRotationOffset: {x: 60, y: 0, z: 0}
+  rotationRandom: {x: 0, y: 0, z: 0}
+  handRotationOffset: {x: 0, y: 0, z: 0}
   blendTime: 0.05
   offsets:
-  - offset: {x: 0.01, y: 0.03, z: -0.08}
-    additivity: 0.3
-    maxAdditiveOffsetMag: 0.6
+  - offset: {x: 1, y: 1, z: 1}
+    additivity: 1
+    maxAdditiveOffsetMag: 0.2
     effectorLinks:
     - effector: 6
       weight: 1
-    - effector: 5
-      weight: 0.3
-    - effector: 0
-      weight: 0.1
-    - effector: 2
-      weight: 0.5

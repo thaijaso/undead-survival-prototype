@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: RevolverIKOffsets
   m_EditorClassIdentifier: 
   gunHoldOffset: {x: 0, y: 0, z: 0}
-  leftHandOffset: {x: -0.005, y: -0.03, z: 0.04}
+  leftHandOffset: {x: 0, y: 0, z: 0}

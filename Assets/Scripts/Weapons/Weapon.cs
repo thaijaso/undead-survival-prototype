@@ -4,20 +4,27 @@ using Sirenix.OdinInspector;
 using UnityEditor.SceneManagement;
 #endif
 
+// Weapon.cs
+// This MonoBehaviour represents a runtime weapon instance in the scene. It handles firing, effects, and references to visual/audio components.
+// It references a WeaponData ScriptableObject for all static configuration and stats.
+
 public class Weapon : MonoBehaviour
 {
-    public ParticleSystem muzzleEffect;
+    // Visual and audio effects
+    public ParticleSystem muzzleEffect; // Muzzle flash effect
+    public AudioSource gunshot;         // Gunshot sound
 
-    public AudioSource gunshot;
+    // Projectile and tracer
+    public GameObject bulletPrefab;     // Prefab for the bullet projectile
+    public ParticleSystem bulletTracer; // Optional: visual tracer for bullets
 
-    public GameObject bulletPrefab;
-    public ParticleSystem bulletTracer;
+    // Muzzle and grip transforms
+    public Transform muzzleTransform;   // Where bullets and effects spawn
+    public Transform leftHandGripSource;// LeftHandIKTarget will use this as a world space reference
 
-    public Transform muzzleTransform;
-
-    public WeaponData weaponData;
-
-    public Transform bulletHitTarget; // Added aimTarget Transform reference
+    // Data and targeting
+    public WeaponData weaponData;       // Reference to ScriptableObject with all weapon stats/config
+    public Transform bulletHitTarget;   // Optional: world target for bullet direction (e.g., aim point)
 
     private void Awake()
     {

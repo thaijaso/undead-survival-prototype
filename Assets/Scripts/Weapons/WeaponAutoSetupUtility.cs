@@ -6,7 +6,16 @@ public static class WeaponAutoSetupUtility
 {
     public static void AutoSetupReferences(Weapon weapon, bool overwriteReferences)
     {
-        // Try to find and assign muzzleTransform (search all children, including inactive, in prefab and scene context)
+        TryAssignMuzzleTransform(weapon, overwriteReferences);
+        TryAssignMuzzleEffect(weapon, overwriteReferences);
+        TryAssignBulletHitTarget(weapon, overwriteReferences);
+        TryAssignLeftHandGripTarget(weapon, overwriteReferences);
+        TryAssignGunshotAudioSource(weapon, overwriteReferences);
+        TryAssignGunshotAudioClip(weapon, overwriteReferences);
+    }
+
+    private static void TryAssignMuzzleTransform(Weapon weapon, bool overwriteReferences)
+    {
         if (overwriteReferences || weapon.muzzleTransform == null)
         {
             Transform foundMuzzle = null;
@@ -28,7 +37,10 @@ public static class WeaponAutoSetupUtility
                 Debug.LogWarning("[Weapon] Could not auto-assign muzzleTransform: No child named 'MuzzleTransform' found in prefab or scene context.");
             }
         }
-        // Try to find and assign muzzleEffect from weapon's own hierarchy if null
+    }
+
+    private static void TryAssignMuzzleEffect(Weapon weapon, bool overwriteReferences)
+    {
         if (overwriteReferences || weapon.muzzleEffect == null)
         {
             ParticleSystem foundMuzzleEffect = null;
@@ -53,7 +65,10 @@ public static class WeaponAutoSetupUtility
                 Debug.LogWarning("[Weapon] Could not auto-assign muzzleEffect: No ParticleSystem found in weapon hierarchy.");
             }
         }
-        // Try to find and assign bulletHitTarget (scene search only)
+    }
+
+    private static void TryAssignBulletHitTarget(Weapon weapon, bool overwriteReferences)
+    {
         if (overwriteReferences || weapon.bulletHitTarget == null)
         {
             Transform foundTarget = null;
@@ -76,7 +91,35 @@ public static class WeaponAutoSetupUtility
                 Debug.LogWarning("[Weapon] Could not auto-assign bulletHitTarget: No 'BulletHitTarget' found in scene context.");
             }
         }
-        // Check for AudioSource on this GameObject, add if missing, and assign a gunshot clip if found
+    }
+
+    private static void TryAssignLeftHandGripTarget(Weapon weapon, bool overwriteReferences)
+    {
+        if (overwriteReferences || weapon.leftHandGripSource == null)
+        {
+            Transform foundGrip = null;
+            foreach (var t in weapon.GetComponentsInChildren<Transform>(true))
+            {
+                if (string.Equals(t.name, "LeftHandGripTarget", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    foundGrip = t;
+                    break;
+                }
+            }
+            if (foundGrip != null)
+            {
+                weapon.leftHandGripSource = foundGrip;
+                Debug.Log($"[Weapon] Auto-assigned leftHandGripTarget to '{foundGrip.name}'.");
+            }
+            else
+            {
+                Debug.LogWarning("[Weapon] Could not auto-assign leftHandGripTarget: No child named 'LeftHandGripTarget' found in prefab or scene context.");
+            }
+        }
+    }
+
+    private static void TryAssignGunshotAudioSource(Weapon weapon, bool overwriteReferences)
+    {
         if (overwriteReferences || weapon.gunshot == null)
         {
             weapon.gunshot = weapon.GetComponent<AudioSource>();
@@ -91,7 +134,10 @@ public static class WeaponAutoSetupUtility
                 Debug.Log("[Weapon] AudioSource component found and assigned.");
             }
         }
-        // Always assign a gunshot AudioClip if missing
+    }
+
+    private static void TryAssignGunshotAudioClip(Weapon weapon, bool overwriteReferences)
+    {
         if (weapon.gunshot != null && (overwriteReferences || weapon.gunshot.clip == null))
         {
             string gunshotSoundsPath = "Assets/Prefabs/Effects/SoundEffects/GunShotSoundEffects";

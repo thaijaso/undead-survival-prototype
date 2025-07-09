@@ -9,6 +9,7 @@ public class PlayerWeaponManager : MonoBehaviour
     public WeaponData CurrentWeaponData => currentWeaponData;
 
     public GameObject CurrentWeaponInstance { get; private set; }
+    public Weapon CurrentWeaponScript { get; private set; }
 
     private GameObject lastSpawnedWeaponPrefab;
 
@@ -48,6 +49,12 @@ public class PlayerWeaponManager : MonoBehaviour
             );
 
             lastSpawnedWeaponPrefab = CurrentWeaponData.weaponPrefab;
+            // Assign the Weapon script reference
+            CurrentWeaponScript = CurrentWeaponInstance.GetComponent<Weapon>();
+            if (CurrentWeaponScript == null)
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager: Spawned weapon prefab does not have a Weapon script attached!");
+            }
         }
 
         return CurrentWeaponInstance;
@@ -72,6 +79,7 @@ public class PlayerWeaponManager : MonoBehaviour
 
             Destroy(CurrentWeaponInstance);
             CurrentWeaponInstance = null;
+            CurrentWeaponScript = null; // Clear reference
         }
         else
         {

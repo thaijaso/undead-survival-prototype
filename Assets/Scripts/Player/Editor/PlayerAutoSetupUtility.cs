@@ -1203,6 +1203,12 @@ public static class PlayerAutoSetupUtility
             Debug.Log($"[AutoSetup] FullBodyBipedIK component already exists on {player.gameObject.name}.");
         }
         // Optionally, you could auto-assign references here if needed
+        if (overwriteExisting && fbbik.solver != null)
+        {
+            // Set left hand effector position weight to 1
+            fbbik.solver.leftHandEffector.positionWeight = 1f;
+            Debug.Log($"[AutoSetup] Set FBBIK leftHandEffector.positionWeight = 1 for {player.gameObject.name} (overwrite: true)");
+        }
         EditorUtility.SetDirty(fbbik);
         PrefabUtility.RecordPrefabInstancePropertyModifications(fbbik);
     }
