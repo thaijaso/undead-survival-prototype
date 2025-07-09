@@ -45,6 +45,8 @@ namespace UndeadSurvivalGame.Editor
             SetupBulletDecalManager(player);
             SetupHealthManager(player);
             SetupBulletHitscan(player);
+            // Add PlayerDebugger before setting references
+            SetupPlayerDebugger(player);
             // Move SetupPlayerComponentReferences to the end, after all components/objects are created
             SetupPlayerComponentReferences(player);
 
@@ -174,6 +176,17 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
+        private static void SetupPlayerDebugger(Player player)
+        {
+            if (player == null) return;
+            var playerDebugger = player.GetComponent<PlayerDebugger>();
+            if (playerDebugger == null)
+            {
+                playerDebugger = player.gameObject.AddComponent<PlayerDebugger>();
+                Debug.Log($"[AutoSetup] PlayerDebugger component added to {player.gameObject.name}.");
+            }
+        }
+
         private static void SetupPlayerComponentReferences(Player player)
         {
             var type = typeof(Player);
@@ -251,6 +264,31 @@ namespace UndeadSurvivalGame.Editor
             var bulletDecalManager = player.GetComponent<BulletDecalManager>();
             if (bulletDecalManager != null)
                 type.GetProperty("BulletDecalManager")?.SetValue(player, bulletDecalManager);
+
+            // Assign the player reference for PlayerDebugger
+            var playerDebugger = player.GetComponent<PlayerDebugger>();
+            if (playerDebugger != null)
+            {
+                var playerField = playerDebugger.GetType().GetField("player", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (playerField != null)
+                {
+                    playerField.SetValue(playerDebugger, player);
+                    Debug.Log($"[AutoSetup] Assigned player reference to PlayerDebugger for {player.gameObject.name}.");
+                }
+                else
+                {
+                    var playerProp = playerDebugger.GetType().GetProperty("player", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (playerProp != null && playerProp.CanWrite)
+                    {
+                        playerProp.SetValue(playerDebugger, player);
+                        Debug.Log($"[AutoSetup] Assigned player property to PlayerDebugger for {player.gameObject.name}.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[AutoSetup] Could not find field or writable property 'player' on PlayerDebugger for {player.gameObject.name}.");
+                    }
+                }
+            }
         }
 
         private static void SetupAnimator(Player player, bool overwriteExisting = true)
