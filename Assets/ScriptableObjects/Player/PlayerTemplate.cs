@@ -150,63 +150,7 @@ public partial class PlayerTemplate : ScriptableObject
     [ShowInInspector]
     public void AutoSetupReferences()
     {
-        var unityObj = this as UnityEngine.Object;
-        string assetName = unityObj != null ? unityObj.name : "(unknown)";
-        Debug.Log($"[PlayerTemplate] Auto-Setup References button pressed for {assetName}.");
-        bool changed = false;
-        changed |= TryAssignPrefabByName("followTargetPrefab", "FollowTarget");
-        changed |= TryAssignPrefabByName("bulletHitTargetPrefab", "BulletHitTarget");
-        changed |= TryAssignPrefabByName("weaponHandPrefab", "WeaponHand");
-        changed |= TryAssignPrefabByName("aimIKTargetPrefab", "AimIKTarget");
-        changed |= TryAssignPrefabByName("leftHandIKTargetPrefab", "LeftHandIKTarget");
-        // Add more as needed
-        if (changed)
-        {
-            EditorUtility.SetDirty(unityObj);
-            AssetDatabase.SaveAssets();
-            Debug.Log($"[PlayerTemplate] Auto-Setup complete for {assetName}.");
-        }
-        else
-        {
-            Debug.LogWarning($"[PlayerTemplate] Auto-Setup found no assignable prefabs for {assetName}.");
-        }
-    }
-
-    private bool TryAssignPrefabByName(string fieldName, string prefabName)
-    {
-        var field = this.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-        if (field == null) {
-            Debug.LogWarning($"[PlayerTemplate] Field '{fieldName}' not found.");
-            return false;
-        }
-        var current = field.GetValue(this) as GameObject;
-        if (current != null) return false;
-
-        // First, try to find prefab at Assets/Player/Prefab/{PrefabName}.prefab
-        string directPath = $"Assets/Player/Prefab/{prefabName}.prefab";
-        var directPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(directPath);
-        if (directPrefab != null)
-        {
-            field.SetValue(this, directPrefab);
-            Debug.Log($"[PlayerTemplate] Assigned {prefabName} prefab from direct path: {directPrefab.name} ({directPath})");
-            return true;
-        }
-
-        // Fallback: search by name
-        string[] guids = AssetDatabase.FindAssets($"{prefabName} t:Prefab");
-        foreach (string guid in guids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (prefab != null && prefab.name.ToLower().Contains(prefabName.ToLower()))
-            {
-                field.SetValue(this, prefab);
-                Debug.Log($"[PlayerTemplate] Assigned {prefabName} prefab: {prefab.name} ({path})");
-                return true;
-            }
-        }
-        Debug.LogWarning($"[PlayerTemplate] Could not find prefab for {prefabName}.");
-        return false;
+        PlayerTemplateAutoSetupUtility.AutoSetupReferences(this);
     }
 #endif
 }
