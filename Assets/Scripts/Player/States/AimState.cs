@@ -27,19 +27,26 @@ public class AimState : StrafeState
         Debug.Log($"[{player.name}] AimState.Enter(): Entering Aim state");
         base.Enter();
 
+        animationManager.SetIsAiming(true);
+
+        SetupIK();
+        SetupCrosshair();
+        SetupCamera();
+        SetupWeapon();
+    }
+
+    private void SetupIK()
+    {
         // Enable AimIK via PlayerIKController
         player.PlayerIKController.EnableAimIK();
-
-        animationManager.SetIsAiming(true);
         player.PlayerIKController.SetIKTargetWeight(1f);
+    }
 
-        SetupCrosshair();
-
+    private void SetupCamera()
+    {
         player.PlayerCameraController.SetCameraSwayAmount(weaponManager.CurrentWeaponData.weaponSway);
         player.PlayerCameraController.EnableCameraSway();
         player.PlayerCameraController.SetCameraOffset();
-
-        SetupWeapon();
     }
 
     private void SetupCrosshair()
