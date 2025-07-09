@@ -1,1340 +1,1368 @@
 using UnityEngine;
 using System.Linq;
-
+using RootMotion.FinalIK;
+using UndeadSurvivalGame.Editor;
 #if UNITY_EDITOR
 using UnityEditor;
-using RootMotion.FinalIK;
-#else
-using RootMotion.FinalIK;
-using UnityEngine;
-using System.Linq;
 #endif
+using PlayerStates;
 
-public static class PlayerAutoSetupUtility
+namespace UndeadSurvivalGame.Editor
 {
-    public static void AutoSetupReferences(Player player, bool overwriteExisting = true)
+    public static class PlayerAutoSetupUtility
     {
-        if (player == null)
+        public static void AutoSetupReferences(Player player, bool overwriteExisting = true)
         {
-            Debug.LogError("PlayerAutoSetupUtility: Player reference is null. Aborting auto-setup.");
-            return;
+            if (player == null)
+            {
+                Debug.LogError("PlayerAutoSetupUtility: Player reference is null. Aborting auto-setup.");
+                return;
+            }
+
+            SetupPlayerTemplate(player);
+
+            if (player.playerTemplate == null)
+            {
+                Debug.LogError($"[{player.gameObject.name}] AutoSetup: PlayerTemplate is not assigned. Aborting auto-setup.");
+                return;
+            }
+            
+            SetupPlayerCharacterController(player);
+            SetupPlayerComponentReferences(player);
+            SetupAnimator(player, overwriteExisting);
+            SetupPlayerFollowTarget(player);
+            SetupPlayerBulletHitTarget(player);
+            SetupPlayerWeaponHand(player);
+            SetupPlayerAimIKTarget(player);
+            SetupPlayerLeftHandIKTarget(player);
+            var cameraTargets = SetupCameraTargetsAndSettings(player, overwriteExisting);
+            SetupCrosshairController(player);
+            SetupPlayerInput(player, overwriteExisting);
+            SetupCharacterControllerFromTemplate(player, overwriteExisting);
+            SetupPlayerWeaponManager(player, overwriteExisting);
+            SetupPlayerAimIK(player, overwriteExisting, cameraTargets.aimIKTarget);
+            SetupFBBIK(player, overwriteExisting);
+            SetupRecoilIK(player, overwriteExisting);
+            SetupBulletDecalManager(player);
+            SetupHealthManager(player);
+            SetupBulletHitscan(player);
+
+            // Set layer to Player for this GameObject and all children
+            if (player.gameObject != null)
+                SetLayerRecursively(player.gameObject, LayerMask.NameToLayer("Player"));
+
+            Debug.Log($"[{player.gameObject.name}] Auto-setup complete.");
+            EditorUtility.SetDirty(player);
         }
 
-        SetupPlayerTemplate(player);
-
-        if (player.playerTemplate == null)
+        private static void SetupCharacterControllerFromTemplate(Player player, bool overwriteExisting = true)
         {
-            Debug.LogError($"[{player.gameObject.name}] AutoSetup: PlayerTemplate is not assigned. Aborting auto-setup.");
-            return;
-        }
-        
-        SetupPlayerCharacterController(player);
-        SetupPlayerComponentReferences(player);
-        SetupAnimator(player, overwriteExisting);
-        SetupPlayerFollowTarget(player);
-        SetupPlayerBulletHitTarget(player);
-        SetupPlayerWeaponHand(player);
-        SetupPlayerAimIKTarget(player);
-        var cameraTargets = SetupCameraTargetsAndSettings(player, overwriteExisting);
-        SetupCrosshairController(player);
-        SetupPlayerInput(player, overwriteExisting);
-        SetupCharacterControllerFromTemplate(player, overwriteExisting);
-        SetupPlayerWeaponManager(player, overwriteExisting);
-        SetupPlayerAimIK(player, overwriteExisting, cameraTargets.aimIKTarget);
-        SetupFBBIK(player, overwriteExisting);
-        SetupRecoilIK(player, overwriteExisting);
-        SetupBulletDecalManager(player);
-        SetupHealthManager(player);
-        SetupBulletHitscan(player);
-
-        // Set layer to Player for this GameObject and all children
-        if (player.gameObject != null)
-            SetLayerRecursively(player.gameObject, LayerMask.NameToLayer("Player"));
-
-        Debug.Log($"[{player.gameObject.name}] Auto-setup complete.");
-        EditorUtility.SetDirty(player);
-    }
-
-    private static void SetupCharacterControllerFromTemplate(Player player, bool overwriteExisting = true)
-    {
-        if (player == null)
-        {
-            Debug.LogWarning("[AutoSetup] Player is null in SetupCharacterControllerFromTemplate.");
-            return;
-        }
-        if (player.playerTemplate == null)
-        {
-            Debug.LogWarning($"[AutoSetup] PlayerTemplate is null for {player.gameObject?.name} in SetupCharacterControllerFromTemplate.");
-            return;
-        }
-        if (player.PlayerCharacterController == null)
-        {
-            Debug.LogWarning($"[AutoSetup] PlayerCharacterController is null for {player.gameObject?.name} in SetupCharacterControllerFromTemplate.");
-            return;
-        }
-        var cc = player.PlayerCharacterController.CharacterController;
-        if (cc == null)
-        {
-            cc = player.gameObject.GetComponent<CharacterController>();
+            if (player == null)
+            {
+                Debug.LogWarning("[AutoSetup] Player is null in SetupCharacterControllerFromTemplate.");
+                return;
+            }
+            if (player.playerTemplate == null)
+            {
+                Debug.LogWarning($"[AutoSetup] PlayerTemplate is null for {player.gameObject?.name} in SetupCharacterControllerFromTemplate.");
+                return;
+            }
+            if (player.PlayerCharacterController == null)
+            {
+                Debug.LogWarning($"[AutoSetup] PlayerCharacterController is null for {player.gameObject?.name} in SetupCharacterControllerFromTemplate.");
+                return;
+            }
+            var cc = player.PlayerCharacterController.CharacterController;
             if (cc == null)
             {
-                Debug.LogWarning($"[AutoSetup] CharacterController is null for {player.gameObject?.name} in SetupCharacterControllerFromTemplate, and could not be found on the GameObject.");
-                return;
+                cc = player.gameObject.GetComponent<CharacterController>();
+                if (cc == null)
+                {
+                    Debug.LogWarning($"[AutoSetup] CharacterController is null for {player.gameObject?.name} in SetupCharacterControllerFromTemplate, and could not be found on the GameObject.");
+                    return;
+                }
+                else
+                {
+                    Debug.Log($"[AutoSetup] CharacterController was not set on PlayerCharacterController, but was found on the GameObject and will be used.");
+                }
+            }
+
+            var template = player.playerTemplate;
+
+            if (overwriteExisting)
+            {
+                if (cc.slopeLimit != template.slopeLimit)
+                    Debug.Log($"[AutoSetup] Overwriting CharacterController.slopeLimit: {cc.slopeLimit} -> {template.slopeLimit}");
+                cc.slopeLimit = template.slopeLimit;
+                if (cc.stepOffset != template.stepOffset)
+                    Debug.Log($"[AutoSetup] Overwriting CharacterController.stepOffset: {cc.stepOffset} -> {template.stepOffset}");
+                cc.stepOffset = template.stepOffset;
+                if (cc.skinWidth != template.skinWidth)
+                    Debug.Log($"[AutoSetup] Overwriting CharacterController.skinWidth: {cc.skinWidth} -> {template.skinWidth}");
+                cc.skinWidth = template.skinWidth;
+                if (cc.minMoveDistance != template.minMoveDistance)
+                    Debug.Log($"[AutoSetup] Overwriting CharacterController.minMoveDistance: {cc.minMoveDistance} -> {template.minMoveDistance}");
+                cc.minMoveDistance = template.minMoveDistance;
+                if (cc.center != template.center)
+                    Debug.Log($"[AutoSetup] Overwriting CharacterController.center: {cc.center} -> {template.center}");
+                cc.center = template.center;
+                if (cc.radius != template.radius)
+                    Debug.Log($"[AutoSetup] Overwriting CharacterController.radius: {cc.radius} -> {template.radius}");
+                cc.radius = template.radius;
+                if (cc.height != template.height)
+                    Debug.Log($"[AutoSetup] Overwriting CharacterController.height: {cc.height} -> {template.height}");
+                cc.height = template.height;
             }
             else
             {
-                Debug.Log($"[AutoSetup] CharacterController was not set on PlayerCharacterController, but was found on the GameObject and will be used.");
+                if (cc.slopeLimit == default) cc.slopeLimit = template.slopeLimit;
+                if (cc.stepOffset == default) cc.stepOffset = template.stepOffset;
+                if (cc.skinWidth == default) cc.skinWidth = template.skinWidth;
+                if (cc.minMoveDistance == default) cc.minMoveDistance = template.minMoveDistance;
+                if (cc.center == default) cc.center = template.center;
+                if (cc.radius == default) cc.radius = template.radius;
+                if (cc.height == default) cc.height = template.height;
             }
+
+            Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Set CharacterController values from PlayerTemplate. Overwrite: {overwriteExisting}");
         }
 
-        var template = player.playerTemplate;
-
-        if (overwriteExisting)
+        private static void SetupPlayerTemplate(Player player)
         {
-            if (cc.slopeLimit != template.slopeLimit)
-                Debug.Log($"[AutoSetup] Overwriting CharacterController.slopeLimit: {cc.slopeLimit} -> {template.slopeLimit}");
-            cc.slopeLimit = template.slopeLimit;
-            if (cc.stepOffset != template.stepOffset)
-                Debug.Log($"[AutoSetup] Overwriting CharacterController.stepOffset: {cc.stepOffset} -> {template.stepOffset}");
-            cc.stepOffset = template.stepOffset;
-            if (cc.skinWidth != template.skinWidth)
-                Debug.Log($"[AutoSetup] Overwriting CharacterController.skinWidth: {cc.skinWidth} -> {template.skinWidth}");
-            cc.skinWidth = template.skinWidth;
-            if (cc.minMoveDistance != template.minMoveDistance)
-                Debug.Log($"[AutoSetup] Overwriting CharacterController.minMoveDistance: {cc.minMoveDistance} -> {template.minMoveDistance}");
-            cc.minMoveDistance = template.minMoveDistance;
-            if (cc.center != template.center)
-                Debug.Log($"[AutoSetup] Overwriting CharacterController.center: {cc.center} -> {template.center}");
-            cc.center = template.center;
-            if (cc.radius != template.radius)
-                Debug.Log($"[AutoSetup] Overwriting CharacterController.radius: {cc.radius} -> {template.radius}");
-            cc.radius = template.radius;
-            if (cc.height != template.height)
-                Debug.Log($"[AutoSetup] Overwriting CharacterController.height: {cc.height} -> {template.height}");
-            cc.height = template.height;
-        }
-        else
-        {
-            if (cc.slopeLimit == default) cc.slopeLimit = template.slopeLimit;
-            if (cc.stepOffset == default) cc.stepOffset = template.stepOffset;
-            if (cc.skinWidth == default) cc.skinWidth = template.skinWidth;
-            if (cc.minMoveDistance == default) cc.minMoveDistance = template.minMoveDistance;
-            if (cc.center == default) cc.center = template.center;
-            if (cc.radius == default) cc.radius = template.radius;
-            if (cc.height == default) cc.height = template.height;
-        }
-
-        Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Set CharacterController values from PlayerTemplate. Overwrite: {overwriteExisting}");
-    }
-
-    private static void SetupPlayerTemplate(Player player)
-    {
-        if (player.playerTemplate == null)
-        {
-            // Try to find any PlayerTemplate asset in the project
-            string[] guids = UnityEditor.AssetDatabase.FindAssets("t:PlayerTemplate");
-            if (guids != null && guids.Length > 0)
+            if (player.playerTemplate == null)
             {
-                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
-                var mainAssembly = typeof(Player).Assembly;
-                var playerTemplateType = mainAssembly.GetType("PlayerTemplate");
-                var loadedTemplate = UnityEditor.AssetDatabase.LoadAssetAtPath(path, playerTemplateType);
-                if (loadedTemplate != null)
+                // Try to find any PlayerTemplate asset in the project
+                string[] guids = UnityEditor.AssetDatabase.FindAssets("t:PlayerTemplate");
+                if (guids != null && guids.Length > 0)
                 {
-                    var playerTemplateProp = typeof(Player).GetProperty("playerTemplate");
-                    if (playerTemplateProp != null && playerTemplateProp.CanWrite)
+                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                    var mainAssembly = typeof(Player).Assembly;
+                    var playerTemplateType = mainAssembly.GetType("PlayerTemplate");
+                    var loadedTemplate = UnityEditor.AssetDatabase.LoadAssetAtPath(path, playerTemplateType);
+                    if (loadedTemplate != null)
                     {
-                        playerTemplateProp.SetValue(player, loadedTemplate);
-                        Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Assigned PlayerTemplate from {path}.");
+                        var playerTemplateProp = typeof(Player).GetProperty("playerTemplate");
+                        if (playerTemplateProp != null && playerTemplateProp.CanWrite)
+                        {
+                            playerTemplateProp.SetValue(player, loadedTemplate);
+                            Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Assigned PlayerTemplate from {path}.");
+                        }
+                        else
+                        {
+                            var playerTemplateField = typeof(Player).GetField("playerTemplate");
+                            if (playerTemplateField != null)
+                            {
+                                playerTemplateField.SetValue(player, loadedTemplate);
+                                Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Assigned PlayerTemplate from {path} (via field).");
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: Could not assign PlayerTemplate to player (no property or field found).");
+                            }
+                        }
                     }
                     else
                     {
-                        var playerTemplateField = typeof(Player).GetField("playerTemplate");
-                        if (playerTemplateField != null)
-                        {
-                            playerTemplateField.SetValue(player, loadedTemplate);
-                            Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Assigned PlayerTemplate from {path} (via field).");
-                        }
-                        else
-                        {
-                            Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: Could not assign PlayerTemplate to player (no property or field found).");
-                        }
+                        Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: Could not load PlayerTemplate at {path}.");
                     }
                 }
                 else
                 {
-                    Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: Could not load PlayerTemplate at {path}.");
+                    Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: No PlayerTemplate asset found in project.");
                 }
             }
-            else
-            {
-                Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: No PlayerTemplate asset found in project.");
-            }
         }
-    }
 
-    private static void SetupPlayerComponentReferences(Player player)
-    {
-        var type = typeof(Player);
-        var playerInput = player.GetComponent<PlayerInput>();
-        if (playerInput != null)
-            type.GetProperty("PlayerInput")?.SetValue(player, playerInput);
-        var playerCharacterController = player.GetComponent<PlayerCharacterController>();
-        if (playerCharacterController != null)
-            type.GetProperty("PlayerCharacterController")?.SetValue(player, playerCharacterController);
-        var playerCameraController = player.GetComponent<PlayerCameraController>();
-        if (playerCameraController != null)
-            type.GetProperty("PlayerCameraController")?.SetValue(player, playerCameraController);
-        var playerIKController = player.GetComponent<PlayerIKController>();
-        if (playerIKController != null)
+        private static void SetupPlayerComponentReferences(Player player)
         {
-            type.GetProperty("PlayerIKController")?.SetValue(player, playerIKController);
-            EditorUtility.SetDirty(playerIKController);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(playerIKController);
-            // If auto setup is pressed and overwrite is true, set debugOverrideIKWeight to false
-            var debugOverrideField = playerIKController.GetType().GetField("debugOverrideIKWeight", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (debugOverrideField != null)
-            {
-                debugOverrideField.SetValue(playerIKController, false);
-                Debug.Log($"[AutoSetup] PlayerIKController.debugOverrideIKWeight set to false for {player.gameObject.name}.");
-            }
-            else
-            {
-                Debug.LogWarning($"[AutoSetup] Could not find 'debugOverrideIKWeight' field on PlayerIKController for {player.gameObject.name}.");
-            }
-        }
-        var weaponManager = player.GetComponent<PlayerWeaponManager>();
-        if (weaponManager != null)
-        {
-            type.GetProperty("WeaponManager")?.SetValue(player, weaponManager);
-            EditorUtility.SetDirty(weaponManager);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(weaponManager);
-        }
-        var healthManager = player.GetComponent<HealthManager>();
-        if (healthManager != null)
-            type.GetProperty("HealthManager")?.SetValue(player, healthManager);
-        var recoil = player.GetComponent<RecoilIK>();
-        if (recoil != null)
-            type.GetProperty("Recoil")?.SetValue(player, recoil);
-        var bulletHitscan = player.GetComponent<BulletHitscan>();
-        if (bulletHitscan != null)
-            type.GetProperty("BulletHitscan")?.SetValue(player, bulletHitscan);
-        var bulletDecalManager = player.GetComponent<BulletDecalManager>();
-        if (bulletDecalManager != null)
-            type.GetProperty("BulletDecalManager")?.SetValue(player, bulletDecalManager);
-    }
-
-    private static void SetupAnimator(Player player, bool overwriteExisting = true)
-    {
-        if (player == null) return;
-        var animator = player.GetComponent<Animator>();
-        if (animator != null && player.playerTemplate != null && player.playerTemplate.animatorController != null)
-        {
-            var before = animator.runtimeAnimatorController;
-            if (overwriteExisting)
-            {
-                Debug.Log($"[AutoSetup] AnimatorController before: {(before != null ? before.name : "null")}, template: {player.playerTemplate.animatorController.name}, overwrite: {overwriteExisting}");
-                if (before != player.playerTemplate.animatorController)
-                    Debug.Log($"[AutoSetup] Overwriting Animator.runtimeAnimatorController: {(before != null ? before.name : "null")} -> {player.playerTemplate.animatorController.name}");
-                animator.runtimeAnimatorController = player.playerTemplate.animatorController;
-                animator.applyRootMotion = false; // Disable root motion if overwriting
-                Debug.Log($"[AutoSetup] AnimatorController after: {animator.runtimeAnimatorController.name}, applyRootMotion: {animator.applyRootMotion}");
-            }
-            else if (animator.runtimeAnimatorController == null)
-            {
-                animator.runtimeAnimatorController = player.playerTemplate.animatorController;
-            }
-        }
-    }
-
-    private static void SetupPlayerInput(Player player, bool overwriteExisting = true)
-    {
-        if (player == null || player.playerTemplate == null)
-            return;
-
-        // Ensure PlayerInput component exists
-        if (player.PlayerInput == null)
-        {
+            var type = typeof(Player);
             var playerInput = player.GetComponent<PlayerInput>();
-            if (playerInput == null)
+            if (playerInput != null)
+                type.GetProperty("PlayerInput")?.SetValue(player, playerInput);
+            var playerCharacterController = player.GetComponent<PlayerCharacterController>();
+            if (playerCharacterController != null)
+                type.GetProperty("PlayerCharacterController")?.SetValue(player, playerCharacterController);
+            var playerCameraController = player.GetComponent<PlayerCameraController>();
+            if (playerCameraController != null)
+                type.GetProperty("PlayerCameraController")?.SetValue(player, playerCameraController);
+            var playerIKController = player.GetComponent<PlayerIKController>();
+            if (playerIKController != null)
             {
-                playerInput = player.gameObject.AddComponent<PlayerInput>();
-                Debug.Log($"[AutoSetup] PlayerInput component added to {player.gameObject.name}.");
-            }
-            else
-            {
-                Debug.Log($"[AutoSetup] PlayerInput component already exists on {player.gameObject.name}.");
-            }
-            // Explicitly set the property on Player for robustness
-            var prop = typeof(Player).GetProperty("PlayerInput");
-            if (prop != null && prop.CanWrite)
-            {
-                prop.SetValue(player, playerInput);
-                Debug.Log($"[AutoSetup] Explicitly set Player.PlayerInput property after ensuring component exists.");
-            }
-            else
-            {
-                Debug.LogWarning($"[AutoSetup] Could not set PlayerInput property on Player {player.gameObject.name} (property not found or not writable).");
-            }
-        }
-        if (player.PlayerInput == null)
-            return;
-
-        var type = player.PlayerInput.GetType();
-        var inputObj = player.PlayerInput;
-
-        SetPlayerInputThreshold(type, inputObj, player.playerTemplate.movementThreshold, "movementThreshold", overwriteExisting);
-        SetPlayerInputThreshold(type, inputObj, player.playerTemplate.animationSmoothTime, "animationSmoothTime", overwriteExisting);
-        SetPlayerInputThreshold(type, inputObj, player.playerTemplate.maxInputThreshold, "maxInputThreshold", overwriteExisting);
-
-        if (overwriteExisting)
-        {
-            Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Set PlayerInput thresholds from PlayerTemplate. Overwrite: {overwriteExisting}");
-        }
-    }
-
-    private static void SetPlayerInputThreshold(System.Type type, object inputObj, float templateValue, string fieldName, bool overwriteExisting)
-    {
-        var field = type.GetField(fieldName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (field != null)
-        {
-            float current = (float)field.GetValue(inputObj);
-            if (overwriteExisting)
-            {
-                Debug.Log($"[AutoSetup] {fieldName} (field) before: {current}, template: {templateValue}, overwrite: {overwriteExisting}");
-                if (current != templateValue)
-                    Debug.Log($"[AutoSetup] Overwriting PlayerInput.{fieldName} (field): {current} -> {templateValue}");
-                field.SetValue(inputObj, templateValue);
-                Debug.Log($"[AutoSetup] {fieldName} (field) after: {(float)field.GetValue(inputObj)}");
-            }
-            else if (current == default)
-            {
-                field.SetValue(inputObj, templateValue);
-            }
-        }
-        else
-        {
-            SetPlayerInputThresholdProperty(type, inputObj, templateValue, fieldName, overwriteExisting);
-        }
-    }
-
-    private static void SetPlayerInputThresholdProperty(System.Type type, object inputObj, float templateValue, string propertyName, bool overwriteExisting)
-    {
-        var prop = type.GetProperty(propertyName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (prop != null && prop.CanWrite)
-        {
-            float current = (float)prop.GetValue(inputObj);
-            if (overwriteExisting)
-            {
-                Debug.Log($"[AutoSetup] {propertyName} (prop) before: {current}, template: {templateValue}, overwrite: {overwriteExisting}");
-                if (current != templateValue)
-                    Debug.Log($"[AutoSetup] Overwriting PlayerInput.{propertyName} (prop): {current} -> {templateValue}");
-                prop.SetValue(inputObj, templateValue);
-                Debug.Log($"[AutoSetup] {propertyName} (prop) after: {(float)prop.GetValue(inputObj)}");
-            }
-            else if (current == default(float))
-            {
-                prop.SetValue(inputObj, templateValue);
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[AutoSetup] {propertyName}: No field or writable property found on PlayerInput.");
-        }
-    }
-
-    private static void SetupPlayerWeaponManager(Player player, bool overwriteExisting = true)
-    {
-        if (player == null)
-            return;
-        // Try to find the PlayerWeaponManager component
-        var weaponManager = player.GetComponent<PlayerWeaponManager>();
-        if (weaponManager == null)
-        {
-            weaponManager = player.gameObject.AddComponent<PlayerWeaponManager>();
-            Debug.Log($"[AutoSetup] PlayerWeaponManager component added to {player.gameObject.name}.");
-        }
-        // Try to load the MP40WeaponData asset from a known path
-        var mp40WeaponData = AssetDatabase.LoadAssetAtPath<WeaponData>("Assets/ScriptableObjects/Weapons/MP40WeaponData.asset");
-        if (mp40WeaponData != null)
-        {
-            // Set the private serialized field 'currentWeaponData' via reflection
-            var currentWeaponDataField = weaponManager.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (currentWeaponDataField != null)
-            {
-                if (overwriteExisting)
+                type.GetProperty("PlayerIKController")?.SetValue(player, playerIKController);
+                EditorUtility.SetDirty(playerIKController);
+                PrefabUtility.RecordPrefabInstancePropertyModifications(playerIKController);
+                // If auto setup is pressed and overwrite is true, set debugOverrideIKWeight to false
+                var debugOverrideField = playerIKController.GetType().GetField("debugOverrideIKWeight", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (debugOverrideField != null)
                 {
-                    currentWeaponDataField.SetValue(weaponManager, mp40WeaponData);
-                    Debug.Log($"[AutoSetup] PlayerWeaponManager.currentWeaponData set to MP40WeaponData for {player.gameObject.name} (overwrite: true).");
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"[AutoSetup] Could not find currentWeaponData field on PlayerWeaponManager for {player.gameObject.name}.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[AutoSetup] Could not find MP40WeaponData asset at Assets/ScriptableObjects/Weapons/MP40WeaponData.asset");
-        }
-    }
-
-    private static void SetupPlayerWeaponHand(Player player)
-    {
-        if (player == null || player.playerTemplate == null)
-            return;
-
-        // Find the hand bone (hand.r) in the player's hierarchy
-        Transform handBone = FindChildRecursive(player.transform, "hand.r");
-        if (handBone == null)
-        {
-            Debug.LogWarning($"[AutoSetup] Could not find hand.r bone on {player.gameObject.name}.");
-            return;
-        }
-
-        // Check if WeaponHand already exists as a child of hand.r
-        Transform weaponHand = FindDirectChildByName(handBone, "WeaponHand");
-        if (weaponHand == null)
-        {
-            if (player.playerTemplate.followTargetPrefab != null) // Replace with weaponHandPrefab if available
-            {
-                // If you have a weaponHandPrefab in PlayerTemplate, use it here instead of forwardFollowTargetPrefab
-                GameObject prefab = player.playerTemplate.weaponHandPrefab; // <-- Make sure this exists in PlayerTemplate
-                if (prefab != null)
-                {
-                    GameObject newWeaponHand = (GameObject)PrefabUtility.InstantiatePrefab(prefab, handBone);
-                    newWeaponHand.name = "WeaponHand";
-                    weaponHand = newWeaponHand.transform;
-                    Debug.Log($"Created WeaponHand as child of hand.r for {player.gameObject.name}.");
+                    debugOverrideField.SetValue(playerIKController, false);
+                    Debug.Log($"[AutoSetup] PlayerIKController.debugOverrideIKWeight set to false for {player.gameObject.name}.");
                 }
                 else
                 {
-                    Debug.LogWarning($"[AutoSetup] weaponHandPrefab is not assigned in PlayerTemplate for {player.gameObject.name}.");
+                    Debug.LogWarning($"[AutoSetup] Could not find 'debugOverrideIKWeight' field on PlayerIKController for {player.gameObject.name}.");
                 }
             }
-            else
+            var weaponManager = player.GetComponent<PlayerWeaponManager>();
+            if (weaponManager != null)
             {
-                // Fallback: create an empty WeaponHand if prefab is missing
-                GameObject newWeaponHand = new GameObject("WeaponHand");
-                newWeaponHand.transform.SetParent(handBone);
-                newWeaponHand.transform.localPosition = Vector3.zero;
-                newWeaponHand.transform.localRotation = Quaternion.identity;
-                newWeaponHand.transform.localScale = Vector3.one;
-                weaponHand = newWeaponHand.transform;
-                Debug.Log($"Created empty WeaponHand as child of hand.r for {player.gameObject.name}.");
+                type.GetProperty("WeaponManager")?.SetValue(player, weaponManager);
+                EditorUtility.SetDirty(weaponManager);
+                PrefabUtility.RecordPrefabInstancePropertyModifications(weaponManager);
             }
-        }
-        else
-        {
-            Debug.Log($"Found existing WeaponHand as child of hand.r for {player.gameObject.name}.");
+            var healthManager = player.GetComponent<HealthManager>();
+            if (healthManager != null)
+                type.GetProperty("HealthManager")?.SetValue(player, healthManager);
+            var recoil = player.GetComponent<RecoilIK>();
+            if (recoil != null)
+                type.GetProperty("Recoil")?.SetValue(player, recoil);
+            var bulletHitscan = player.GetComponent<BulletHitscan>();
+            if (bulletHitscan != null)
+                type.GetProperty("BulletHitscan")?.SetValue(player, bulletHitscan);
+            var bulletDecalManager = player.GetComponent<BulletDecalManager>();
+            if (bulletDecalManager != null)
+                type.GetProperty("BulletDecalManager")?.SetValue(player, bulletDecalManager);
         }
 
-        // Assign the Player.WeaponHand reference (private field) via reflection
-        if (weaponHand != null)
+        private static void SetupAnimator(Player player, bool overwriteExisting = true)
         {
-            var weaponHandField = typeof(Player).GetField("weaponHand", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (weaponHandField != null)
+            if (player == null) return;
+            var animator = player.GetComponent<Animator>();
+            if (animator != null && player.playerTemplate != null && player.playerTemplate.animatorController != null)
             {
-                weaponHandField.SetValue(player, weaponHand);
-                Debug.Log($"[AutoSetup] Assigned Player.weaponHand reference for {player.gameObject.name}.");
-            }
-            else
-            {
-                Debug.LogWarning($"[AutoSetup] Could not find private field 'weaponHand' on Player for {player.gameObject.name}.");
-            }
-        }
-    }
-
-    private static void SetupPlayerBulletHitTarget(Player player)
-    {
-        if (player == null || player.playerTemplate == null)
-            return;
-
-        // Find the BulletHitTarget in the player's hierarchy
-        Transform bulletHitTarget = FindDirectChildByName(player.transform, "BulletHitTarget");
-        if (bulletHitTarget == null)
-        {
-            GameObject prefab = player.playerTemplate.bulletHitTargetPrefab;
-            if (prefab == null)
-            {
-                // Try to find a prefab in the project named "BulletHitTarget" or of type GameObject
-                string[] guids = UnityEditor.AssetDatabase.FindAssets("BulletHitTarget t:Prefab");
-                if (guids != null && guids.Length > 0)
+                var before = animator.runtimeAnimatorController;
+                if (overwriteExisting)
                 {
-                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
-                    prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                    Debug.Log($"[AutoSetup] Fallback: Found BulletHitTarget prefab at {path}.");
+                    Debug.Log($"[AutoSetup] AnimatorController before: {(before != null ? before.name : "null")}, template: {player.playerTemplate.animatorController.name}, overwrite: {overwriteExisting}");
+                    if (before != player.playerTemplate.animatorController)
+                        Debug.Log($"[AutoSetup] Overwriting Animator.runtimeAnimatorController: {(before != null ? before.name : "null")} -> {player.playerTemplate.animatorController.name}");
+                    animator.runtimeAnimatorController = player.playerTemplate.animatorController;
+                    animator.applyRootMotion = false; // Disable root motion if overwriting
+                    Debug.Log($"[AutoSetup] AnimatorController after: {animator.runtimeAnimatorController.name}, applyRootMotion: {animator.applyRootMotion}");
                 }
-            }
-            if (prefab != null)
-            {
-                GameObject newBulletHitTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
-                newBulletHitTarget.name = "BulletHitTarget";
-                bulletHitTarget = newBulletHitTarget.transform;
-                Debug.Log($"Created BulletHitTarget from prefab as child of Player for {player.gameObject.name}.");
-            }
-            else
-            {
-                GameObject newBulletHitTarget = new GameObject("BulletHitTarget");
-                newBulletHitTarget.transform.SetParent(player.transform);
-                newBulletHitTarget.transform.localPosition = Vector3.zero;
-                newBulletHitTarget.transform.localRotation = Quaternion.identity;
-                newBulletHitTarget.transform.localScale = Vector3.one;
-                bulletHitTarget = newBulletHitTarget.transform;
-                Debug.Log($"Created empty BulletHitTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
-            }
-        }
-        else
-        {
-            Debug.Log($"Found existing BulletHitTarget as child of Player for {player.gameObject.name}.");
-        }
-    }
-
-    private static void SetupPlayerFollowTarget(Player player)
-    {
-        if (player == null || player.playerTemplate == null)
-            return;
-
-        // Find the FollowTarget in the player's hierarchy
-        Transform followTarget = FindDirectChildByName(player.transform, "FollowTarget");
-        if (followTarget == null)
-        {
-            GameObject prefab = player.playerTemplate.followTargetPrefab;
-            if (prefab == null)
-            {
-                // Try to find a prefab in the project named "FollowTarget" or of type GameObject
-                string[] guids = UnityEditor.AssetDatabase.FindAssets("FollowTarget t:Prefab");
-                if (guids != null && guids.Length > 0)
+                else if (animator.runtimeAnimatorController == null)
                 {
-                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
-                    prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                    Debug.Log($"[AutoSetup] Fallback: Found FollowTarget prefab at {path}.");
+                    animator.runtimeAnimatorController = player.playerTemplate.animatorController;
                 }
             }
-            if (prefab != null)
-            {
-                GameObject newFollowTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
-                newFollowTarget.name = "FollowTarget";
-                followTarget = newFollowTarget.transform;
-                Debug.Log($"Created FollowTarget from prefab as child of Player for {player.gameObject.name}.");
-            }
-            else
-            {
-                GameObject newFollowTarget = new GameObject("FollowTarget");
-                newFollowTarget.transform.SetParent(player.transform);
-                newFollowTarget.transform.localPosition = new Vector3(0f, 1.775f, -0.009f);
-                newFollowTarget.transform.localRotation = Quaternion.identity;
-                newFollowTarget.transform.localScale = Vector3.one;
-                followTarget = newFollowTarget.transform;
-                Debug.Log($"Created empty FollowTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
-            }
         }
-        else
-        {
-            Debug.Log($"Found existing FollowTarget as child of Player for {player.gameObject.name}.");
-        }
-    }
 
-    private static void SetupPlayerAimIKTarget(Player player)
-    {
-        if (player == null || player.playerTemplate == null)
-            return;
-
-        // Find the AimIKTarget in the player's hierarchy
-        Transform aimIKTarget = FindDirectChildByName(player.transform, "AimIKTarget");
-        if (aimIKTarget == null)
+        private static void SetupPlayerInput(Player player, bool overwriteExisting = true)
         {
-            GameObject prefab = player.playerTemplate.aimIKTargetPrefab;
-            if (prefab == null)
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            // Ensure PlayerInput component exists
+            if (player.PlayerInput == null)
             {
-                // Try to find a prefab in the project named "AimIKTarget" or of type GameObject
-                string[] guids = UnityEditor.AssetDatabase.FindAssets("AimIKTarget t:Prefab");
-                if (guids != null && guids.Length > 0)
+                var playerInput = player.GetComponent<PlayerInput>();
+                if (playerInput == null)
                 {
-                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
-                    prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                    Debug.Log($"[AutoSetup] Fallback: Found AimIKTarget prefab at {path}.");
+                    playerInput = player.gameObject.AddComponent<PlayerInput>();
+                    Debug.Log($"[AutoSetup] PlayerInput component added to {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.Log($"[AutoSetup] PlayerInput component already exists on {player.gameObject.name}.");
+                }
+                // Explicitly set the property on Player for robustness
+                var prop = typeof(Player).GetProperty("PlayerInput");
+                if (prop != null && prop.CanWrite)
+                {
+                    prop.SetValue(player, playerInput);
+                    Debug.Log($"[AutoSetup] Explicitly set Player.PlayerInput property after ensuring component exists.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not set PlayerInput property on Player {player.gameObject.name} (property not found or not writable).");
                 }
             }
-            if (prefab != null)
+            if (player.PlayerInput == null)
+                return;
+
+            var type = player.PlayerInput.GetType();
+            var inputObj = player.PlayerInput;
+
+            SetPlayerInputThreshold(type, inputObj, player.playerTemplate.movementThreshold, "movementThreshold", overwriteExisting);
+            SetPlayerInputThreshold(type, inputObj, player.playerTemplate.animationSmoothTime, "animationSmoothTime", overwriteExisting);
+            SetPlayerInputThreshold(type, inputObj, player.playerTemplate.maxInputThreshold, "maxInputThreshold", overwriteExisting);
+
+            if (overwriteExisting)
             {
-                GameObject newAimIKTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
-                newAimIKTarget.name = "AimIKTarget";
-                aimIKTarget = newAimIKTarget.transform;
-                Debug.Log($"Created AimIKTarget from prefab as child of Player for {player.gameObject.name}.");
+                Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Set PlayerInput thresholds from PlayerTemplate. Overwrite: {overwriteExisting}");
+            }
+        }
+
+        private static void SetPlayerInputThreshold(System.Type type, object inputObj, float templateValue, string fieldName, bool overwriteExisting)
+        {
+            var field = type.GetField(fieldName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                float current = (float)field.GetValue(inputObj);
+                if (overwriteExisting)
+                {
+                    Debug.Log($"[AutoSetup] {fieldName} (field) before: {current}, template: {templateValue}, overwrite: {overwriteExisting}");
+                    if (current != templateValue)
+                        Debug.Log($"[AutoSetup] Overwriting PlayerInput.{fieldName} (field): {current} -> {templateValue}");
+                    field.SetValue(inputObj, templateValue);
+                    Debug.Log($"[AutoSetup] {fieldName} (field) after: {(float)field.GetValue(inputObj)}");
+                }
+                else if (current == default)
+                {
+                    field.SetValue(inputObj, templateValue);
+                }
             }
             else
             {
-                GameObject newAimIKTarget = new GameObject("AimIKTarget");
-                newAimIKTarget.transform.SetParent(player.transform);
-                newAimIKTarget.transform.localPosition = Vector3.zero;
-                newAimIKTarget.transform.localRotation = Quaternion.identity;
-                newAimIKTarget.transform.localScale = Vector3.one;
-                aimIKTarget = newAimIKTarget.transform;
-                Debug.Log($"Created empty AimIKTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
+                SetPlayerInputThresholdProperty(type, inputObj, templateValue, fieldName, overwriteExisting);
             }
         }
-        else
-        {
-            Debug.Log($"Found existing AimIKTarget as child of Player for {player.gameObject.name}.");
-        }
-    }
 
-    // Helper to find a child recursively by name
-    private static Transform FindChildRecursive(Transform parent, string name)
-    {
-        foreach (Transform child in parent)
+        private static void SetPlayerInputThresholdProperty(System.Type type, object inputObj, float templateValue, string propertyName, bool overwriteExisting)
         {
-            if (child.name == name)
-                return child;
-            var found = FindChildRecursive(child, name);
-            if (found != null)
-                return found;
-        }
-        return null;
-    }
-
-    // Helper to find a direct child by name
-    private static Transform FindDirectChildByName(Transform parent, string name)
-    {
-        foreach (Transform child in parent)
-        {
-            if (child.name == name)
-                return child;
-        }
-        return null;
-    }
-
-    private static (Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget) SetupCameraTargetsAndSettings(Player player, bool overwriteExisting = true)
-    {
-        if (player == null)
-            return (null, null, null);
-
-        // Ensure PlayerCameraController exists
-        if (player.PlayerCameraController == null)
-        {
-            var pcc = player.GetComponent<PlayerCameraController>();
-            if (pcc == null)
-            {
-                pcc = player.gameObject.AddComponent<PlayerCameraController>();
-                Debug.Log($"[AutoSetup] PlayerCameraController component added to {player.gameObject.name}.");
-            }
-            else
-            {
-                Debug.Log($"[AutoSetup] PlayerCameraController component already exists on {player.gameObject.name}.");
-            }
-            // Explicitly set the property on Player for robustness
-            var prop = typeof(Player).GetProperty("PlayerCameraController");
+            var prop = type.GetProperty(propertyName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (prop != null && prop.CanWrite)
             {
-                prop.SetValue(player, pcc);
-                Debug.Log($"[AutoSetup] Explicitly set Player.PlayerCameraController property after ensuring component exists.");
-            }
-            else
-            {
-                Debug.LogWarning($"[AutoSetup] Could not set PlayerCameraController property on Player {player.gameObject.name} (property not found or not writable).");
-            }
-        }
-        if (player.PlayerCameraController == null)
-        {
-            Debug.LogWarning($"[AutoSetup] PlayerCameraController is still null for {player.gameObject?.name} after attempting to add it.");
-            return (null, null, null);
-        }
-
-        // Only create FollowTarget and AimTarget
-        Transform followTarget = FindDirectChildByName(player.transform, "FollowTarget");
-        Transform aimIKTarget = FindDirectChildByName(player.transform, "AimIKTarget");
-        Transform bulletHitTarget = FindDirectChildByName(player.transform, "BulletHitTarget");
-
-        followTarget = GetOrCreateCameraTarget(player, followTarget, "FollowTarget", player.playerTemplate?.followTargetPrefab, new Vector3(0f, 1.775f, -0.009f));
-        aimIKTarget = GetOrCreateCameraTarget(player, aimIKTarget, "AimIKTarget", player.playerTemplate?.aimIKTargetPrefab, Vector3.zero);
-        bulletHitTarget = GetOrCreateCameraTarget(player, bulletHitTarget, "BulletHitTarget", player.playerTemplate?.bulletHitTargetPrefab, Vector3.zero);
-
-        // Always assign the new followTarget to the CinemachineCamera.Follow, regardless of overwriteExisting
-        var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
-        if (playerCameraGO != null && followTarget != null)
-        {
-            var cinemachineCamera = playerCameraGO.GetComponent<Unity.Cinemachine.CinemachineCamera>();
-            if (cinemachineCamera != null)
-            {
-                var before = cinemachineCamera.Follow;
-                cinemachineCamera.Follow = followTarget;
-                Debug.Log($"[AutoSetup] CinemachineCamera.Follow forcibly set to {followTarget.name} (ID: {followTarget.GetInstanceID()}) for player {player.gameObject.name}.");
-            }
-        }
-
-        SetCameraControllerTargets(player, followTarget, aimIKTarget, bulletHitTarget, overwriteExisting);
-        SetPlayerCameraField(player, overwriteExisting);
-        SetCameraSettings(player, overwriteExisting);
-
-        if (followTarget == null) Debug.LogWarning("FollowTarget not found as child of Player.");
-        if (aimIKTarget == null) Debug.LogWarning("AimIKTarget not found as child of Player.");
-        return (followTarget, aimIKTarget, bulletHitTarget);
-    }
-
-    private static Transform GetOrCreateCameraTarget(Player player, Transform existing, string name, GameObject prefab, Vector3 defaultPosition)
-    {
-        if (existing == null)
-        {
-            GameObject newTarget;
-            if (player.playerTemplate != null && prefab != null)
-            {
-                newTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
-                newTarget.name = name;
-                Debug.Log($"[AutoSetup] Instantiated {name} from prefab '{prefab.name}' as child of Player {player.gameObject.name}.");
-            }
-            else
-            {
-                newTarget = new GameObject(name);
-                newTarget.transform.SetParent(player.transform);
-                newTarget.transform.localPosition = defaultPosition;
-                newTarget.transform.localRotation = Quaternion.identity;
-                newTarget.transform.localScale = Vector3.one;
-                Debug.Log($"[AutoSetup] Created empty {name} as child of Player {player.gameObject.name}.");
-            }
-            return newTarget.transform;
-        }
-        else
-        {
-            Debug.Log($"[AutoSetup] Found existing {name} as child of Player {player.gameObject.name}.");
-            return existing;
-        }
-    }
-
-    private static void SetCinemachineFollow(Player player, Transform followTarget, bool overwriteExisting)
-    {
-        var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
-        if (playerCameraGO != null && followTarget != null)
-        {
-            var cinemachineCamera = playerCameraGO.GetComponent<Unity.Cinemachine.CinemachineCamera>();
-            if (cinemachineCamera != null)
-            {
-                var before = cinemachineCamera.Follow;
+                float current = (float)prop.GetValue(inputObj);
                 if (overwriteExisting)
                 {
-                    Debug.Log($"[AutoSetup] CinemachineCamera.Follow before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {followTarget.name} (ID: {followTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
-                    if (before != followTarget)
-                        Debug.Log($"[AutoSetup] Overwriting CinemachineCamera.Follow: {(before != null ? before.name : "null")} -> {followTarget.name}");
-                    cinemachineCamera.Follow = followTarget;
-                    var after = cinemachineCamera.Follow;
-                    Debug.Log($"[AutoSetup] CinemachineCamera.Follow after: {after.name} (ID: {after.GetInstanceID()})");
+                    Debug.Log($"[AutoSetup] {propertyName} (prop) before: {current}, template: {templateValue}, overwrite: {overwriteExisting}");
+                    if (current != templateValue)
+                        Debug.Log($"[AutoSetup] Overwriting PlayerInput.{propertyName} (prop): {current} -> {templateValue}");
+                    prop.SetValue(inputObj, templateValue);
+                    Debug.Log($"[AutoSetup] {propertyName} (prop) after: {(float)prop.GetValue(inputObj)}");
                 }
-                else if (cinemachineCamera.Follow == null)
+                else if (current == default(float))
                 {
-                    cinemachineCamera.Follow = followTarget;
-                }
-            }
-        }
-    }
-
-    private static void SetCameraControllerTargets(Player player, Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget, bool overwriteExisting)
-    {
-        SetCameraControllerFollowTarget(player, followTarget, overwriteExisting);
-        SetCameraControllerAimIKTarget(player, aimIKTarget, overwriteExisting);
-        SetCameraBulletHitTarget(player, bulletHitTarget, overwriteExisting);
-    }
-
-    private static void SetCameraControllerFollowTarget(Player player, Transform followTarget, bool overwriteExisting)
-    {
-        var followTargetField = player.PlayerCameraController.GetType().GetField("followTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (followTargetField != null)
-        {
-            if (followTarget != null)
-            {
-                var before = followTargetField.GetValue(player.PlayerCameraController) as Transform;
-                if (overwriteExisting)
-                {
-                    Debug.Log($"[AutoSetup] PlayerCameraController.followTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {followTarget.name} (ID: {followTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
-                    if (before != followTarget)
-                        Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.followTarget: {(before != null ? before.name : "null")} -> {followTarget.name}");
-                    followTargetField.SetValue(player.PlayerCameraController, followTarget);
-                }
-                else if (before == null)
-                {
-                    followTargetField.SetValue(player.PlayerCameraController, followTarget);
-                }
-                if (overwriteExisting)
-                {
-                    var after = followTargetField.GetValue(player.PlayerCameraController) as Transform;
-                    Debug.Log($"[AutoSetup] PlayerCameraController.followTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
+                    prop.SetValue(inputObj, templateValue);
                 }
             }
             else
             {
-                Debug.LogWarning("[AutoSetup] PlayerCameraController.followTarget: No follow target reference was set.");
+                Debug.LogWarning($"[AutoSetup] {propertyName}: No field or writable property found on PlayerInput.");
             }
         }
-    }
 
-    private static void SetCameraControllerAimIKTarget(Player player, Transform aimIKTarget, bool overwriteExisting)
-    {
-        var aimIKTargetField = player.PlayerCameraController.GetType().GetField("aimIKTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (aimIKTargetField != null)
+        private static void SetupPlayerWeaponManager(Player player, bool overwriteExisting = true)
         {
-            if (aimIKTarget != null)
+            if (player == null)
+                return;
+            // Try to find the PlayerWeaponManager component
+            var weaponManager = player.GetComponent<PlayerWeaponManager>();
+            if (weaponManager == null)
             {
-                var before = aimIKTargetField.GetValue(player.PlayerCameraController) as Transform;
-                if (overwriteExisting)
-                {
-                    Debug.Log($"[AutoSetup] PlayerCameraController.aimIKTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {aimIKTarget.name} (ID: {aimIKTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
-                    if (before != aimIKTarget)
-                        Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.aimIKTarget: {(before != null ? before.name : "null")} -> {aimIKTarget.name}");
-                    aimIKTargetField.SetValue(player.PlayerCameraController, aimIKTarget);
-                }
-                else if (before == null)
-                {
-                    aimIKTargetField.SetValue(player.PlayerCameraController, aimIKTarget);
-                }
-                if (overwriteExisting)
-                {
-                    var after = aimIKTargetField.GetValue(player.PlayerCameraController) as Transform;
-                    Debug.Log($"[AutoSetup] PlayerCameraController.aimIKTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
-                }
+                weaponManager = player.gameObject.AddComponent<PlayerWeaponManager>();
+                Debug.Log($"[AutoSetup] PlayerWeaponManager component added to {player.gameObject.name}.");
             }
-            else
+            // Try to load the RevolverWeaponData asset from a known path
+            var revolverWeaponData = AssetDatabase.LoadAssetAtPath<WeaponData>("Assets/ScriptableObjects/Weapons/RevolverWeaponData.asset");
+            if (revolverWeaponData != null)
             {
-                Debug.LogWarning("[AutoSetup] PlayerCameraController.aimIKTarget: No aim IK target reference was set.");
-            }
-        }
-    }
-
-    private static void SetCameraBulletHitTarget(Player player, Transform bulletHitTarget, bool overwriteExisting)
-    {
-        var bulletHitTargetField = player.PlayerCameraController.GetType().GetField("bulletHitTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (bulletHitTargetField != null)
-        {
-            if (bulletHitTarget != null)
-            {
-                var before = bulletHitTargetField.GetValue(player.PlayerCameraController) as Transform;
-                if (overwriteExisting)
+                // Set the private serialized field 'currentWeaponData' via reflection
+                var currentWeaponDataField = weaponManager.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (currentWeaponDataField != null)
                 {
-                    Debug.Log($"[AutoSetup] PlayerCameraController.bulletHitTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {bulletHitTarget.name} (ID: {bulletHitTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
-                    if (before != bulletHitTarget)
-                        Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.bulletHitTarget: {(before != null ? before.name : "null")} -> {bulletHitTarget.name}");
-                    bulletHitTargetField.SetValue(player.PlayerCameraController, bulletHitTarget);
-                }
-                else if (before == null)
-                {
-                    bulletHitTargetField.SetValue(player.PlayerCameraController, bulletHitTarget);
-                }
-                if (overwriteExisting)
-                {
-                    var after = bulletHitTargetField.GetValue(player.PlayerCameraController) as Transform;
-                    Debug.Log($"[AutoSetup] PlayerCameraController.bulletHitTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("[AutoSetup] PlayerCameraController.bulletHitTarget: No bullet hit target reference was set.");
-            }
-        }
-    }
-
-    private static void SetPlayerCameraField(Player player, bool overwriteExisting)
-    {
-        var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
-        if (playerCameraGO != null)
-        {
-            var cinemachineCamera = playerCameraGO.GetComponent<Unity.Cinemachine.CinemachineCamera>();
-            if (cinemachineCamera != null)
-            {
-                var cameraField = player.PlayerCameraController.GetType().GetField("playerCamera", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (cameraField != null)
-                {
-                    var before = cameraField.GetValue(player.PlayerCameraController);
                     if (overwriteExisting)
                     {
-                        Debug.Log($"[AutoSetup] PlayerCameraController.playerCamera before: {(before != null ? before.ToString() : "null")}, template: {cinemachineCamera.name}, overwrite: {overwriteExisting}");
-                        if (before != (object)cinemachineCamera)
-                            Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.playerCamera: {(before != null ? before.ToString() : "null")} -> {cinemachineCamera.name}");
-                        cameraField.SetValue(player.PlayerCameraController, cinemachineCamera);
-                        Debug.Log($"[AutoSetup] PlayerCameraController.playerCamera after: {cameraField.GetValue(player.PlayerCameraController)}");
+                        currentWeaponDataField.SetValue(weaponManager, revolverWeaponData);
+                        Debug.Log($"[AutoSetup] PlayerWeaponManager.currentWeaponData set to RevolverWeaponData for {player.gameObject.name} (overwrite: true).");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not find currentWeaponData field on PlayerWeaponManager for {player.gameObject.name}.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] Could not find RevolverWeaponData asset at Assets/ScriptableObjects/Weapons/RevolverWeaponData.asset");
+            }
+        }
+
+        private static void SetupPlayerWeaponHand(Player player)
+        {
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            // Find the hand bone (hand.r) in the player's hierarchy
+            Transform handBone = FindChildRecursive(player.transform, "hand.r");
+            if (handBone == null)
+            {
+                Debug.LogWarning($"[AutoSetup] Could not find hand.r bone on {player.gameObject.name}.");
+                return;
+            }
+
+            // Check if WeaponHand already exists as a child of hand.r
+            Transform weaponHand = FindDirectChildByName(handBone, "WeaponHand");
+            if (weaponHand == null)
+            {
+                if (player.playerTemplate.followTargetPrefab != null) // Replace with weaponHandPrefab if available
+                {
+                    // If you have a weaponHandPrefab in PlayerTemplate, use it here instead of forwardFollowTargetPrefab
+                    GameObject prefab = player.playerTemplate.weaponHandPrefab; // <-- Make sure this exists in PlayerTemplate
+                    if (prefab != null)
+                    {
+                        GameObject newWeaponHand = (GameObject)PrefabUtility.InstantiatePrefab(prefab, handBone);
+                        newWeaponHand.name = "WeaponHand";
+                        weaponHand = newWeaponHand.transform;
+                        Debug.Log($"Created WeaponHand as child of hand.r for {player.gameObject.name}.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[AutoSetup] weaponHandPrefab is not assigned in PlayerTemplate for {player.gameObject.name}.");
+                    }
+                }
+                else
+                {
+                    // Fallback: create an empty WeaponHand if prefab is missing
+                    GameObject newWeaponHand = new GameObject("WeaponHand");
+                    newWeaponHand.transform.SetParent(handBone);
+                    newWeaponHand.transform.localPosition = Vector3.zero;
+                    newWeaponHand.transform.localRotation = Quaternion.identity;
+                    newWeaponHand.transform.localScale = Vector3.one;
+                    weaponHand = newWeaponHand.transform;
+                    Debug.Log($"Created empty WeaponHand as child of hand.r for {player.gameObject.name}.");
+                }
+            }
+            else
+            {
+                Debug.Log($"Found existing WeaponHand as child of hand.r for {player.gameObject.name}.");
+            }
+
+            // Assign the Player.WeaponHand reference (private field) via reflection
+            if (weaponHand != null)
+            {
+                var weaponHandField = typeof(Player).GetField("weaponHand", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (weaponHandField != null)
+                {
+                    weaponHandField.SetValue(player, weaponHand);
+                    Debug.Log($"[AutoSetup] Assigned Player.weaponHand reference for {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not find private field 'weaponHand' on Player for {player.gameObject.name}.");
+                }
+            }
+        }
+
+        private static void SetupPlayerBulletHitTarget(Player player)
+        {
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            // Find the BulletHitTarget in the player's hierarchy
+            Transform bulletHitTarget = FindDirectChildByName(player.transform, "BulletHitTarget");
+            if (bulletHitTarget == null)
+            {
+                GameObject prefab = player.playerTemplate.bulletHitTargetPrefab;
+                if (prefab == null)
+                {
+                    // Try to find a prefab in the project named "BulletHitTarget" or of type GameObject
+                    string[] guids = UnityEditor.AssetDatabase.FindAssets("BulletHitTarget t:Prefab");
+                    if (guids != null && guids.Length > 0)
+                    {
+                        string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                        prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                        Debug.Log($"[AutoSetup] Fallback: Found BulletHitTarget prefab at {path}.");
+                    }
+                }
+                if (prefab != null)
+                {
+                    GameObject newBulletHitTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                    newBulletHitTarget.name = "BulletHitTarget";
+                    bulletHitTarget = newBulletHitTarget.transform;
+                    Debug.Log($"Created BulletHitTarget from prefab as child of Player for {player.gameObject.name}.");
+                }
+                else
+                {
+                    GameObject newBulletHitTarget = new GameObject("BulletHitTarget");
+                    newBulletHitTarget.transform.SetParent(player.transform);
+                    newBulletHitTarget.transform.localPosition = Vector3.zero;
+                    newBulletHitTarget.transform.localRotation = Quaternion.identity;
+                    newBulletHitTarget.transform.localScale = Vector3.one;
+                    bulletHitTarget = newBulletHitTarget.transform;
+                    Debug.Log($"Created empty BulletHitTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
+                }
+            }
+            else
+            {
+                Debug.Log($"Found existing BulletHitTarget as child of Player for {player.gameObject.name}.");
+            }
+        }
+
+        private static void SetupPlayerFollowTarget(Player player)
+        {
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            // Find the FollowTarget in the player's hierarchy
+            Transform followTarget = FindDirectChildByName(player.transform, "FollowTarget");
+            if (followTarget == null)
+            {
+                GameObject prefab = player.playerTemplate.followTargetPrefab;
+                if (prefab == null)
+                {
+                    // Try to find a prefab in the project named "FollowTarget" or of type GameObject
+                    string[] guids = UnityEditor.AssetDatabase.FindAssets("FollowTarget t:Prefab");
+                    if (guids != null && guids.Length > 0)
+                    {
+                        string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                        prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                        Debug.Log($"[AutoSetup] Fallback: Found FollowTarget prefab at {path}.");
+                    }
+                }
+                if (prefab != null)
+                {
+                    GameObject newFollowTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                    newFollowTarget.name = "FollowTarget";
+                    followTarget = newFollowTarget.transform;
+                    Debug.Log($"Created FollowTarget from prefab as child of Player for {player.gameObject.name}.");
+                }
+                else
+                {
+                    GameObject newFollowTarget = new GameObject("FollowTarget");
+                    newFollowTarget.transform.SetParent(player.transform);
+                    newFollowTarget.transform.localPosition = new Vector3(0f, 1.775f, -0.009f);
+                    newFollowTarget.transform.localRotation = Quaternion.identity;
+                    newFollowTarget.transform.localScale = Vector3.one;
+                    followTarget = newFollowTarget.transform;
+                    Debug.Log($"Created empty FollowTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
+                }
+            }
+            else
+            {
+                Debug.Log($"Found existing FollowTarget as child of Player for {player.gameObject.name}.");
+            }
+        }
+
+        private static void SetupPlayerAimIKTarget(Player player)
+        {
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            // Find the AimIKTarget in the player's hierarchy
+            Transform aimIKTarget = FindDirectChildByName(player.transform, "AimIKTarget");
+            if (aimIKTarget == null)
+            {
+                GameObject prefab = player.playerTemplate.aimIKTargetPrefab;
+                if (prefab == null)
+                {
+                    // Try to find a prefab in the project named "AimIKTarget" or of type GameObject
+                    string[] guids = UnityEditor.AssetDatabase.FindAssets("AimIKTarget t:Prefab");
+                    if (guids != null && guids.Length > 0)
+                    {
+                        string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                        prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                        Debug.Log($"[AutoSetup] Fallback: Found AimIKTarget prefab at {path}.");
+                    }
+                }
+                if (prefab != null)
+                {
+                    GameObject newAimIKTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                    newAimIKTarget.name = "AimIKTarget";
+                    aimIKTarget = newAimIKTarget.transform;
+                    Debug.Log($"Created AimIKTarget from prefab as child of Player for {player.gameObject.name}.");
+                }
+                else
+                {
+                    GameObject newAimIKTarget = new GameObject("AimIKTarget");
+                    newAimIKTarget.transform.SetParent(player.transform);
+                    newAimIKTarget.transform.localPosition = Vector3.zero;
+                    newAimIKTarget.transform.localRotation = Quaternion.identity;
+                    newAimIKTarget.transform.localScale = Vector3.one;
+                    aimIKTarget = newAimIKTarget.transform;
+                    Debug.Log($"Created empty AimIKTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
+                }
+            }
+            else
+            {
+                Debug.Log($"Found existing AimIKTarget as child of Player for {player.gameObject.name}.");
+            }
+        }
+
+        private static void SetupPlayerLeftHandIKTarget(Player player)
+        {
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            // 1. Search for existing child
+            Transform leftHandIKTarget = FindDirectChildByName(player.transform, "LeftHandIKTarget");
+            if (leftHandIKTarget != null)
+            {
+                Debug.Log($"Found existing LeftHandIKTarget as child of Player for {player.gameObject.name}.");
+                return;
+            }
+
+            // 2. Try to instantiate from PlayerTemplate prefab
+            GameObject prefab = player.playerTemplate.leftHandIKTargetPrefab;
+            if (prefab != null)
+            {
+                GameObject newLeftHandIKTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                newLeftHandIKTarget.name = "LeftHandIKTarget";
+                leftHandIKTarget = newLeftHandIKTarget.transform;
+                Debug.Log($"Created LeftHandIKTarget from prefab as child of Player for {player.gameObject.name}.");
+                return;
+            }
+
+            // 3. Fallback: create empty
+            GameObject emptyLeftHandIKTarget = new GameObject("LeftHandIKTarget");
+            emptyLeftHandIKTarget.transform.SetParent(player.transform);
+            emptyLeftHandIKTarget.transform.localPosition = Vector3.zero;
+            emptyLeftHandIKTarget.transform.localRotation = Quaternion.identity;
+            emptyLeftHandIKTarget.transform.localScale = Vector3.one;
+            Debug.Log($"Created empty LeftHandIKTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
+        }
+
+        // Helper to find a child recursively by name
+        private static Transform FindChildRecursive(Transform parent, string name)
+        {
+            foreach (Transform child in parent)
+            {
+                if (child.name == name)
+                    return child;
+                var found = FindChildRecursive(child, name);
+                if (found != null)
+                    return found;
+            }
+            return null;
+        }
+
+        // Helper to find a direct child by name
+        private static Transform FindDirectChildByName(Transform parent, string name)
+        {
+            foreach (Transform child in parent)
+            {
+                if (child.name == name)
+                    return child;
+            }
+            return null;
+        }
+
+        private static (Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget) SetupCameraTargetsAndSettings(Player player, bool overwriteExisting = true)
+        {
+            if (player == null)
+                return (null, null, null);
+
+            // Ensure PlayerCameraController exists
+            if (player.PlayerCameraController == null)
+            {
+                var pcc = player.GetComponent<PlayerCameraController>();
+                if (pcc == null)
+                {
+                    pcc = player.gameObject.AddComponent<PlayerCameraController>();
+                    Debug.Log($"[AutoSetup] PlayerCameraController component added to {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.Log($"[AutoSetup] PlayerCameraController component already exists on {player.gameObject.name}.");
+                }
+                // Explicitly set the property on Player for robustness
+                var prop = typeof(Player).GetProperty("PlayerCameraController");
+                if (prop != null && prop.CanWrite)
+                {
+                    prop.SetValue(player, pcc);
+                    Debug.Log($"[AutoSetup] Explicitly set Player.PlayerCameraController property after ensuring component exists.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not set PlayerCameraController property on Player {player.gameObject.name} (property not found or not writable).");
+                }
+            }
+            if (player.PlayerCameraController == null)
+            {
+                Debug.LogWarning($"[AutoSetup] PlayerCameraController is still null for {player.gameObject?.name} after attempting to add it.");
+                return (null, null, null);
+            }
+
+            // Only create FollowTarget and AimTarget
+            Transform followTarget = FindDirectChildByName(player.transform, "FollowTarget");
+            Transform aimIKTarget = FindDirectChildByName(player.transform, "AimIKTarget");
+            Transform bulletHitTarget = FindDirectChildByName(player.transform, "BulletHitTarget");
+
+            followTarget = GetOrCreateCameraTarget(player, followTarget, "FollowTarget", player.playerTemplate?.followTargetPrefab, new Vector3(0f, 1.775f, -0.009f));
+            aimIKTarget = GetOrCreateCameraTarget(player, aimIKTarget, "AimIKTarget", player.playerTemplate?.aimIKTargetPrefab, Vector3.zero);
+            bulletHitTarget = GetOrCreateCameraTarget(player, bulletHitTarget, "BulletHitTarget", player.playerTemplate?.bulletHitTargetPrefab, Vector3.zero);
+
+            // Always assign the new followTarget to the CinemachineCamera.Follow, regardless of overwriteExisting
+            var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
+            if (playerCameraGO != null && followTarget != null)
+            {
+                var cinemachineCamera = playerCameraGO.GetComponent<Unity.Cinemachine.CinemachineCamera>();
+                if (cinemachineCamera != null)
+                {
+                    var before = cinemachineCamera.Follow;
+                    cinemachineCamera.Follow = followTarget;
+                    Debug.Log($"[AutoSetup] CinemachineCamera.Follow forcibly set to {followTarget.name} (ID: {followTarget.GetInstanceID()}) for player {player.gameObject.name}.");
+                }
+            }
+
+            SetCameraControllerTargets(player, followTarget, aimIKTarget, bulletHitTarget, overwriteExisting);
+            SetPlayerCameraField(player, overwriteExisting);
+            SetCameraSettings(player, overwriteExisting);
+
+            if (followTarget == null) Debug.LogWarning("FollowTarget not found as child of Player.");
+            if (aimIKTarget == null) Debug.LogWarning("AimIKTarget not found as child of Player.");
+            return (followTarget, aimIKTarget, bulletHitTarget);
+        }
+
+        private static Transform GetOrCreateCameraTarget(Player player, Transform existing, string name, GameObject prefab, Vector3 defaultPosition)
+        {
+            if (existing == null)
+            {
+                GameObject newTarget;
+                if (player.playerTemplate != null && prefab != null)
+                {
+                    newTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                    newTarget.name = name;
+                    Debug.Log($"[AutoSetup] Instantiated {name} from prefab '{prefab.name}' as child of Player {player.gameObject.name}.");
+                }
+                else
+                {
+                    newTarget = new GameObject(name);
+                    newTarget.transform.SetParent(player.transform);
+                    newTarget.transform.localPosition = defaultPosition;
+                    newTarget.transform.localRotation = Quaternion.identity;
+                    newTarget.transform.localScale = Vector3.one;
+                    Debug.Log($"[AutoSetup] Created empty {name} as child of Player {player.gameObject.name}.");
+                }
+                return newTarget.transform;
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] Found existing {name} as child of Player {player.gameObject.name}.");
+                return existing;
+            }
+        }
+
+        private static void SetCinemachineFollow(Player player, Transform followTarget, bool overwriteExisting)
+        {
+            var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
+            if (playerCameraGO != null && followTarget != null)
+            {
+                var cinemachineCamera = playerCameraGO.GetComponent<Unity.Cinemachine.CinemachineCamera>();
+                if (cinemachineCamera != null)
+                {
+                    var before = cinemachineCamera.Follow;
+                    if (overwriteExisting)
+                    {
+                        Debug.Log($"[AutoSetup] CinemachineCamera.Follow before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {followTarget.name} (ID: {followTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
+                        if (before != followTarget)
+                            Debug.Log($"[AutoSetup] Overwriting CinemachineCamera.Follow: {(before != null ? before.name : "null")} -> {followTarget.name}");
+                        cinemachineCamera.Follow = followTarget;
+                        var after = cinemachineCamera.Follow;
+                        Debug.Log($"[AutoSetup] CinemachineCamera.Follow after: {after.name} (ID: {after.GetInstanceID()})");
+                    }
+                    else if (cinemachineCamera.Follow == null)
+                    {
+                        cinemachineCamera.Follow = followTarget;
+                    }
+                }
+            }
+        }
+
+        private static void SetCameraControllerTargets(Player player, Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget, bool overwriteExisting)
+        {
+            SetCameraControllerFollowTarget(player, followTarget, overwriteExisting);
+            SetCameraControllerAimIKTarget(player, aimIKTarget, overwriteExisting);
+            SetCameraBulletHitTarget(player, bulletHitTarget, overwriteExisting);
+        }
+
+        private static void SetCameraControllerFollowTarget(Player player, Transform followTarget, bool overwriteExisting)
+        {
+            var followTargetField = player.PlayerCameraController.GetType().GetField("followTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (followTargetField != null)
+            {
+                if (followTarget != null)
+                {
+                    var before = followTargetField.GetValue(player.PlayerCameraController) as Transform;
+                    if (overwriteExisting)
+                    {
+                        Debug.Log($"[AutoSetup] PlayerCameraController.followTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {followTarget.name} (ID: {followTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
+                        if (before != followTarget)
+                            Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.followTarget: {(before != null ? before.name : "null")} -> {followTarget.name}");
+                        followTargetField.SetValue(player.PlayerCameraController, followTarget);
                     }
                     else if (before == null)
                     {
-                        cameraField.SetValue(player.PlayerCameraController, cinemachineCamera);
+                        followTargetField.SetValue(player.PlayerCameraController, followTarget);
                     }
-                }
-                else
-                {
-                    Debug.LogWarning("PlayerCamera field not found in PlayerCameraController.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("CinemachineCamera component not found on PlayerCamera GameObject.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("PlayerCamera GameObject not found at path Cameras/PlayerCamera.");
-        }
-    }
-
-    private static void SetCameraSettings(Player player, bool overwriteExisting)
-    {
-        if (player.playerTemplate != null)
-        {
-            SetCameraSettingFloat(player, "followFOV", player.playerTemplate.followFOV, overwriteExisting);
-            SetCameraSettingFloat(player, "aimFOV", player.playerTemplate.aimFOV, overwriteExisting);
-            SetCameraSettingFloat(player, "zoomSpeed", player.playerTemplate.zoomSpeed, overwriteExisting);
-            SetCameraSettingFloat(player, "aimCamOffsetX", player.playerTemplate.aimCamOffsetX, overwriteExisting);
-            SetCameraSettingFloat(player, "offsetLerpSpeed", player.playerTemplate.offsetLerpSpeed, overwriteExisting);
-            if (overwriteExisting)
-            {
-                Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Set camera FOV and zoom speed from PlayerTemplate. Overwrite: {overwriteExisting}");
-            }
-        }
-    }
-
-    private static void SetCameraSettingFloat(Player player, string fieldName, float templateValue, bool overwriteExisting)
-    {
-        var field = player.PlayerCameraController.GetType().GetField(fieldName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (field != null)
-        {
-            var before = (float)field.GetValue(player.PlayerCameraController);
-            if (overwriteExisting)
-            {
-                Debug.Log($"[AutoSetup] PlayerCameraController.{fieldName} before: {before}, template: {templateValue}, overwrite: {overwriteExisting}");
-                if (before != templateValue)
-                    Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.{fieldName}: {before} -> {templateValue}");
-                field.SetValue(player.PlayerCameraController, templateValue);
-                var after = (float)field.GetValue(player.PlayerCameraController);
-                Debug.Log($"[AutoSetup] PlayerCameraController.{fieldName} after: {after}");
-            }
-            else if (before == default(float))
-            {
-                field.SetValue(player.PlayerCameraController, templateValue);
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"PlayerCameraController.{fieldName} field not found.");
-        }
-    }
-
-    private static void SetupCrosshairController(Player player)
-    {
-        if (player == null) return;
-        // Auto-assign CrosshairController if not already set
-        if (player.CrosshairController == null)
-        {
-            var crosshair = Object.FindFirstObjectByType<CrosshairController>();
-            if (crosshair != null)
-            {
-                var crosshairField = player.GetType().GetField("crosshairController", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (crosshairField != null)
-                {
-                    crosshairField.SetValue(player, crosshair);
-                }
-                Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Assigned CrosshairController automatically.");
-            }
-            else
-            {
-                Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: Could not find CrosshairController in the scene.");
-            }
-        }
-    }
-
-    private static void SetLayerRecursively(GameObject obj, int layer)
-    {
-        if (obj == null) return;
-        obj.layer = layer;
-        foreach (Transform child in obj.transform)
-        {
-            if (child != null && child.gameObject != null)
-            {
-                child.gameObject.layer = layer;
-                SetLayerRecursively(child.gameObject, layer);
-            }
-        }
-    }
-
-    private static void SetupPlayerAimIK(Player player, bool overwriteExisting = true, Transform aimIKTarget = null)
-    {
-        if (player == null)
-            return;
-
-        var aimIK = player.GetComponent<AimIK>();
-        if (aimIK == null)
-        {
-            aimIK = player.gameObject.AddComponent<AimIK>();
-            Debug.Log($"[AutoSetup] AimIK component added to {player.gameObject.name}.");
-        }
-        // Always disable AimIK after setup
-        aimIK.enabled = false;
-
-        // Assign targets
-        aimIK.solver.target = aimIKTarget != null ? aimIKTarget : FindChildRecursive(player.transform, "AimIKTarget");
-        aimIK.solver.axis = new Vector3(0, 0, 1);
-        aimIK.solver.poleAxis = new Vector3(0, 1, 0);
-        aimIK.solver.IKPositionWeight = 0f; // Ensure IK position weight is set
-        aimIK.solver.poleWeight = 0f;
-        aimIK.solver.tolerance = 0f;
-        aimIK.solver.maxIterations = 4;
-        aimIK.solver.clampWeight = 0.1f;
-        aimIK.solver.clampSmoothing = (int)2f;
-        aimIK.solver.useRotationLimits = true;
-        // aimIK.solver.fixTransforms = true; // Not present on solver
-        // If your version supports clamp, set it here:
-        // aimIK.solver.clamp = IKSolverAim.Clamp.Absolute;
-
-        // Set up the bones array with correct references and weights
-        aimIK.solver.bones = new IKSolver.Bone[] {
-            new(FindChildRecursive(player.transform, "spine_01.x"), 0f),
-            new(FindChildRecursive(player.transform, "spine_02.x"), 0f),
-            new(FindChildRecursive(player.transform, "spine_03.x"), 0.769f),
-            new(FindChildRecursive(player.transform, "arm_stretch.r"), 1f),
-            new(FindChildRecursive(player.transform, "forearm_stretch.r"), 1f),
-            new(FindChildRecursive(player.transform, "hand.r"), 1f)
-        };
-
-        // Mark AimIK as dirty so changes persist
-        EditorUtility.SetDirty(aimIK);
-        PrefabUtility.RecordPrefabInstancePropertyModifications(aimIK);
-
-        Debug.Log($"[AutoSetup] AimIK component set up for {player.gameObject.name} (disabled by default). Target: {aimIK.solver.target?.name}");
-    }
-
-    private static void SetAimIKBoneWeight(AimIK aimIK, string boneName, float weight)
-    {
-        if (aimIK?.solver?.bones == null) return;
-        foreach (var bone in aimIK.solver.bones)
-        {
-            if (bone != null && bone.transform != null && bone.transform.name == boneName)
-            {
-                bone.weight = weight;
-                return;
-            }
-        }
-        Debug.LogWarning($"[AutoSetup] Could not find bone '{boneName}' in AimIK.bones array.");
-    }
-
-    private static void SetupRecoilIK(Player player, bool overwriteExisting = true)
-    {
-        if (player == null)
-            return;
-
-        var recoilIK = player.GetComponent<RecoilIK>();
-        if (recoilIK == null)
-        {
-            recoilIK = player.gameObject.AddComponent<RecoilIK>();
-            Debug.Log($"[AutoSetup] IKRecoil component added to {player.gameObject.name}.");
-        }
-        else
-        {
-            Debug.Log($"[AutoSetup] IKRecoil component already exists on {player.gameObject.name}.");
-        }
-
-        AssignAimIKToRecoilIK(player, recoilIK);
-        AssignFBBIKToRecoilIK(player, recoilIK);
-        AssignRecoilIKSettingsFromWeaponManager(player, recoilIK);
-
-        // Mark RecoilIK as dirty so changes persist
-        EditorUtility.SetDirty(recoilIK);
-        PrefabUtility.RecordPrefabInstancePropertyModifications(recoilIK);
-    }
-
-    private static void AssignAimIKToRecoilIK(Player player, RecoilIK recoilIK)
-    {
-        var aimIK = player.GetComponent<AimIK>();
-        if (aimIK != null)
-        {
-            var aimIKField = recoilIK.GetType().GetField("aimIK", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (aimIKField != null)
-            {
-                aimIKField.SetValue(recoilIK, aimIK);
-                Debug.Log($"[AutoSetup] Assigned AimIK reference to RecoilIK on {player.gameObject.name}.");
-            }
-            else
-            {
-                var aimIKProp = recoilIK.GetType().GetProperty("aimIK", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (aimIKProp != null && aimIKProp.CanWrite)
-                {
-                    aimIKProp.SetValue(recoilIK, aimIK);
-                    Debug.Log($"[AutoSetup] Assigned AimIK property to RecoilIK on {player.gameObject.name}.");
-                }
-                else
-                {
-                    Debug.LogWarning($"[AutoSetup] Could not find 'aimIK' field or property on RecoilIK for {player.gameObject.name}.");
-                }
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[AutoSetup] AimIK component not found on {player.gameObject.name}, cannot assign to RecoilIK.");
-        }
-    }
-
-    private static void AssignFBBIKToRecoilIK(Player player, RecoilIK recoilIK)
-    {
-        var fbbik = player.GetComponent<FullBodyBipedIK>();
-        if (fbbik != null)
-        {
-            // Walk up the inheritance chain to find the 'ik' field, logging each step
-            System.Type type = recoilIK.GetType();
-            System.Reflection.FieldInfo ikField = null;
-            while (type != null && ikField == null)
-            {
-                Debug.Log($"[AutoSetup] Checking for 'ik' field in type: {type.FullName}");
-                ikField = type.GetField("ik", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (ikField != null)
-                {
-                    Debug.Log($"[AutoSetup] Found 'ik' field in type: {type.FullName}");
-                }
-                type = type.BaseType;
-            }
-            if (ikField != null)
-            {
-                ikField.SetValue(recoilIK, fbbik);
-                Debug.Log($"[AutoSetup] Assigned FBBIK reference to 'ik' field (found in {ikField.DeclaringType.Name}) of RecoilIK on {player.gameObject.name}.");
-            }
-            else
-            {
-                Debug.LogWarning($"[AutoSetup] Could not find 'ik' field in RecoilIK or its base classes for {player.gameObject.name}.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[AutoSetup] FullBodyBipedIK component not found on {player.gameObject.name}, cannot assign to RecoilIK.");
-        }
-    }
-
-    private static void AssignRecoilIKSettingsFromWeaponManager(Player player, RecoilIK recoilIK)
-    {
-        var pwm = player.GetComponent<PlayerWeaponManager>();
-        if (pwm != null)
-        {
-            var weaponData = pwm.CurrentWeaponData;
-            if (weaponData == null)
-            {
-                // Try to auto-assign a WeaponData asset if one exists
-                string[] guids = UnityEditor.AssetDatabase.FindAssets("t:WeaponData");
-                if (guids != null && guids.Length > 0)
-                {
-                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
-                    var defaultWeaponData = UnityEditor.AssetDatabase.LoadAssetAtPath<WeaponData>(path);
-                    if (defaultWeaponData != null)
+                    if (overwriteExisting)
                     {
-                        var currentWeaponDataField = pwm.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        if (currentWeaponDataField != null)
-                        {
-                            currentWeaponDataField.SetValue(pwm, defaultWeaponData);
-                            weaponData = defaultWeaponData;
-                        }
-                    }
-                }
-            }
-            if (weaponData != null)
-            {
-                // Always assign a deep copy of offsets from WeaponData to RecoilIK
-                if (weaponData.offsets != null && weaponData.offsets.Length > 0)
-                {
-                    recoilIK.offsets = new RecoilIK.RecoilOffset[weaponData.offsets.Length];
-                    for (int i = 0; i < weaponData.offsets.Length; i++)
-                    {
-                        var src = weaponData.offsets[i];
-                        var dst = new RecoilIK.RecoilOffset();
-                        dst.offset = src.offset;
-                        dst.additivity = src.additivity;
-                        dst.maxAdditiveOffsetMag = src.maxAdditiveOffsetMag;
-                        if (src.effectorLinks != null && src.effectorLinks.Length > 0)
-                        {
-                            dst.effectorLinks = new RecoilIK.RecoilOffset.EffectorLink[src.effectorLinks.Length];
-                            for (int j = 0; j < src.effectorLinks.Length; j++)
-                            {
-                                var srcLink = src.effectorLinks[j];
-                                var dstLink = new RecoilIK.RecoilOffset.EffectorLink();
-                                dstLink.effector = srcLink.effector;
-                                dstLink.weight = srcLink.weight;
-                                dst.effectorLinks[j] = dstLink;
-                            }
-                        }
-                        else
-                        {
-                            dst.effectorLinks = null;
-                        }
-                        recoilIK.offsets[i] = dst;
+                        var after = followTargetField.GetValue(player.PlayerCameraController) as Transform;
+                        Debug.Log($"[AutoSetup] PlayerCameraController.followTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
                     }
                 }
                 else
                 {
-                    recoilIK.offsets = null;
-                    UnityEngine.Debug.LogWarning($"[AutoSetup] No offsets found in WeaponData for {player.gameObject.name}.");
+                    Debug.LogWarning("[AutoSetup] PlayerCameraController.followTarget: No follow target reference was set.");
                 }
             }
         }
-    }
 
-    // Helper to map string effector names to FullBodyBipedEffector enum
-    public static RootMotion.FinalIK.FullBodyBipedEffector? StringToFullBodyBipedEffector(string effectorName)
-    {
-        switch (effectorName.ToLowerInvariant())
+        private static void SetCameraControllerAimIKTarget(Player player, Transform aimIKTarget, bool overwriteExisting)
         {
-            case "body": return RootMotion.FinalIK.FullBodyBipedEffector.Body;
-            case "left shoulder": return RootMotion.FinalIK.FullBodyBipedEffector.LeftShoulder;
-            case "right shoulder": return RootMotion.FinalIK.FullBodyBipedEffector.RightShoulder;
-            case "left thigh": return RootMotion.FinalIK.FullBodyBipedEffector.LeftThigh;
-            case "right thigh": return RootMotion.FinalIK.FullBodyBipedEffector.RightThigh;
-            case "left hand": return RootMotion.FinalIK.FullBodyBipedEffector.LeftHand;
-            case "right hand": return RootMotion.FinalIK.FullBodyBipedEffector.RightHand;
-            case "left foot": return RootMotion.FinalIK.FullBodyBipedEffector.LeftFoot;
-            case "right foot": return RootMotion.FinalIK.FullBodyBipedEffector.RightFoot;
-            default:
-                Debug.LogWarning($"[AutoSetup] Unknown effector name '{effectorName}' for FullBodyBipedEffector mapping.");
-                return null;
-        }
-    }
-
-    // Adds or assigns FullBodyBipedIK to the player if missing
-    private static void SetupFBBIK(Player player, bool overwriteExisting = true)
-    {
-        if (player == null)
-            return;
-
-        var fbbik = player.GetComponent<FullBodyBipedIK>();
-        if (fbbik == null)
-        {
-            fbbik = player.gameObject.AddComponent<FullBodyBipedIK>();
-            Debug.Log($"[AutoSetup] FullBodyBipedIK component added to {player.gameObject.name}.");
-        }
-        else
-        {
-            Debug.Log($"[AutoSetup] FullBodyBipedIK component already exists on {player.gameObject.name}.");
-        }
-        // Optionally, you could auto-assign references here if needed
-        if (overwriteExisting && fbbik.solver != null)
-        {
-            // Set left hand effector position weight to 1
-            fbbik.solver.leftHandEffector.positionWeight = 1f;
-            Debug.Log($"[AutoSetup] Set FBBIK leftHandEffector.positionWeight = 1 for {player.gameObject.name} (overwrite: true)");
-        }
-        EditorUtility.SetDirty(fbbik);
-        PrefabUtility.RecordPrefabInstancePropertyModifications(fbbik);
-    }
-
-    // Adds or assigns BulletDecalManager to the player if missing
-    private static void SetupBulletDecalManager(Player player)
-    {
-        if (player == null)
-            return;
-
-        var bulletDecalManager = player.GetComponent<BulletDecalManager>();
-        if (bulletDecalManager == null)
-        {
-            bulletDecalManager = player.gameObject.AddComponent<BulletDecalManager>();
-            Debug.Log($"[AutoSetup] BulletDecalManager component added to {player.gameObject.name}.");
-        }
-        else
-        {
-            Debug.Log($"[AutoSetup] BulletDecalManager component already exists on {player.gameObject.name}.");
-        }
-        EditorUtility.SetDirty(bulletDecalManager);
-        PrefabUtility.RecordPrefabInstancePropertyModifications(bulletDecalManager);
-    }
-
-    private static void SetupPlayerCharacterController(Player player)
-    {
-        if (player == null)
-            return;
-        var pcc = player.GetComponent<PlayerCharacterController>();
-        if (pcc == null)
-        {
-            pcc = player.gameObject.AddComponent<PlayerCharacterController>();
-            Debug.Log($"[AutoSetup] PlayerCharacterController component added to {player.gameObject.name}.");
-        }
-        else
-        {
-            Debug.Log($"[AutoSetup] PlayerCharacterController component already exists on {player.gameObject.name}.");
-        }
-        // Optionally, set as property if needed
-        var type = typeof(Player);
-        var prop = type.GetProperty("PlayerCharacterController");
-        if (prop != null && prop.CanWrite)
-        {
-            prop.SetValue(player, pcc);
-        }
-    }
-
-    private static void SetupHealthManager(Player player)
-    {
-        if (player == null)
-            return;
-
-        // Ensure HealthManager component exists
-        if (player.HealthManager == null)
-        {
-            var healthManager = player.GetComponent<HealthManager>();
-            if (healthManager == null)
+            var aimIKTargetField = player.PlayerCameraController.GetType().GetField("aimIKTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (aimIKTargetField != null)
             {
-                healthManager = player.gameObject.AddComponent<HealthManager>();
-                Debug.Log($"[AutoSetup] HealthManager component added to {player.gameObject.name}.");
+                if (aimIKTarget != null)
+                {
+                    var before = aimIKTargetField.GetValue(player.PlayerCameraController) as Transform;
+                    if (overwriteExisting)
+                    {
+                        Debug.Log($"[AutoSetup] PlayerCameraController.aimIKTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {aimIKTarget.name} (ID: {aimIKTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
+                        if (before != aimIKTarget)
+                            Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.aimIKTarget: {(before != null ? before.name : "null")} -> {aimIKTarget.name}");
+                        aimIKTargetField.SetValue(player.PlayerCameraController, aimIKTarget);
+                    }
+                    else if (before == null)
+                    {
+                        aimIKTargetField.SetValue(player.PlayerCameraController, aimIKTarget);
+                    }
+                    if (overwriteExisting)
+                    {
+                        var after = aimIKTargetField.GetValue(player.PlayerCameraController) as Transform;
+                        Debug.Log($"[AutoSetup] PlayerCameraController.aimIKTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("[AutoSetup] PlayerCameraController.aimIKTarget: No aim IK target reference was set.");
+                }
+            }
+        }
+
+        private static void SetCameraBulletHitTarget(Player player, Transform bulletHitTarget, bool overwriteExisting)
+        {
+            var bulletHitTargetField = player.PlayerCameraController.GetType().GetField("bulletHitTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (bulletHitTargetField != null)
+            {
+                if (bulletHitTarget != null)
+                {
+                    var before = bulletHitTargetField.GetValue(player.PlayerCameraController) as Transform;
+                    if (overwriteExisting)
+                    {
+                        Debug.Log($"[AutoSetup] PlayerCameraController.bulletHitTarget before: {(before != null ? before.name : "null")} (ID: {(before != null ? before.GetInstanceID().ToString() : "null")}), template: {bulletHitTarget.name} (ID: {bulletHitTarget.GetInstanceID()}), overwrite: {overwriteExisting}");
+                        if (before != bulletHitTarget)
+                            Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.bulletHitTarget: {(before != null ? before.name : "null")} -> {bulletHitTarget.name}");
+                        bulletHitTargetField.SetValue(player.PlayerCameraController, bulletHitTarget);
+                    }
+                    else if (before == null)
+                    {
+                        bulletHitTargetField.SetValue(player.PlayerCameraController, bulletHitTarget);
+                    }
+                    if (overwriteExisting)
+                    {
+                        var after = bulletHitTargetField.GetValue(player.PlayerCameraController) as Transform;
+                        Debug.Log($"[AutoSetup] PlayerCameraController.bulletHitTarget after: {(after != null ? after.name : "null")} (ID: {(after != null ? after.GetInstanceID().ToString() : "null")})");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("[AutoSetup] PlayerCameraController.bulletHitTarget: No bullet hit target reference was set.");
+                }
+            }
+        }
+
+        private static void SetPlayerCameraField(Player player, bool overwriteExisting)
+        {
+            var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
+            if (playerCameraGO != null)
+            {
+                var cinemachineCamera = playerCameraGO.GetComponent<Unity.Cinemachine.CinemachineCamera>();
+                if (cinemachineCamera != null)
+                {
+                    var cameraField = player.PlayerCameraController.GetType().GetField("playerCamera", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (cameraField != null)
+                    {
+                        var before = cameraField.GetValue(player.PlayerCameraController);
+                        if (overwriteExisting)
+                        {
+                            Debug.Log($"[AutoSetup] PlayerCameraController.playerCamera before: {(before != null ? before.ToString() : "null")}, template: {cinemachineCamera.name}, overwrite: {overwriteExisting}");
+                            if (before != (object)cinemachineCamera)
+                                Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.playerCamera: {(before != null ? before.ToString() : "null")} -> {cinemachineCamera.name}");
+                            cameraField.SetValue(player.PlayerCameraController, cinemachineCamera);
+                            Debug.Log($"[AutoSetup] PlayerCameraController.playerCamera after: {cameraField.GetValue(player.PlayerCameraController)}");
+                        }
+                        else if (before == null)
+                        {
+                            cameraField.SetValue(player.PlayerCameraController, cinemachineCamera);
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("PlayerCamera field not found in PlayerCameraController.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("CinemachineCamera component not found on PlayerCamera GameObject.");
+                }
             }
             else
             {
-                Debug.Log($"[AutoSetup] HealthManager component already exists on {player.gameObject.name}.");
+                Debug.LogWarning("PlayerCamera GameObject not found at path Cameras/PlayerCamera.");
             }
-            // Explicitly set the property on Player for robustness
-            var prop = typeof(Player).GetProperty("HealthManager");
-            if (prop != null && prop.CanWrite)
+        }
+
+        private static void SetCameraSettings(Player player, bool overwriteExisting)
+        {
+            if (player.playerTemplate != null)
             {
-                prop.SetValue(player, healthManager);
-                Debug.Log($"[AutoSetup] Explicitly set Player.HealthManager property after ensuring component exists.");
+                SetCameraSettingFloat(player, "followFOV", player.playerTemplate.followFOV, overwriteExisting);
+                SetCameraSettingFloat(player, "aimFOV", player.playerTemplate.aimFOV, overwriteExisting);
+                SetCameraSettingFloat(player, "zoomSpeed", player.playerTemplate.zoomSpeed, overwriteExisting);
+                SetCameraSettingFloat(player, "aimCamOffsetX", player.playerTemplate.aimCamOffsetX, overwriteExisting);
+                SetCameraSettingFloat(player, "offsetLerpSpeed", player.playerTemplate.offsetLerpSpeed, overwriteExisting);
+                if (overwriteExisting)
+                {
+                    Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Set camera FOV and zoom speed from PlayerTemplate. Overwrite: {overwriteExisting}");
+                }
             }
-            else
-            {
-                Debug.LogWarning($"[AutoSetup] Could not set HealthManager property on Player {player.gameObject.name} (property not found or not writable).");
-            }
-        }
-    }
-
-    private static void SetupBulletHitscan(Player player)
-    {
-        if (player == null)
-            return;
-
-        // Ensure BulletHitscan component exists
-        var bulletHitscan = player.GetComponent<BulletHitscan>();
-        if (bulletHitscan == null)
-        {
-            bulletHitscan = player.gameObject.AddComponent<BulletHitscan>();
-            Debug.Log($"[AutoSetup] BulletHitscan component added to {player.gameObject.name}.");
-        }
-        else
-        {
-            Debug.Log($"[AutoSetup] BulletHitscan component already exists on {player.gameObject.name}.");
         }
 
-        // Assign to Player property/field for robustness
-        var prop = typeof(Player).GetProperty("BulletHitscan");
-        if (prop != null && prop.CanWrite)
+        private static void SetCameraSettingFloat(Player player, string fieldName, float templateValue, bool overwriteExisting)
         {
-            prop.SetValue(player, bulletHitscan);
-            Debug.Log($"[AutoSetup] Explicitly set Player.BulletHitscan property after ensuring component exists.");
-        }
-        else
-        {
-            var field = typeof(Player).GetField("bulletHitscan", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var field = player.PlayerCameraController.GetType().GetField(fieldName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (field != null)
             {
-                field.SetValue(player, bulletHitscan);
-                Debug.Log($"[AutoSetup] Assigned Player.bulletHitscan field for {player.gameObject.name}.");
+                var before = (float)field.GetValue(player.PlayerCameraController);
+                if (overwriteExisting)
+                {
+                    Debug.Log($"[AutoSetup] PlayerCameraController.{fieldName} before: {before}, template: {templateValue}, overwrite: {overwriteExisting}");
+                    if (before != templateValue)
+                        Debug.Log($"[AutoSetup] Overwriting PlayerCameraController.{fieldName}: {before} -> {templateValue}");
+                    field.SetValue(player.PlayerCameraController, templateValue);
+                    var after = (float)field.GetValue(player.PlayerCameraController);
+                    Debug.Log($"[AutoSetup] PlayerCameraController.{fieldName} after: {after}");
+                }
+                else if (before == default(float))
+                {
+                    field.SetValue(player.PlayerCameraController, templateValue);
+                }
             }
             else
             {
-                Debug.LogWarning($"[AutoSetup] Could not set BulletHitscan property or field on Player {player.gameObject.name} (not found or not writable).");
+                Debug.LogWarning($"PlayerCameraController.{fieldName} field not found.");
             }
         }
 
-        // Mark as dirty for persistence
-        EditorUtility.SetDirty(bulletHitscan);
-        PrefabUtility.RecordPrefabInstancePropertyModifications(bulletHitscan);
+        private static void SetupCrosshairController(Player player)
+        {
+            if (player == null) return;
+            // Auto-assign CrosshairController if not already set
+            if (player.CrosshairController == null)
+            {
+                var crosshair = Object.FindFirstObjectByType<CrosshairController>();
+                if (crosshair != null)
+                {
+                    var crosshairField = player.GetType().GetField("crosshairController", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (crosshairField != null)
+                    {
+                        crosshairField.SetValue(player, crosshair);
+                    }
+                    Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Assigned CrosshairController automatically.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[{player.gameObject.name}] AutoSetupReferences: Could not find CrosshairController in the scene.");
+                }
+            }
+        }
+
+        private static void SetLayerRecursively(GameObject obj, int layer)
+        {
+            if (obj == null) return;
+            obj.layer = layer;
+            foreach (Transform child in obj.transform)
+            {
+                if (child != null && child.gameObject != null)
+                {
+                    child.gameObject.layer = layer;
+                    SetLayerRecursively(child.gameObject, layer);
+                }
+            }
+        }
+
+        private static void SetupPlayerAimIK(Player player, bool overwriteExisting = true, Transform aimIKTarget = null)
+        {
+            if (player == null)
+                return;
+
+            var aimIK = player.GetComponent<AimIK>();
+            if (aimIK == null)
+            {
+                aimIK = player.gameObject.AddComponent<AimIK>();
+                Debug.Log($"[AutoSetup] AimIK component added to {player.gameObject.name}.");
+            }
+            // Always disable AimIK after setup
+            aimIK.enabled = false;
+
+            // Assign targets
+            aimIK.solver.target = aimIKTarget != null ? aimIKTarget : FindChildRecursive(player.transform, "AimIKTarget");
+            aimIK.solver.axis = new Vector3(0, 0, 1);
+            aimIK.solver.poleAxis = new Vector3(0, 1, 0);
+            aimIK.solver.IKPositionWeight = 0f; // Ensure IK position weight is set
+            aimIK.solver.poleWeight = 0f;
+            aimIK.solver.tolerance = 0f;
+            aimIK.solver.maxIterations = 4;
+            aimIK.solver.clampWeight = 0.1f;
+            aimIK.solver.clampSmoothing = (int)2f;
+            aimIK.solver.useRotationLimits = true;
+            // aimIK.solver.fixTransforms = true; // Not present on solver
+            // If your version supports clamp, set it here:
+            // aimIK.solver.clamp = IKSolverAim.Clamp.Absolute;
+
+            // Set up the bones array with correct references and weights
+            aimIK.solver.bones = new IKSolver.Bone[] {
+                new(FindChildRecursive(player.transform, "spine_01.x"), 0f),
+                new(FindChildRecursive(player.transform, "spine_02.x"), 0f),
+                new(FindChildRecursive(player.transform, "spine_03.x"), 0.769f),
+                new(FindChildRecursive(player.transform, "arm_stretch.r"), 1f),
+                new(FindChildRecursive(player.transform, "forearm_stretch.r"), 1f),
+                new(FindChildRecursive(player.transform, "hand.r"), 1f)
+            };
+
+            // Mark AimIK as dirty so changes persist
+            EditorUtility.SetDirty(aimIK);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(aimIK);
+
+            Debug.Log($"[AutoSetup] AimIK component set up for {player.gameObject.name} (disabled by default). Target: {aimIK.solver.target?.name}");
+        }
+
+        private static void SetAimIKBoneWeight(AimIK aimIK, string boneName, float weight)
+        {
+            if (aimIK?.solver?.bones == null) return;
+            foreach (var bone in aimIK.solver.bones)
+            {
+                if (bone != null && bone.transform != null && bone.transform.name == boneName)
+                {
+                    bone.weight = weight;
+                    return;
+                }
+            }
+            Debug.LogWarning($"[AutoSetup] Could not find bone '{boneName}' in AimIK.bones array.");
+        }
+
+        private static void SetupRecoilIK(Player player, bool overwriteExisting = true)
+        {
+            if (player == null)
+                return;
+
+            var recoilIK = player.GetComponent<RecoilIK>();
+            if (recoilIK == null)
+            {
+                recoilIK = player.gameObject.AddComponent<RecoilIK>();
+                Debug.Log($"[AutoSetup] IKRecoil component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] IKRecoil component already exists on {player.gameObject.name}.");
+            }
+
+            AssignAimIKToRecoilIK(player, recoilIK);
+            AssignFBBIKToRecoilIK(player, recoilIK);
+            AssignRecoilIKSettingsFromWeaponManager(player, recoilIK);
+
+            // Mark RecoilIK as dirty so changes persist
+            EditorUtility.SetDirty(recoilIK);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(recoilIK);
+        }
+
+        private static void AssignAimIKToRecoilIK(Player player, RecoilIK recoilIK)
+        {
+            var aimIK = player.GetComponent<AimIK>();
+            if (aimIK != null)
+            {
+                var aimIKField = recoilIK.GetType().GetField("aimIK", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (aimIKField != null)
+                {
+                    aimIKField.SetValue(recoilIK, aimIK);
+                    Debug.Log($"[AutoSetup] Assigned AimIK reference to RecoilIK on {player.gameObject.name}.");
+                }
+                else
+                {
+                    var aimIKProp = recoilIK.GetType().GetProperty("aimIK", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (aimIKProp != null && aimIKProp.CanWrite)
+                    {
+                        aimIKProp.SetValue(recoilIK, aimIK);
+                        Debug.Log($"[AutoSetup] Assigned AimIK property to RecoilIK on {player.gameObject.name}.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[AutoSetup] Could not find 'aimIK' field or property on RecoilIK for {player.gameObject.name}.");
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] AimIK component not found on {player.gameObject.name}, cannot assign to RecoilIK.");
+            }
+        }
+
+        private static void AssignFBBIKToRecoilIK(Player player, RecoilIK recoilIK)
+        {
+            var fbbik = player.GetComponent<FullBodyBipedIK>();
+            if (fbbik != null)
+            {
+                // Walk up the inheritance chain to find the 'ik' field, logging each step
+                System.Type type = recoilIK.GetType();
+                System.Reflection.FieldInfo ikField = null;
+                while (type != null && ikField == null)
+                {
+                    Debug.Log($"[AutoSetup] Checking for 'ik' field in type: {type.FullName}");
+                    ikField = type.GetField("ik", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (ikField != null)
+                    {
+                        Debug.Log($"[AutoSetup] Found 'ik' field in type: {type.FullName}");
+                    }
+                    type = type.BaseType;
+                }
+                if (ikField != null)
+                {
+                    ikField.SetValue(recoilIK, fbbik);
+                    Debug.Log($"[AutoSetup] Assigned FBBIK reference to 'ik' field (found in {ikField.DeclaringType.Name}) of RecoilIK on {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not find 'ik' field in RecoilIK or its base classes for {player.gameObject.name}.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] FullBodyBipedIK component not found on {player.gameObject.name}, cannot assign to RecoilIK.");
+            }
+        }
+
+        private static void AssignRecoilIKSettingsFromWeaponManager(Player player, RecoilIK recoilIK)
+        {
+            var pwm = player.GetComponent<PlayerWeaponManager>();
+            if (pwm != null)
+            {
+                var weaponData = pwm.CurrentWeaponData;
+                if (weaponData == null)
+                {
+                    // Try to auto-assign a WeaponData asset if one exists
+                    string[] guids = UnityEditor.AssetDatabase.FindAssets("t:WeaponData");
+                    if (guids != null && guids.Length > 0)
+                    {
+                        string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                        var defaultWeaponData = UnityEditor.AssetDatabase.LoadAssetAtPath<WeaponData>(path);
+                        if (defaultWeaponData != null)
+                        {
+                            var currentWeaponDataField = pwm.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                            if (currentWeaponDataField != null)
+                            {
+                                currentWeaponDataField.SetValue(pwm, defaultWeaponData);
+                                weaponData = defaultWeaponData;
+                            }
+                        }
+                    }
+                }
+                if (weaponData != null)
+                {
+                    // Always assign a deep copy of offsets from WeaponData to RecoilIK
+                    if (weaponData.offsets != null && weaponData.offsets.Length > 0)
+                    {
+                        recoilIK.offsets = new RecoilIK.RecoilOffset[weaponData.offsets.Length];
+                        for (int i = 0; i < weaponData.offsets.Length; i++)
+                        {
+                            var src = weaponData.offsets[i];
+                            var dst = new RecoilIK.RecoilOffset();
+                            dst.offset = src.offset;
+                            dst.additivity = src.additivity;
+                            dst.maxAdditiveOffsetMag = src.maxAdditiveOffsetMag;
+                            if (src.effectorLinks != null && src.effectorLinks.Length > 0)
+                            {
+                                dst.effectorLinks = new RecoilIK.RecoilOffset.EffectorLink[src.effectorLinks.Length];
+                                for (int j = 0; j < src.effectorLinks.Length; j++)
+                                {
+                                    var srcLink = src.effectorLinks[j];
+                                    var dstLink = new RecoilIK.RecoilOffset.EffectorLink();
+                                    dstLink.effector = srcLink.effector;
+                                    dstLink.weight = srcLink.weight;
+                                    dst.effectorLinks[j] = dstLink;
+                                }
+                            }
+                            else
+                            {
+                                dst.effectorLinks = null;
+                            }
+                            recoilIK.offsets[i] = dst;
+                        }
+                    }
+                    else
+                    {
+                        recoilIK.offsets = null;
+                        UnityEngine.Debug.LogWarning($"[AutoSetup] No offsets found in WeaponData for {player.gameObject.name}.");
+                    }
+                }
+            }
+        }
+
+        // Helper to map string effector names to FullBodyBipedEffector enum
+        public static RootMotion.FinalIK.FullBodyBipedEffector? StringToFullBodyBipedEffector(string effectorName)
+        {
+            switch (effectorName.ToLowerInvariant())
+            {
+                case "body": return RootMotion.FinalIK.FullBodyBipedEffector.Body;
+                case "left shoulder": return RootMotion.FinalIK.FullBodyBipedEffector.LeftShoulder;
+                case "right shoulder": return RootMotion.FinalIK.FullBodyBipedEffector.RightShoulder;
+                case "left thigh": return RootMotion.FinalIK.FullBodyBipedEffector.LeftThigh;
+                case "right thigh": return RootMotion.FinalIK.FullBodyBipedEffector.RightThigh;
+                case "left hand": return RootMotion.FinalIK.FullBodyBipedEffector.LeftHand;
+                case "right hand": return RootMotion.FinalIK.FullBodyBipedEffector.RightHand;
+                case "left foot": return RootMotion.FinalIK.FullBodyBipedEffector.LeftFoot;
+                case "right foot": return RootMotion.FinalIK.FullBodyBipedEffector.RightFoot;
+                default:
+                    Debug.LogWarning($"[AutoSetup] Unknown effector name '{effectorName}' for FullBodyBipedEffector mapping.");
+                    return null;
+            }
+        }
+
+        // Adds or assigns FullBodyBipedIK to the player if missing
+        private static void SetupFBBIK(Player player, bool overwriteExisting = true)
+        {
+            if (player == null)
+                return;
+
+            var fbbik = player.GetComponent<FullBodyBipedIK>();
+            if (fbbik == null)
+            {
+                fbbik = player.gameObject.AddComponent<FullBodyBipedIK>();
+                Debug.Log($"[AutoSetup] FullBodyBipedIK component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] FullBodyBipedIK component already exists on {player.gameObject.name}.");
+            }
+            // No solver initialization or effector weight assignment in editor auto-setup
+            EditorUtility.SetDirty(fbbik);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(fbbik);
+        }
+
+        // Adds or assigns BulletDecalManager to the player if missing
+        private static void SetupBulletDecalManager(Player player)
+        {
+            if (player == null)
+                return;
+
+            var bulletDecalManager = player.GetComponent<BulletDecalManager>();
+            if (bulletDecalManager == null)
+            {
+                bulletDecalManager = player.gameObject.AddComponent<BulletDecalManager>();
+                Debug.Log($"[AutoSetup] BulletDecalManager component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] BulletDecalManager component already exists on {player.gameObject.name}.");
+            }
+            EditorUtility.SetDirty(bulletDecalManager);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(bulletDecalManager);
+        }
+
+        private static void SetupPlayerCharacterController(Player player)
+        {
+            if (player == null)
+                return;
+            var pcc = player.GetComponent<PlayerCharacterController>();
+            if (pcc == null)
+            {
+                pcc = player.gameObject.AddComponent<PlayerCharacterController>();
+                Debug.Log($"[AutoSetup] PlayerCharacterController component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] PlayerCharacterController component already exists on {player.gameObject.name}.");
+            }
+            // Optionally, set as property if needed
+            var type = typeof(Player);
+            var prop = type.GetProperty("PlayerCharacterController");
+            if (prop != null && prop.CanWrite)
+            {
+                prop.SetValue(player, pcc);
+            }
+        }
+
+        private static void SetupHealthManager(Player player)
+        {
+            if (player == null)
+                return;
+
+            // Ensure HealthManager component exists
+            if (player.HealthManager == null)
+            {
+                var healthManager = player.GetComponent<HealthManager>();
+                if (healthManager == null)
+                {
+                    healthManager = player.gameObject.AddComponent<HealthManager>();
+                    Debug.Log($"[AutoSetup] HealthManager component added to {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.Log($"[AutoSetup] HealthManager component already exists on {player.gameObject.name}.");
+                }
+                // Explicitly set the property on Player for robustness
+                var prop = typeof(Player).GetProperty("HealthManager");
+                if (prop != null && prop.CanWrite)
+                {
+                    prop.SetValue(player, healthManager);
+                    Debug.Log($"[AutoSetup] Explicitly set Player.HealthManager property after ensuring component exists.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not set HealthManager property on Player {player.gameObject.name} (property not found or not writable).");
+                }
+            }
+        }
+
+        private static void SetupBulletHitscan(Player player)
+        {
+            if (player == null)
+                return;
+
+            // Ensure BulletHitscan component exists
+            var bulletHitscan = player.GetComponent<BulletHitscan>();
+            if (bulletHitscan == null)
+            {
+                bulletHitscan = player.gameObject.AddComponent<BulletHitscan>();
+                Debug.Log($"[AutoSetup] BulletHitscan component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] BulletHitscan component already exists on {player.gameObject.name}.");
+            }
+
+            // Assign to Player property/field for robustness
+            var prop = typeof(Player).GetProperty("BulletHitscan");
+            if (prop != null && prop.CanWrite)
+            {
+                prop.SetValue(player, bulletHitscan);
+                Debug.Log($"[AutoSetup] Explicitly set Player.BulletHitscan property after ensuring component exists.");
+            }
+            else
+            {
+                var field = typeof(Player).GetField("bulletHitscan", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (field != null)
+                {
+                    field.SetValue(player, bulletHitscan);
+                    Debug.Log($"[AutoSetup] Assigned Player.bulletHitscan field for {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not set BulletHitscan property or field on Player {player.gameObject.name} (not found or not writable).");
+                }
+            }
+
+            // Mark as dirty for persistence
+            EditorUtility.SetDirty(bulletHitscan);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(bulletHitscan);
+        }
     }
 }
 
 #if UNITY_EDITOR
 [CustomEditor(typeof(Player))]
-public class PlayerAutoSetupEditor : Editor
+public class PlayerAutoSetupEditor : UnityEditor.Editor
 {
     private bool overwriteExisting = false;
     private static bool autoSetupLocked = false;

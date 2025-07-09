@@ -64,6 +64,17 @@ public class PlayerIKController : MonoBehaviour
 
             // Presuming head is rotated towards character forward at Start
             headLookAxis = fullBodyBipedIK.references.head.InverseTransformVector(fullBodyBipedIK.references.root.forward);
+
+            // Ensure only the left hand effector weights are set to 1
+            if (fullBodyBipedIK.solver != null && fullBodyBipedIK.solver.initiated)
+            {
+                var leftHandEffector = fullBodyBipedIK.solver.leftHandEffector;
+                if (leftHandEffector != null)
+                {
+                    leftHandEffector.positionWeight = 1f;
+                    leftHandEffector.rotationWeight = 1f;
+                }
+            }
         }
 
         // Only disable AimIK if it exists

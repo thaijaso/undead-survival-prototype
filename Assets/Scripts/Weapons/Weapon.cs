@@ -1,7 +1,6 @@
 using UnityEngine;
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-#if UNITY_EDITOR
-using UnityEditor.SceneManagement;
 #endif
 
 // Weapon.cs
@@ -10,6 +9,25 @@ using UnityEditor.SceneManagement;
 
 public class Weapon : MonoBehaviour
 {
+#if ODIN_INSPECTOR
+    [BoxGroup("Prefab References", Order = 0)]
+    public ParticleSystem muzzleEffect;
+    [BoxGroup("Prefab References", Order = 0)]
+    public AudioSource gunshot;
+    [BoxGroup("Prefab References", Order = 0)]
+    public GameObject bulletPrefab;
+    [BoxGroup("Prefab References", Order = 0)]
+    public ParticleSystem bulletTracer;
+    [BoxGroup("Prefab References", Order = 0)]
+    public Transform muzzleTransform;
+    [BoxGroup("Prefab References", Order = 0)]
+    public Transform leftHandGripSource;
+    [BoxGroup("Prefab References", Order = 0)]
+    public WeaponData weaponData;
+
+    [BoxGroup("Scene References", Order = 1)]
+    public Transform bulletHitTarget;
+#else
     // Visual and audio effects
     public ParticleSystem muzzleEffect; // Muzzle flash effect
     public AudioSource gunshot;         // Gunshot sound
@@ -25,6 +43,7 @@ public class Weapon : MonoBehaviour
     // Data and targeting
     public WeaponData weaponData;       // Reference to ScriptableObject with all weapon stats/config
     public Transform bulletHitTarget;   // Optional: world target for bullet direction (e.g., aim point)
+#endif
 
     private void Awake()
     {
@@ -120,21 +139,6 @@ public class Weapon : MonoBehaviour
         if (bulletHitTarget == null)
             Debug.LogWarning($"[Weapon] BulletHitTarget is not assigned on {gameObject.name}.");
     }
-
-#if UNITY_EDITOR
-    [BoxGroup("Auto-Setup"), PropertyOrder(-1)]
-    [ToggleLeft]
-    [ShowInInspector]
-    [LabelText("Overwrite Existing References")]
-    private bool overwriteReferences = false;
-
-    [BoxGroup("Auto-Setup")]
-    [Button("Auto-Setup References", ButtonSizes.Large)]
-    private void AutoSetupReferences()
-    {
-        WeaponAutoSetupUtility.AutoSetupReferences(this, overwriteReferences);
-    }
-#endif
 }
 
 // Helper extension to print full hierarchy path

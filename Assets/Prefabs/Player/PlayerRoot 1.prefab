@@ -2706,7 +2706,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 570d35a6feade0d47b1ff2f13b2c4c08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementThreshold: 0.2
+  movementThreshold: 0.2
   animationSmoothTime: 0.2
   maxInputThreshold: 0.6
 --- !u!114 &4023188053783628515
@@ -2722,11 +2722,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 0}
-  forwardsFollowTarget: {fileID: 7474987423836664552}
-  aimTarget: {fileID: 0}
+  followTarget: {fileID: 0}
+  aimIKTarget: {fileID: 0}
+  bulletHitTarget: {fileID: 0}
   followFOV: 50
   aimFOV: 30
   zoomSpeed: 15.48
+  aimCamOffsetX: 0.5
+  offsetLerpSpeed: 5
 --- !u!114 &5334363095230575640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3466,9 +3469,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   headLookWeight: 1
+  blendSpeed: 5
+  inspectorTargetIKWeight: 1
   gunHoldOffset: {x: 0, y: 0, z: 0}
   leftHandOffset: {x: 0, y: 0, z: 0}
   recoil: {fileID: 0}
+  leftHandIKTarget: {fileID: 0}
+  leftHandGripSource: {fileID: 0}
+  debugOverrideIKWeight: 0
 --- !u!114 &4869864172628029797
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3572,6 +3580,11 @@ MonoBehaviour:
   rotationRandom: {x: 0, y: 30, z: 0}
   handRotationOffset: {x: 0, y: 0, z: 0}
   blendTime: 0.1
+  ikRecoilWeight: 1
+  offsetSettings:
+    offset: {x: 0.02, y: 0, z: -0.1}
+    additivity: 0.5
+    maxAdditiveOffsetMag: 0.2
   offsets:
   - offset: {x: 0.02, y: 0, z: -0.1}
     additivity: 0.5
@@ -4265,7 +4278,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 570d35a6feade0d47b1ff2f13b2c4c08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementThreshold: 0.2
+  movementThreshold: 0.2
   animationSmoothTime: 0.05
   maxInputThreshold: 0.6
 --- !u!143 &5191065798302352741
@@ -4306,9 +4319,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   headLookWeight: 1
+  blendSpeed: 5
+  inspectorTargetIKWeight: 1
   gunHoldOffset: {x: 0, y: 0, z: 0}
   leftHandOffset: {x: 0, y: 0, z: 0}
   recoil: {fileID: 0}
+  leftHandIKTarget: {fileID: 0}
+  leftHandGripSource: {fileID: 0}
+  debugOverrideIKWeight: 0
 --- !u!114 &4198919151838573176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4334,11 +4352,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 0}
-  forwardsFollowTarget: {fileID: 7341235245381810016}
-  aimTarget: {fileID: 3413649682963329998}
+  followTarget: {fileID: 0}
+  aimIKTarget: {fileID: 0}
+  bulletHitTarget: {fileID: 0}
   followFOV: 40
   aimFOV: 28.7
   zoomSpeed: 5
+  aimCamOffsetX: 0.5
+  offsetLerpSpeed: 5
 --- !u!114 &5717942204803166786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4401,6 +4422,11 @@ MonoBehaviour:
   rotationRandom: {x: 0, y: 0, z: 0}
   handRotationOffset: {x: 0, y: 0, z: 0}
   blendTime: 0
+  ikRecoilWeight: 1
+  offsetSettings:
+    offset: {x: 0.02, y: 0, z: -0.1}
+    additivity: 0.5
+    maxAdditiveOffsetMag: 0.2
   offsets: []
   rotationOffset: {x: 0, y: 0, z: 0, w: 1}
 --- !u!114 &3572609771199735586

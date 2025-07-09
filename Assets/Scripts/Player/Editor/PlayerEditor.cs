@@ -2,18 +2,21 @@ using UnityEditor;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
-[CustomEditor(typeof(Player))]
-public class PlayerEditor : OdinEditor
+namespace UndeadSurvivalGame.Editor
 {
-    public override void OnInspectorGUI()
+    [CustomEditor(typeof(Player))]
+    public class PlayerEditor : OdinEditor
     {
-        base.OnInspectorGUI();
-
-        Player player = (Player)target;
-        GUILayout.Space(10);
-        if (GUILayout.Button("Auto-Setup References", GUILayout.Height(32)))
+        public override void OnInspectorGUI()
         {
-            PlayerAutoSetupUtility.AutoSetupReferences(player);
+            base.OnInspectorGUI();
+
+            Player player = (Player)target;
+            GUILayout.Space(10);
+            if (GUILayout.Button("Auto-Setup References", GUILayout.Height(32)))
+            {
+                PlayerAutoSetupUtility.AutoSetupReferences(player);
+            }
         }
     }
 }
