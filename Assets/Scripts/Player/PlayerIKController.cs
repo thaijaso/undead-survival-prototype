@@ -59,6 +59,15 @@ public class PlayerIKController : MonoBehaviour
         {
             fullBodyBipedIK.solver.OnPreRead += OnPreRead;
 
+            // Assign left hand effector target if available
+            if (leftHandIKTarget != null)
+            {
+                fullBodyBipedIK.solver.leftHandEffector.target = leftHandIKTarget;
+                fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
+                fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 1f;
+                Debug.Log($"[PlayerIKController] Assigned leftHandIKTarget to FBBIK leftHandEffector.");
+            }
+
             // Disable the FBBIK component to manage its updating
             fullBodyBipedIK.enabled = false;
 
@@ -94,8 +103,6 @@ public class PlayerIKController : MonoBehaviour
 
     public void UpdateIKs(Vector3 faceDirection, Vector3 aimTarget)
     {
-        Debug.Log($"[PlayerIKController] UpdateIKs called with faceDirection: {faceDirection}, aimTarget: {aimTarget}");
-
         // Snatch the aim target from the Move call, it will be used by AimIK (Move is called by CharacterController3rdPerson that controls the actual motion of the character)
         this.aimTarget = aimTarget;
 
@@ -183,6 +190,13 @@ public class PlayerIKController : MonoBehaviour
         if (fullBodyBipedIK == null || fullBodyBipedIK.references.rightHand == null || fullBodyBipedIK.references.leftHand == null)
             return;
 
+        // Always set left hand effector weights to 1 in case FinalIK resets them
+        if (fullBodyBipedIK.solver.leftHandEffector != null)
+        {
+            fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
+            fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 1f;
+        }
+
         // Only apply manual offset if NOT using a grip target
         if (fullBodyBipedIK.solver.leftHandEffector.target == null)
         {
@@ -267,6 +281,36 @@ public class PlayerIKController : MonoBehaviour
     {
         SetIKTargetWeight(inspectorTargetIKWeight);
         SetIKWeights(inspectorTargetIKWeight);
+    }
+
+    [Button("Freeze Animator (Set Speed 0)")]
+    public void FreezeAnimator()
+    {
+        var animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.speed = 0f;
+            Debug.Log("[PlayerIKController] Animator speed set to 0 (frozen)");
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerIKController] No Animator component found to freeze.");
+        }
+    }
+
+    [Button("Unfreeze Animator (Set Speed 1)")]
+    public void UnfreezeAnimator()
+    {
+        var animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.speed = 1f;
+            Debug.Log("[PlayerIKController] Animator speed set to 1 (unfrozen)");
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerIKController] No Animator component found to unfreeze.");
+        }
     }
 
     void Update()

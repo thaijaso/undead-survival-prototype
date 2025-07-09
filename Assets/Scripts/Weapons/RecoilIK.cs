@@ -190,8 +190,6 @@ public class RecoilIK : OffsetModifier
             return;
         }
 
-        Debug.Log($"[RecoilIK] OnModifyOffset(): Recoil applied at {Time.frameCount}");
-
         if (aimIK != null) aimIKAxis = aimIK.solver.axis;
 
         if (!initiated && ik != null)

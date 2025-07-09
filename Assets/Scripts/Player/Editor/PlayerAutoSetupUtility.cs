@@ -33,7 +33,7 @@ namespace UndeadSurvivalGame.Editor
             SetupPlayerBulletHitTarget(player);
             SetupPlayerWeaponHand(player);
             SetupPlayerAimIKTarget(player);
-            SetupPlayerLeftHandIKTarget(player);
+            SetupPlayerLeftHandIKTarget(player, overwriteExisting);
             var cameraTargets = SetupCameraTargetsAndSettings(player, overwriteExisting);
             SetupCrosshairController(player);
             SetupPlayerInput(player, overwriteExisting);
@@ -45,7 +45,6 @@ namespace UndeadSurvivalGame.Editor
             SetupBulletDecalManager(player);
             SetupHealthManager(player);
             SetupBulletHitscan(player);
-            // Add PlayerDebugger before setting references
             SetupPlayerDebugger(player);
             // Move SetupPlayerComponentReferences to the end, after all components/objects are created
             SetupPlayerComponentReferences(player);
@@ -647,7 +646,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerLeftHandIKTarget(Player player)
+        private static void SetupPlayerLeftHandIKTarget(Player player, bool overwriteExisting = true)
         {
             if (player == null || player.playerTemplate == null)
                 return;
@@ -656,8 +655,21 @@ namespace UndeadSurvivalGame.Editor
             Transform leftHandIKTarget = FindDirectChildByName(player.transform, "LeftHandIKTarget");
             if (leftHandIKTarget != null)
             {
-                Debug.Log($"Found existing LeftHandIKTarget as child of Player for {player.gameObject.name}.");
-                return;
+                if (overwriteExisting)
+                {
+                    // Destroy the existing LeftHandIKTarget before creating a new one
+                    Debug.Log($"[AutoSetup] Overwriting existing LeftHandIKTarget for {player.gameObject.name}.");
+#if UNITY_EDITOR
+                    Object.DestroyImmediate(leftHandIKTarget.gameObject);
+#else
+                    Object.Destroy(leftHandIKTarget.gameObject);
+#endif
+                }
+                else
+                {
+                    Debug.Log($"Found existing LeftHandIKTarget as child of Player for {player.gameObject.name}.");
+                    return;
+                }
             }
 
             // 2. Try to instantiate from PlayerTemplate prefab
@@ -666,7 +678,6 @@ namespace UndeadSurvivalGame.Editor
             {
                 GameObject newLeftHandIKTarget = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
                 newLeftHandIKTarget.name = "LeftHandIKTarget";
-                leftHandIKTarget = newLeftHandIKTarget.transform;
                 Debug.Log($"Created LeftHandIKTarget from prefab as child of Player for {player.gameObject.name}.");
                 return;
             }
@@ -678,6 +689,7 @@ namespace UndeadSurvivalGame.Editor
             emptyLeftHandIKTarget.transform.localRotation = Quaternion.identity;
             emptyLeftHandIKTarget.transform.localScale = Vector3.one;
             Debug.Log($"Created empty LeftHandIKTarget as child of Player for {player.gameObject.name} (no prefab assigned or found).");
+            return;
         }
 
         // Helper to find a child recursively by name
