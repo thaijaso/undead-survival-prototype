@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac1be3d29626fab4ea91501ab9171782, type: 3}
   m_Name: RevolverWeaponData
   m_EditorClassIdentifier: 
-  weaponName: 
+  weaponName: Revolver
   weaponPrefab: {fileID: 1111015175407080, guid: 8618b351238924c48bf83d88c1584605, type: 3}
   aimIKOffsets: {fileID: 11400000, guid: 49e7c97ed590d154eb704e0befb36162, type: 2}
   animationRecoilMagnitude: 0.5
@@ -37,17 +37,17 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 2
-      outSlope: 2
+      time: 0.004878998
+      value: 0.9690346
+      inSlope: 0.43117002
+      outSlope: 0.43117002
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.08399347
     - serializedVersion: 3
-      time: 1
-      value: 1
+      time: 0.29680452
+      value: 0.01765864
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -62,9 +62,13 @@ MonoBehaviour:
   handRotationOffset: {x: 0, y: 0, z: 0}
   blendTime: 0.05
   offsets:
-  - offset: {x: 1, y: 1, z: 1}
+  - offset: {x: 0, y: 0.1, z: -0.1}
     additivity: 1
     maxAdditiveOffsetMag: 0.2
     effectorLinks:
     - effector: 6
       weight: 1
+    - effector: 2
+      weight: 0.5
+    - effector: 0
+      weight: 0.1
