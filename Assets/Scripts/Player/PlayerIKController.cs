@@ -249,7 +249,16 @@ public class PlayerIKController : MonoBehaviour
     }
 
     public void BlendIKWeights()
-    {
+    {     
+        // 2 phase ik blend to preserve the weighty feel and hide the left hand lag   
+        if (currentIKWeight < 0.25f)
+        {
+            blendSpeed = 1f;
+        }
+        else
+        {
+            blendSpeed = 3f;
+        }
         currentIKWeight = Mathf.MoveTowards(currentIKWeight, targetIKWeight, Time.deltaTime * blendSpeed);
         SetIKWeights(currentIKWeight);
     }
