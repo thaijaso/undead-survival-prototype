@@ -248,13 +248,20 @@ public class RecoilIK : OffsetModifier
         // Fix the secondary hand relative to the primary hand
         if (twoHanded)
         {
-            Vector3 secondaryHandRelativePosition = Quaternion.Inverse(primaryHand.rotation) * (secondaryHand.position - primaryHand.position);
-            secondaryHandRelativeRotation = Quaternion.Inverse(primaryHand.rotation) * secondaryHand.rotation;
+            if (secondaryHandEffector.target != null)
+            {
+                Debug.LogWarning("[RecoilIK] Left hand effector has a target assigned. Recoil offset will be skipped to avoid IK conflict.");
+            }
+            else
+            {
+                Vector3 secondaryHandRelativePosition = Quaternion.Inverse(primaryHand.rotation) * (secondaryHand.position - primaryHand.position);
+                secondaryHandRelativeRotation = Quaternion.Inverse(primaryHand.rotation) * secondaryHand.rotation;
 
-            Vector3 primaryHandPosition = primaryHand.position + primaryHandEffector.positionOffset;
-            Vector3 secondaryHandPosition = primaryHandPosition + handRotation * secondaryHandRelativePosition;
+                Vector3 primaryHandPosition = primaryHand.position + primaryHandEffector.positionOffset;
+                Vector3 secondaryHandPosition = primaryHandPosition + handRotation * secondaryHandRelativePosition;
 
-            secondaryHandEffector.positionOffset += secondaryHandPosition - (secondaryHand.position + secondaryHandEffector.positionOffset);
+                secondaryHandEffector.positionOffset += secondaryHandPosition - (secondaryHand.position + secondaryHandEffector.positionOffset);
+            }
         }
 
         if (aimIK != null && aimIKSolvedLast) aimIK.solver.axis = Quaternion.Inverse(ik.references.root.rotation) * Quaternion.Inverse(rotationOffset) * aimIKAxis;

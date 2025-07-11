@@ -74,8 +74,6 @@ public class PlayerIKController : MonoBehaviour
             if (leftHandIKTarget != null)
             {
                 fullBodyBipedIK.solver.leftHandEffector.target = leftHandIKTarget;
-                fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
-                fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 1f;
                 Debug.Log($"[PlayerIKController] Assigned leftHandIKTarget to FBBIK leftHandEffector.");
             }
 
@@ -84,17 +82,6 @@ public class PlayerIKController : MonoBehaviour
 
             // Presuming head is rotated towards character forward at Start
             headLookAxis = fullBodyBipedIK.references.head.InverseTransformVector(fullBodyBipedIK.references.root.forward);
-
-            // Ensure only the left hand effector weights are set to 1
-            if (fullBodyBipedIK.solver != null && fullBodyBipedIK.solver.initiated)
-            {
-                var leftHandEffector = fullBodyBipedIK.solver.leftHandEffector;
-                if (leftHandEffector != null)
-                {
-                    leftHandEffector.positionWeight = 1f;
-                    leftHandEffector.rotationWeight = 1f;
-                }
-            }
         }
 
         // Only disable AimIK if it exists
@@ -124,14 +111,13 @@ public class PlayerIKController : MonoBehaviour
         // AimIK pass
         AimIK();
 
+        // 2. Store current hand rotations for recoil math (before FBBIK modifies anything)
+        StoreHandRotationsForRecoil();
+
         // FBBIK pass - put the left hand back to where it was relative to the right hand before AimIK solved
         FBBIK();
-
-        // AimIK pass
-        AimIK();
-
-        // Rotate the head to look at the aim target
         HeadLookAt(aimTarget);
+        UpdateLeftHandIKTarget();
     }
 
     public void SetGunHoldOffset(WeaponIKOffsets offsets)
@@ -204,24 +190,24 @@ public class PlayerIKController : MonoBehaviour
         // Always set left hand effector weights to 1 in case FinalIK resets them
         if (fullBodyBipedIK.solver.leftHandEffector != null)
         {
-            fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
-            fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 1f;
+            //fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
+            //fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 1f;
         }
 
         // Only apply manual offset if NOT using a grip target
-        if (fullBodyBipedIK.solver.leftHandEffector.target == null)
-        {
-            Quaternion r = recoil != null ? recoil.rotationOffset * rightHandRotation : rightHandRotation;
-            Vector3 leftHandTarget = fullBodyBipedIK.references.rightHand.position +
-                                    fullBodyBipedIK.solver.rightHandEffector.positionOffset +
-                                    r * leftHandPosRelToRightHand;
+        // if (fullBodyBipedIK.solver.leftHandEffector.target == null)
+        // {
+        //     Quaternion r = recoil != null ? recoil.rotationOffset * rightHandRotation : rightHandRotation;
+        //     Vector3 leftHandTarget = fullBodyBipedIK.references.rightHand.position +
+        //                             fullBodyBipedIK.solver.rightHandEffector.positionOffset +
+        //                             r * leftHandPosRelToRightHand;
 
-            fullBodyBipedIK.solver.leftHandEffector.positionOffset +=
-                leftHandTarget -
-                fullBodyBipedIK.references.leftHand.position -
-                fullBodyBipedIK.solver.leftHandEffector.positionOffset +
-                r * leftHandOffset;
-        }
+        //     fullBodyBipedIK.solver.leftHandEffector.positionOffset +=
+        //         leftHandTarget -
+        //         fullBodyBipedIK.references.leftHand.position -
+        //         fullBodyBipedIK.solver.leftHandEffector.positionOffset +
+        //         r * leftHandOffset;
+        // }
     }
 
     // Rotating the head to look at the target
@@ -339,9 +325,8 @@ public class PlayerIKController : MonoBehaviour
             SetIKWeights(inspectorTargetIKWeight); // Directly set from inspector
             return;
         }
+
         BlendIKWeights(); // Ensure smooth blending every frame
-        // Optionally, for live inspector changes:
-        // SetIKTargetWeight(inspectorTargetIKWeight);
     }
 
     void LateUpdate()
@@ -351,6 +336,15 @@ public class PlayerIKController : MonoBehaviour
             Debug.DrawLine(aimIK.solver.transform.position, aimIK.solver.target.position, Color.green);
             Debug.DrawRay(aimIK.solver.transform.position, aimIK.solver.transform.forward * 2f, Color.red);
         }
+
+        if (leftHandIKTarget != null && fullBodyBipedIK != null && fullBodyBipedIK.references.leftHand != null)
+        {
+            Debug.DrawLine(
+                fullBodyBipedIK.references.leftHand.position,
+                leftHandIKTarget.position,
+                Color.magenta
+            );
+        }
     }
     
     public void UpdateLeftHandIKTarget()
@@ -358,6 +352,17 @@ public class PlayerIKController : MonoBehaviour
         if (leftHandIKTarget != null && leftHandGripSource != null)
         {
             leftHandIKTarget.SetPositionAndRotation(leftHandGripSource.position, leftHandGripSource.rotation);
+        }
+    }
+
+    private void StoreHandRotationsForRecoil()
+    {
+        if (recoil != null && fullBodyBipedIK != null)
+        {
+            recoil.SetHandRotations(
+                fullBodyBipedIK.references.leftHand.rotation,
+                fullBodyBipedIK.references.rightHand.rotation
+            );
         }
     }
 }

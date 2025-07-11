@@ -67,14 +67,14 @@ public class PlayerInput : MonoBehaviour
             if (moveGraceTimer > graceDuration)
             {
                 MoveCommited = true; // Allow movement to be committed after grace period
-                Debug.Log($"[{gameObject.name}] PlayerInput.Update(): Move committed after grace period.");
+                //Debug.Log($"[{gameObject.name}] PlayerInput.Update(): Move committed after grace period.");
             }
         }
         else
         {
             moveGraceTimer = 0f; // Reset grace timer when not moving
             MoveCommited = false; // Reset move committed state when not moving
-            Debug.Log($"[{gameObject.name}] PlayerInput.Update(): Move reset, grace timer reset.");
+            //Debug.Log($"[{gameObject.name}] PlayerInput.Update(): Move reset, grace timer reset.");
         }
     }
 
