@@ -105,7 +105,7 @@ public class AimState : StrafeState
             player.PlayerCameraController.ResetCameraOffset();
 
             player.CrosshairController.DisableCrosshair();
-            player.PlayerIKController.DisableAimIK();
+            //player.PlayerIKController.DisableAimIK();
         }
     }
 
