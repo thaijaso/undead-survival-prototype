@@ -10,6 +10,12 @@ public class PlayerInput : MonoBehaviour
 
     public bool IsMoving { get; internal set; }
 
+    // Used in the animator to determine if Player should enter walk cycle
+    public bool MoveCommited { get; internal set; }
+
+    private float moveGraceTimer = 0f;
+    private float graceDuration = 0.2f;
+
     public bool IsSprinting { get; internal set; }
     public bool IsJumping { get; internal set; }
     public bool IsAiming { get; internal set; }
@@ -26,6 +32,11 @@ public class PlayerInput : MonoBehaviour
 
     Vector3 currentAnimationBlendVector;
     Vector3 animationVelocity;
+
+    // Tracks the last nonzero movement direction before stopping, for use in the animator
+    public Vector3 stopDirection { get; private set; } = Vector3.forward;
+    // Encoded as: 0 = forward, 1 = right, 2 = down, 3 = left
+    public int stopDirectionIndex { get; private set; } = 0;
 
     private void Awake()
     {
@@ -49,7 +60,22 @@ public class PlayerInput : MonoBehaviour
         IsAiming = aimAction.ReadValue<float>() > 0.0f;
         IsAttacking = attackAction.ReadValue<float>() > 0.0f;
 
-        //IsJumping = Input.GetButtonDown("Jump");
+        if (IsMoving)
+        {
+            moveGraceTimer += Time.deltaTime;
+
+            if (moveGraceTimer > graceDuration)
+            {
+                MoveCommited = true; // Allow movement to be committed after grace period
+                Debug.Log($"[{gameObject.name}] PlayerInput.Update(): Move committed after grace period.");
+            }
+        }
+        else
+        {
+            moveGraceTimer = 0f; // Reset grace timer when not moving
+            MoveCommited = false; // Reset move committed state when not moving
+            Debug.Log($"[{gameObject.name}] PlayerInput.Update(): Move reset, grace timer reset.");
+        }
     }
 
     public Vector3 GetInputDirection()
@@ -72,10 +98,22 @@ public class PlayerInput : MonoBehaviour
                 ref animationVelocity,
                 animationSmoothTime
             );
+            // Track the last nonzero direction for stop animation
+            stopDirection = direction.normalized;
+            stopDirectionIndex = GetDirectionIndex(stopDirection);
         }
 
-
         return currentAnimationBlendVector;
+    }
+
+    // 0 = forward, 1 = right, 2 = down, 3 = left
+    private int GetDirectionIndex(Vector3 dir)
+    {
+        if (Vector3.Dot(dir, Vector3.forward) > 0.7f) return 0;
+        if (Vector3.Dot(dir, Vector3.right) > 0.7f) return 1;
+        if (Vector3.Dot(dir, Vector3.back) > 0.7f) return 2;
+        if (Vector3.Dot(dir, Vector3.left) > 0.7f) return 3;
+        return 0; // Default to forward if ambiguous
     }
 
     public float GetPositiveMaxInputThreshold() 

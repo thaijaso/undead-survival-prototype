@@ -70,8 +70,25 @@ public class AnimationManager
 
     public void SetIsRightFootPlanted(bool isRightFootPlanted)
     {
-        //Debug.Log($"Setting IsRightFootPlanted to {isRightFootPlanted}");
         animator.SetBool("IsRightFootPlanted", isRightFootPlanted);
+    }
+
+    /// <summary>
+    /// Sets the stop direction for the animator.
+    /// Index meanings:
+    /// 0 = forward
+    /// 1 = right
+    /// 2 = down (back)
+    /// 3 = left
+    /// </summary>
+    public void SetStopDirection(int directionIndex)
+    {
+        animator.SetInteger("StopDirection", directionIndex);
+    }
+
+    public void SetMoveCommited(bool moveCommited)
+    {
+        animator.SetBool("MoveCommited", moveCommited);
     }
 
     public void SetLayerWeight(int layerIndex, float weight)

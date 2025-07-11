@@ -63,22 +63,27 @@ public class PlayerCharacterController : MonoBehaviour
         // Remove CharacterController.Move from here
     }
 
-    public void Move(Vector3 direction, float speed)
+    private Vector3 CalculateHorizontalVelocity(Vector3 direction, float speed, Vector3 currentHorizontalVelocity)
     {
-        Vector3 horizontalVelocity = new Vector3(playerVelocity.x, 0, playerVelocity.z);
         Vector3 desiredVelocity = Vector3.zero;
         if (direction.sqrMagnitude > 0.001f)
         {
             // Desired velocity in the given direction
             desiredVelocity = speed * direction.normalized;
             // Accelerate towards desired velocity
-            horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, desiredVelocity, acceleration * Time.deltaTime);
+            return Vector3.MoveTowards(currentHorizontalVelocity, desiredVelocity, acceleration * Time.deltaTime);
         }
         else
         {
             // Decelerate to zero
-            horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, Vector3.zero, deceleration * Time.deltaTime);
+            return Vector3.MoveTowards(currentHorizontalVelocity, Vector3.zero, deceleration * Time.deltaTime);
         }
+    }
+
+    public void Move(Vector3 direction, float speed)
+    {
+        Vector3 horizontalVelocity = new Vector3(playerVelocity.x, 0, playerVelocity.z);
+        horizontalVelocity = CalculateHorizontalVelocity(direction, speed, horizontalVelocity);
         // Update playerVelocity with new horizontal values, keep vertical (gravity) unchanged
         playerVelocity = new Vector3(horizontalVelocity.x, playerVelocity.y, horizontalVelocity.z);
         CharacterController.Move(playerVelocity * Time.deltaTime);

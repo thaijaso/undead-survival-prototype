@@ -36,6 +36,9 @@ public class MoveState : PlayerState
             animationManager.SetIsLeftFootPlanted(false);
             animationManager.SetIsRightFootPlanted(true);
         }
+
+        animationManager.SetStopDirection(player.PlayerInput.stopDirectionIndex);
+        animationManager.SetMoveCommited(player.PlayerInput.MoveCommited);
         
         player.PlayerIKController.BlendIKWeights();
     }
