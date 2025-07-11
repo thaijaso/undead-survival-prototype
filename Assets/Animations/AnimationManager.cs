@@ -63,6 +63,17 @@ public class AnimationManager
         animator.SetBool("IsMoving", isMoving);
     }
 
+    public void SetIsLeftFootPlanted(bool isLeftFootPlanted)
+    {
+        animator.SetBool("IsLeftFootPlanted", isLeftFootPlanted);
+    }
+
+    public void SetIsRightFootPlanted(bool isRightFootPlanted)
+    {
+        //Debug.Log($"Setting IsRightFootPlanted to {isRightFootPlanted}");
+        animator.SetBool("IsRightFootPlanted", isRightFootPlanted);
+    }
+
     public void SetLayerWeight(int layerIndex, float weight)
     {
         animator.SetLayerWeight(layerIndex, weight);

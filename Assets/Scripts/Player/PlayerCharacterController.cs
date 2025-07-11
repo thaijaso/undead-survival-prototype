@@ -18,6 +18,11 @@ public class PlayerCharacterController : MonoBehaviour
     private Vector3 playerVelocity;
     private bool isInitialized = false;
 
+    [SerializeField]
+    private float deceleration = 10f; // Units per second^2, tweak as needed
+    [SerializeField]
+    private float acceleration = 10f; // Units per second^2, tweak as needed
+
     private void Start()
     {
         CharacterController = GetComponent<CharacterController>();
@@ -55,13 +60,28 @@ public class PlayerCharacterController : MonoBehaviour
         {
             playerVelocity.y += gravity * Time.deltaTime;
         }
-
-        CharacterController.Move(playerVelocity * Time.deltaTime);
+        // Remove CharacterController.Move from here
     }
 
     public void Move(Vector3 direction, float speed)
     {
-        CharacterController.Move(speed * Time.deltaTime * direction);
+        Vector3 horizontalVelocity = new Vector3(playerVelocity.x, 0, playerVelocity.z);
+        Vector3 desiredVelocity = Vector3.zero;
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            // Desired velocity in the given direction
+            desiredVelocity = speed * direction.normalized;
+            // Accelerate towards desired velocity
+            horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, desiredVelocity, acceleration * Time.deltaTime);
+        }
+        else
+        {
+            // Decelerate to zero
+            horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, Vector3.zero, deceleration * Time.deltaTime);
+        }
+        // Update playerVelocity with new horizontal values, keep vertical (gravity) unchanged
+        playerVelocity = new Vector3(horizontalVelocity.x, playerVelocity.y, horizontalVelocity.z);
+        CharacterController.Move(playerVelocity * Time.deltaTime);
     }
 }
 

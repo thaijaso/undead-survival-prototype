@@ -26,6 +26,17 @@ public class MoveState : PlayerState
         animationManager.SetMoveParams(direction.x, direction.z);
         animationManager.SetIsMoving(direction.magnitude > 0.1f);
 
+        if (player.PlayerAnimatorEvents.lastPlantedFoot == PlayerAnimatorEvents.Foot.Left)
+        {
+            animationManager.SetIsLeftFootPlanted(true);
+            animationManager.SetIsRightFootPlanted(false);
+        }
+        else if (player.PlayerAnimatorEvents.lastPlantedFoot == PlayerAnimatorEvents.Foot.Right)
+        {
+            animationManager.SetIsLeftFootPlanted(false);
+            animationManager.SetIsRightFootPlanted(true);
+        }
+        
         player.PlayerIKController.BlendIKWeights();
     }
 

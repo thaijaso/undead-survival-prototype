@@ -1,12 +1,6 @@
 ﻿using UnityEngine;
 using PlayerStates;
 using Sirenix.OdinInspector;
-using Unity.Cinemachine;
-using RootMotion.FinalIK;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 [DefaultExecutionOrder(-100)] // Ensure Player runs before other components
 public class Player : MonoBehaviour
@@ -15,6 +9,7 @@ public class Player : MonoBehaviour
     public PlayerCharacterController PlayerCharacterController { get; private set; }
     public PlayerCameraController PlayerCameraController { get; private set; }
     public PlayerIKController PlayerIKController { get; private set; }
+    public PlayerAnimatorEvents PlayerAnimatorEvents { get; private set; }
     public AnimationManager AnimationManager { get; private set; }
 
     public PlayerWeaponManager WeaponManager { get; private set; }
@@ -56,6 +51,7 @@ public class Player : MonoBehaviour
         SetupPlayerCharacterController();
         SetupPlayerCameraController();
         SetupAnimator();
+        SetupAnimatorEvents();
         SetupPlayerIKController();
         SetupWeaponManager();
         SetupHealthManager();
@@ -103,6 +99,14 @@ public class Player : MonoBehaviour
         animator.applyRootMotion = false; // Disable root motion to control movement manually
         animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
         AnimationManager = new AnimationManager(animator);
+    }
+
+    private void SetupAnimatorEvents()
+    {
+        PlayerAnimatorEvents = GetComponent<PlayerAnimatorEvents>();
+
+        if (PlayerAnimatorEvents == null)
+            Debug.LogError($"[{gameObject.name}] Player.SetupAnimatorEvents(): PlayerAnimatorEvents component is missing!");
     }
 
     private void SetupPlayerIKController()

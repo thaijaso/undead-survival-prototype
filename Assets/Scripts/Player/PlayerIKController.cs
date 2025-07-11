@@ -20,6 +20,17 @@ public class PlayerIKController : MonoBehaviour
     [SerializeField]
     private float inspectorTargetIKWeight = 1f;
 
+    [Header("IK Blend Phase Threshold")]
+    [Range(0f, 1f)]
+    [SerializeField]
+    private float ikBlendPhaseThreshold = 0.25f;
+
+    [Header("IK Blend Phase Speeds")]
+    [SerializeField]
+    private float phase1BlendSpeed = 1f;
+    [SerializeField]
+    private float phase2BlendSpeed = 3f;
+
     public Vector3 gunHoldOffset;
     public Vector3 leftHandOffset;
     public RecoilIK recoil;
@@ -251,15 +262,8 @@ public class PlayerIKController : MonoBehaviour
     public void BlendIKWeights()
     {     
         // 2 phase ik blend to preserve the weighty feel and hide the left hand lag   
-        if (currentIKWeight < 0.25f)
-        {
-            blendSpeed = 1f;
-        }
-        else
-        {
-            blendSpeed = 3f;
-        }
-        currentIKWeight = Mathf.MoveTowards(currentIKWeight, targetIKWeight, Time.deltaTime * blendSpeed);
+        float blend = (currentIKWeight < ikBlendPhaseThreshold) ? phase1BlendSpeed : phase2BlendSpeed;
+        currentIKWeight = Mathf.MoveTowards(currentIKWeight, targetIKWeight, Time.deltaTime * blend);
         SetIKWeights(currentIKWeight);
     }
 
