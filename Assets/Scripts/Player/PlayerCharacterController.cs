@@ -4,6 +4,10 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerIKController))]
 public class PlayerCharacterController : MonoBehaviour
 {
+    // Set this to true to enable debug logs
+    [SerializeField] private bool debugLogs = false;
+
+    private const float EPSILON = 0.01f; // For velocity clamping
     public CharacterController CharacterController { get; private set; }
     public PlayerIKController PlayerIKController { get; private set; }
 
@@ -19,7 +23,7 @@ public class PlayerCharacterController : MonoBehaviour
     private bool isInitialized = false;
 
     [SerializeField]
-    private float deceleration = 10f; // Units per second^2, tweak as needed
+    private float deceleration = 50f; // Increased for snappier stop
     [SerializeField]
     private float acceleration = 10f; // Units per second^2, tweak as needed
 
@@ -65,16 +69,21 @@ public class PlayerCharacterController : MonoBehaviour
 
     private Vector3 CalculateHorizontalVelocity(Vector3 direction, float speed, Vector3 currentHorizontalVelocity)
     {
-        Vector3 desiredVelocity = Vector3.zero;
-        if (direction.sqrMagnitude > 0.001f)
+        if (debugLogs)
+            Debug.Log($"[PlayerCharacterController] RAW direction: {direction}, sqrMagnitude: {direction.sqrMagnitude}");
+        if (direction.sqrMagnitude > 0.01f) // Increased threshold for input noise
         {
+            if (debugLogs)
+                Debug.Log($"[PlayerCharacterController] ACCELERATE: direction={direction}, speed={speed}, currentHorizontalVelocity={currentHorizontalVelocity}");
             // Desired velocity in the given direction
-            desiredVelocity = speed * direction.normalized;
+            Vector3 desiredVelocity = speed * direction.normalized;
             // Accelerate towards desired velocity
             return Vector3.MoveTowards(currentHorizontalVelocity, desiredVelocity, acceleration * Time.deltaTime);
         }
         else
         {
+            if (debugLogs)
+                Debug.Log($"[PlayerCharacterController] DECELERATE: direction={direction}, currentHorizontalVelocity={currentHorizontalVelocity}");
             // Decelerate to zero
             return Vector3.MoveTowards(currentHorizontalVelocity, Vector3.zero, deceleration * Time.deltaTime);
         }
@@ -83,7 +92,17 @@ public class PlayerCharacterController : MonoBehaviour
     public void Move(Vector3 direction, float speed)
     {
         Vector3 horizontalVelocity = new Vector3(playerVelocity.x, 0, playerVelocity.z);
+
+        if (debugLogs)
+            Debug.Log($"[PlayerCharacterController] direction: {direction}, direction.sqrMagnitude: {direction.sqrMagnitude}, horizontalVelocity: {horizontalVelocity}, horizontalVelocity.sqrMagnitude: {horizontalVelocity.sqrMagnitude}");
+
+        // Always use acceleration/deceleration for transitions
         horizontalVelocity = CalculateHorizontalVelocity(direction, speed, horizontalVelocity);
+
+        // Clamp very small velocities to zero to avoid floating-point sliding
+        if (Mathf.Abs(horizontalVelocity.x) < EPSILON) horizontalVelocity.x = 0f;
+        if (Mathf.Abs(horizontalVelocity.z) < EPSILON) horizontalVelocity.z = 0f;
+
         // Update playerVelocity with new horizontal values, keep vertical (gravity) unchanged
         playerVelocity = new Vector3(horizontalVelocity.x, playerVelocity.y, horizontalVelocity.z);
         CharacterController.Move(playerVelocity * Time.deltaTime);

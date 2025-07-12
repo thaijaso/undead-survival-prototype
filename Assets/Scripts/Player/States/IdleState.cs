@@ -5,16 +5,17 @@ namespace PlayerStates
     public class IdleState : PlayerState
     {
         public IdleState(
-            Player player, 
-            StateMachine<PlayerState> stateMachine, 
-            AnimationManager animationManager, 
+            Player player,
+            StateMachine<PlayerState> stateMachine,
+            AnimationManager animationManager,
             string animationName
         ) : base(
-            player, 
-            stateMachine, 
-            animationManager, 
+            player,
+            stateMachine,
+            animationManager,
             animationName
-        ) {}
+        )
+        { }
 
         public override void Enter()
         {
@@ -59,6 +60,13 @@ namespace PlayerStates
         public override void PhysicsUpdate()
         {
             base.PhysicsUpdate();
+        }
+        
+        public override void LateUpdate()
+        {
+            base.LateUpdate();
+            // Cleanup or final adjustments for the idle state
+            player.PlayerCharacterController.Move(Vector3.zero, 0f);
         }
     }
 }

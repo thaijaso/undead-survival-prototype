@@ -37,8 +37,6 @@ public class AimState : StrafeState
 
     private void SetupIK()
     {
-        // Enable AimIK via PlayerIKController
-        player.PlayerIKController.EnableAimIK();
         player.PlayerIKController.SetIKTargetWeight(1f);
     }
 
@@ -175,8 +173,6 @@ public class AimState : StrafeState
 
         // 1. Solve all IKs (AimIK, FBBIK, RecoilIK, etc.)
         player.PlayerIKController.UpdateIKs(direction, aimTarget);
-        // 2. After IK solve, update the left hand target's position/rotation for next frame
-        //player.PlayerIKController.UpdateLeftHandIKTarget();
         
         // Prevent crosshair expansion if we're in ShootState
         if (stateMachine.currentState == player.shoot)
