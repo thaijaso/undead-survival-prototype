@@ -8,12 +8,14 @@ public class SprintState : MoveState
         Player player,
         StateMachine<PlayerState> stateMachine,
         AnimationManager animationManager,
-        string animationName
+        string animationName,
+        PlayerWeaponManager weaponManager
     ) : base(
         player,
         stateMachine,
         animationManager,
-        animationName
+        animationName,
+        weaponManager
     )
     {
         sprintSpeed = player.PlayerCharacterController.sprintSpeed;

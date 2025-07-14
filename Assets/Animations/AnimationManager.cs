@@ -91,6 +91,11 @@ public class AnimationManager
         animator.SetBool("MoveCommited", moveCommited);
     }
 
+    public void SetIsWeaponHolstered(bool isHolstered)
+    {
+        animator.SetBool("IsWeaponHolstered", isHolstered);
+    }
+
     public void SetLayerWeight(int layerIndex, float weight)
     {
         animator.SetLayerWeight(layerIndex, weight);

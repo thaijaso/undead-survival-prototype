@@ -8,6 +8,9 @@ using Sirenix.OdinInspector;
 [CreateAssetMenu(fileName = "WeaponData", menuName = "ScriptableObjects/Weapons/Weapon Data", order = 0)]
 public class WeaponData : ScriptableObject
 {
+    public enum WeaponType { Pistol, Rifle }
+    [Header("Weapon Type")]
+    public WeaponType weaponType = WeaponType.Pistol;
     public string weaponName; // Display name for the weapon
 
     public GameObject weaponPrefab; // Prefab to instantiate for this weapon

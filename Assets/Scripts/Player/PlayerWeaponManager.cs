@@ -1,5 +1,4 @@
 using UnityEngine;
-using RootMotion.FinalIK;
 
 public class PlayerWeaponManager : MonoBehaviour
 {
@@ -11,6 +10,7 @@ public class PlayerWeaponManager : MonoBehaviour
     public GameObject CurrentWeaponInstance { get; private set; }
     public Weapon CurrentWeaponScript { get; private set; }
 
+    public bool IsWeaponHolstered { get; private set; } = true;
     private GameObject lastSpawnedWeaponPrefab;
 
     private void Awake()
@@ -239,5 +239,10 @@ public class PlayerWeaponManager : MonoBehaviour
             recoil.offsets = null;
             Debug.LogWarning($"[PlayerWeaponManager] No offsets found in WeaponData for {gameObject.name}.");
         }
+    }
+
+    public void SetIsWeaponHolstered(bool isHolstered)
+    {
+        IsWeaponHolstered = isHolstered;
     }
 }

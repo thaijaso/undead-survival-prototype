@@ -186,13 +186,13 @@ public class Player : MonoBehaviour
         // Initialize states:
         Debug.Log($"[{gameObject.name}] Initializing player states...");
 
-        idle = new IdleState(this, stateMachine, AnimationManager, "Idle");
+        idle = new IdleState(this, stateMachine, AnimationManager, "Idle", WeaponManager);
         Debug.Log($"[{gameObject.name}] ✓ Idle state initialized.");
 
-        sprint = new SprintState(this, stateMachine, AnimationManager, "Sprint");
+        sprint = new SprintState(this, stateMachine, AnimationManager, "Sprint", WeaponManager);
         Debug.Log($"[{gameObject.name}] ✓ Sprint state initialized.");
 
-        strafe = new StrafeState(this, stateMachine, AnimationManager, "Strafe");
+        strafe = new StrafeState(this, stateMachine, AnimationManager, "Strafe", WeaponManager);
         Debug.Log($"[{gameObject.name}] ✓ Strafe state initialized.");
         
         aim = new AimState(

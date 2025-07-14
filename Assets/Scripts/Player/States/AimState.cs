@@ -4,7 +4,6 @@ using RootMotion.FinalIK;
 
 public class AimState : StrafeState
 {
-    protected PlayerWeaponManager weaponManager;
 
     public AimState(
         Player player,
@@ -16,10 +15,10 @@ public class AimState : StrafeState
         player,
         stateMachine,
         animationManager,
-        animationName
+        animationName,
+        weaponManager
     )
     {
-        this.weaponManager = weaponManager;
     }
 
     public override void Enter()
@@ -65,27 +64,40 @@ public class AimState : StrafeState
     {
         GameObject weaponInstance = weaponManager.SpawnWeaponInWeaponHand();
         Weapon weaponScript = weaponInstance.GetComponent<Weapon>();
-
-        if (weaponScript != null && weaponScript.muzzleTransform != null)
-        {
-            player.PlayerIKController.SetAimTransform(weaponScript.muzzleTransform);
-        }
-        else
-        {
-            Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): MuzzleTransform not set on weapon prefab!");
-        }
-
+        SetupWeaponScriptIKAndGrip(weaponScript);
         weaponManager.SetAimIKOffsets();
         weaponManager.SetRecoilIKSettings();
+        weaponManager.SetIsWeaponHolstered(false);
+    }
 
-        if (weaponScript != null && weaponScript.leftHandGripSource != null)
+    private void SetupWeaponScriptIKAndGrip(Weapon weaponScript)
+    {
+        if (weaponScript != null)
         {
-            Debug.Log($"[{player.name}] AimState.SetupWeapon(): Setting left hand grip source to {weaponScript.leftHandGripSource.name}");
-            player.PlayerIKController.SetLeftHandGripSource(weaponScript.leftHandGripSource);
+            // Set muzzle transform for aiming
+            if (weaponScript.muzzleTransform != null)
+            {
+                player.PlayerIKController.SetAimTransform(weaponScript.muzzleTransform);
+            }
+            else
+            {
+                Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): MuzzleTransform not set on weapon prefab!");
+            }
+
+            // Set left hand grip source
+            if (weaponScript.leftHandGripSource != null)
+            {
+                Debug.Log($"[{player.name}] AimState.SetupWeapon(): Setting left hand grip source to {weaponScript.leftHandGripSource.name}");
+                player.PlayerIKController.SetLeftHandGripSource(weaponScript.leftHandGripSource);
+            }
+            else
+            {
+                Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): Left hand grip source not set on weapon prefab!");
+            }
         }
         else
         {
-            Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): Left hand grip source not set on weapon prefab!");
+            Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): Weapon script not found on weapon instance!");
         }
     }
 
