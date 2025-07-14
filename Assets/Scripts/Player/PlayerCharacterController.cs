@@ -23,7 +23,7 @@ public class PlayerCharacterController : MonoBehaviour
     private bool isInitialized = false;
 
     [SerializeField]
-    private float deceleration = 50f; // Increased for snappier stop
+    private float deceleration = 10f; // Increased for snappier stop
     [SerializeField]
     private float acceleration = 10f; // Units per second^2, tweak as needed
 

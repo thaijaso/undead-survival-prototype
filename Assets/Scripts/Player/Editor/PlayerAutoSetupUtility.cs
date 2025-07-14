@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Linq;
 using RootMotion.FinalIK;
 using UndeadSurvivalGame.Editor;
+using RootMotion;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -39,13 +41,14 @@ namespace UndeadSurvivalGame.Editor
             SetupPlayerInput(player, overwriteExisting);
             SetupCharacterControllerFromTemplate(player, overwriteExisting);
             SetupPlayerWeaponManager(player, overwriteExisting);
-            SetupPlayerAimIK(player, overwriteExisting, cameraTargets.aimIKTarget);
+            SetupAimIK(player, overwriteExisting, cameraTargets.aimIKTarget);
             SetupFBBIK(player, overwriteExisting);
             SetupRecoilIK(player, overwriteExisting);
             SetupBulletDecalManager(player);
             SetupHealthManager(player);
             SetupBulletHitscan(player);
             SetupPlayerDebugger(player);
+            SetupPlayerAnimatorEvents(player);
             // Move SetupPlayerComponentReferences to the end, after all components/objects are created
             SetupPlayerComponentReferences(player);
 
@@ -55,6 +58,21 @@ namespace UndeadSurvivalGame.Editor
 
             Debug.Log($"[{player.gameObject.name}] Auto-setup complete.");
             EditorUtility.SetDirty(player);
+        }
+
+        private static void SetupPlayerAnimatorEvents(Player player)
+        {
+            if (player == null) return;
+            var animatorEvents = player.GetComponent<PlayerAnimatorEvents>();
+            if (animatorEvents == null)
+            {
+                animatorEvents = player.gameObject.AddComponent<PlayerAnimatorEvents>();
+                Debug.Log($"[AutoSetup] PlayerAnimatorEvents component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] PlayerAnimatorEvents component already exists on {player.gameObject.name}.");
+            }
         }
 
         private static void SetupCharacterControllerFromTemplate(Player player, bool overwriteExisting = true)
@@ -242,6 +260,34 @@ namespace UndeadSurvivalGame.Editor
                 else
                 {
                     Debug.LogWarning($"[AutoSetup] Could not find LeftHandIKTarget in Player hierarchy for {player.gameObject.name}.");
+                }
+                // Assign RecoilIK reference from player to PlayerIKController if possible
+                var recoilIK = player.GetComponent<RecoilIK>();
+                if (recoilIK != null)
+                {
+                    var recoilField = playerIKController.GetType().GetField("recoil", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (recoilField != null)
+                    {
+                        recoilField.SetValue(playerIKController, recoilIK);
+                        Debug.Log($"[AutoSetup] Assigned RecoilIK reference to PlayerIKController (field 'recoil') for {player.gameObject.name}.");
+                    }
+                    else
+                    {
+                        var recoilProp = playerIKController.GetType().GetProperty("recoil", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (recoilProp != null && recoilProp.CanWrite)
+                        {
+                            recoilProp.SetValue(playerIKController, recoilIK);
+                            Debug.Log($"[AutoSetup] Assigned RecoilIK property to PlayerIKController (property 'recoil') for {player.gameObject.name}.");
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"[AutoSetup] Could not find 'recoil' field or property on PlayerIKController for {player.gameObject.name}.");
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] RecoilIK component not found on {player.gameObject.name}, cannot assign to PlayerIKController.");
                 }
             }
             var weaponManager = player.GetComponent<PlayerWeaponManager>();
@@ -1062,7 +1108,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerAimIK(Player player, bool overwriteExisting = true, Transform aimIKTarget = null)
+        private static void SetupAimIK(Player player, bool overwriteExisting = true, Transform aimIKTarget = null)
         {
             if (player == null)
                 return;
@@ -1093,12 +1139,9 @@ namespace UndeadSurvivalGame.Editor
 
             // Set up the bones array with correct references and weights
             aimIK.solver.bones = new IKSolver.Bone[] {
-                new(FindChildRecursive(player.transform, "spine_01.x"), 0f),
-                new(FindChildRecursive(player.transform, "spine_02.x"), 0f),
-                new(FindChildRecursive(player.transform, "spine_03.x"), 0.769f),
-                new(FindChildRecursive(player.transform, "arm_stretch.r"), 1f),
-                new(FindChildRecursive(player.transform, "forearm_stretch.r"), 1f),
-                new(FindChildRecursive(player.transform, "hand.r"), 1f)
+                new(FindChildRecursive(player.transform, "spine_01.x"), .2f),
+                new(FindChildRecursive(player.transform, "spine_02.x"), .4f),
+                new(FindChildRecursive(player.transform, "spine_03.x"), .6f),
             };
 
             // Mark AimIK as dirty so changes persist
@@ -1298,26 +1341,65 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        // Adds or assigns FullBodyBipedIK to the player if missing
-        private static void SetupFBBIK(Player player, bool overwriteExisting = true)
-        {
-            if (player == null)
-                return;
+    // Adds or assigns FullBodyBipedIK to the player if missing
+    private static void SetupFBBIK(Player player, bool overwriteExisting = true)
+    {
+        if (player == null) return;
 
-            var fbbik = player.GetComponent<FullBodyBipedIK>();
-            if (fbbik == null)
-            {
-                fbbik = player.gameObject.AddComponent<FullBodyBipedIK>();
-                Debug.Log($"[AutoSetup] FullBodyBipedIK component added to {player.gameObject.name}.");
-            }
-            else
-            {
-                Debug.Log($"[AutoSetup] FullBodyBipedIK component already exists on {player.gameObject.name}.");
-            }
-            // No solver initialization or effector weight assignment in editor auto-setup
-            EditorUtility.SetDirty(fbbik);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(fbbik);
+        var fbbik = player.GetComponent<FullBodyBipedIK>();
+        if (fbbik == null)
+        {
+            fbbik = player.gameObject.AddComponent<FullBodyBipedIK>();
+            Debug.Log($"[AutoSetup] FullBodyBipedIK component added to {player.gameObject.name}.");
         }
+        else
+        {
+            Debug.Log($"[AutoSetup] FullBodyBipedIK component already exists on {player.gameObject.name}.");
+        }
+
+        fbbik.enabled = false;
+
+        var refs = new BipedReferences
+        {
+            root = player.transform,
+            pelvis = FindChildRecursive(player.transform, "root.x"),
+            spine = new Transform[] {
+                FindChildRecursive(player.transform, "spine_01.x"),
+                FindChildRecursive(player.transform, "spine_02.x"),
+                FindChildRecursive(player.transform, "spine_03.x"),
+            },
+            head = FindChildRecursive(player.transform, "head.x"),
+
+            leftThigh = FindChildRecursive(player.transform, "thigh_stretch.l"),
+            leftCalf = FindChildRecursive(player.transform, "leg_stretch.l"),
+            leftFoot = FindChildRecursive(player.transform, "foot.l"),
+
+            rightThigh = FindChildRecursive(player.transform, "thigh_stretch.r"),
+            rightCalf = FindChildRecursive(player.transform, "leg_stretch.r"),
+            rightFoot = FindChildRecursive(player.transform, "foot.r"),
+
+            leftUpperArm = FindChildRecursive(player.transform, "arm_stretch.l"),
+            leftForearm = FindChildRecursive(player.transform, "forearm_stretch.l"),
+            leftHand = FindChildRecursive(player.transform, "hand.l"),
+
+            rightUpperArm = FindChildRecursive(player.transform, "arm_stretch.r"),
+            rightForearm = FindChildRecursive(player.transform, "forearm_stretch.r"),
+            rightHand = FindChildRecursive(player.transform, "hand.r")
+        };
+
+        if (refs.isFilled)
+        {
+            fbbik.SetReferences(refs, rootNode: FindChildRecursive(player.transform, "spine_01.x"));
+            Debug.Log($"[AutoSetup] FBBIK references successfully assigned for {player.gameObject.name}.");
+        }
+        else
+        {
+            Debug.LogWarning($"[AutoSetup] Failed to assign some FBBIK references for {player.gameObject.name}. Check bone names or rig.");
+        }
+
+        EditorUtility.SetDirty(fbbik);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(fbbik);
+    }
 
         // Adds or assigns BulletDecalManager to the player if missing
         private static void SetupBulletDecalManager(Player player)

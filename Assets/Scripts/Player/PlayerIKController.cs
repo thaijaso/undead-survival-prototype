@@ -40,6 +40,9 @@ public class PlayerIKController : MonoBehaviour
     private FullBodyBipedIK fullBodyBipedIK;
     private LookAtIK lookAtIK;
 
+    // Reference to Player component
+    private Player player;
+
     private Vector3 headLookAxis;
     private Vector3 leftHandPosRelToRightHand;
     private Quaternion leftHandRotRelToRightHand;
@@ -60,6 +63,8 @@ public class PlayerIKController : MonoBehaviour
 
     protected void Awake()
     {
+        // Cache Player component
+        player = GetComponent<Player>();
         // Find the IK components (they may be null if not present)
         aimIK = GetComponent<AimIK>();
         fullBodyBipedIK = GetComponent<FullBodyBipedIK>();
@@ -74,6 +79,9 @@ public class PlayerIKController : MonoBehaviour
             if (leftHandIKTarget != null)
             {
                 fullBodyBipedIK.solver.leftHandEffector.target = leftHandIKTarget;
+                fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
+                fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 1f;
+                fullBodyBipedIK.solver.leftHandEffector.maintainRelativePositionWeight = 1f;
                 Debug.Log($"[PlayerIKController] Assigned leftHandIKTarget to FBBIK leftHandEffector.");
             }
 
@@ -139,12 +147,12 @@ public class PlayerIKController : MonoBehaviour
 
     private void AimIK()
     {
-        // Only update AimIK if it exists
-        if (aimIK != null)
+        if (aimIK != null && aimIK.solver != null && aimIK.solver.target != null && aimIK.solver.bones != null && aimIK.solver.bones.Length > 0)
         {
-            // Set AimIK target position and update
-            aimIK.solver.IKPosition = aimTarget;
-            aimIK.solver.Update(); // Update AimIK
+            if (!aimIK.solver.initiated)
+                aimIK.solver.Initiate(player.transform); // Or hips.x
+
+            aimIK.solver.Update();
         }
     }
 
