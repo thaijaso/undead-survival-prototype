@@ -71,20 +71,31 @@ public class PlayerCharacterController : MonoBehaviour
     {
         if (debugLogs)
             Debug.Log($"[PlayerCharacterController] RAW direction: {direction}, sqrMagnitude: {direction.sqrMagnitude}");
-        if (direction.sqrMagnitude > 0.01f) // Increased threshold for input noise
+
+        if (direction.sqrMagnitude > 0.01f) // Movement input detected
         {
-            if (debugLogs)
-                Debug.Log($"[PlayerCharacterController] ACCELERATE: direction={direction}, speed={speed}, currentHorizontalVelocity={currentHorizontalVelocity}");
-            // Desired velocity in the given direction
             Vector3 desiredVelocity = speed * direction.normalized;
-            // Accelerate towards desired velocity
-            return Vector3.MoveTowards(currentHorizontalVelocity, desiredVelocity, acceleration * Time.deltaTime);
+
+            // Check how different the current and desired directions are
+            Vector3 currentDir = currentHorizontalVelocity.normalized;
+            float angle = Vector3.Angle(currentDir, direction);
+
+            // If we're turning sharply (over a threshold), snap more quickly
+            float accelMultiplier = angle switch
+            {
+                > 135f => 6f,     // sharp U-turn
+                > 90f  => 4f,     // big directional shift
+                > 45f  => 2f,     // moderate turn
+                _      => 1f      // small course correction
+            };
+
+            if (debugLogs)
+                Debug.Log($"Turning angle: {angle}, accelMultiplier: {accelMultiplier}");
+
+            return Vector3.MoveTowards(currentHorizontalVelocity, desiredVelocity, acceleration * accelMultiplier * Time.deltaTime);
         }
         else
         {
-            if (debugLogs)
-                Debug.Log($"[PlayerCharacterController] DECELERATE: direction={direction}, currentHorizontalVelocity={currentHorizontalVelocity}");
-            // Decelerate to zero
             return Vector3.MoveTowards(currentHorizontalVelocity, Vector3.zero, deceleration * Time.deltaTime);
         }
     }
