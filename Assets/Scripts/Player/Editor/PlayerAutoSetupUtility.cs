@@ -474,10 +474,11 @@ namespace UndeadSurvivalGame.Editor
                 var currentWeaponDataField = weaponManager.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 if (currentWeaponDataField != null)
                 {
-                    if (overwriteExisting)
+                    var currentValue = currentWeaponDataField.GetValue(weaponManager) as WeaponData;
+                    if (overwriteExisting || currentValue == null)
                     {
                         currentWeaponDataField.SetValue(weaponManager, revolverWeaponData);
-                        Debug.Log($"[AutoSetup] PlayerWeaponManager.currentWeaponData set to RevolverWeaponData for {player.gameObject.name} (overwrite: true).");
+                        Debug.Log($"[AutoSetup] PlayerWeaponManager.currentWeaponData set to RevolverWeaponData for {player.gameObject.name} (overwrite: {overwriteExisting}).");
                     }
                 }
                 else
