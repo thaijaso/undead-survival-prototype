@@ -4,7 +4,6 @@ namespace PlayerStates
 {
     public class IdleState : PlayerState
     {
-        private PlayerWeaponManager weaponManager;
         public IdleState(
             Player player,
             StateMachine<PlayerState> stateMachine,
@@ -27,6 +26,7 @@ namespace PlayerStates
             animationManager.SetIsStrafing(false);
             animationManager.SetMoveParams(0f, 0f);
             player.PlayerIKController.SetIKTargetWeight(0f);
+            weaponManager.SpawnWeaponInWeaponHand();
         }
 
         public override void Exit(PlayerState nextState)

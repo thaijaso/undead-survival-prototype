@@ -168281,6 +168281,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cff6ff9287e10f4e927c762cb8ef041, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugLogs: 0
   deceleration: 10
   acceleration: 5
 --- !u!114 &850725515
@@ -265472,6 +265473,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cff6ff9287e10f4e927c762cb8ef041, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugLogs: 0
   deceleration: 10
   acceleration: 5
 --- !u!114 &1342633171
@@ -292467,6 +292469,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cff6ff9287e10f4e927c762cb8ef041, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugLogs: 0
   deceleration: 10
   acceleration: 5
 --- !u!114 &1481012277
@@ -389744,8 +389747,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cff6ff9287e10f4e927c762cb8ef041, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deceleration: 5
-  acceleration: 5
+  debugLogs: 0
+  deceleration: 10
+  acceleration: 10
 --- !u!114 &2002609917
 MonoBehaviour:
   m_ObjectHideFlags: 0

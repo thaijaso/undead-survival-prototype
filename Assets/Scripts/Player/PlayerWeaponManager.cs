@@ -10,7 +10,7 @@ public class PlayerWeaponManager : MonoBehaviour
     public GameObject CurrentWeaponInstance { get; private set; }
     public Weapon CurrentWeaponScript { get; private set; }
 
-    public bool IsWeaponHolstered { get; private set; } = true;
+    public bool IsWeaponHolstered { get; private set; } = false;
     private GameObject lastSpawnedWeaponPrefab;
 
     private void Awake()
