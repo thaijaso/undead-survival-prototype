@@ -2,8 +2,6 @@ using Pathfinding;
 using RootMotion;
 using RootMotion.Dynamics;
 using RootMotion.FinalIK;
-using Sirenix.OdinInspector.Editor;
-using UndeadSurvivalGame.Editor;
 using UnityEngine;
 
 #if UNITY_EDITOR
