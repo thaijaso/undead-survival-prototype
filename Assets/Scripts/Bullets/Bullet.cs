@@ -183,7 +183,7 @@ public class Bullet : MonoBehaviour
     private void SpawnBloodEffect(Vector3 hitPoint, Vector3 hitNormal, Enemy enemy)
     {
         GameObject bloodEffect = Instantiate(
-            enemy.template.bloodEffectPrefab,
+            enemy.enemyTemplate.bloodEffectPrefab,
             hitPoint,
             Quaternion.LookRotation(hitNormal)
         );

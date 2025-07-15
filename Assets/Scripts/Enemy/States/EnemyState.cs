@@ -93,7 +93,7 @@ public class EnemyState : IState<EnemyState>
         Quaternion startRotation = enemy.transform.rotation;
         
         // Phase 1: Slow rotation (first part of animation)
-        float slowPhaseDuration = enemy.template.turn180Phase1Duration;
+        float slowPhaseDuration = enemy.enemyTemplate.turn180Phase1Duration;
         float slowPhaseProgress = 0.2f; // How much to rotate during slow phase
         
         float elapsedTime = 0f;
@@ -106,7 +106,7 @@ public class EnemyState : IState<EnemyState>
         }
         
         // Phase 2: Fast rotation (second part of animation)
-        float fastPhaseDuration = enemy.template.turn180Phase2Duration;
+        float fastPhaseDuration = enemy.enemyTemplate.turn180Phase2Duration;
         elapsedTime = 0f;
         Quaternion midRotation = enemy.transform.rotation;
         
@@ -129,7 +129,7 @@ public class EnemyState : IState<EnemyState>
         Quaternion startRotation = enemy.transform.rotation;
 
         // Phase 1: Slow rotation (first part of Aggro180 animation)
-        float slowPhaseDuration = enemy.template.aggro180Phase1Duration;
+        float slowPhaseDuration = enemy.enemyTemplate.aggro180Phase1Duration;
         float slowPhaseProgress = 0.5f; // How much to rotate during slow phase - increased for faster feel
         
         float elapsedTime = 0f;
@@ -144,7 +144,7 @@ public class EnemyState : IState<EnemyState>
         Debug.Log($"[{enemy.name}] Phase 1 complete - Current rotation: {enemy.transform.rotation.eulerAngles}");
         
         // Phase 2: Fast rotation (second part of Aggro180 animation)
-        float fastPhaseDuration = enemy.template.aggro180Phase2Duration; // Use template value directly
+        float fastPhaseDuration = enemy.enemyTemplate.aggro180Phase2Duration; // Use template value directly
         elapsedTime = 0f;
         Quaternion midRotation = enemy.transform.rotation; // Capture where Phase 1 ended
         

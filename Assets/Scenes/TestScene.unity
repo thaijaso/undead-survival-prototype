@@ -424418,37 +424418,21 @@ PrefabInstance:
     m_TransformParent: {fileID: 741369010}
     m_Modifications:
     - target: {fileID: 1441862226520998414, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
+      propertyPath: enemyTemplate
+      value: 
+      objectReference: {fileID: 11400000, guid: d309fddfe1bc5bc45b3a7fcbf984c0ed, type: 2}
+    - target: {fileID: 1441862226520998414, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
       propertyPath: PlayerTransform
       value: 
       objectReference: {fileID: 1717255700}
-    - target: {fileID: 1441862226520998414, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
-      propertyPath: DebugModeEnabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5039207622939992011, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
       propertyPath: m_Name
       value: Zombie
       objectReference: {fileID: 0}
     - target: {fileID: 5471927317200199923, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5471927317200199923, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
       propertyPath: solver.target
       value: 
       objectReference: {fileID: 1166327836}
-    - target: {fileID: 5471927317200199923, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
-      propertyPath: solver.headWeight
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6711429343625208286, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
-      propertyPath: movement.follower.allowRotatingOnSpotBacking
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6985758950059911034, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
-      propertyPath: m_CollisionDetection
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 7591723288152965580, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
       propertyPath: target
       value: 

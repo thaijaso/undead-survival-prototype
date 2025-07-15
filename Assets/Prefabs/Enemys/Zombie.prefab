@@ -118,7 +118,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   template: {fileID: 11400000, guid: d309fddfe1bc5bc45b3a7fcbf984c0ed, type: 2}
-  DebugModeEnabled: 0
 --- !u!114 &6711429343625208286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,7 +144,7 @@ MonoBehaviour:
       slowdownTimeWhenTurningOnSpot: 0
       desiredWallDistance: 0.5
       leadInRadiusWhenApproachingDestination: 1
-      allowRotatingOnSpotBacking: 1
+      allowRotatingOnSpotBacking: 0
     debugFlags: 64
     stopDistance: 1
     rotationSmoothing: 0
@@ -220,7 +219,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 111758880463491367}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 776adaaacdc5c4e8ab0395120a6e972b, type: 3}
   m_Name: 
@@ -246,7 +245,7 @@ MonoBehaviour:
       baseForwardOffsetEuler: {x: 0, y: 0, z: 0}
     eyes: []
     bodyWeight: 0.5
-    headWeight: 1
+    headWeight: 0.5
     eyesWeight: 1
     clampWeight: 0.5
     clampWeightHead: 0.5
@@ -3248,7 +3247,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!136 &6121203584100984460
 CapsuleCollider:
   m_ObjectHideFlags: 0

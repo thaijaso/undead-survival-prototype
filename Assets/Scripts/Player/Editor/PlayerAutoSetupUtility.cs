@@ -148,13 +148,13 @@ namespace UndeadSurvivalGame.Editor
             if (player.playerTemplate == null)
             {
                 // Try to find any PlayerTemplate asset in the project
-                string[] guids = UnityEditor.AssetDatabase.FindAssets("t:PlayerTemplate");
+                string[] guids = AssetDatabase.FindAssets("t:PlayerTemplate");
                 if (guids != null && guids.Length > 0)
                 {
-                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                    string path = AssetDatabase.GUIDToAssetPath(guids[0]);
                     var mainAssembly = typeof(Player).Assembly;
                     var playerTemplateType = mainAssembly.GetType("PlayerTemplate");
-                    var loadedTemplate = UnityEditor.AssetDatabase.LoadAssetAtPath(path, playerTemplateType);
+                    var loadedTemplate = AssetDatabase.LoadAssetAtPath(path, playerTemplateType);
                     if (loadedTemplate != null)
                     {
                         var playerTemplateProp = typeof(Player).GetProperty("playerTemplate");

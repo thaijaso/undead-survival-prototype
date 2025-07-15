@@ -51,17 +51,17 @@ public class Enemy : MonoBehaviour
     [TabGroup("Configuration")]
     [Required]
     [AssetsOnly]
-    public EnemyTemplate template;
+    public EnemyTemplate enemyTemplate;
 
     public Transform GetPlayerTransform() => PlayerTransform;
     public List<Transform> GetPatrolPoints() => patrolPoints;
-    public float GetAlertRange() => template.alertRange;
-    public float GetPatrolSpeed() => template.patrolSpeed;
-    public float GetChaseSpeed() => template.chaseSpeed;
+    public float GetAlertRange() => enemyTemplate.alertRange;
+    public float GetPatrolSpeed() => enemyTemplate.patrolSpeed;
+    public float GetChaseSpeed() => enemyTemplate.chaseSpeed;
 
-    public float GetAggroRange() => template.aggroRange;
+    public float GetAggroRange() => enemyTemplate.aggroRange;
 
-    public float GetAttackRange() => template.attackRange;
+    public float GetAttackRange() => enemyTemplate.attackRange;
 
     
     // Track if enemy has been aggroed before
@@ -208,19 +208,19 @@ public class Enemy : MonoBehaviour
 
     private void Start()
     {
-        if (template == null)
+        if (enemyTemplate == null)
         {
             Debug.LogError("EnemyTemplate is not assigned. Please assign a template in the inspector.");
             return;
         }
 
-        Debug.Log($"[{gameObject.name}] Enemy template loaded - patrolSpeed: {template.patrolSpeed}, chaseSpeed: {template.chaseSpeed}");
+        Debug.Log($"[{gameObject.name}] Enemy template loaded - patrolSpeed: {enemyTemplate.patrolSpeed}, chaseSpeed: {enemyTemplate.chaseSpeed}");
 
         // Initialize HealthManager with template data now that template is confirmed available
         if (HealthManager != null)
         {
             Debug.Log($"[{gameObject.name}] About to initialize HealthManager. Current health: {HealthManager.currentHealth}");
-            HealthManager.Initialize(template.maxHealth);
+            HealthManager.Initialize(enemyTemplate.maxHealth);
             Debug.Log($"[{gameObject.name}] HealthManager initialized. New health: {HealthManager.currentHealth}");
         }
 
@@ -299,7 +299,7 @@ public class Enemy : MonoBehaviour
         }
 
         float sqrDistanceToPlayer = (transform.position - PlayerTransform.position).sqrMagnitude;
-        return sqrDistanceToPlayer <= template.alertRange * template.alertRange;
+        return sqrDistanceToPlayer <= enemyTemplate.alertRange * enemyTemplate.alertRange;
     }
 
     public bool IsPlayerInAggroRange()
@@ -313,7 +313,7 @@ public class Enemy : MonoBehaviour
         }
 
         float sqrDistanceToPlayer = (transform.position - PlayerTransform.position).sqrMagnitude;
-        return sqrDistanceToPlayer <= template.aggroRange * template.aggroRange;
+        return sqrDistanceToPlayer <= enemyTemplate.aggroRange * enemyTemplate.aggroRange;
     }
 
     public bool IsPlayerInAttackRange()
@@ -327,7 +327,7 @@ public class Enemy : MonoBehaviour
         }
 
         float sqrDistanceToPlayer = (transform.position - PlayerTransform.position).sqrMagnitude;
-        return sqrDistanceToPlayer <= template.attackRange * template.attackRange;
+        return sqrDistanceToPlayer <= enemyTemplate.attackRange * enemyTemplate.attackRange;
     }
 
     // ===============================================
@@ -425,7 +425,7 @@ public class Enemy : MonoBehaviour
             Debug.Log($"[{gameObject.name}] SPEED DEBUG{(string.IsNullOrEmpty(context) ? "" : $" ({context})")}: " +
                      $"FollowerEntity.maxSpeed = {followerEntity.maxSpeed}, " +
                      $"Current State = {stateMachine.currentState?.GetType().Name ?? "None"}, " +
-                     $"PatrolSpeed = {template.patrolSpeed}, ChaseSpeed = {template.chaseSpeed}");
+                     $"PatrolSpeed = {enemyTemplate.patrolSpeed}, ChaseSpeed = {enemyTemplate.chaseSpeed}");
         }
         else
         {

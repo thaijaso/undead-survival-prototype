@@ -233,7 +233,7 @@ public class ShootState : AimState
     private void SpawnBloodEffect(RaycastHit hit, Enemy enemy)
     {
         GameObject bloodEffect = Object.Instantiate(
-            enemy.template.bloodEffectPrefab,
+            enemy.enemyTemplate.bloodEffectPrefab,
             hit.point,
             Quaternion.LookRotation(hit.normal)
         );

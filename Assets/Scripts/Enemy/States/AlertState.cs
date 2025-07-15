@@ -20,7 +20,7 @@ public class AlertState : EnemyState
         animationName)
     {
         alertTimer = 0f; // Initialize alert timer
-        alertDuration = enemy.template.alertDuration; // Set alert duration from template
+        alertDuration = enemy.enemyTemplate.alertDuration; // Set alert duration from template
     }
 
     public override void Enter()

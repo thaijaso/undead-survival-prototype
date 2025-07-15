@@ -71,8 +71,8 @@ public class EnemyDebugger : MonoBehaviour
             Debug.Log($"[{enemy.name}] SPEED DEBUG{(string.IsNullOrEmpty(context) ? "" : $" ({context})")}: " +
                      $"FollowerEntity.maxSpeed = {enemy.FollowerEntity.maxSpeed}, " +
                      $"Current State = {enemy.stateMachine?.currentState?.GetType().Name ?? "None"}, " +
-                     $"PatrolSpeed = {enemy.template?.patrolSpeed ?? 0f}, " +
-                     $"ChaseSpeed = {enemy.template?.chaseSpeed ?? 0f}");
+                     $"PatrolSpeed = {enemy.enemyTemplate?.patrolSpeed ?? 0f}, " +
+                     $"ChaseSpeed = {enemy.enemyTemplate?.chaseSpeed ?? 0f}");
         }
         else
         {
@@ -112,16 +112,16 @@ public class EnemyDebugger : MonoBehaviour
     /// </summary>
     public void ResumeMovement()
     {
-        if (enemy?.template == null) return;
+        if (enemy?.enemyTemplate == null) return;
 
         // Set speed based on current state
         if (enemy.stateMachine.currentState == enemy.Patrol)
         {
-            enemy.SetSpeed(enemy.template.patrolSpeed);
+            enemy.SetSpeed(enemy.enemyTemplate.patrolSpeed);
         }
         else if (enemy.stateMachine.currentState == enemy.Alert || enemy.stateMachine.currentState == enemy.Aggro)
         {
-            enemy.SetSpeed(enemy.template.chaseSpeed);
+            enemy.SetSpeed(enemy.enemyTemplate.chaseSpeed);
         }
         else if (enemy.stateMachine.currentState == enemy.Idle)
         {
@@ -134,7 +134,7 @@ public class EnemyDebugger : MonoBehaviour
         else
         {
             // Default fallback
-            enemy.SetSpeed(enemy.template.patrolSpeed);
+            enemy.SetSpeed(enemy.enemyTemplate.patrolSpeed);
         }
         Debug.Log($"[{enemy.name}] Debug: Movement resumed for state: {enemy.stateMachine.currentState?.GetType().Name}");
     }
@@ -251,9 +251,9 @@ public class EnemyDebugger : MonoBehaviour
         if (enemy == null) return;
 
         // Restore health
-        if (enemy.HealthManager != null && enemy.template != null)
+        if (enemy.HealthManager != null && enemy.enemyTemplate != null)
         {
-            enemy.HealthManager.Initialize(enemy.template.maxHealth);
+            enemy.HealthManager.Initialize(enemy.enemyTemplate.maxHealth);
             Debug.Log($"[{enemy.name}] Debug: Restored health to {enemy.HealthManager.currentHealth}");
         }
 
