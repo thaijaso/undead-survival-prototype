@@ -62865,6 +62865,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: cf40883952687d248bcb9b72865063c7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 309175320}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: cf40883952687d248bcb9b72865063c7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 309175325}
   m_SourcePrefab: {fileID: 100100000, guid: cf40883952687d248bcb9b72865063c7, type: 3}
 --- !u!4 &309175316 stripped
 Transform:
@@ -62893,7 +62896,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 309175319}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 776adaaacdc5c4e8ab0395120a6e972b, type: 3}
   m_Name: 
@@ -63060,6 +63063,20 @@ MonoBehaviour:
   PlayerTransform: {fileID: 1717255700}
   patrolPoints: []
   enemyTemplate: {fileID: 11400000, guid: d309fddfe1bc5bc45b3a7fcbf984c0ed, type: 2}
+--- !u!114 &309175325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 309175319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9365c2bd945255647a7612d0e486ff76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemy: {fileID: 309175324}
+  DebugModeEnabled: 0
 --- !u!1001 &309535420
 PrefabInstance:
   m_ObjectHideFlags: 0

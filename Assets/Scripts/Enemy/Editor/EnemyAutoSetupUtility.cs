@@ -29,6 +29,7 @@ namespace UndeadSurvivalGame.Editor
             SetupAIDestinationSetter(enemy, overwriteExisting);
             SetupHealthManager(enemy, overwriteExisting);
             SetupLookAtIK(enemy, overwriteExisting);
+            SetupEnemyDebugger(enemy, overwriteExisting);
         }
 
         private static void SetupEnemyTemplate(Enemy enemy)
@@ -249,6 +250,8 @@ namespace UndeadSurvivalGame.Editor
                 Debug.Log($"[AutoSetup] LookAtIKComponent added to {enemy.gameObject.name}.");
             }
 
+            lookAtIK.enabled = false; // Disable it initially
+
             // Only set the head bone if just added or overwriteExisting is true
             if (added || overwriteExisting)
             {
@@ -283,6 +286,39 @@ namespace UndeadSurvivalGame.Editor
                     Debug.LogWarning($"[AutoSetup] Animator is missing or not humanoid for {enemy.gameObject.name}. LookAtIK setup skipped.");
                 }
                 UnityEditor.EditorUtility.SetDirty(lookAtIK);
+            }
+        }
+
+        private static void SetupEnemyDebugger(Enemy enemy, bool overwriteExisting = true)
+        {
+            if (enemy == null)
+                return;
+
+            var debugger = enemy.GetComponent<EnemyDebugger>();
+            if (debugger == null)
+            {
+                debugger = enemy.gameObject.AddComponent<EnemyDebugger>();
+                Debug.Log($"[AutoSetup] EnemyDebugger component added to {enemy.gameObject.name}.");
+                UnityEditor.EditorUtility.SetDirty(enemy.gameObject);
+            }
+            // Set the enemy reference on the EnemyDebugger component (try public and non-public fields/properties)
+            var type = debugger.GetType();
+            var enemyField = type.GetField("enemy", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            if (enemyField != null)
+            {
+                enemyField.SetValue(debugger, enemy);
+            }
+            else
+            {
+                var enemyProp = type.GetProperty("enemy", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                if (enemyProp != null && enemyProp.CanWrite)
+                {
+                    enemyProp.SetValue(debugger, enemy);
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not set enemy reference on EnemyDebugger for {enemy.gameObject.name} (no field or writable property found, tried all visibilities).");
+                }
             }
         }
     }

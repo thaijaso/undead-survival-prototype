@@ -10,7 +10,8 @@ public class EnemyDebugger : MonoBehaviour
 {
     [Header("Debug References")]
     [Required]
-    [SerializeField] private Enemy enemy;
+    [SerializeField]
+    private Enemy enemy;
     
     [Header("Debug Settings")]
     [ShowInInspector]
