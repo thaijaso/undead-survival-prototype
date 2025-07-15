@@ -86,8 +86,12 @@ public class Bullet : MonoBehaviour
     private void HandleEnemyHitboxImpact(Collider hitCollider, Vector3 hitPoint, Vector3 hitNormal)
     {
         // Check if the hit object is on the Hitbox layer
-        if (hitCollider.gameObject.layer != LayerMask.NameToLayer("Ragdoll"))
+        if (hitCollider.gameObject.layer != LayerMask.NameToLayer("EnemyRagdoll"))
+        {
+            Debug.LogWarning("[Bullet] HandleEnemyHitboxImpact(): Hit object is not on the EnemyRagdoll layer.");
             return;
+        }
+            
 
         // Try to get the Enemy and Limb components
         PuppetMaster puppetMaster = hitCollider.GetComponentInParent<PuppetMaster>();
