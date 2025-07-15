@@ -38,11 +38,13 @@ public class Player : MonoBehaviour
 
     [TabGroup("References")]
     [Header("References")]
-    [SerializeField] private Transform weaponHand;
+    [SerializeField]
+    private Transform weaponHand;
     public Transform WeaponHand => weaponHand;
 
     [TabGroup("References")]
-    [SerializeField] private CrosshairController crosshairController;
+    [SerializeField] 
+    private CrosshairController crosshairController;
     public CrosshairController CrosshairController => crosshairController;
 
     private void Awake()

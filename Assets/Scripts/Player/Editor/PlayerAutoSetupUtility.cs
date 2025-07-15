@@ -1,11 +1,9 @@
-using UnityEngine;
+using Pathfinding;
+using RootMotion;
+using RootMotion.Dynamics;
 using RootMotion.FinalIK;
 using UndeadSurvivalGame.Editor;
-using RootMotion;
-using Codice.Client.BaseCommands.Differences;
-using Pathfinding;
-
-
+using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -50,6 +48,7 @@ namespace UndeadSurvivalGame.Editor
             SetupPlayerAnimatorEvents(player);
             // Move SetupPlayerComponentReferences to the end, after all components/objects are created
             SetupPlayerComponentReferences(player);
+            SetupBipedRagdollCreator(player, overwriteExisting);
             AssignPlayerToEnemies(player);
             // Set layer to Player for this GameObject and all children
             if (player.gameObject != null)
@@ -1517,8 +1516,8 @@ namespace UndeadSurvivalGame.Editor
             EditorUtility.SetDirty(bulletHitscan);
             PrefabUtility.RecordPrefabInstancePropertyModifications(bulletHitscan);
         }
-        
-                // Sets all AiDestinationSetter.target fields on Enemy GameObjects to the player
+
+        // Sets all AiDestinationSetter.target fields on Enemy GameObjects to the player
         private static void AssignPlayerToEnemies(Player player)
         {
             if (player == null || player.gameObject == null)
@@ -1594,19 +1593,46 @@ namespace UndeadSurvivalGame.Editor
             }
             Debug.Log($"[AutoSetup] SetupEnemyPlayerReference: Set Player Transform for {setCount} Enemy components.");
         }
+        
+        private static void SetupBipedRagdollCreator(Player player, bool overwriteExisting = true)
+        {
+            if (player == null) return;
+
+            // Check for RagdollEditor component to determine ragdoll status
+            var ragdollEditor = player.GetComponent<RagdollEditor>();
+            var bipedRagdollCreator = player.GetComponent<BipedRagdollCreator>();
+            if (!overwriteExisting && ragdollEditor != null)
+            {
+                Debug.Log($"[AutoSetup] Skipping BipedRagdollCreator: RagdollEditor component found and overwriteExisting is false.");
+                return;
+            }
+
+            if (bipedRagdollCreator == null)
+            {
+                bipedRagdollCreator = player.gameObject.AddComponent<BipedRagdollCreator>();
+                Debug.Log($"[AutoSetup] BipedRagdollCreator component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] BipedRagdollCreator component already exists on {player.gameObject.name}.");
+            }
+
+            // Mark as dirty for persistence
+            EditorUtility.SetDirty(bipedRagdollCreator);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(bipedRagdollCreator);
+        }
     }
 }
 
 #if UNITY_EDITOR
-[CustomEditor(typeof(Player))]
-public class PlayerAutoSetupEditor : UnityEditor.Editor
+public class PlayerAutoSetupEditor : Sirenix.OdinInspector.Editor.OdinEditor
 {
     private bool overwriteExisting = false;
     private static bool autoSetupLocked = false;
 
     public override void OnInspectorGUI()
     {
-        DrawDefaultInspector();
+        base.OnInspectorGUI();
         EditorGUILayout.Space();
         overwriteExisting = EditorGUILayout.ToggleLeft("Overwrite Existing Values", overwriteExisting);
         EditorGUILayout.HelpBox("If checked, all values will be overwritten with those from the PlayerTemplate asset.", MessageType.Info);

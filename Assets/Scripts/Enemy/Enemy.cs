@@ -22,7 +22,8 @@ public class Enemy : MonoBehaviour
 
     // Reference to PuppetMaster component (could be on this GameObject or a sibling)
     [TabGroup("Setup")]
-    [SerializeField] private PuppetMaster puppetMasterReference;
+    [SerializeField]
+    private PuppetMaster puppetMasterReference;
     public PuppetMaster PuppetMaster { get; private set; }
 
     [TabGroup("Setup")]

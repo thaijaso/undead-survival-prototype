@@ -108,6 +108,10 @@ public class Limb : MonoBehaviour
     // Collision detection for zombie attacks
     private void OnTriggerEnter(Collider other)
     {
+        if (other.gameObject.layer == LayerMask.NameToLayer("PlayerRagdoll"))
+        {
+            Debug.Log($"Trigger detected with {other.gameObject.name} using {LimbType} limb");
+        }
         // Only process collisions for arm limbs during attacks
         if (LimbType == LimbType.UpperArm || LimbType == LimbType.LowerArm || LimbType == LimbType.Hand)
         {
@@ -135,6 +139,10 @@ public class Limb : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("PlayerRagdoll"))
+        {
+            Debug.Log($"Collision detected with {collision.gameObject.name} using {LimbType} limb");
+        }
         // Alternative collision detection using OnCollisionEnter if using solid colliders
         if (LimbType == LimbType.UpperArm || LimbType == LimbType.LowerArm || LimbType == LimbType.Hand)
         {
