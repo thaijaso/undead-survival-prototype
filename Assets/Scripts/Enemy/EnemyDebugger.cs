@@ -49,20 +49,12 @@ public class EnemyDebugger : MonoBehaviour
 
     private void Start()
     {
-        // Sync debug mode with enemy
-        if (enemy != null)
-        {
-            enemy.DebugModeEnabled = DebugModeEnabled;
-        }
+        // No need to sync debug mode with enemy; Enemy reads this flag directly
     }
 
     private void OnValidate()
     {
-        // Sync debug mode when changed in inspector
-        if (enemy != null && Application.isPlaying)
-        {
-            enemy.DebugModeEnabled = DebugModeEnabled;
-        }
+        // No need to sync debug mode when changed in inspector; Enemy reads this flag directly
     }
 
     // ===============================================
@@ -343,7 +335,6 @@ public class EnemyDebugger : MonoBehaviour
         
         // 9. Enable debug mode to prevent automatic transitions
         DebugModeEnabled = true;
-        enemy.DebugModeEnabled = true;
         Debug.Log($"[{enemy.name}] Reset: Debug mode enabled to prevent auto-transitions");
         
         Debug.Log($"[{enemy.name}] === RESET TO CLEAN IDLE COMPLETE ===");
@@ -355,10 +346,6 @@ public class EnemyDebugger : MonoBehaviour
     public void ToggleDebugMode()
     {
         DebugModeEnabled = !DebugModeEnabled;
-        if (enemy != null)
-        {
-            enemy.DebugModeEnabled = DebugModeEnabled;
-        }
         
         string status = DebugModeEnabled ? "ENABLED" : "DISABLED";
         Debug.Log($"[{enemy?.name ?? name}] Debug Mode {status} - Automatic state transitions are now {(DebugModeEnabled ? "blocked" : "active")}");

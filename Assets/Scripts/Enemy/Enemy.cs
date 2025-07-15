@@ -10,6 +10,8 @@ using RootMotion.FinalIK;
 [DefaultExecutionOrder(-100)] // Ensure Enemy runs before other components
 public class Enemy : MonoBehaviour
 {
+    private EnemyDebugger _debugger;
+    public bool DebugModeEnabled => _debugger != null && _debugger.DebugModeEnabled;
     public AnimationManager AnimationManager { get; private set; }
 
     public HealthManager HealthManager { get; private set; }
@@ -88,31 +90,26 @@ public class Enemy : MonoBehaviour
 
     // Speed blending fields
     private Coroutine speedBlendCoroutine;
-    
-    // Debug mode to override automatic state transitions
-    public bool DebugModeEnabled = false;
 
     private void Awake()
     {
+        _debugger = GetComponent<EnemyDebugger>();
         SetupAnimator();
         SetupHealthManager();
         SetupAIDestinationSetter();
         SetupPuppetMaster();
         SetupFollowerEntity();
         SetupLookAtIK();
-
         stateMachine = new StateMachine<EnemyState>(gameObject.name);
     }
 
     private void SetupAnimator()
     {
         Animator animator = GetComponent<Animator>();
-
         if (animator == null)
         {
             Debug.LogError("Animator component is missing on the Enemy GameObject.");
         }
-
         AnimationManager = new AnimationManager(animator);
     }
 
@@ -209,7 +206,6 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
         if (template == null)
@@ -258,7 +254,6 @@ public class Enemy : MonoBehaviour
         LogCurrentSpeed("Initial state after setup");
     }
 
-    // Update is called once per frame
     private void Update()
     {
         stateMachine.LogicUpdate();
@@ -281,7 +276,6 @@ public class Enemy : MonoBehaviour
             Debug.LogWarning("Limb component is null. Cannot process hit.");
             return;
         }
-
         limb.TakeDamage(damage);
         HealthManager.TakeDamage(damage);
         Debug.Log($"[{name}] Enemy.ProcessHit(): Took {damage} damage. Remaining health: {HealthManager.currentHealth}");
@@ -296,9 +290,8 @@ public class Enemy : MonoBehaviour
 
     public bool IsPlayerInAlertRange()
     {
-        // If debug mode is enabled, return false to prevent automatic transitions
-        if (DebugModeEnabled) return false;
-        
+        if (DebugModeEnabled)
+            return false;
         if (PlayerTransform == null)
         {
             Debug.LogWarning("PlayerTransform is not assigned.");
@@ -311,9 +304,8 @@ public class Enemy : MonoBehaviour
 
     public bool IsPlayerInAggroRange()
     {
-        // If debug mode is enabled, return false to prevent automatic transitions
-        if (DebugModeEnabled) return false;
-        
+        if (DebugModeEnabled)
+            return false;
         if (PlayerTransform == null)
         {
             Debug.LogWarning("PlayerTransform is not assigned.");
@@ -326,9 +318,8 @@ public class Enemy : MonoBehaviour
 
     public bool IsPlayerInAttackRange()
     {
-        // If debug mode is enabled, return false to prevent automatic transitions
-        if (DebugModeEnabled) return false;
-        
+        if (DebugModeEnabled)
+            return false;
         if (PlayerTransform == null)
         {
             Debug.LogWarning("PlayerTransform is not assigned.");

@@ -13,10 +13,40 @@ namespace UndeadSurvivalGame.Editor
 
             Enemy enemy = (Enemy)target;
             GUILayout.Space(10);
-            if (GUILayout.Button("Auto-Setup References", GUILayout.Height(32)))
+
+            // Static lock toggle
+            if (!EditorPrefs.HasKey("EnemyAutoSetup_Locked"))
+                EditorPrefs.SetBool("EnemyAutoSetup_Locked", false);
+            bool autoSetupLocked = EditorPrefs.GetBool("EnemyAutoSetup_Locked");
+
+            // Overwrite toggle
+            bool overwriteExisting = EditorPrefs.GetBool("EnemyAutoSetup_Overwrite");
+            overwriteExisting = EditorGUILayout.ToggleLeft("Overwrite Existing Values", overwriteExisting);
+            EditorPrefs.SetBool("EnemyAutoSetup_Overwrite", overwriteExisting);
+
+            EditorGUILayout.HelpBox("If checked, all values will be overwritten with those from the EnemyTemplate asset.", MessageType.Info);
+            GUILayout.Space(5);
+
+            // Lock toggle
+            autoSetupLocked = EditorGUILayout.ToggleLeft("\U0001F512 Lock Auto Setup Button (prevent accidental press)", autoSetupLocked);
+            EditorPrefs.SetBool("EnemyAutoSetup_Locked", autoSetupLocked);
+            GUILayout.Space(5);
+
+            // Big button style
+            GUIStyle bigButton = new GUIStyle(GUI.skin.button)
             {
-                EnemyAutoSetupUtility.AutoSetupReferences(enemy);
+                fontSize = 16,
+                fontStyle = FontStyle.Bold,
+                fixedHeight = 40,
+                margin = new RectOffset(0, 0, 10, 10)
+            };
+
+            EditorGUI.BeginDisabledGroup(autoSetupLocked);
+            if (GUILayout.Button(autoSetupLocked ? "Auto Setup Enemy (Locked)" : "Auto Setup Enemy", bigButton))
+            {
+                EnemyAutoSetupUtility.AutoSetupReferences(enemy, overwriteExisting);
             }
+            EditorGUI.EndDisabledGroup();
         }
     }
 }

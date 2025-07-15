@@ -424421,6 +424421,10 @@ PrefabInstance:
       propertyPath: PlayerTransform
       value: 
       objectReference: {fileID: 1717255700}
+    - target: {fileID: 1441862226520998414, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
+      propertyPath: DebugModeEnabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5039207622939992011, guid: 7ffa70c9c8dc91e4999b224dec122dd3, type: 3}
       propertyPath: m_Name
       value: Zombie
