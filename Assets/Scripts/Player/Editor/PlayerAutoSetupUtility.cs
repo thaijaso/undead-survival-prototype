@@ -2,6 +2,7 @@ using Pathfinding;
 using RootMotion;
 using RootMotion.Dynamics;
 using RootMotion.FinalIK;
+using Sirenix.OdinInspector.Editor;
 using UndeadSurvivalGame.Editor;
 using UnityEngine;
 
@@ -1623,36 +1624,3 @@ namespace UndeadSurvivalGame.Editor
         }
     }
 }
-
-#if UNITY_EDITOR
-public class PlayerAutoSetupEditor : Sirenix.OdinInspector.Editor.OdinEditor
-{
-    private bool overwriteExisting = false;
-    private static bool autoSetupLocked = false;
-
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        EditorGUILayout.Space();
-        overwriteExisting = EditorGUILayout.ToggleLeft("Overwrite Existing Values", overwriteExisting);
-        EditorGUILayout.HelpBox("If checked, all values will be overwritten with those from the PlayerTemplate asset.", MessageType.Info);
-        EditorGUILayout.Space();
-        // Lock toggle
-        autoSetupLocked = EditorGUILayout.ToggleLeft("\U0001F512 Lock Auto Setup Button (prevent accidental press)", autoSetupLocked);
-        EditorGUILayout.Space();
-        // Make the button larger and more visually prominent
-        GUIStyle bigButton = new GUIStyle(GUI.skin.button);
-        bigButton.fontSize = 16;
-        bigButton.fontStyle = FontStyle.Bold;
-        bigButton.fixedHeight = 40;
-        bigButton.margin = new RectOffset(0, 0, 10, 10);
-        EditorGUI.BeginDisabledGroup(autoSetupLocked);
-        if (GUILayout.Button(autoSetupLocked ? "Auto Setup Player (Locked)" : "Auto Setup Player", bigButton))
-        {
-            var player = (Player)target;
-            PlayerAutoSetupUtility.AutoSetupReferences(player, overwriteExisting);
-        }
-        EditorGUI.EndDisabledGroup();
-    }
-}
-#endif
