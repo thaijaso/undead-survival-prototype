@@ -19,9 +19,33 @@ MonoBehaviour:
   patrolSpeed: 1
   chaseSpeed: 4
   rotationSpeed: 100
-  bloodEffectPrefab: {fileID: 1026642433091512, guid: 720698b0d96323248a1d2f3571f4ddf0, type: 3}
-  alertDuration: 2
+  animatorController: {fileID: 9100000, guid: 6b3b6edb8b1c6d94ca86b7d8d0607f0f, type: 2}
   turn180Phase1Duration: 0.7
   turn180Phase2Duration: 0.6
   aggro180Phase1Duration: 0.7
   aggro180Phase2Duration: 0.35
+  bloodEffectPrefab: {fileID: 1026642433091512, guid: 720698b0d96323248a1d2f3571f4ddf0, type: 3}
+  alertDuration: 2
+  followerRadius: 0.23
+  followerHeight: 1.94
+  followerOrientation: 0
+  followerSpeed: 3
+  followerRotationSpeed: 600
+  followerMaxRotationSpeed: 720
+  followerAllowRotatingOnTheSpot: 0
+  followerPositionSmoothing: 0
+  followerRotationSmoothing: 0
+  followerSlowdownTime: 0.5
+  followerStopDistance: 1
+  followerLeadInRadius: 1
+  followerDesiredWallDistance: 0.5
+  followerGravity: 1
+  followerRaycastGroundMask: Floor
+  followerMovementPlaneSource: 0
+  followerPositionSync: 0
+  followerRotationSync: 0
+  followerTraversableGraphs: Everything
+  followerRecalculatePathsAutomatically: 1
+  followerRepathPeriod: 0.5
+  followerMovementDebugRendering: 1
+  followerLocalAvoidanceDebugRendering: 0

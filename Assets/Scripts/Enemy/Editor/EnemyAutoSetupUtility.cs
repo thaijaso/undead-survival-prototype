@@ -1,4 +1,6 @@
+using Pathfinding;
 using UnityEngine;
+using RootMotion.FinalIK;
 
 namespace UndeadSurvivalGame.Editor
 {
@@ -21,6 +23,12 @@ namespace UndeadSurvivalGame.Editor
                 Debug.LogError($"[{enemy.gameObject.name}] EnemyTemplate is not assigned. Cannot auto-setup.");
                 return;
             }
+
+            SetupAnimator(enemy, overwriteExisting);
+            SetupFollowerEntity(enemy, overwriteExisting);
+            SetupAIDestinationSetter(enemy, overwriteExisting);
+            SetupHealthManager(enemy, overwriteExisting);
+            SetupLookAtIK(enemy, overwriteExisting);
         }
 
         private static void SetupEnemyTemplate(Enemy enemy)
@@ -73,9 +81,209 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupAnimator()
+        private static void SetupAnimator(Enemy enemy, bool overwriteExisting = true)
         {
+            if (enemy == null) return;
+            var animator = enemy.GetComponent<Animator>();
+            if (animator != null && enemy.enemyTemplate != null)
+            {
+                // If your EnemyTemplate has an animatorController field, use it here
+                var templateType = enemy.enemyTemplate.GetType();
+                var animatorControllerField = templateType.GetField("animatorController");
+                var animatorControllerProp = templateType.GetProperty("animatorController");
+                UnityEngine.RuntimeAnimatorController templateController = null;
+                if (animatorControllerField != null)
+                {
+                    templateController = animatorControllerField.GetValue(enemy.enemyTemplate) as UnityEngine.RuntimeAnimatorController;
+                }
+                else if (animatorControllerProp != null && animatorControllerProp.CanRead)
+                {
+                    templateController = animatorControllerProp.GetValue(enemy.enemyTemplate) as UnityEngine.RuntimeAnimatorController;
+                }
+                if (templateController != null)
+                {
+                    var before = animator.runtimeAnimatorController;
+                    if (overwriteExisting)
+                    {
+                        Debug.Log($"[AutoSetup] AnimatorController before: {(before != null ? before.name : "null")}, template: {templateController.name}, overwrite: {overwriteExisting}");
+                        if (before != templateController)
+                            Debug.Log($"[AutoSetup] Overwriting Animator.runtimeAnimatorController: {(before != null ? before.name : "null")} -> {templateController.name}");
+                        animator.runtimeAnimatorController = templateController;
+                        animator.applyRootMotion = false; // Disable root motion if overwriting
+                        Debug.Log($"[AutoSetup] AnimatorController after: {animator.runtimeAnimatorController.name}, applyRootMotion: {animator.applyRootMotion}");
+                    }
+                    else if (animator.runtimeAnimatorController == null)
+                    {
+                        animator.runtimeAnimatorController = templateController;
+                    }
+                }
+            }
+        }
 
+        private static void SetupFollowerEntity(Enemy enemy, bool overwriteExisting = true)
+        {
+            if (enemy == null || enemy.enemyTemplate == null)
+                return;
+
+            var follower = enemy.GetComponent<FollowerEntity>();
+
+            if (follower == null)
+            {
+                follower = enemy.gameObject.AddComponent<FollowerEntity>();
+                Debug.Log($"[AutoSetup] FollowerEntity component added to {enemy.gameObject.name}.");
+            }
+
+            follower.enabled = false;
+            var template = enemy.enemyTemplate;
+
+            // Shape
+            follower.radius = template.followerRadius;
+            follower.height = template.followerHeight;
+            follower.orientation = (Pathfinding.OrientationMode)template.followerOrientation;
+
+            // Movement
+            var move = follower.movementSettings;
+            move.follower.speed = template.followerSpeed;
+            move.follower.rotationSpeed = template.followerRotationSpeed;
+            move.follower.maxRotationSpeed = template.followerMaxRotationSpeed;
+            move.follower.allowRotatingOnSpot = template.followerAllowRotatingOnTheSpot;
+            follower.positionSmoothing = template.followerPositionSmoothing;
+            follower.rotationSmoothing = template.followerRotationSmoothing;
+            move.follower.slowdownTime = template.followerSlowdownTime;
+            follower.stopDistance = template.followerStopDistance;
+            move.follower.leadInRadiusWhenApproachingDestination = template.followerLeadInRadius;
+            move.follower.desiredWallDistance = template.followerDesiredWallDistance;
+            move.groundMask = LayerMask.NameToLayer(template.followerRaycastGroundMask);
+            follower.movementSettings = move;
+
+            // Pathfinding
+            // Pathfinding settings can be set here if needed
+
+            // Debug
+            // Debug flags can be set here if needed
+
+            UnityEditor.EditorUtility.SetDirty(follower);
+            Debug.Log($"[AutoSetup] FollowerEntity settings applied from EnemyTemplate to {enemy.gameObject.name}.");
+        }
+
+        private static void SetupAIDestinationSetter(Enemy enemy, bool overwriteExisting = true)
+        {
+            if (enemy == null || enemy.enemyTemplate == null)
+                return;
+
+            var aiDestinationSetter = enemy.GetComponent<AIDestinationSetter>();
+
+            if (aiDestinationSetter == null)
+            {
+                aiDestinationSetter = enemy.gameObject.AddComponent<AIDestinationSetter>();
+                Debug.Log($"[AutoSetup] AIDestinationSetter component added to {enemy.gameObject.name}.");
+            }
+
+            aiDestinationSetter.enabled = false;
+            aiDestinationSetter.target = enemy.PlayerTransform;
+
+            if (aiDestinationSetter.target == null)
+            {
+                Debug.LogWarning($"[{enemy.gameObject.name}] AIDestinationSetter: PlayerTransform is not assigned. Cannot set target.");
+            }
+            else
+            {
+                Debug.Log($"[{enemy.gameObject.name}] AIDestinationSetter: Target set to {aiDestinationSetter.target.name}.");
+            }
+
+            // Optionally set other properties from the template if needed
+        }
+
+        private static void SetupHealthManager(Enemy enemy, bool overwriteExisting = true)
+        {
+            if (enemy == null || enemy.enemyTemplate == null)
+                return;
+
+            var healthManager = enemy.GetComponent<HealthManager>();
+            bool added = false;
+            if (healthManager == null)
+            {
+                healthManager = enemy.gameObject.AddComponent<HealthManager>();
+                added = true;
+                Debug.Log($"[AutoSetup] HealthManager component added to {enemy.gameObject.name}.");
+            }
+
+            if (added || overwriteExisting)
+            {
+                // Set maxHealth from template
+                var maxHealthField = healthManager.GetType().GetField("maxHealth");
+                if (maxHealthField != null)
+                {
+                    maxHealthField.SetValue(healthManager, enemy.enemyTemplate.maxHealth);
+                    Debug.Log($"[AutoSetup] HealthManager.maxHealth set to {enemy.enemyTemplate.maxHealth} for {enemy.gameObject.name}.");
+                }
+                else
+                {
+                    var maxHealthProp = healthManager.GetType().GetProperty("maxHealth");
+                    if (maxHealthProp != null && maxHealthProp.CanWrite)
+                    {
+                        maxHealthProp.SetValue(healthManager, enemy.enemyTemplate.maxHealth);
+                        Debug.Log($"[AutoSetup] HealthManager.maxHealth property set to {enemy.enemyTemplate.maxHealth} for {enemy.gameObject.name}.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[AutoSetup] Could not set maxHealth on HealthManager for {enemy.gameObject.name} (no field or writable property found).");
+                    }
+                }
+                UnityEditor.EditorUtility.SetDirty(healthManager);
+            }
+        }
+
+        private static void SetupLookAtIK(Enemy enemy, bool overwriteExisting = true)
+        {
+            if (enemy == null)
+                return;
+
+            // Try to get or add LookAtIKComponent
+            var lookAtIK = enemy.GetComponent<LookAtIK>();
+            bool added = false;
+            if (lookAtIK == null)
+            {
+                lookAtIK = enemy.gameObject.AddComponent<LookAtIK>();
+                added = true;
+                Debug.Log($"[AutoSetup] LookAtIKComponent added to {enemy.gameObject.name}.");
+            }
+
+            // Only set the head bone if just added or overwriteExisting is true
+            if (added || overwriteExisting)
+            {
+                var animator = enemy.GetComponent<Animator>();
+                if (animator != null && animator.avatar != null && animator.isHuman)
+                {
+                    // For humanoid rigs, use HumanBodyBones.Head
+                    var headTransform = animator.GetBoneTransform(HumanBodyBones.Head);
+                    // Find the root bone by name 'root' (case-insensitive)
+                    Transform rootTransform = null;
+                    var transforms = enemy.GetComponentsInChildren<Transform>(true);
+                    foreach (var t in transforms)
+                    {
+                        if (t.name.Equals("root", System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            rootTransform = t;
+                            break;
+                        }
+                    }
+                    if (headTransform != null)
+                    {
+                        lookAtIK.solver.SetChain(null, headTransform, null, rootTransform);
+                        Debug.Log($"[AutoSetup] LookAtIKComponent.Head set to humanoid head bone and root set to '{(rootTransform != null ? rootTransform.name : "null")}' for {enemy.gameObject.name}.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[AutoSetup] Could not find humanoid head bone for {enemy.gameObject.name}.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Animator is missing or not humanoid for {enemy.gameObject.name}. LookAtIK setup skipped.");
+                }
+                UnityEditor.EditorUtility.SetDirty(lookAtIK);
+            }
         }
     }
 }

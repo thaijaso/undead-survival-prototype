@@ -1,11 +1,11 @@
-using UnityEngine;
 using EnemyStates;
+using Pathfinding;
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
-using Pathfinding;
 using RootMotion.Dynamics;
-using Sirenix.OdinInspector;
 using RootMotion.FinalIK;
+using UnityEngine;
 
 [DefaultExecutionOrder(-100)] // Ensure Enemy runs before other components
 public class Enemy : MonoBehaviour

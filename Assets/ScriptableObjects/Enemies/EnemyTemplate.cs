@@ -75,6 +75,60 @@ public class EnemyTemplate : ScriptableObject
     public float alertDuration = 5f; // Duration for which the enemy remains alert
 
 
+    // FollowerEntity Settings
+    [TabGroup("FollowerEntity")]
+    [Title("Shape")]
+    [MinValue(0f)]
+    public float followerRadius = 0.23f;
+    [MinValue(0f)]
+    public float followerHeight = 1.94f;
+    [EnumToggleButtons]
+    public Orientation followerOrientation = Orientation.ZAxisForward;
+
+    [TabGroup("FollowerEntity")]
+    [Title("Movement")]
+    public float followerSpeed = 3f;
+    public float followerRotationSpeed = 600f;
+    public float followerMaxRotationSpeed = 720f;
+    public bool followerAllowRotatingOnTheSpot = false;
+    [Range(0f, 1f)]
+    public float followerPositionSmoothing = 0f;
+    [Range(0f, 1f)]
+    public float followerRotationSmoothing = 0f;
+    public float followerSlowdownTime = 0.5f;
+    public float followerStopDistance = 1f;
+    public float followerLeadInRadius = 1f;
+    public float followerDesiredWallDistance = 0.5f;
+    public bool followerGravity = true;
+    public string followerRaycastGroundMask = "Floor";
+    public MovementPlaneSource followerMovementPlaneSource = MovementPlaneSource.Graph;
+    public PositionSync followerPositionSync = PositionSync.MoveAgentWithTransform;
+    public RotationSync followerRotationSync = RotationSync.RotateAgentWithTransform;
+
+    [TabGroup("FollowerEntity")]
+    [Title("Pathfinding")]
+    public string followerTraversableGraphs = "Everything";
+
+    [TabGroup("FollowerEntity")]
+    [Title("Tags")]
+    public RecalculatePathsAutomatically followerRecalculatePathsAutomatically = RecalculatePathsAutomatically.Dynamic;
+    public float followerRepathPeriod = 0.5f;
+
+    [TabGroup("FollowerEntity")]
+    [Title("Debug")]
+    public MovementDebugRendering followerMovementDebugRendering = MovementDebugRendering.Path;
+    public LocalAvoidanceDebugRendering followerLocalAvoidanceDebugRendering = LocalAvoidanceDebugRendering.Nothing;
+    // Add more debug fields as needed
+
+    // --- Enums for FollowerEntity settings ---
+    public enum Orientation { ZAxisForward, YAxisForward }
+    public enum MovementPlaneSource { Graph, Custom }
+    public enum PositionSync { MoveAgentWithTransform, None }
+    public enum RotationSync { RotateAgentWithTransform, None }
+    public enum RecalculatePathsAutomatically { Never, Dynamic, Always }
+    public enum MovementDebugRendering { None, Path }
+    public enum LocalAvoidanceDebugRendering { Nothing, Something }
+
     [TabGroup("Debug")]
     [Button("Preview Range Visualization")]
     [InfoBox("This will show you the relative sizes of your detection ranges")]
@@ -84,7 +138,7 @@ public class EnemyTemplate : ScriptableObject
         Debug.Log($"[EnemyTemplate]   Attack Range: {attackRange} units");
         Debug.Log($"[EnemyTemplate]   Aggro Range: {aggroRange} units");
         Debug.Log($"[EnemyTemplate]   Alert Range: {alertRange} units");
-        
+
         if (attackRange > aggroRange)
             Debug.LogWarning("[EnemyTemplate] ⚠️ Attack range is larger than aggro range!");
         if (aggroRange > alertRange)
