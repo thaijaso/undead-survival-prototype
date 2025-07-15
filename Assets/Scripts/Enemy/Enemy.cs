@@ -28,7 +28,7 @@ public class Enemy : MonoBehaviour
     [TabGroup("Setup")]
     [Required]
     [SerializeField]
-    private Transform PlayerTransform;
+    public Transform PlayerTransform;
 
     [TabGroup("Setup")]
     [SerializeField]

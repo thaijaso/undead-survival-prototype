@@ -1,13 +1,15 @@
 using UnityEngine;
-using System.Linq;
 using RootMotion.FinalIK;
 using UndeadSurvivalGame.Editor;
 using RootMotion;
+using Codice.Client.BaseCommands.Differences;
+using Pathfinding;
+
+
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using PlayerStates;
 
 namespace UndeadSurvivalGame.Editor
 {
@@ -20,15 +22,12 @@ namespace UndeadSurvivalGame.Editor
                 Debug.LogError("PlayerAutoSetupUtility: Player reference is null. Aborting auto-setup.");
                 return;
             }
-
             SetupPlayerTemplate(player);
-
             if (player.playerTemplate == null)
             {
                 Debug.LogError($"[{player.gameObject.name}] AutoSetup: PlayerTemplate is not assigned. Aborting auto-setup.");
                 return;
             }
-            
             SetupPlayerCharacterController(player);
             SetupAnimator(player, overwriteExisting);
             SetupPlayerFollowTarget(player);
@@ -51,11 +50,10 @@ namespace UndeadSurvivalGame.Editor
             SetupPlayerAnimatorEvents(player);
             // Move SetupPlayerComponentReferences to the end, after all components/objects are created
             SetupPlayerComponentReferences(player);
-
+            AssignPlayerToEnemies(player);
             // Set layer to Player for this GameObject and all children
             if (player.gameObject != null)
                 SetLayerRecursively(player.gameObject, LayerMask.NameToLayer("Player"));
-
             Debug.Log($"[{player.gameObject.name}] Auto-setup complete.");
             EditorUtility.SetDirty(player);
         }
@@ -1342,65 +1340,65 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-    // Adds or assigns FullBodyBipedIK to the player if missing
-    private static void SetupFBBIK(Player player, bool overwriteExisting = true)
-    {
-        if (player == null) return;
-
-        var fbbik = player.GetComponent<FullBodyBipedIK>();
-        if (fbbik == null)
+        // Adds or assigns FullBodyBipedIK to the player if missing
+        private static void SetupFBBIK(Player player, bool overwriteExisting = true)
         {
-            fbbik = player.gameObject.AddComponent<FullBodyBipedIK>();
-            Debug.Log($"[AutoSetup] FullBodyBipedIK component added to {player.gameObject.name}.");
-        }
-        else
-        {
-            Debug.Log($"[AutoSetup] FullBodyBipedIK component already exists on {player.gameObject.name}.");
-        }
+            if (player == null) return;
 
-        fbbik.enabled = false;
+            var fbbik = player.GetComponent<FullBodyBipedIK>();
+            if (fbbik == null)
+            {
+                fbbik = player.gameObject.AddComponent<FullBodyBipedIK>();
+                Debug.Log($"[AutoSetup] FullBodyBipedIK component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] FullBodyBipedIK component already exists on {player.gameObject.name}.");
+            }
 
-        var refs = new BipedReferences
-        {
-            root = player.transform,
-            pelvis = FindChildRecursive(player.transform, "root.x"),
-            spine = new Transform[] {
+            fbbik.enabled = false;
+
+            var refs = new BipedReferences
+            {
+                root = player.transform,
+                pelvis = FindChildRecursive(player.transform, "root.x"),
+                spine = new Transform[] {
                 FindChildRecursive(player.transform, "spine_01.x"),
                 FindChildRecursive(player.transform, "spine_02.x"),
                 FindChildRecursive(player.transform, "spine_03.x"),
             },
-            head = FindChildRecursive(player.transform, "head.x"),
+                head = FindChildRecursive(player.transform, "head.x"),
 
-            leftThigh = FindChildRecursive(player.transform, "thigh_stretch.l"),
-            leftCalf = FindChildRecursive(player.transform, "leg_stretch.l"),
-            leftFoot = FindChildRecursive(player.transform, "foot.l"),
+                leftThigh = FindChildRecursive(player.transform, "thigh_stretch.l"),
+                leftCalf = FindChildRecursive(player.transform, "leg_stretch.l"),
+                leftFoot = FindChildRecursive(player.transform, "foot.l"),
 
-            rightThigh = FindChildRecursive(player.transform, "thigh_stretch.r"),
-            rightCalf = FindChildRecursive(player.transform, "leg_stretch.r"),
-            rightFoot = FindChildRecursive(player.transform, "foot.r"),
+                rightThigh = FindChildRecursive(player.transform, "thigh_stretch.r"),
+                rightCalf = FindChildRecursive(player.transform, "leg_stretch.r"),
+                rightFoot = FindChildRecursive(player.transform, "foot.r"),
 
-            leftUpperArm = FindChildRecursive(player.transform, "arm_stretch.l"),
-            leftForearm = FindChildRecursive(player.transform, "forearm_stretch.l"),
-            leftHand = FindChildRecursive(player.transform, "hand.l"),
+                leftUpperArm = FindChildRecursive(player.transform, "arm_stretch.l"),
+                leftForearm = FindChildRecursive(player.transform, "forearm_stretch.l"),
+                leftHand = FindChildRecursive(player.transform, "hand.l"),
 
-            rightUpperArm = FindChildRecursive(player.transform, "arm_stretch.r"),
-            rightForearm = FindChildRecursive(player.transform, "forearm_stretch.r"),
-            rightHand = FindChildRecursive(player.transform, "hand.r")
-        };
+                rightUpperArm = FindChildRecursive(player.transform, "arm_stretch.r"),
+                rightForearm = FindChildRecursive(player.transform, "forearm_stretch.r"),
+                rightHand = FindChildRecursive(player.transform, "hand.r")
+            };
 
-        if (refs.isFilled)
-        {
-            fbbik.SetReferences(refs, rootNode: FindChildRecursive(player.transform, "spine_01.x"));
-            Debug.Log($"[AutoSetup] FBBIK references successfully assigned for {player.gameObject.name}.");
+            if (refs.isFilled)
+            {
+                fbbik.SetReferences(refs, rootNode: FindChildRecursive(player.transform, "spine_01.x"));
+                Debug.Log($"[AutoSetup] FBBIK references successfully assigned for {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] Failed to assign some FBBIK references for {player.gameObject.name}. Check bone names or rig.");
+            }
+
+            EditorUtility.SetDirty(fbbik);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(fbbik);
         }
-        else
-        {
-            Debug.LogWarning($"[AutoSetup] Failed to assign some FBBIK references for {player.gameObject.name}. Check bone names or rig.");
-        }
-
-        EditorUtility.SetDirty(fbbik);
-        PrefabUtility.RecordPrefabInstancePropertyModifications(fbbik);
-    }
 
         // Adds or assigns BulletDecalManager to the player if missing
         private static void SetupBulletDecalManager(Player player)
@@ -1518,6 +1516,83 @@ namespace UndeadSurvivalGame.Editor
             // Mark as dirty for persistence
             EditorUtility.SetDirty(bulletHitscan);
             PrefabUtility.RecordPrefabInstancePropertyModifications(bulletHitscan);
+        }
+        
+                // Sets all AiDestinationSetter.target fields on Enemy GameObjects to the player
+        private static void AssignPlayerToEnemies(Player player)
+        {
+            if (player == null || player.gameObject == null)
+                return;
+
+            // Find the Enemies root GameObject
+            var enemiesRoot = GameObject.Find("Enemies");
+            if (enemiesRoot == null)
+            {
+                Debug.LogWarning("[AutoSetup] Could not find GameObject named 'Enemies'.");
+                return;
+            }
+
+            int setCount = 0;
+            foreach (Transform child in enemiesRoot.transform)
+            {
+                if (child == null) continue;
+                // Look for a direct child named <Enemy>ARP under each child
+                var arpChild = child.Find(child.name + "ARP");
+                if (arpChild == null)
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not find child '{child.name}ARP' under '{child.name}'.");
+                    continue;
+                }
+
+                var enemyComponent = arpChild.GetComponent<Enemy>();
+                if (enemyComponent != null)
+                {
+                    enemyComponent.PlayerTransform = player.transform;
+                    EditorUtility.SetDirty(enemyComponent);
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(enemyComponent);
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Enemy component not found on {arpChild.name}. Cannot set PlayerTransform.");
+                }
+
+                var aiDestinationSetter = arpChild.GetComponent<AIDestinationSetter>();
+
+                if (aiDestinationSetter != null)
+                {
+                    aiDestinationSetter.target = player.transform;
+                    EditorUtility.SetDirty(aiDestinationSetter);
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(aiDestinationSetter);
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] AIDestinationSetter component not found on {arpChild.name}. Cannot set target.");
+                }
+
+
+                var lookAtIK = arpChild.GetComponent<LookAtIK>();
+                if (lookAtIK != null)
+                {
+                    // Assign the player's head bone (head.x) as the target for LookAtIK
+                    var headTransform = FindChildRecursive(player.transform, "head.x");
+                    if (headTransform != null)
+                    {
+                        lookAtIK.solver.target = headTransform;
+                        EditorUtility.SetDirty(lookAtIK);
+                        PrefabUtility.RecordPrefabInstancePropertyModifications(lookAtIK);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[AutoSetup] Could not find head.x bone on player {player.gameObject.name}. LookAtIK target not set.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] LookAtIK component not found on {arpChild.name}. Cannot set target.");
+                }
+                setCount++;
+            }
+            Debug.Log($"[AutoSetup] SetupEnemyPlayerReference: Set Player Transform for {setCount} Enemy components.");
         }
     }
 }
