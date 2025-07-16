@@ -72,11 +72,19 @@ public class MoveState : PlayerState
             // Cast a ray from chest height behind the player to check for actual walls
             Vector3 rayStart = player.transform.position + Vector3.up * 1f; // Start from chest height
             Vector3 back = -player.transform.forward;
-            
-            if (Physics.Raycast(rayStart, back, out RaycastHit wallHit, 0.8f))
+
+            int enemyRagdollLayer = LayerMask.NameToLayer("EnemyRagdoll");
+            int playerRagdollLayer = LayerMask.NameToLayer("PlayerRagdoll");
+            int mask = ~( (1 << enemyRagdollLayer) | (1 << playerRagdollLayer) );
+
+            if (Physics.Raycast(rayStart, back, out RaycastHit wallHit, 0.8f, mask))
             {
+                if (wallHit.collider != null)
+                {
+                    string hitLayerName = LayerMask.LayerToName(wallHit.collider.gameObject.layer);
+                    Debug.Log($"[MoveState] Wall raycast hit: {wallHit.collider.name}, layer: {hitLayerName}, angle: {Vector3.Angle(wallHit.normal, Vector3.up):F1}");
+                }
                 float wallAngle = Vector3.Angle(wallHit.normal, Vector3.up);
-                Debug.Log($"[MoveState] Wall raycast hit: {wallHit.collider.name}, angle: {wallAngle:F1}");
                 if (wallAngle > 45f) // Only walls steeper than 45 degrees
                 {
                     float dotProduct = Vector3.Dot(moveDirection.normalized, -wallHit.normal);
@@ -86,7 +94,7 @@ public class MoveState : PlayerState
                         Debug.Log($"[MoveState] Wall sliding triggered! Sliding along: {wallHit.collider.name} at point {wallHit.point}");
                         // Project moveDirection onto the plane of the wall's normal to allow sliding along the wall
                         moveDirection = Vector3.ProjectOnPlane(moveDirection, wallHit.normal);
-                        
+
                         // Debug visualization for wall detection
                         Debug.DrawRay(rayStart, back * 0.8f, Color.yellow);
                         Debug.DrawRay(wallHit.point, wallHit.normal, Color.magenta);
