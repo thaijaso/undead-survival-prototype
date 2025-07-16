@@ -557,6 +557,17 @@ namespace UndeadSurvivalGame.Editor
             if (rb != null)
             {
                 limbComponent.ragdollRigidbody = rb;
+                // If this is an arm bone, set collision detection mode to ContinuousSpeculative
+                if (parent.name.Equals("arm_stretch.l", System.StringComparison.OrdinalIgnoreCase) ||
+                    parent.name.Equals("forearm_stretch.l", System.StringComparison.OrdinalIgnoreCase) ||
+                    parent.name.Equals("hand.l", System.StringComparison.OrdinalIgnoreCase) ||
+                    parent.name.Equals("arm_stretch.r", System.StringComparison.OrdinalIgnoreCase) ||
+                    parent.name.Equals("forearm_stretch.r", System.StringComparison.OrdinalIgnoreCase) ||
+                    parent.name.Equals("hand.r", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+                    Debug.Log($"[SetupLimbs] Set CollisionDetectionMode.ContinuousSpeculative for arm bone '{parent.name}' under {parentPath}.");
+                }
                 Debug.Log($"[SetupLimbs] Rigidbody found and assigned to Limb on '{parent.name}' under {parentPath}.");
             }
             else
