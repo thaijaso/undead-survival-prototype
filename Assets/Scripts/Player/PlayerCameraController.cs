@@ -207,12 +207,12 @@ public class PlayerCameraController : MonoBehaviour
 
     public void MoveAimIKTarget()
     {
-        MoveTargetToRaycast(aimIKTarget, 5f, 4f); // TODO: define max / min distance in a weapon template
+        MoveTargetToRaycast(aimIKTarget, 5f, 5f); // TODO: define max / min distance in a weapon template
     }
 
     public void MoveBulletHitTarget()
     {
-        MoveTargetToRaycast(bulletHitTarget, 100f, 4f); // TODO: define max / min distance in a weapon template
+        MoveTargetToRaycast(bulletHitTarget, 100f, 0f); // Always use hit point, even at close range
     }
 
     public Vector3 GetAimTarget()

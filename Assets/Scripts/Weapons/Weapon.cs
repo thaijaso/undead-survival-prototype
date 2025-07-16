@@ -72,7 +72,23 @@ public class Weapon : MonoBehaviour
         if (bulletRb != null && weaponData != null)
         {
             Vector3 direction = muzzleTransform.forward;
-            if (bulletHitTarget != null)
+            // Use camera center for aiming
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)); // center of screen
+                Vector3 targetPoint;
+                if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
+                {
+                    targetPoint = hit.point;
+                }
+                else
+                {
+                    targetPoint = ray.origin + ray.direction * 1000f; // far point
+                }
+                direction = (targetPoint - muzzleTransform.position).normalized;
+            }
+            else if (bulletHitTarget != null)
             {
                 direction = (bulletHitTarget.position - muzzleTransform.position).normalized;
             }
@@ -80,7 +96,7 @@ public class Weapon : MonoBehaviour
             bulletScript.impactForce = weaponData.impactForce;
             bulletScript.damage = weaponData.damage;
             bulletScript.weaponData = weaponData;
-            Debug.Log($"Firing bullet with impact force: {weaponData.impactForce} and damage: {weaponData.damage} toward {(bulletHitTarget != null ? bulletHitTarget.position.ToString() : "forward")}");
+            Debug.Log($"Firing bullet with impact force: {weaponData.impactForce} and damage: {weaponData.damage} toward {direction}");
         }
         else
         {
