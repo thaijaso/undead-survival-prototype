@@ -66,10 +66,11 @@ namespace UndeadSurvivalGame.Editor
                 return;
             }
 
+            SetupPuppetMasterReference(enemy, overwriteExisting);
             SetupAnimator(enemy, overwriteExisting);
             SetupFollowerEntity(enemy, overwriteExisting);
             SetupAIDestinationSetter(enemy, overwriteExisting);
-            SetupHealthManager(enemy, overwriteExisting);
+            SetupHealthManagerForEnemy(enemy, overwriteExisting);
             SetupLookAtIK(enemy, overwriteExisting);
             SetupEnemyDebugger(enemy, overwriteExisting);
             SetupBipedRagdollCreator(enemy, overwriteExisting);
@@ -123,6 +124,62 @@ namespace UndeadSurvivalGame.Editor
                 else
                 {
                     Debug.LogWarning($"[{enemy.gameObject.name}] AutoSetupReferences: No ZombieEnemyTemplate asset found in project.");
+                }
+            }
+        }
+
+        private static void SetupPuppetMasterReference(Enemy enemy, bool overwriteExisting = true)
+        {
+            if (enemy == null)
+                return;
+
+            // Try to find a sibling with a PuppetMaster component
+            var parent = enemy.transform.parent;
+            if (parent == null)
+            {
+                Debug.LogWarning($"[SetupPuppetMasterReference] {enemy.gameObject.name} has no parent, cannot search for PuppetMaster sibling.");
+                return;
+            }
+
+            PuppetMaster foundPuppetMaster = null;
+            foreach (Transform sibling in parent)
+            {
+                if (sibling == enemy.transform)
+                    continue;
+                var puppetMaster = sibling.GetComponent<PuppetMaster>();
+                if (puppetMaster != null)
+                {
+                    foundPuppetMaster = puppetMaster;
+                    Debug.Log($"[SetupPuppetMasterReference] Found PuppetMaster on sibling '{sibling.gameObject.name}' for Enemy '{enemy.gameObject.name}'.");
+                    break;
+                }
+            }
+
+            if (foundPuppetMaster == null)
+            {
+                Debug.LogWarning($"[SetupPuppetMasterReference] No PuppetMaster found among siblings for Enemy '{enemy.gameObject.name}'.");
+                return;
+            }
+
+            // Try to assign the PuppetMaster reference to the Enemy
+            var type = enemy.GetType();
+            var pmField = type.GetField("puppetMasterReference", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            if (pmField != null)
+            {
+                pmField.SetValue(enemy, foundPuppetMaster);
+                Debug.Log($"[SetupPuppetMasterReference] Assigned PuppetMaster to field 'puppetMasterReference' on Enemy '{enemy.gameObject.name}'.");
+            }
+            else
+            {
+                var pmProp = type.GetProperty("puppetMasterReference", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                if (pmProp != null && pmProp.CanWrite)
+                {
+                    pmProp.SetValue(enemy, foundPuppetMaster);
+                    Debug.Log($"[SetupPuppetMasterReference] Assigned PuppetMaster to property 'puppetMasterReference' on Enemy '{enemy.gameObject.name}'.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[SetupPuppetMasterReference] Could not assign PuppetMaster to Enemy '{enemy.gameObject.name}' (no field or writable property named 'puppetMasterReference').");
                 }
             }
         }
@@ -196,7 +253,8 @@ namespace UndeadSurvivalGame.Editor
             follower.positionSmoothing = template.followerPositionSmoothing;
             follower.rotationSmoothing = template.followerRotationSmoothing;
             move.follower.slowdownTime = template.followerSlowdownTime;
-            follower.stopDistance = template.followerStopDistance;
+            move.stopDistance = template.followerStopDistance;
+            Debug.Log($"[AutoSetup] FollowerEntity.stopDistance set to {move.stopDistance} for {enemy.gameObject.name}.");
             move.follower.leadInRadiusWhenApproachingDestination = template.followerLeadInRadius;
             move.follower.desiredWallDistance = template.followerDesiredWallDistance;
             move.groundMask = LayerMask.GetMask(template.followerRaycastGroundMask);
@@ -208,7 +266,7 @@ namespace UndeadSurvivalGame.Editor
             // Debug
             // Debug flags can be set here if needed
 
-            UnityEditor.EditorUtility.SetDirty(follower);
+            EditorUtility.SetDirty(follower);
             Debug.Log($"[AutoSetup] FollowerEntity settings applied from EnemyTemplate to {enemy.gameObject.name}.");
         }
 
@@ -240,7 +298,7 @@ namespace UndeadSurvivalGame.Editor
             // Optionally set other properties from the template if needed
         }
 
-        private static void SetupHealthManager(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupHealthManagerForEnemy(Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null || enemy.enemyTemplate == null)
                 return;
@@ -330,7 +388,7 @@ namespace UndeadSurvivalGame.Editor
                 {
                     Debug.LogWarning($"[AutoSetup] Animator is missing or not humanoid for {enemy.gameObject.name}. LookAtIK setup skipped.");
                 }
-                UnityEditor.EditorUtility.SetDirty(lookAtIK);
+                EditorUtility.SetDirty(lookAtIK);
             }
         }
 
@@ -344,7 +402,7 @@ namespace UndeadSurvivalGame.Editor
             {
                 debugger = enemy.gameObject.AddComponent<EnemyDebugger>();
                 Debug.Log($"[AutoSetup] EnemyDebugger component added to {enemy.gameObject.name}.");
-                UnityEditor.EditorUtility.SetDirty(enemy.gameObject);
+                EditorUtility.SetDirty(enemy.gameObject);
             }
             // Set the enemy reference on the EnemyDebugger component (try public and non-public fields/properties)
             var type = debugger.GetType();
@@ -446,12 +504,16 @@ namespace UndeadSurvivalGame.Editor
                 }
                 else
                 {
-                    Debug.LogWarning($"[SetupLimbs] Sibling '{sibling.gameObject.name}' does not have PuppetMaster component, skipping. Did you setup PuppetMaster yet?");
+                    // Suppress log for known non-PuppetMaster siblings like 'Behaviours'
+                    if (!sibling.gameObject.name.Equals("Behaviours", System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        Debug.LogWarning($"[SetupLimbs] Sibling '{sibling.gameObject.name}' does not have PuppetMaster component, skipping. Did you setup PuppetMaster yet?");
+                    }
                 }
             }
         }
 
-        
+
 
         // Recursively add all limbs to children from a given Transform
         private static void AddLimbsRecursive(Transform parent, string parentPath, bool overwriteExisting = true)
@@ -465,6 +527,7 @@ namespace UndeadSurvivalGame.Editor
                     AssignRigidbodyToLimb(parent, limbComponent, parentPath);
                     AssignColliderToLimb(parent, limbComponent, parentPath);
                     AssignLimbTypeAndTemplate(parent, limbComponent, parentPath);
+                    AssignHealthManagerToLimb(parent, limbComponent, parentPath);
                 }
             }
             foreach (Transform child in parent)
@@ -542,6 +605,24 @@ namespace UndeadSurvivalGame.Editor
             limbComponent.LimbType = boneLimbTypeMap[parent.name];
             limbComponent.Template = boneLimbTemplateMap[parent.name];
             Debug.Log($"[SetupLimbs] LimbType set to '{boneLimbTypeMap[parent.name]}' for '{parent.name}' under {parentPath}.");
+        }
+
+        private static void AssignHealthManagerToLimb(Transform parent, Limb limbComponent, string parentPath)
+        {
+            if (parent == null || limbComponent == null)
+                return;
+
+            var healthManager = parent.GetComponent<HealthManager>();
+            if (healthManager == null)
+            {
+                healthManager = parent.gameObject.AddComponent<HealthManager>();
+                Debug.Log($"[SetupLimbs] HealthManager component ADDED to '{parent.name}' under {parentPath}.");
+            }
+            else
+            {
+                Debug.Log($"[SetupLimbs] HealthManager component already exists on '{parent.name}' under {parentPath}.");
+            }
+            // Optionally, you can link the limb to the healthManager if needed
         }
     }
 }

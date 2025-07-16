@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac1be3d29626fab4ea91501ab9171782, type: 3}
   m_Name: RevolverWeaponData
   m_EditorClassIdentifier: 
+  weaponType: 0
   weaponName: Revolver
   weaponPrefab: {fileID: 1111015175407080, guid: 8618b351238924c48bf83d88c1584605, type: 3}
   aimIKOffsets: {fileID: 11400000, guid: 49e7c97ed590d154eb704e0befb36162, type: 2}
@@ -25,7 +26,7 @@ MonoBehaviour:
   bulletSpreadVertical: 0.5
   fireRate: 0.1
   range: 100
-  damage: 1
+  damage: 100
   weaponSway: 0
   impactForce: 10
   bulletSpeed: 20

@@ -275684,7 +275684,7 @@ MonoBehaviour:
       leadInRadiusWhenApproachingDestination: 1
       allowRotatingOnSpotBacking: 0
     debugFlags: 64
-    stopDistance: 0.2
+    stopDistance: 1
     rotationSmoothing: 0
     positionSmoothing: 0
     groundMask:
@@ -275749,7 +275749,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cca7e412c9b84b74284042bce6cc47c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  puppetMasterReference: {fileID: 0}
+  puppetMasterReference: {fileID: 919132149462899011}
   PlayerTransform: {fileID: 1717255700}
   patrolPoints: []
   enemyTemplate: {fileID: 11400000, guid: d309fddfe1bc5bc45b3a7fcbf984c0ed, type: 2}
@@ -423564,6 +423564,7 @@ GameObject:
   - component: {fileID: 1740035235}
   - component: {fileID: 1740035234}
   - component: {fileID: 7966254385695062159}
+  - component: {fileID: 7966254385695062160}
   m_Layer: 10
   m_Name: spine_02.x
   m_TagString: Untagged
@@ -423803,6 +423804,7 @@ GameObject:
   - component: {fileID: 1902537056}
   - component: {fileID: 1902537055}
   - component: {fileID: 480980873085896820}
+  - component: {fileID: 480980873085896821}
   m_Layer: 10
   m_Name: arm_stretch.l
   m_TagString: Untagged
@@ -423830,6 +423832,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1902537054}
   ragdollCollider: {fileID: 1902537056}
   Template: {fileID: 11400000, guid: 9aef1902880c6794aae8ca9618ffd934, type: 2}
+--- !u!114 &480980873085896821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 480980873085896819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!137 &521678445722131139
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0
@@ -426116,6 +426138,7 @@ GameObject:
   - component: {fileID: 1347135009}
   - component: {fileID: 1347135008}
   - component: {fileID: 1166481175142330396}
+  - component: {fileID: 1166481175142330397}
   m_Layer: 10
   m_Name: forearm_stretch.r
   m_TagString: Untagged
@@ -426392,6 +426415,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1347135007}
   ragdollCollider: {fileID: 1347135009}
   Template: {fileID: 11400000, guid: a12f4e8db947a9341b065939d7f06c88, type: 2}
+--- !u!114 &1166481175142330397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 945743962083396906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1253662779169323481
 GameObject:
   m_ObjectHideFlags: 0
@@ -426453,6 +426496,7 @@ GameObject:
   - component: {fileID: 1621103217}
   - component: {fileID: 1621103216}
   - component: {fileID: 2545990151680087551}
+  - component: {fileID: 2545990151680087552}
   m_Layer: 10
   m_Name: foot.r
   m_TagString: Untagged
@@ -426621,6 +426665,7 @@ GameObject:
   - component: {fileID: 1742111745}
   - component: {fileID: 1742111744}
   - component: {fileID: 1888630215527123535}
+  - component: {fileID: 1888630215527123536}
   m_Layer: 10
   m_Name: forearm_stretch.l
   m_TagString: Untagged
@@ -426648,6 +426693,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1742111743}
   ragdollCollider: {fileID: 1742111745}
   Template: {fileID: 11400000, guid: a12f4e8db947a9341b065939d7f06c88, type: 2}
+--- !u!114 &1888630215527123536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1888630215527123534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1888630216576149906
 GameObject:
   m_ObjectHideFlags: 0
@@ -426962,6 +427027,7 @@ GameObject:
   - component: {fileID: 938840450}
   - component: {fileID: 938840449}
   - component: {fileID: 4295559906162774936}
+  - component: {fileID: 4295559906162774937}
   m_Layer: 10
   m_Name: arm_stretch.r
   m_TagString: Untagged
@@ -427198,6 +427264,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1621103217}
   ragdollCollider: {fileID: 467549773}
   Template: {fileID: 11400000, guid: 2c75dd1a8974e084fac27082a438dcf8, type: 2}
+--- !u!114 &2545990151680087552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1525170383277664240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &2619166705498431894
 Transform:
   m_ObjectHideFlags: 0
@@ -427321,6 +427407,7 @@ GameObject:
   - component: {fileID: 1567796960}
   - component: {fileID: 1567796959}
   - component: {fileID: 7790177421624291857}
+  - component: {fileID: 7790177421624291858}
   m_Layer: 10
   m_Name: hand.r
   m_TagString: Untagged
@@ -427586,6 +427673,7 @@ GameObject:
   - component: {fileID: 1450363094}
   - component: {fileID: 1450363093}
   - component: {fileID: 6170895285917499640}
+  - component: {fileID: 6170895285917499641}
   m_Layer: 10
   m_Name: head.x
   m_TagString: Untagged
@@ -427606,6 +427694,7 @@ GameObject:
   - component: {fileID: 1921903969}
   - component: {fileID: 1921903968}
   - component: {fileID: 8444760568366676690}
+  - component: {fileID: 8444760568366676691}
   m_Layer: 10
   m_Name: leg_stretch.l
   m_TagString: Untagged
@@ -427995,6 +428084,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 938840448}
   ragdollCollider: {fileID: 938840450}
   Template: {fileID: 11400000, guid: 9aef1902880c6794aae8ca9618ffd934, type: 2}
+--- !u!114 &4295559906162774937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2368499011281827368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4317314834411007791
 GameObject:
   m_ObjectHideFlags: 0
@@ -428055,6 +428164,7 @@ GameObject:
   - component: {fileID: 860950378}
   - component: {fileID: 860950377}
   - component: {fileID: 4628257023224719145}
+  - component: {fileID: 4628257023224719146}
   m_Layer: 10
   m_Name: thigh_stretch.l
   m_TagString: Untagged
@@ -428082,6 +428192,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 860950376}
   ragdollCollider: {fileID: 860950378}
   Template: {fileID: 11400000, guid: ba1ae61ea07fc6643b723eb2e6c99d4d, type: 2}
+--- !u!114 &4628257023224719146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4628257023224719144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4628257024206128372
 GameObject:
   m_ObjectHideFlags: 0
@@ -428783,6 +428913,7 @@ GameObject:
   - component: {fileID: 1147111173}
   - component: {fileID: 1147111172}
   - component: {fileID: 5457300410770243060}
+  - component: {fileID: 5457300410770243061}
   m_Layer: 10
   m_Name: leg_stretch.r
   m_TagString: Untagged
@@ -428810,6 +428941,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1147111171}
   ragdollCollider: {fileID: 1147111173}
   Template: {fileID: 11400000, guid: 23e5361612989f040b2a3f957a5c616b, type: 2}
+--- !u!114 &5457300410770243061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5457300410770243059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &5478553078245381056
 Transform:
   m_ObjectHideFlags: 0
@@ -428917,6 +429068,7 @@ GameObject:
   - component: {fileID: 896675144}
   - component: {fileID: 896675143}
   - component: {fileID: 6698158589769141595}
+  - component: {fileID: 6698158589769141596}
   m_Layer: 10
   m_Name: root.x
   m_TagString: Untagged
@@ -429295,6 +429447,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1450363095}
   ragdollCollider: {fileID: 1450363094}
   Template: {fileID: 11400000, guid: 06d30cc6435a00846834ffc3d9816dae, type: 2}
+--- !u!114 &6170895285917499641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3794125987948867220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &6179133710881444771
 GameObject:
   m_ObjectHideFlags: 0
@@ -429645,6 +429817,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 896675142}
   ragdollCollider: {fileID: 896675144}
   Template: {fileID: 11400000, guid: 2cbb658a852c52b49b44c213f6f671aa, type: 2}
+--- !u!114 &6698158589769141596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5692363959465326942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &6774095374366715843
 Transform:
   m_ObjectHideFlags: 0
@@ -430151,6 +430343,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1567796961}
   ragdollCollider: {fileID: 1567796960}
   Template: {fileID: 11400000, guid: c36859aed67b8334d8638b6cfc7164ec, type: 2}
+--- !u!114 &7790177421624291858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3351826558956358841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &7824005390516123710
 GameObject:
   m_ObjectHideFlags: 0
@@ -430205,6 +430417,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1740035233}
   ragdollCollider: {fileID: 1740035235}
   Template: {fileID: 11400000, guid: 300270a05777f034c948a73dace46448, type: 2}
+--- !u!114 &7966254385695062160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 239605998162347380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &7966254386800961618
 Transform:
   m_ObjectHideFlags: 0
@@ -430486,6 +430718,7 @@ GameObject:
   - component: {fileID: 1012859121}
   - component: {fileID: 1012859120}
   - component: {fileID: 8494364549226109748}
+  - component: {fileID: 8494364549226109749}
   m_Layer: 10
   m_Name: hand.l
   m_TagString: Untagged
@@ -430709,6 +430942,7 @@ GameObject:
   - component: {fileID: 1706740997}
   - component: {fileID: 1706740996}
   - component: {fileID: 8174140537969522004}
+  - component: {fileID: 8174140537969522005}
   m_Layer: 10
   m_Name: thigh_stretch.r
   m_TagString: Untagged
@@ -430736,6 +430970,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1706740995}
   ragdollCollider: {fileID: 1706740997}
   Template: {fileID: 11400000, guid: ba1ae61ea07fc6643b723eb2e6c99d4d, type: 2}
+--- !u!114 &8174140537969522005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8174140537969522003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &8264139603490563499
 Transform:
   m_ObjectHideFlags: 0
@@ -431015,6 +431269,7 @@ GameObject:
   - component: {fileID: 1745784437}
   - component: {fileID: 1745784436}
   - component: {fileID: 8361966722992160105}
+  - component: {fileID: 8361966722992160106}
   m_Layer: 10
   m_Name: foot.l
   m_TagString: Untagged
@@ -431042,6 +431297,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1745784437}
   ragdollCollider: {fileID: 2052312434}
   Template: {fileID: 11400000, guid: 2c75dd1a8974e084fac27082a438dcf8, type: 2}
+--- !u!114 &8361966722992160106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8361966722992160104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &8411567818634284024
 GameObject:
   m_ObjectHideFlags: 0
@@ -431094,6 +431369,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1921903967}
   ragdollCollider: {fileID: 1921903969}
   Template: {fileID: 11400000, guid: 23e5361612989f040b2a3f957a5c616b, type: 2}
+--- !u!114 &8444760568366676691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3834132971293973827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &8444760569408645645
 Transform:
   m_ObjectHideFlags: 0
@@ -431517,6 +431812,26 @@ MonoBehaviour:
   ragdollRigidbody: {fileID: 1012859122}
   ragdollCollider: {fileID: 1012859121}
   Template: {fileID: 11400000, guid: c36859aed67b8334d8638b6cfc7164ec, type: 2}
+--- !u!114 &8494364549226109749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8070557538775354320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e9a2c3f65f43dd4587ff7faddcffc0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  onDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &8541096077310125569
 PrefabInstance:
   m_ObjectHideFlags: 0
