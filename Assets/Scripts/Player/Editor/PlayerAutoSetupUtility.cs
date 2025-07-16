@@ -185,7 +185,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-               private static void SetupCharacterControllerFromTemplate(Player player, bool overwriteExisting = true)
+        private static void SetupCharacterControllerFromTemplate(Player player, bool overwriteExisting = true)
         {
             if (player == null)
             {
@@ -256,7 +256,6 @@ namespace UndeadSurvivalGame.Editor
 
             Debug.Log($"[{player.gameObject.name}] AutoSetupReferences: Set CharacterController values from PlayerTemplate. Overwrite: {overwriteExisting}");
         }
-
 
         private static void SetPlayerInputThreshold(System.Type type, object inputObj, float templateValue, string fieldName, bool overwriteExisting)
         {
@@ -1175,26 +1174,6 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        // Helper to map string effector names to FullBodyBipedEffector enum
-        public static RootMotion.FinalIK.FullBodyBipedEffector? StringToFullBodyBipedEffector(string effectorName)
-        {
-            switch (effectorName.ToLowerInvariant())
-            {
-                case "body": return RootMotion.FinalIK.FullBodyBipedEffector.Body;
-                case "left shoulder": return RootMotion.FinalIK.FullBodyBipedEffector.LeftShoulder;
-                case "right shoulder": return RootMotion.FinalIK.FullBodyBipedEffector.RightShoulder;
-                case "left thigh": return RootMotion.FinalIK.FullBodyBipedEffector.LeftThigh;
-                case "right thigh": return RootMotion.FinalIK.FullBodyBipedEffector.RightThigh;
-                case "left hand": return RootMotion.FinalIK.FullBodyBipedEffector.LeftHand;
-                case "right hand": return RootMotion.FinalIK.FullBodyBipedEffector.RightHand;
-                case "left foot": return RootMotion.FinalIK.FullBodyBipedEffector.LeftFoot;
-                case "right foot": return RootMotion.FinalIK.FullBodyBipedEffector.RightFoot;
-                default:
-                    Debug.LogWarning($"[AutoSetup] Unknown effector name '{effectorName}' for FullBodyBipedEffector mapping.");
-                    return null;
-            }
-        }
-
         // Adds or assigns FullBodyBipedIK to the player if missing
         private static void SetupFBBIK(Player player, bool overwriteExisting = true)
         {
@@ -1388,7 +1367,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-                private static void SetupPlayerComponentReferences(Player player)
+        private static void SetupPlayerComponentReferences(Player player)
         {
             var type = typeof(Player);
             var playerInput = player.GetComponent<PlayerInput>();

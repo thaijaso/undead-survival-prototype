@@ -1,5 +1,6 @@
 using Pathfinding;
 using UnityEngine;
+using RootMotion.Dynamics;
 using RootMotion.FinalIK;
 
 namespace UndeadSurvivalGame.Editor
@@ -30,6 +31,8 @@ namespace UndeadSurvivalGame.Editor
             SetupHealthManager(enemy, overwriteExisting);
             SetupLookAtIK(enemy, overwriteExisting);
             SetupEnemyDebugger(enemy, overwriteExisting);
+            SetupBipedRagdollCreator(enemy, overwriteExisting);
+            SetLayerRecursively(enemy.gameObject, LayerMask.NameToLayer("Enemy"), overwriteExisting);
         }
 
         private static void SetupEnemyTemplate(Enemy enemy)
@@ -154,7 +157,7 @@ namespace UndeadSurvivalGame.Editor
             follower.stopDistance = template.followerStopDistance;
             move.follower.leadInRadiusWhenApproachingDestination = template.followerLeadInRadius;
             move.follower.desiredWallDistance = template.followerDesiredWallDistance;
-            move.groundMask = LayerMask.NameToLayer(template.followerRaycastGroundMask);
+            move.groundMask = LayerMask.GetMask(template.followerRaycastGroundMask);
             follower.movementSettings = move;
 
             // Pathfinding
@@ -318,6 +321,50 @@ namespace UndeadSurvivalGame.Editor
                 else
                 {
                     Debug.LogWarning($"[AutoSetup] Could not set enemy reference on EnemyDebugger for {enemy.gameObject.name} (no field or writable property found, tried all visibilities).");
+                }
+            }
+        }
+
+        private static void SetupBipedRagdollCreator(Enemy enemy, bool overwriteExisting = true)
+        {
+            if (enemy == null) return;
+
+            // Check for RagdollEditor component to determine ragdoll status
+            var ragdollEditor = enemy.GetComponent<RagdollEditor>();
+            var bipedRagdollCreator = enemy.GetComponent<BipedRagdollCreator>();
+            if (!overwriteExisting && ragdollEditor != null)
+            {
+                Debug.Log($"[AutoSetup] Skipping BipedRagdollCreator: RagdollEditor component found and overwriteExisting is false.");
+                return;
+            }
+
+            if (bipedRagdollCreator == null)
+            {
+                bipedRagdollCreator = enemy.gameObject.AddComponent<BipedRagdollCreator>();
+                Debug.Log($"[AutoSetup] BipedRagdollCreator component added to {enemy.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] BipedRagdollCreator component already exists on {enemy.gameObject.name}.");
+            }
+
+            // Mark as dirty for persistence
+            UnityEditor.EditorUtility.SetDirty(bipedRagdollCreator);
+            UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(bipedRagdollCreator);
+        }
+
+        private static void SetLayerRecursively(GameObject obj, int layer, bool overwriteExisting = true)
+        {
+            if (obj == null) return;
+            if (!overwriteExisting) return;
+
+            obj.layer = layer;
+            foreach (Transform child in obj.transform)
+            {
+                if (child != null && child.gameObject != null)
+                {
+                    child.gameObject.layer = layer;
+                    SetLayerRecursively(child.gameObject, layer);
                 }
             }
         }

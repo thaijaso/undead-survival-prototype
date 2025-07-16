@@ -77,46 +77,59 @@ public class EnemyTemplate : ScriptableObject
 
     // FollowerEntity Settings
     [TabGroup("FollowerEntity")]
-    [Title("Shape")]
     [MinValue(0f)]
     public float followerRadius = 0.23f;
+    [TabGroup("FollowerEntity")]
     [MinValue(0f)]
     public float followerHeight = 1.94f;
+    [TabGroup("FollowerEntity")]
     [EnumToggleButtons]
     public Orientation followerOrientation = Orientation.ZAxisForward;
 
     [TabGroup("FollowerEntity")]
-    [Title("Movement")]
     public float followerSpeed = 3f;
+    [TabGroup("FollowerEntity")]
     public float followerRotationSpeed = 600f;
+    [TabGroup("FollowerEntity")]
     public float followerMaxRotationSpeed = 720f;
+    [TabGroup("FollowerEntity")]
     public bool followerAllowRotatingOnTheSpot = false;
+    [TabGroup("FollowerEntity")]
     [Range(0f, 1f)]
     public float followerPositionSmoothing = 0f;
+    [TabGroup("FollowerEntity")]
     [Range(0f, 1f)]
     public float followerRotationSmoothing = 0f;
+    [TabGroup("FollowerEntity")]
     public float followerSlowdownTime = 0.5f;
+    [TabGroup("FollowerEntity")]
     public float followerStopDistance = 1f;
+    [TabGroup("FollowerEntity")]
     public float followerLeadInRadius = 1f;
+    [TabGroup("FollowerEntity")]
     public float followerDesiredWallDistance = 0.5f;
+    [TabGroup("FollowerEntity")]
     public bool followerGravity = true;
+    [TabGroup("FollowerEntity")]
     public string followerRaycastGroundMask = "Floor";
+    [TabGroup("FollowerEntity")]
     public MovementPlaneSource followerMovementPlaneSource = MovementPlaneSource.Graph;
+    [TabGroup("FollowerEntity")]
     public PositionSync followerPositionSync = PositionSync.MoveAgentWithTransform;
+    [TabGroup("FollowerEntity")]
     public RotationSync followerRotationSync = RotationSync.RotateAgentWithTransform;
 
     [TabGroup("FollowerEntity")]
-    [Title("Pathfinding")]
     public string followerTraversableGraphs = "Everything";
 
     [TabGroup("FollowerEntity")]
-    [Title("Tags")]
     public RecalculatePathsAutomatically followerRecalculatePathsAutomatically = RecalculatePathsAutomatically.Dynamic;
+    [TabGroup("FollowerEntity")]
     public float followerRepathPeriod = 0.5f;
 
     [TabGroup("FollowerEntity")]
-    [Title("Debug")]
     public MovementDebugRendering followerMovementDebugRendering = MovementDebugRendering.Path;
+    [TabGroup("FollowerEntity")]
     public LocalAvoidanceDebugRendering followerLocalAvoidanceDebugRendering = LocalAvoidanceDebugRendering.Nothing;
     // Add more debug fields as needed
 
