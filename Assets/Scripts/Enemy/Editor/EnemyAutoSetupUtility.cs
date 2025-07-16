@@ -2,11 +2,52 @@ using Pathfinding;
 using UnityEngine;
 using RootMotion.Dynamics;
 using RootMotion.FinalIK;
+using System.Collections.Generic;
+using UnityEditor;
 
 namespace UndeadSurvivalGame.Editor
 {
     public static class EnemyAutoSetupUtility
     {
+        // Maps bone name (string) to LimbType
+        private static readonly Dictionary<string, LimbType> boneLimbTypeMap = new Dictionary<string, LimbType>()
+        {
+            { "root.x", LimbType.Torso },
+            { "thigh_stretch.l", LimbType.UpperLeg },
+            { "leg_stretch.l", LimbType.LowerLeg },
+            { "foot.l", LimbType.Foot },
+            { "thigh_stretch.r", LimbType.UpperLeg },
+            { "leg_stretch.r", LimbType.LowerLeg },
+            { "foot.r", LimbType.Foot },
+            { "spine_02.x", LimbType.Stomach },
+            { "head.x", LimbType.Head },
+            { "arm_stretch.l", LimbType.UpperArm },
+            { "forearm_stretch.l", LimbType.LowerArm },
+            { "hand.l", LimbType.Hand },
+            { "arm_stretch.r", LimbType.UpperArm },
+            { "forearm_stretch.r", LimbType.LowerArm },
+            { "hand.r", LimbType.Hand }
+        };
+
+        private static readonly Dictionary<string, LimbTemplate> boneLimbTemplateMap = new Dictionary<string, LimbTemplate>()
+        {
+            { "root.x", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieTorsoTemplate.asset")},
+            { "thigh_stretch.l", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieUpperLegTemplate.asset")},
+            { "leg_stretch.l", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieLowerLegTemplate.asset")},
+            { "foot.l", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieFootTemplate.asset")},
+            { "thigh_stretch.r", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieUpperLegTemplate.asset")},
+            { "leg_stretch.r", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieLowerLegTemplate.asset")},
+            { "foot.r", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieFootTemplate.asset")},
+            { "spine_02.x", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieStomachTemplate.asset")},
+            { "head.x", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieHeadTemplate.asset")},
+            { "arm_stretch.l", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieUpperArmTemplate.asset")},
+            { "forearm_stretch.l", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieLowerArmTemplate.asset")},
+            { "hand.l", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieHandTemplate.asset")},
+            { "arm_stretch.r", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieUpperArmTemplate.asset")},
+            { "forearm_stretch.r", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieLowerArmTemplate.asset")},
+            { "hand.r", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieHandTemplate.asset")}
+        };
+
         public static void AutoSetupReferences(Enemy enemy, bool overwriteExisting = false)
         {
             Debug.Log($"[{enemy.gameObject.name}] Auto-Setting up references...");
@@ -33,6 +74,7 @@ namespace UndeadSurvivalGame.Editor
             SetupEnemyDebugger(enemy, overwriteExisting);
             SetupBipedRagdollCreator(enemy, overwriteExisting);
             SetLayerRecursively(enemy.gameObject, LayerMask.NameToLayer("Enemy"), overwriteExisting);
+            SetupLimbs(enemy, overwriteExisting);
         }
 
         private static void SetupEnemyTemplate(Enemy enemy)
@@ -42,20 +84,20 @@ namespace UndeadSurvivalGame.Editor
             if (enemy.enemyTemplate == null)
             {
                 // Try to find any ZombieEnemyTemplate asset in the project
-                string[] guids = UnityEditor.AssetDatabase.FindAssets("ZombieEnemyTemplate t:ScriptableObject");
+                string[] guids = AssetDatabase.FindAssets("ZombieEnemyTemplate t:ScriptableObject");
                 if (guids != null && guids.Length > 0)
                 {
-                    string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                    string path = AssetDatabase.GUIDToAssetPath(guids[0]);
                     var mainAssembly = typeof(Enemy).Assembly;
                     var enemyTemplateType = mainAssembly.GetType("EnemyTemplate");
-                    var loadedTemplate = UnityEditor.AssetDatabase.LoadAssetAtPath(path, enemyTemplateType);
+                    var loadedTemplate = AssetDatabase.LoadAssetAtPath(path, enemyTemplateType);
                     if (loadedTemplate != null)
                     {
                         var templateProp = typeof(Enemy).GetProperty("enemyTemplate");
                         if (templateProp != null && templateProp.CanWrite)
                         {
                             templateProp.SetValue(enemy, loadedTemplate);
-                            UnityEditor.EditorUtility.SetDirty(enemy);
+                            EditorUtility.SetDirty(enemy);
                             Debug.Log($"[{enemy.gameObject.name}] AutoSetupReferences: Assigned ZombieEnemyTemplate from {path}.");
                         }
                         else
@@ -64,7 +106,7 @@ namespace UndeadSurvivalGame.Editor
                             if (templateField != null)
                             {
                                 templateField.SetValue(enemy, loadedTemplate);
-                                UnityEditor.EditorUtility.SetDirty(enemy);
+                                EditorUtility.SetDirty(enemy);
                                 Debug.Log($"[{enemy.gameObject.name}] AutoSetupReferences: Assigned ZombieEnemyTemplate from {path} (via field).");
                             }
                             else
@@ -95,7 +137,7 @@ namespace UndeadSurvivalGame.Editor
                 var templateType = enemy.enemyTemplate.GetType();
                 var animatorControllerField = templateType.GetField("animatorController");
                 var animatorControllerProp = templateType.GetProperty("animatorController");
-                UnityEngine.RuntimeAnimatorController templateController = null;
+                RuntimeAnimatorController templateController = null;
                 if (animatorControllerField != null)
                 {
                     templateController = animatorControllerField.GetValue(enemy.enemyTemplate) as UnityEngine.RuntimeAnimatorController;
@@ -349,8 +391,8 @@ namespace UndeadSurvivalGame.Editor
             }
 
             // Mark as dirty for persistence
-            UnityEditor.EditorUtility.SetDirty(bipedRagdollCreator);
-            UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(bipedRagdollCreator);
+            EditorUtility.SetDirty(bipedRagdollCreator);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(bipedRagdollCreator);
         }
 
         private static void SetLayerRecursively(GameObject obj, int layer, bool overwriteExisting = true)
@@ -367,6 +409,139 @@ namespace UndeadSurvivalGame.Editor
                     SetLayerRecursively(child.gameObject, layer);
                 }
             }
+        }
+
+        private static void SetupLimbs(Enemy enemy, bool overwriteExisting = true)
+        {
+            if (enemy == null || enemy.transform.parent == null)
+                return;
+
+            var parent = enemy.transform.parent;
+            foreach (Transform sibling in parent)
+            {
+                if (sibling == enemy.transform)
+                    continue;
+                var puppetMaster = sibling.GetComponent<PuppetMaster>();
+                if (puppetMaster != null)
+                {
+                    Debug.Log($"[SetupLimbs] Found sibling GameObject '{sibling.gameObject.name}' with PuppetMaster component for Enemy '{enemy.gameObject.name}'.");
+                    // Find child named 'root' and log its children's names
+                    Transform rootChild = null;
+                    foreach (Transform child in sibling)
+                    {
+                        if (child.name.Equals("root.x", System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            rootChild = child;
+                            break;
+                        }
+                    }
+                    if (rootChild != null)
+                    {
+                        AddLimbsRecursive(rootChild, $"{sibling.gameObject.name}");
+                    }
+                    else
+                    {
+                        Debug.Log($"[SetupLimbs] No child named 'root.x' found under '{sibling.gameObject.name}'.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[SetupLimbs] Sibling '{sibling.gameObject.name}' does not have PuppetMaster component, skipping. Did you setup PuppetMaster yet?");
+                }
+            }
+        }
+
+        
+
+        // Recursively add all limbs to children from a given Transform
+        private static void AddLimbsRecursive(Transform parent, string parentPath, bool overwriteExisting = true)
+        {
+            if (boneLimbTypeMap.ContainsKey(parent.name))
+            {
+                var limbComponent = GetOrAddLimbComponent(parent, parentPath);
+                bool wasAdded = limbComponent != null && limbComponent.ragdollRigidbody == null && limbComponent.ragdollCollider == null;
+                if (overwriteExisting || wasAdded)
+                {
+                    AssignRigidbodyToLimb(parent, limbComponent, parentPath);
+                    AssignColliderToLimb(parent, limbComponent, parentPath);
+                    AssignLimbTypeAndTemplate(parent, limbComponent, parentPath);
+                }
+            }
+            foreach (Transform child in parent)
+            {
+                AddLimbsRecursive(child, $"{parentPath}/{child.gameObject.name}");
+            }
+        }
+
+        private static Limb GetOrAddLimbComponent(Transform parent, string parentPath)
+        {
+            var limbComponent = parent.GetComponent<Limb>();
+            if (limbComponent != null)
+            {
+                Debug.Log($"[SetupLimbs] Limb component found on '{parent.name}' under {parentPath}.");
+            }
+            else
+            {
+                limbComponent = parent.gameObject.AddComponent<Limb>();
+                Debug.Log($"[SetupLimbs] Limb component ADDED to '{parent.name}' under {parentPath}.");
+            }
+            return limbComponent;
+        }
+
+        private static void AssignRigidbodyToLimb(Transform parent, Limb limbComponent, string parentPath)
+        {
+            var rb = parent.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                limbComponent.ragdollRigidbody = rb;
+                Debug.Log($"[SetupLimbs] Rigidbody found and assigned to Limb on '{parent.name}' under {parentPath}.");
+            }
+            else
+            {
+                Debug.LogWarning($"[SetupLimbs] No Rigidbody found on '{parent.name}' under {parentPath}. Limb.ragdollRigidbody not set.");
+            }
+        }
+
+        private static void AssignColliderToLimb(Transform parent, Limb limbComponent, string parentPath)
+        {
+            Collider foundCollider = null;
+            if (parent.name.Equals("foot.l") || parent.name.Equals("foot.r"))
+            {
+                foreach (Transform child in parent)
+                {
+                    var col = child.GetComponent<Collider>();
+                    if (col != null)
+                    {
+                        foundCollider = col;
+                        Debug.Log($"[SetupLimbs] Collider found on child '{child.name}' of foot '{parent.name}' under {parentPath}.");
+                        break;
+                    }
+                }
+                if (foundCollider == null)
+                {
+                    Debug.LogWarning($"[SetupLimbs] No collider found on any child of foot '{parent.name}' under {parentPath}.");
+                }
+            }
+            else
+            {
+                foundCollider = parent.GetComponent<Collider>();
+                if (foundCollider != null)
+                {
+                    Debug.Log($"[SetupLimbs] Collider found on '{parent.name}' under {parentPath}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[SetupLimbs] No collider found on '{parent.name}' under {parentPath}.");
+                }
+            }
+            limbComponent.ragdollCollider = foundCollider;
+        }
+
+        private static void AssignLimbTypeAndTemplate(Transform parent, Limb limbComponent, string parentPath)
+        {
+            limbComponent.LimbType = boneLimbTypeMap[parent.name];
+            limbComponent.Template = boneLimbTemplateMap[parent.name];
+            Debug.Log($"[SetupLimbs] LimbType set to '{boneLimbTypeMap[parent.name]}' for '{parent.name}' under {parentPath}.");
         }
     }
 }

@@ -423563,6 +423563,7 @@ GameObject:
   - component: {fileID: 1740035233}
   - component: {fileID: 1740035235}
   - component: {fileID: 1740035234}
+  - component: {fileID: 7966254385695062159}
   m_Layer: 10
   m_Name: spine_02.x
   m_TagString: Untagged
@@ -423801,6 +423802,7 @@ GameObject:
   - component: {fileID: 1902537054}
   - component: {fileID: 1902537056}
   - component: {fileID: 1902537055}
+  - component: {fileID: 480980873085896820}
   m_Layer: 10
   m_Name: arm_stretch.l
   m_TagString: Untagged
@@ -423808,6 +423810,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &480980873085896820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 480980873085896819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 3
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1902537054}
+  ragdollCollider: {fileID: 1902537056}
+  Template: {fileID: 11400000, guid: 9aef1902880c6794aae8ca9618ffd934, type: 2}
 --- !u!137 &521678445722131139
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0
@@ -426093,6 +426115,7 @@ GameObject:
   - component: {fileID: 1347135007}
   - component: {fileID: 1347135009}
   - component: {fileID: 1347135008}
+  - component: {fileID: 1166481175142330396}
   m_Layer: 10
   m_Name: forearm_stretch.r
   m_TagString: Untagged
@@ -426349,6 +426372,26 @@ Transform:
   - {fileID: 7790177421624291856}
   m_Father: {fileID: 4295559906162774935}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1166481175142330396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 945743962083396906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 4
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1347135007}
+  ragdollCollider: {fileID: 1347135009}
+  Template: {fileID: 11400000, guid: a12f4e8db947a9341b065939d7f06c88, type: 2}
 --- !u!1 &1253662779169323481
 GameObject:
   m_ObjectHideFlags: 0
@@ -426409,6 +426452,7 @@ GameObject:
   - component: {fileID: 2545990151680087550}
   - component: {fileID: 1621103217}
   - component: {fileID: 1621103216}
+  - component: {fileID: 2545990151680087551}
   m_Layer: 10
   m_Name: foot.r
   m_TagString: Untagged
@@ -426576,6 +426620,7 @@ GameObject:
   - component: {fileID: 1742111743}
   - component: {fileID: 1742111745}
   - component: {fileID: 1742111744}
+  - component: {fileID: 1888630215527123535}
   m_Layer: 10
   m_Name: forearm_stretch.l
   m_TagString: Untagged
@@ -426583,6 +426628,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1888630215527123535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1888630215527123534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 4
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1742111743}
+  ragdollCollider: {fileID: 1742111745}
+  Template: {fileID: 11400000, guid: a12f4e8db947a9341b065939d7f06c88, type: 2}
 --- !u!1 &1888630216576149906
 GameObject:
   m_ObjectHideFlags: 0
@@ -426896,6 +426961,7 @@ GameObject:
   - component: {fileID: 938840448}
   - component: {fileID: 938840450}
   - component: {fileID: 938840449}
+  - component: {fileID: 4295559906162774936}
   m_Layer: 10
   m_Name: arm_stretch.r
   m_TagString: Untagged
@@ -427112,6 +427178,26 @@ Transform:
   - {fileID: 467549772}
   m_Father: {fileID: 1726344752860518101}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2545990151680087551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1525170383277664240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 7
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1621103217}
+  ragdollCollider: {fileID: 467549773}
+  Template: {fileID: 11400000, guid: 2c75dd1a8974e084fac27082a438dcf8, type: 2}
 --- !u!4 &2619166705498431894
 Transform:
   m_ObjectHideFlags: 0
@@ -427234,6 +427320,7 @@ GameObject:
   - component: {fileID: 1567796961}
   - component: {fileID: 1567796960}
   - component: {fileID: 1567796959}
+  - component: {fileID: 7790177421624291857}
   m_Layer: 10
   m_Name: hand.r
   m_TagString: Untagged
@@ -427498,6 +427585,7 @@ GameObject:
   - component: {fileID: 1450363095}
   - component: {fileID: 1450363094}
   - component: {fileID: 1450363093}
+  - component: {fileID: 6170895285917499640}
   m_Layer: 10
   m_Name: head.x
   m_TagString: Untagged
@@ -427517,6 +427605,7 @@ GameObject:
   - component: {fileID: 1921903967}
   - component: {fileID: 1921903969}
   - component: {fileID: 1921903968}
+  - component: {fileID: 8444760568366676690}
   m_Layer: 10
   m_Name: leg_stretch.l
   m_TagString: Untagged
@@ -427886,6 +427975,26 @@ Transform:
   - {fileID: 1166481175142330395}
   m_Father: {fileID: 7966254385695062158}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4295559906162774936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2368499011281827368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 3
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 938840448}
+  ragdollCollider: {fileID: 938840450}
+  Template: {fileID: 11400000, guid: 9aef1902880c6794aae8ca9618ffd934, type: 2}
 --- !u!1 &4317314834411007791
 GameObject:
   m_ObjectHideFlags: 0
@@ -427945,6 +428054,7 @@ GameObject:
   - component: {fileID: 860950376}
   - component: {fileID: 860950378}
   - component: {fileID: 860950377}
+  - component: {fileID: 4628257023224719145}
   m_Layer: 10
   m_Name: thigh_stretch.l
   m_TagString: Untagged
@@ -427952,6 +428062,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &4628257023224719145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4628257023224719144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 5
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 860950376}
+  ragdollCollider: {fileID: 860950378}
+  Template: {fileID: 11400000, guid: ba1ae61ea07fc6643b723eb2e6c99d4d, type: 2}
 --- !u!1 &4628257024206128372
 GameObject:
   m_ObjectHideFlags: 0
@@ -428652,6 +428782,7 @@ GameObject:
   - component: {fileID: 1147111171}
   - component: {fileID: 1147111173}
   - component: {fileID: 1147111172}
+  - component: {fileID: 5457300410770243060}
   m_Layer: 10
   m_Name: leg_stretch.r
   m_TagString: Untagged
@@ -428659,6 +428790,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &5457300410770243060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5457300410770243059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 6
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1147111171}
+  ragdollCollider: {fileID: 1147111173}
+  Template: {fileID: 11400000, guid: 23e5361612989f040b2a3f957a5c616b, type: 2}
 --- !u!4 &5478553078245381056
 Transform:
   m_ObjectHideFlags: 0
@@ -428765,6 +428916,7 @@ GameObject:
   - component: {fileID: 896675142}
   - component: {fileID: 896675144}
   - component: {fileID: 896675143}
+  - component: {fileID: 6698158589769141595}
   m_Layer: 10
   m_Name: root.x
   m_TagString: Untagged
@@ -429123,6 +429275,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7966254385695062158}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6170895285917499640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3794125987948867220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 0
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1450363095}
+  ragdollCollider: {fileID: 1450363094}
+  Template: {fileID: 11400000, guid: 06d30cc6435a00846834ffc3d9816dae, type: 2}
 --- !u!1 &6179133710881444771
 GameObject:
   m_ObjectHideFlags: 0
@@ -429453,6 +429625,26 @@ Transform:
   - {fileID: 7966254385695062158}
   m_Father: {fileID: 543450653399237624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6698158589769141595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5692363959465326942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 1
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 896675142}
+  ragdollCollider: {fileID: 896675144}
+  Template: {fileID: 11400000, guid: 2cbb658a852c52b49b44c213f6f671aa, type: 2}
 --- !u!4 &6774095374366715843
 Transform:
   m_ObjectHideFlags: 0
@@ -429939,6 +430131,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1166481175142330395}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7790177421624291857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3351826558956358841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 8
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1567796961}
+  ragdollCollider: {fileID: 1567796960}
+  Template: {fileID: 11400000, guid: c36859aed67b8334d8638b6cfc7164ec, type: 2}
 --- !u!1 &7824005390516123710
 GameObject:
   m_ObjectHideFlags: 0
@@ -429973,6 +430185,26 @@ Transform:
   - {fileID: 4295559906162774935}
   m_Father: {fileID: 6698158589769141594}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7966254385695062159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 239605998162347380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 2
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1740035233}
+  ragdollCollider: {fileID: 1740035235}
+  Template: {fileID: 11400000, guid: 300270a05777f034c948a73dace46448, type: 2}
 --- !u!4 &7966254386800961618
 Transform:
   m_ObjectHideFlags: 0
@@ -430253,6 +430485,7 @@ GameObject:
   - component: {fileID: 1012859122}
   - component: {fileID: 1012859121}
   - component: {fileID: 1012859120}
+  - component: {fileID: 8494364549226109748}
   m_Layer: 10
   m_Name: hand.l
   m_TagString: Untagged
@@ -430475,6 +430708,7 @@ GameObject:
   - component: {fileID: 1706740995}
   - component: {fileID: 1706740997}
   - component: {fileID: 1706740996}
+  - component: {fileID: 8174140537969522004}
   m_Layer: 10
   m_Name: thigh_stretch.r
   m_TagString: Untagged
@@ -430482,6 +430716,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &8174140537969522004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8174140537969522003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 5
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1706740995}
+  ragdollCollider: {fileID: 1706740997}
+  Template: {fileID: 11400000, guid: ba1ae61ea07fc6643b723eb2e6c99d4d, type: 2}
 --- !u!4 &8264139603490563499
 Transform:
   m_ObjectHideFlags: 0
@@ -430760,6 +431014,7 @@ GameObject:
   - component: {fileID: 1139325989971462704}
   - component: {fileID: 1745784437}
   - component: {fileID: 1745784436}
+  - component: {fileID: 8361966722992160105}
   m_Layer: 10
   m_Name: foot.l
   m_TagString: Untagged
@@ -430767,6 +431022,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &8361966722992160105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8361966722992160104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 7
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1745784437}
+  ragdollCollider: {fileID: 2052312434}
+  Template: {fileID: 11400000, guid: 2c75dd1a8974e084fac27082a438dcf8, type: 2}
 --- !u!1 &8411567818634284024
 GameObject:
   m_ObjectHideFlags: 0
@@ -430799,6 +431074,26 @@ Transform:
   - {fileID: 1139325989971462704}
   m_Father: {fileID: 3740610384082168693}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8444760568366676690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3834132971293973827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 6
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1921903967}
+  ragdollCollider: {fileID: 1921903969}
+  Template: {fileID: 11400000, guid: 23e5361612989f040b2a3f957a5c616b, type: 2}
 --- !u!4 &8444760569408645645
 Transform:
   m_ObjectHideFlags: 0
@@ -431202,6 +431497,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1542398575210064069}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8494364549226109748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8070557538775354320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ec79bf2c19d174cb60b575d6226d22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LimbType: 8
+  Prefab: {fileID: 0}
+  Instance: {fileID: 0}
+  Bone: {fileID: 0}
+  Health: 100
+  ragdollRigidbody: {fileID: 1012859122}
+  ragdollCollider: {fileID: 1012859121}
+  Template: {fileID: 11400000, guid: c36859aed67b8334d8638b6cfc7164ec, type: 2}
 --- !u!1001 &8541096077310125569
 PrefabInstance:
   m_ObjectHideFlags: 0
