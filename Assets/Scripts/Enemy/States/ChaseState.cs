@@ -23,16 +23,16 @@ public class ChaseState : EnemyState
     {
         Debug.Log($"[{enemy.name}] ChaseState.Enter(): Entering chase state");
         base.Enter();
-        
+
         // Enable LookAtIK for player tracking during chase
         enemy.LookAtIK.enabled = true;
-        
+
         // Ensure AI movement is enabled
         enemy.AIDestinationSetter.enabled = true;
         enemy.FollowerEntity.enabled = true;
         enemy.SetAndLogSpeed(enemy.GetChaseSpeed(), "ChaseState.Enter()");
     }
-    
+
     public override void LogicUpdate()
     {
         base.LogicUpdate();

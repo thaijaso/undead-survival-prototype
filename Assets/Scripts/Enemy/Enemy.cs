@@ -47,6 +47,7 @@ public class Enemy : MonoBehaviour
     public EnemyState Chase { get; private set; }
     public EnemyState Attack { get; private set; }
     public EnemyState Death { get; private set; }
+    public HitReactionState HitReaction { get; private set; }
 
     [TabGroup("Configuration")]
     [Required]
@@ -63,22 +64,16 @@ public class Enemy : MonoBehaviour
 
     public float GetAttackRange() => enemyTemplate.attackRange;
 
-    
-    // Track if enemy has been aggroed before
+    public bool IsAggroed { get; private set; } = false;
+
     public bool HasAggroed { get; private set; } = false;
-    
-    public void SetHasAggroed(bool value)
-    {
-        HasAggroed = value;
-        Debug.Log($"[{name}] HasAggroed set to {value}");
-    }
 
     // Shared turn animation state across all states
     private bool _isTurning = false;
-    public bool IsTurning 
-    { 
+    public bool IsTurning
+    {
         get => _isTurning;
-        set 
+        set
         {
             if (_isTurning != value)
             {
@@ -244,6 +239,9 @@ public class Enemy : MonoBehaviour
         Attack = new AttackState(this, stateMachine, AnimationManager, "Attack");
         Debug.Log($"[{gameObject.name}] ✓ Attack state initialized");
 
+        HitReaction = new HitReactionState(this, stateMachine, AnimationManager, "HitReaction");
+        Debug.Log($"[{gameObject.name}] ✓ HitReaction state initialized");
+
         Death = new DeathState(this, stateMachine, AnimationManager, "Death");
         Debug.Log($"[{gameObject.name}] ✓ Death state initialized");
 
@@ -330,92 +328,6 @@ public class Enemy : MonoBehaviour
         return sqrDistanceToPlayer <= enemyTemplate.attackRange * enemyTemplate.attackRange;
     }
 
-    // ===============================================
-    // ANIMATION EVENTS - Called directly by Unity Animator
-    // ===============================================
-    
-    /// <summary>
-    /// Called when turn animations finish (TurnLeft180, TurnRight180, Aggro180)
-    /// Delegates to the appropriate state handler
-    /// </summary>
-    public void OnTurnFinished()
-    {
-        Debug.Log($"[{name}] Enemy.OnTurnFinished(): Turn animation finished. Current state: {stateMachine.currentState.GetType().Name}");
-        
-        // Delegate to the current state if it handles turn finishing
-        if (stateMachine.currentState == Alert && Alert is AlertState alertState)
-        {
-            Debug.Log($"[{name}] Enemy.OnTurnFinished(): Delegating to AlertState");
-            alertState.OnTurnFinished();
-        }
-        else if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
-        {
-            Debug.Log($"[{name}] Enemy.OnTurnFinished(): Delegating to AggroState");
-            aggroState.OnTurnFinished();
-        }
-        else
-        {
-            Debug.Log($"[{name}] Enemy.OnTurnFinished(): Called but current state ({stateMachine.currentState.GetType().Name}) doesn't handle it");
-        }
-    }
-
-    /// <summary>
-    /// Called when aggro animation sequence finishes
-    /// Transitions from Aggro to Chase state
-    /// </summary>
-    public void OnAggroAnimationFinished()
-    {
-        Debug.Log($"[{name}] Enemy.OnAggroAnimationFinished(): Current state: " + stateMachine.currentState.GetType().Name);
-
-        if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
-        {
-            Debug.Log($"[{name}] Enemy.OnAggroAnimationFinished(): Delegating to AggroState");
-            aggroState.OnAggroAnimationFinished();
-        }
-        else
-        {
-            Debug.LogWarning($"[{name}] Enemy.OnAggroAnimationFinished(): Called but current state ({stateMachine.currentState.GetType().Name}) doesn't handle it");
-        }
-    }
-
-    /// <summary>
-    /// Called when attack animations finish
-    /// Handles post-attack state transitions
-    /// </summary>
-    public void OnAttackFinished()
-    {
-        Debug.Log($"[{name}] Enemy.OnAttackFinished(): Current state: " + stateMachine.currentState.GetType().Name);
-        
-        // Delegate to the current state if it's AttackState
-        if (stateMachine.currentState == Attack && Attack is AttackState attackState)
-        {
-            attackState.OnAttackFinished();
-        }
-    }
-
-    /// <summary>
-    /// Called when attack loses momentum/force
-    /// Used for physics-based attack feedback
-    /// </summary>
-    public void OnAttackLostMomentum()
-    {
-        Debug.Log($"[{name}] Enemy.OnAttackLostMomentum(): Current state: " + stateMachine.currentState.GetType().Name);
-        
-        // Delegate to appropriate state handlers
-        if (stateMachine.currentState == Attack && Attack is AttackState attackState)
-        {
-            attackState.OnAttackLostMomentum();
-        }
-        else if (stateMachine.currentState == Aggro && Aggro is AggroState aggroState)
-        {
-            aggroState.OnAttackLostMomentum();
-        }
-    }
-
-    // ===============================================
-    // END ANIMATION EVENTS
-    // ===============================================
-
     // Utility methods for debugging speed issues
     public void LogCurrentSpeed(string context = "")
     {
@@ -443,19 +355,19 @@ public class Enemy : MonoBehaviour
             {
                 StopCoroutine(speedBlendCoroutine);
             }
-            
+
             // Start new speed blend
             speedBlendCoroutine = StartCoroutine(BlendSpeed(followerEntity.maxSpeed, newSpeed, blendTime, source));
         }
     }
-    
+
     private IEnumerator BlendSpeed(float fromSpeed, float toSpeed, float duration, string source)
     {
         var followerEntity = GetComponent<FollowerEntity>();
         float elapsed = 0f;
-        
+
         Debug.Log($"[{gameObject.name}] SPEED BLEND START ({source}): {fromSpeed:F1} -> {toSpeed:F1} over {duration:F1}s");
-        
+
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
@@ -463,10 +375,10 @@ public class Enemy : MonoBehaviour
             followerEntity.maxSpeed = Mathf.Lerp(fromSpeed, toSpeed, t);
             yield return null;
         }
-        
+
         followerEntity.maxSpeed = toSpeed;
         Debug.Log($"[{gameObject.name}] SPEED BLEND COMPLETE ({source}): Final speed = {toSpeed:F1}");
-        
+
         speedBlendCoroutine = null;
     }
 
@@ -482,5 +394,19 @@ public class Enemy : MonoBehaviour
         {
             Debug.LogWarning($"[{name}] Enemy.SetSpeed(): No FollowerEntity component found to set speed");
         }
+    }
+    
+    public void SetIsAggroed(bool IsAggroed)
+    {
+        this.IsAggroed = IsAggroed;
+        Debug.Log($"[{name}] IsAggroed set to {IsAggroed}");
+    }
+
+    // Track if enemy has been aggroed before
+
+    public void SetHasAggroed(bool value)
+    {
+        HasAggroed = value;
+        Debug.Log($"[{name}] HasAggroed set to {value}");
     }
 }

@@ -91,7 +91,6 @@ public class Bullet : MonoBehaviour
             Debug.LogWarning("[Bullet] HandleEnemyHitboxImpact(): Hit object is not on the EnemyRagdoll layer.");
             return;
         }
-            
 
         // Try to get the Enemy and Limb components
         PuppetMaster puppetMaster = hitCollider.GetComponentInParent<PuppetMaster>();
@@ -140,6 +139,14 @@ public class Bullet : MonoBehaviour
         if (!enemy.DebugModeEnabled)
         {
             var currentState = enemy.stateMachine.currentState;
+
+            // Always trigger HitReactionState unless already in it
+            if (currentState != enemy.HitReaction || currentState == enemy.Death)
+            {
+                enemy.stateMachine.SetState(enemy.HitReaction);
+                Debug.Log($"[Bullet] HandleEnemyStateTransition(): Transitioning to HitReactionState");
+                return;
+            }
             
             // Determine appropriate state based on current state and aggro history
             if (!enemy.HasAggroed)

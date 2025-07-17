@@ -275569,6 +275569,7 @@ GameObject:
   - component: {fileID: 1390204922}
   - component: {fileID: 1390204921}
   - component: {fileID: 1390204928}
+  - component: {fileID: 1390204929}
   m_Layer: 8
   m_Name: Zombie (1)
   m_TagString: Untagged
@@ -275627,9 +275628,9 @@ MonoBehaviour:
   fixTransforms: 1
   solver:
     executedInEditor: 0
-    IKPosition: {x: 1.653, y: 4.7320685, z: -5.0688043}
+    IKPosition: {x: 1.653, y: 1.7320681, z: -2.0688038}
     IKPositionWeight: 1
-    root: {fileID: 378643276}
+    root: {fileID: 1390204920}
     target: {fileID: 1166327836}
     spine: []
     head:
@@ -275641,11 +275642,11 @@ MonoBehaviour:
       defaultLocalRotation: {x: -0.072476506, y: -3.0138718e-15, z: -3.0190467e-14, w: 0.9973701}
       length: 0
       sqrMag: 0
-      axis: {x: 1.6077753e-13, y: 1.0000001, z: -0.00000011920929}
+      axis: {x: -1.6077749e-13, y: 1.2924699e-26, z: 1}
       baseForwardOffsetEuler: {x: 0, y: 0, z: 0}
     eyes: []
     bodyWeight: 0.5
-    headWeight: 0.5
+    headWeight: 0.8
     eyesWeight: 1
     clampWeight: 0.5
     clampWeightHead: 0.5
@@ -275855,6 +275856,18 @@ MonoBehaviour:
     legColliders: 1
     footColliders: 0
     fixFootColliderRotation: 1
+--- !u!114 &1390204929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390204919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0989d3c99551a7f41a4b81ca8b2203e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1390628447
 PrefabInstance:
   m_ObjectHideFlags: 0

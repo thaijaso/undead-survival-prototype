@@ -8,6 +8,9 @@ using Sirenix.OdinInspector;
 /// </summary>
 public class EnemyDebugger : MonoBehaviour
 {
+    // Store original spawn position and rotation
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
     [Header("Debug References")]
     [Required]
     [SerializeField]
@@ -24,8 +27,16 @@ public class EnemyDebugger : MonoBehaviour
     public string CurrentState => enemy?.stateMachine?.currentState?.GetType().Name ?? "None";
 
     [ShowInInspector, ReadOnly]
-    [ShowIf("@enemy != null && enemy.FollowerEntity != null")]
+    [ShowIf("@enemy != null")]
+    public int CurrentHealth => enemy?.HealthManager?.currentHealth ?? 0;
+
+    [ShowInInspector, ReadOnly]
+    [ShowIf("@enemy != null")]
     public float CurrentSpeed => enemy?.FollowerEntity?.maxSpeed ?? 0f;
+
+    [ShowInInspector, ReadOnly]
+    [ShowIf("@enemy != null")]
+    public bool IsAggroed => enemy?.IsAggroed ?? false;
 
     [ShowInInspector, ReadOnly]
     [ShowIf("@enemy != null")]
@@ -45,6 +56,12 @@ public class EnemyDebugger : MonoBehaviour
             {
                 Debug.LogError($"[{name}] EnemyDebugger: No Enemy component found on this GameObject or assigned in inspector!");
             }
+        }
+        // Store original position and rotation
+        if (enemy != null)
+        {
+            originalPosition = enemy.transform.position;
+            originalRotation = enemy.transform.rotation;
         }
     }
 
@@ -245,11 +262,17 @@ public class EnemyDebugger : MonoBehaviour
     }
 
     /// <summary>
-    /// Revives the zombie to full health
+    /// Revives the zombie to full health and reset its position and state
     /// </summary>
     public void ReviveZombie()
     {
         if (enemy == null) return;
+
+        // Reset position and rotation to original spawn, with Y offset to avoid ground collision
+        Vector3 safePosition = originalPosition;
+        enemy.transform.position = safePosition;
+        enemy.transform.rotation = originalRotation;
+        Debug.Log($"[{enemy.name}] Debug: Reset position and rotation to safe spawn");
 
         // Restore health
         if (enemy.HealthManager != null && enemy.enemyTemplate != null)
@@ -265,12 +288,30 @@ public class EnemyDebugger : MonoBehaviour
             Debug.Log($"[{enemy.name}] Debug: Resurrected PuppetMaster");
         }
 
+        // Teleport PuppetMaster to restore pose above ground
+        if (enemy.PuppetMaster != null)
+        {
+            enemy.PuppetMaster.Teleport(enemy.transform.position, enemy.transform.rotation, true);
+            Debug.Log($"[{enemy.name}] Debug: Teleported PuppetMaster to spawn pose");
+            // Ensure PuppetMaster is in Active mode so the zombie stands up
+            enemy.PuppetMaster.mode = PuppetMaster.Mode.Active;
+            Debug.Log($"[{enemy.name}] Debug: Set PuppetMaster mode to Active");
+        }
+
         // Transition to idle state
         if (enemy.Idle != null)
         {
             enemy.stateMachine.SetState(enemy.Idle);
             Debug.Log($"[{enemy.name}] Debug: Set to Idle state after revival");
         }
+
+        // Reset aggro flags
+        enemy.SetIsAggroed(false);
+        enemy.SetHasAggroed(false);
+        Debug.Log($"[{enemy.name}] Debug: IsAggroed and HasAggroed set to false after revive");
+        
+        // Reset all movement, animation, and state flags
+        ResetToCleanIdle();
     }
 
     // ===============================================
@@ -312,12 +353,6 @@ public class EnemyDebugger : MonoBehaviour
         // 4. Reset rotation to forward-facing
         enemy.transform.rotation = Quaternion.identity;
         Debug.Log($"[{enemy.name}] Reset: Rotation reset to identity");
-        
-        // 5. Clear any animation triggers that might be stuck
-        enemy.AnimationManager?.ResetTrigger("TurnRight180");
-        enemy.AnimationManager?.ResetTrigger("TurnLeft180");
-        enemy.AnimationManager?.ResetTrigger("Aggro180");
-        Debug.Log($"[{enemy.name}] Reset: Animation triggers cleared");
         
         // 6. Reset alert state in animation manager
         enemy.AnimationManager?.SetAlertState(false);

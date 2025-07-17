@@ -52,6 +52,13 @@ public class DeathState : EnemyState
         }
     }
 
+    public override void Exit(EnemyState nextState)
+    {
+        base.Exit(nextState);
+        hasActivatedRagdoll = false;
+        Debug.Log($"[{enemy.gameObject.name}] DeathState.Exit(): Reset hasActivatedRagdoll to false");
+    }
+
     private void ActivateRagdoll()
     {
         if (hasActivatedRagdoll) return;

@@ -69,7 +69,6 @@ public class AggroState : EnemyState
         // Reset turning flag
         enemy.IsTurning = false;
 
-
         // Transition to chase state
         stateMachine.SetState(enemy.Chase);
     }
@@ -128,10 +127,10 @@ public class AggroState : EnemyState
         base.Exit(nextState);
 
         // Clean up animation state
-        if (nextState != enemy.Attack)
-        {
-            animationManager.SetIsAggro(false);
-        }
+        // if (nextState != enemy.Attack || nextState != enemy.Chase)
+        // {
+        //     animationManager.SetIsAggro(false);
+        // }
 
         // Stop any rotation coroutines when exiting the state
         if (turnCoroutine != null)

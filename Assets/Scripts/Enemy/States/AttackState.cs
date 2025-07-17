@@ -34,10 +34,10 @@ public class AttackState : EnemyState
         animationManager.SetIsInAttackRange(false);
         
         // Reset aggro state unless transitioning back to Aggro
-        if (nextState != enemy.Aggro)
-        {
-            animationManager.SetIsAggro(false);
-        }
+        // if (nextState != enemy.Aggro)
+        // {
+        //     animationManager.SetIsAggro(false);
+        // }
         
         Debug.Log($"[{enemy.name}] AttackState.Exit(): Cleaned up attack animations");
     }

@@ -68,6 +68,7 @@ namespace UndeadSurvivalGame.Editor
 
             SetupPuppetMasterReference(enemy, overwriteExisting);
             SetupAnimator(enemy, overwriteExisting);
+            SetupEnemyAnimatorEvents(enemy, overwriteExisting);
             SetupFollowerEntity(enemy, overwriteExisting);
             SetupAIDestinationSetter(enemy, overwriteExisting);
             SetupHealthManagerForEnemy(enemy, overwriteExisting);
@@ -223,6 +224,25 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
+        private static void SetupEnemyAnimatorEvents(Enemy enemy, bool overwriteExisting = true)
+        {
+            if (enemy == null) return;
+
+            var animatorEvents = enemy.GetComponent<EnemyAnimatorEvents>();
+            if (animatorEvents == null)
+            {
+                animatorEvents = enemy.gameObject.AddComponent<EnemyAnimatorEvents>();
+                Debug.Log($"[AutoSetup] EnemyAnimatorEvents component added to {enemy.gameObject.name}.");
+            }
+            else if (!overwriteExisting)
+            {
+                Debug.Log($"[AutoSetup] EnemyAnimatorEvents already exists on {enemy.gameObject.name}, skipping setup.");
+                return;
+            }
+
+            EditorUtility.SetDirty(animatorEvents);
+        }
+
         private static void SetupFollowerEntity(Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null || enemy.enemyTemplate == null)
@@ -354,6 +374,7 @@ namespace UndeadSurvivalGame.Editor
             }
 
             lookAtIK.enabled = false; // Disable it initially
+            lookAtIK.solver.headWeight = .8f;
 
             // Only set the head bone if just added or overwriteExisting is true
             if (added || overwriteExisting)

@@ -74,7 +74,7 @@ public class EnemyState : IState<EnemyState>
         float sqrDistance = (enemy.GetPlayerTransform().position - enemy.transform.position).sqrMagnitude;
         return sqrDistance <= detectionRange * detectionRange;
     }
-    
+
     protected float GetAngleToPlayer()
     {
         Vector3 directionToPlayer = enemy.GetPlayerTransform().position - enemy.transform.position;
@@ -91,11 +91,11 @@ public class EnemyState : IState<EnemyState>
     protected IEnumerator RotateWithAlertAnimation(Quaternion targetRotation)
     {
         Quaternion startRotation = enemy.transform.rotation;
-        
+
         // Phase 1: Slow rotation (first part of animation)
         float slowPhaseDuration = enemy.enemyTemplate.turn180Phase1Duration;
         float slowPhaseProgress = 0.2f; // How much to rotate during slow phase
-        
+
         float elapsedTime = 0f;
         while (elapsedTime < slowPhaseDuration)
         {
@@ -104,12 +104,12 @@ public class EnemyState : IState<EnemyState>
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        
+
         // Phase 2: Fast rotation (second part of animation)
         float fastPhaseDuration = enemy.enemyTemplate.turn180Phase2Duration;
         elapsedTime = 0f;
         Quaternion midRotation = enemy.transform.rotation;
-        
+
         while (elapsedTime < fastPhaseDuration)
         {
             float progress = elapsedTime / fastPhaseDuration;
@@ -117,7 +117,7 @@ public class EnemyState : IState<EnemyState>
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        
+
         // Ensure we end up exactly at target rotation
         enemy.transform.rotation = targetRotation;
     }
@@ -125,13 +125,13 @@ public class EnemyState : IState<EnemyState>
     protected IEnumerator RotateWithAggroAnimation(Quaternion targetRotation)
     {
         Debug.Log($"[{enemy.name}] Starting RotateWithAggroAnimation - Target: {targetRotation.eulerAngles}");
-        
+
         Quaternion startRotation = enemy.transform.rotation;
 
         // Phase 1: Slow rotation (first part of Aggro180 animation)
         float slowPhaseDuration = enemy.enemyTemplate.aggro180Phase1Duration;
         float slowPhaseProgress = 0.5f; // How much to rotate during slow phase - increased for faster feel
-        
+
         float elapsedTime = 0f;
         while (elapsedTime < slowPhaseDuration)
         {
@@ -140,14 +140,14 @@ public class EnemyState : IState<EnemyState>
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        
+
         Debug.Log($"[{enemy.name}] Phase 1 complete - Current rotation: {enemy.transform.rotation.eulerAngles}");
-        
+
         // Phase 2: Fast rotation (second part of Aggro180 animation)
         float fastPhaseDuration = enemy.enemyTemplate.aggro180Phase2Duration; // Use template value directly
         elapsedTime = 0f;
         Quaternion midRotation = enemy.transform.rotation; // Capture where Phase 1 ended
-        
+
         while (elapsedTime < fastPhaseDuration)
         {
             float progress = elapsedTime / fastPhaseDuration;
@@ -156,10 +156,10 @@ public class EnemyState : IState<EnemyState>
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        
+
         // Ensure we end up exactly at target rotation
         enemy.transform.rotation = targetRotation;
-        
+
         Debug.Log($"[{enemy.name}] RotateWithAggroAnimation complete - Final rotation: {enemy.transform.rotation.eulerAngles}");
     }
 
@@ -170,10 +170,16 @@ public class EnemyState : IState<EnemyState>
         Vector3 playerDirection = enemy.GetPlayerTransform().position - enemy.transform.position;
         playerDirection.y = 0f;
         Quaternion targetRotation = Quaternion.LookRotation(playerDirection);
-        
+
         // Direct rotation (should work immediately)
         enemy.transform.rotation = targetRotation;
-        
+
         Debug.Log($"[{enemy.name}] Direct rotation applied - New rotation: {enemy.transform.rotation.eulerAngles}");
+    }
+    
+    public void OnAggroAnimStarted()
+    {
+        Debug.Log($"[{enemy.name}] EnemyState.OnAggroAnimStarted(): Aggro animation started - IsTurning is {enemy.IsTurning}");
+        animationManager.SetHasAggroAnimStarted(true);
     }
 }
