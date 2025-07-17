@@ -12,9 +12,11 @@ public class PlayerIKController : MonoBehaviour
     private float targetIKWeight = 1f;
 
     [Header("IK Blending Settings")]
+    #pragma warning disable 0414
     [Range(0.1f, 20f)]
     [SerializeField]
     private float blendSpeed = 5f;
+    #pragma warning restore 0414
 
     [Range(0f, 1f)]
     [SerializeField]

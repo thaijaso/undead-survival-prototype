@@ -120,10 +120,6 @@ public class AnimationManager
 
     public void SetIsAggro(bool isAggro)
     {
-        if (!isAggro)
-        {
-            Debug.LogWarning($"[{animator.name}] AnimationManager.SetIsAggro(): Setting IsAggro to false, but current state is {animator.GetCurrentAnimatorStateInfo(0).IsName("Aggro")}");
-        }
         animator.SetBool("IsAggro", isAggro);
     }
 
@@ -176,6 +172,5 @@ public class AnimationManager
     public void SetHasAggroed(bool hasAggroed)
     {
         animator.SetBool("HasAggroed", hasAggroed);
-        Debug.Log($"[{animator.name}] AnimationManager.SetHasAggroed(): HasAggroed set to {hasAggroed}");
     }
 }

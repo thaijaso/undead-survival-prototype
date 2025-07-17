@@ -130,10 +130,10 @@ public class Bullet : MonoBehaviour
         SpawnBloodEffect(hitPoint, hitNormal, enemy);
 
         // Handle state transitions based on bullet impact
-        HandleEnemyStateTransition(enemy);
+        HandleEnemyStateTransition(enemy, limb);
     }
     
-    private void HandleEnemyStateTransition(Enemy enemy)
+    private void HandleEnemyStateTransition(Enemy enemy, Limb limb)
     {
         // Only force state transitions if the enemy is not in debug mode
         if (!enemy.DebugModeEnabled)
@@ -143,6 +143,7 @@ public class Bullet : MonoBehaviour
             // Always trigger HitReactionState unless already in it
             if (currentState != enemy.HitReaction || currentState == enemy.Death)
             {
+                enemy.HitReaction.SetHitLimb(limb);
                 enemy.stateMachine.SetState(enemy.HitReaction);
                 Debug.Log($"[Bullet] HandleEnemyStateTransition(): Transitioning to HitReactionState");
                 return;
