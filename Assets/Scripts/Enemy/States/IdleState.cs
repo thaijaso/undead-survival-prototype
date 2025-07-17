@@ -34,9 +34,6 @@ namespace EnemyStates
             animationManager.SetIsInAttackRange(false);
             animationManager.SetIsTurning(false);
             
-            // Clear movement parameters that might trigger Chase transitions
-            animationManager.SetIsMoving(false);
-            
             // Set movement speed to 0 for idle
             enemy.SetSpeed(0f);
             
