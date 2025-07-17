@@ -12,9 +12,6 @@ public class ShootState : AimState
     private float animationRecoilMagnitude = .5f;
     private float bulletSpreadHorizontal = .5f;
     private float bulletSpreadVertical = .5f;
-    private float fireRate = 0.1f;
-
-    private float fireTimer = 0f;
 
     public ShootState(
         Player player,
@@ -70,8 +67,8 @@ public class ShootState : AimState
         animationRecoilMagnitude = weaponManager.CurrentWeaponData.animationRecoilMagnitude;
         bulletSpreadHorizontal = weaponManager.CurrentWeaponData.bulletSpreadHorizontal;
         bulletSpreadVertical = weaponManager.CurrentWeaponData.bulletSpreadVertical;
-        fireRate = weaponManager.CurrentWeaponData.fireRate;
-        Debug.Log($"[{player.name}] ShootState.SetupWeaponDataForShooting(): Animation recoil magnitude: {animationRecoilMagnitude}, Bullet spread: {bulletSpreadHorizontal}/{bulletSpreadVertical}, Fire rate: {fireRate}");
+        //fireRate = weaponManager.CurrentWeaponData.fireRate;
+        Debug.Log($"[{player.name}] ShootState.SetupWeaponDataForShooting(): Animation recoil magnitude: {animationRecoilMagnitude}, Bullet spread: {bulletSpreadHorizontal}/{bulletSpreadVertical}");
     }
 
     private void SetupWeaponDataForCameraRecoil()
@@ -97,8 +94,6 @@ public class ShootState : AimState
     {
         base.LogicUpdate();
 
-        fireTimer -= Time.deltaTime;
-
         if (!player.PlayerInput.IsAttacking && player.PlayerInput.IsAiming)
         {
             stateMachine.SetState(player.aim);
@@ -110,7 +105,7 @@ public class ShootState : AimState
         if (isAutomatic)
         {
             // Automatic: fire while held
-            if (player.PlayerInput.IsAttacking && fireTimer <= 0f)
+            if (player.PlayerInput.IsAttacking && weaponManager.CanFire())
             {
                 Debug.Log("[ShootState] Automatic fire triggered");
                 Shoot();
@@ -121,7 +116,7 @@ public class ShootState : AimState
             // Semi-auto: fire only if timer is ready, ignore rapid clicks
             if (player.PlayerInput.AttackBuffered)
             {
-                if (fireTimer <= 0f)
+                if (weaponManager.CanFire())
                 {
                     Debug.Log("[ShootState] Semi-auto fire triggered (buffered)");
                     Shoot();
@@ -141,6 +136,7 @@ public class ShootState : AimState
     {
         Debug.Log($"[{player.name}] ShootState.Shoot(): Firing weapon");
 
+        animationManager.TriggerPistolShootPowerful();
         ApplyAnimationRecoil();
         ApplyCameraRecoil();
         FireRigidbodyBullet();
@@ -153,7 +149,7 @@ public class ShootState : AimState
         );
 
         PlayWeaponEffects();
-        fireTimer = fireRate;
+        weaponManager.ResetFireTimer();
     }
 
     // Apply visual recoil to weapon and animation:

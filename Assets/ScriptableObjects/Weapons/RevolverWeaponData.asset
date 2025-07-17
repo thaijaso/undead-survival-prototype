@@ -30,6 +30,7 @@ MonoBehaviour:
   weaponSway: 0
   impactForce: 50
   bulletSpeed: 20
+  isAutomatic: 0
   ikRecoilWeight: 1
   aimIKSolvedLast: 0
   handedness: 0

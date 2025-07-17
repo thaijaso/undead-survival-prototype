@@ -4,7 +4,8 @@ public class PlayerWeaponManager : MonoBehaviour
 {
     private Player player;
 
-    [SerializeField] private WeaponData currentWeaponData;
+    [SerializeField]
+    private WeaponData currentWeaponData;
     public WeaponData CurrentWeaponData => currentWeaponData;
 
     public GameObject CurrentWeaponInstance { get; private set; }
@@ -12,6 +13,9 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public bool IsWeaponHolstered { get; private set; } = false;
     private GameObject lastSpawnedWeaponPrefab;
+
+    // Fire timer logic
+    public float FireTimer { get; private set; } = 0f;
 
     private void Awake()
     {
@@ -21,6 +25,35 @@ public class PlayerWeaponManager : MonoBehaviour
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.Awake(): Player component is missing!");
         }
+
+        
+    }
+
+    private void Update()
+    {
+        // Decrement fireTimer every frame
+        if (FireTimer > 0f)
+        {
+            FireTimer -= Time.deltaTime;
+            if (FireTimer < 0f)
+                FireTimer = 0f;
+        }
+    }
+
+    public void ResetFireTimer()
+    {
+        if (CurrentWeaponData == null)
+        {
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.ResetFireTimer(): CurrentWeaponData is not set!");
+            return;
+        }
+        
+        FireTimer = CurrentWeaponData.fireRate;
+    }
+
+    public bool CanFire()
+    {
+        return FireTimer <= 0f;
     }
 
     public void SetAimIKOffsets()

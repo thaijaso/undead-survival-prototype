@@ -96,6 +96,11 @@ public class AnimationManager
         animator.SetBool("IsWeaponHolstered", isHolstered);
     }
 
+    public void TriggerPistolShootPowerful()
+    {
+        animator.SetTrigger("PistolShootPowerful");
+    }
+
     public void SetLayerWeight(int layerIndex, float weight)
     {
         animator.SetLayerWeight(layerIndex, weight);
