@@ -37,6 +37,11 @@ public class WeaponData : ScriptableObject
     public float impactForce = 10f;// Force applied on hit
     public float bulletSpeed = 20f;// Bullet velocity
 
+    // Weapon firing mode
+    [Header("Firing Mode")]
+    [Tooltip("If true, weapon fires continuously while held. If false, fires only on click.")]
+    public bool isAutomatic = true;
+
     // IK Recoil settings (used by RecoilIK)
     [TabGroup("IK Recoil")]
     [Range(0f, 1f)]

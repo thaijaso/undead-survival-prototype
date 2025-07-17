@@ -43,6 +43,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3457909615917755916}
   - component: {fileID: -1519674205959471789}
+  - component: {fileID: 4609400569664483181}
   m_Layer: 3
   m_Name: MP40
   m_TagString: Untagged
@@ -163,6 +164,26 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4609400569664483181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2228561195146389414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41d0882c609770048a4e33c84e26beb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  muzzleEffect: {fileID: 0}
+  gunshot: {fileID: 0}
+  bulletPrefab: {fileID: 0}
+  bulletTracer: {fileID: 0}
+  muzzleTransform: {fileID: 0}
+  leftHandGripSource: {fileID: 0}
+  weaponData: {fileID: 0}
+  bulletHitTarget: {fileID: 0}
 --- !u!1 &2887786471426615166
 GameObject:
   m_ObjectHideFlags: 0

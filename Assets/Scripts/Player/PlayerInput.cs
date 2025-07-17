@@ -21,6 +21,12 @@ public class PlayerInput : MonoBehaviour
     public bool IsAiming { get; internal set; }
     public bool IsAttacking { get; internal set; }
 
+    // True only on the frame the attack button is pressed
+    public bool IsAttackPressed { get; private set; }
+
+    // Buffered attack input: stays true until consumed
+    public bool AttackBuffered { get; private set; }
+
     [SerializeField]
     private float movementThreshold = 0.2f;
 
@@ -50,6 +56,18 @@ public class PlayerInput : MonoBehaviour
         sprintAction = InputSystem.actions.FindAction("Sprint");
         aimAction = InputSystem.actions.FindAction("Aim");
         attackAction = InputSystem.actions.FindAction("Attack");
+
+        // Event-based input buffering
+        if (attackAction != null)
+        {
+            attackAction.performed += ctx => AttackBuffered = true;
+        }
+    }
+
+    // Call this after consuming the buffered attack input
+    public void ConsumeAttackBuffer()
+    {
+        AttackBuffered = false;
     }
 
     // Update is called once per frame
@@ -67,14 +85,12 @@ public class PlayerInput : MonoBehaviour
             if (moveGraceTimer > graceDuration)
             {
                 MoveCommited = true; // Allow movement to be committed after grace period
-                //Debug.Log($"[{gameObject.name}] PlayerInput.Update(): Move committed after grace period.");
             }
         }
         else
         {
             moveGraceTimer = 0f; // Reset grace timer when not moving
             MoveCommited = false; // Reset move committed state when not moving
-            //Debug.Log($"[{gameObject.name}] PlayerInput.Update(): Move reset, grace timer reset.");
         }
     }
 

@@ -88,7 +88,7 @@ public class Bullet : MonoBehaviour
         // Check if the hit object is on the Hitbox layer
         if (hitCollider.gameObject.layer != LayerMask.NameToLayer("EnemyRagdoll"))
         {
-            Debug.LogWarning("[Bullet] HandleEnemyHitboxImpact(): Hit object is not on the EnemyRagdoll layer.");
+            Debug.Log("[Bullet] HandleEnemyHitboxImpact(): Hit object is not on the EnemyRagdoll layer.");
             return;
         }
 

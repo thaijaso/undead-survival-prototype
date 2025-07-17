@@ -63,7 +63,6 @@ public class ShootState : AimState
     private void SetupShootState()
     {
         animationManager.SetIsShooting(true);
-        fireTimer = 0f;
     }
 
     private void SetupWeaponDataForShooting()
@@ -72,6 +71,7 @@ public class ShootState : AimState
         bulletSpreadHorizontal = weaponManager.CurrentWeaponData.bulletSpreadHorizontal;
         bulletSpreadVertical = weaponManager.CurrentWeaponData.bulletSpreadVertical;
         fireRate = weaponManager.CurrentWeaponData.fireRate;
+        Debug.Log($"[{player.name}] ShootState.SetupWeaponDataForShooting(): Animation recoil magnitude: {animationRecoilMagnitude}, Bullet spread: {bulletSpreadHorizontal}/{bulletSpreadVertical}, Fire rate: {fireRate}");
     }
 
     private void SetupWeaponDataForCameraRecoil()
@@ -104,16 +104,37 @@ public class ShootState : AimState
             stateMachine.SetState(player.aim);
             return;
         }
+
+        bool isAutomatic = weaponManager.CurrentWeaponData.isAutomatic;
+
+        if (isAutomatic)
+        {
+            // Automatic: fire while held
+            if (player.PlayerInput.IsAttacking && fireTimer <= 0f)
+            {
+                Debug.Log("[ShootState] Automatic fire triggered");
+                Shoot();
+            }
+        }
+        else
+        {
+            // Semi-auto: fire only if timer is ready, ignore rapid clicks
+            if (player.PlayerInput.AttackBuffered)
+            {
+                if (fireTimer <= 0f)
+                {
+                    Debug.Log("[ShootState] Semi-auto fire triggered (buffered)");
+                    Shoot();
+                }
+                // Always consume buffer, even if timer not ready
+                player.PlayerInput.ConsumeAttackBuffer();
+            }
+        }
     }
 
     public override void LateUpdate()
     {
         base.LateUpdate();
-
-        if (player.PlayerInput.IsAttacking && fireTimer <= 0f)
-        {
-            Shoot();
-        }
     }
 
     private void Shoot()
