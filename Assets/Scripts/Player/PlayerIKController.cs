@@ -1,26 +1,25 @@
 using RootMotion.FinalIK;
 using Sirenix.OdinInspector;
+using System.Collections;
 using UnityEngine;
 
 public class PlayerIKController : MonoBehaviour
 {
+    [Header("Master IK Weight")]
+    [Range(0f, 1f)]
+    [SerializeField]
+    private float masterIKWeight = 1f;
+
     [Range(0f, 1f)]
     public float headLookWeight = 1f;
 
-    // IK weight blending
+    // IK master weight blending
     private float currentIKWeight = 0f;
     private float targetIKWeight = 1f;
 
-    [Header("IK Blending Settings")]
-    #pragma warning disable 0414
-    [Range(0.1f, 20f)]
+    // Debug flag to allow inspector override of IK weights
     [SerializeField]
-    private float blendSpeed = 5f;
-    #pragma warning restore 0414
-
-    [Range(0f, 1f)]
-    [SerializeField]
-    private float inspectorTargetIKWeight = 1f;
+    public bool debugOverrideIKWeight = false;
 
     [Header("IK Blend Phase Threshold")]
     [Range(0f, 1f)]
@@ -32,6 +31,37 @@ public class PlayerIKController : MonoBehaviour
     private float phase1BlendSpeed = 1f;
     [SerializeField]
     private float phase2BlendSpeed = 3f;
+
+    [Header("Per-Component IK Weights")]
+    [SerializeField, Range(0f, 1f)]
+    private float aimIKWeight = 1f;
+    [SerializeField, Range(0f, 1f)]
+    private float fbbIKWeight = 1f;
+    [SerializeField, Range(0f, 1f)]
+    private float lookAtIKWeight = 1f;
+    [SerializeField]
+    public bool debugOverridePerComponentIKWeight = false;
+
+    [Header("Per-Component IK Blend Settings")]
+    [SerializeField, Range(0f, 1f)]
+    private float aimIKTargetWeight = 1f;
+
+    [SerializeField, Range(0f, 20f)]
+    private float aimIKBlendSpeed = 5f;
+    private float aimIKCurrentWeight = 1f;
+
+    [SerializeField, Range(0f, 1f)]
+    private float fbbIKTargetWeight = 1f;
+
+    [SerializeField, Range(0f, 20f)]
+    private float fbbIKBlendSpeed = 5f;
+    private float fbbIKCurrentWeight = 1f;
+
+    [SerializeField, Range(0f, 1f)]
+    private float lookAtIKTargetWeight = 1f;
+    [SerializeField, Range(0f, 20f)]
+    private float lookAtIKBlendSpeed = 5f;
+    private float lookAtIKCurrentWeight = 1f;
 
     public Vector3 gunHoldOffset;
     public Vector3 leftHandOffset;
@@ -56,12 +86,6 @@ public class PlayerIKController : MonoBehaviour
 
     [SerializeField]
     private Transform leftHandGripSource;
-
-    // Debug flag to allow inspector override of IK weights
-    [Header("Debug")]
-    [SerializeField]
-    public bool debugOverrideIKWeight = false;
-
 
     protected void Awake()
     {
@@ -237,15 +261,27 @@ public class PlayerIKController : MonoBehaviour
         if (fullBodyBipedIK != null) fullBodyBipedIK.solver.OnPreRead -= OnPreRead;
     }
 
-    public void SetIKWeights(float weight)
+    public void SetAllIKWeights(float weight)
     {
-        currentIKWeight = weight;
-        if (aimIK != null)
-            aimIK.solver.IKPositionWeight = currentIKWeight;
-        if (fullBodyBipedIK != null)
-            fullBodyBipedIK.solver.IKPositionWeight = currentIKWeight;
-        if (lookAtIK != null)
-            lookAtIK.solver.IKPositionWeight = currentIKWeight;
+        if (debugOverridePerComponentIKWeight)
+        {
+            if (aimIK != null)
+                aimIK.solver.IKPositionWeight = aimIKWeight;
+            if (fullBodyBipedIK != null)
+                fullBodyBipedIK.solver.IKPositionWeight = fbbIKWeight;
+            if (lookAtIK != null)
+                lookAtIK.solver.IKPositionWeight = lookAtIKWeight;
+        }
+        else
+        {
+            currentIKWeight = weight;
+            if (aimIK != null)
+                aimIK.solver.IKPositionWeight = currentIKWeight;
+            if (fullBodyBipedIK != null)
+                fullBodyBipedIK.solver.IKPositionWeight = currentIKWeight;
+            if (lookAtIK != null)
+                lookAtIK.solver.IKPositionWeight = currentIKWeight;
+        }
     }
 
     public void SetIKTargetWeight(float target)
@@ -255,12 +291,12 @@ public class PlayerIKController : MonoBehaviour
         // Do not call SetIKWeights here for smooth blending
     }
 
-    public void BlendIKWeights()
-    {     
+    public void BlendAllIKWeights()
+    {
         // 2 phase ik blend to preserve the weighty feel and hide the left hand lag   
         float blend = (currentIKWeight < ikBlendPhaseThreshold) ? phase1BlendSpeed : phase2BlendSpeed;
         currentIKWeight = Mathf.MoveTowards(currentIKWeight, targetIKWeight, Time.deltaTime * blend);
-        SetIKWeights(currentIKWeight);
+        SetAllIKWeights(currentIKWeight);
     }
 
     public void SetAimTransform(Transform aimTransform)
@@ -288,8 +324,8 @@ public class PlayerIKController : MonoBehaviour
     [Button("Apply IK Weights"), EnableIf("@UnityEngine.Application.isPlaying")]
     public void ApplyIKWeights()
     {
-        SetIKTargetWeight(inspectorTargetIKWeight);
-        SetIKWeights(inspectorTargetIKWeight);
+        SetIKTargetWeight(masterIKWeight);
+        SetAllIKWeights(masterIKWeight);
     }
 
     [Button("Freeze Animator (Set Speed 0)")]
@@ -327,16 +363,21 @@ public class PlayerIKController : MonoBehaviour
         // Skip all IK blending and updates if debug mode disables IK
         if (PlayerDebugger.DebugDisableIK)
         {
-            SetIKWeights(0f);
+            SetAllIKWeights(0f);
+            return;
+        }
+        if (debugOverridePerComponentIKWeight)
+        {
+            SetAllIKWeights(0f); // Value ignored, per-component weights used
             return;
         }
         if (debugOverrideIKWeight)
         {
-            SetIKWeights(inspectorTargetIKWeight); // Directly set from inspector
+            SetAllIKWeights(masterIKWeight); // Directly set from inspector
             return;
         }
 
-        BlendIKWeights(); // Ensure smooth blending every frame
+        BlendAllIKWeights(); // Ensure smooth blending every frame
     }
 
     void LateUpdate()
@@ -356,7 +397,7 @@ public class PlayerIKController : MonoBehaviour
             );
         }
     }
-    
+
     public void UpdateLeftHandIKTarget()
     {
         if (leftHandIKTarget != null && leftHandGripSource != null)
@@ -374,5 +415,62 @@ public class PlayerIKController : MonoBehaviour
                 fullBodyBipedIK.references.rightHand.rotation
             );
         }
+    }
+    
+    // Coroutine to blend AimIK out and in
+    private Coroutine aimIKBlendCoroutine;
+
+    /// <summary>
+    /// Blends AimIK weight out to minWeight, then back in to maxWeight, over the given durations.
+    /// </summary>
+    /// <param name="minWeight">The weight to blend out to (e.g., 0f).</param>
+    /// <param name="maxWeight">The weight to blend back in to (e.g., 1f).</param>
+    /// <param name="blendOutDuration">Time to blend out (seconds).</param>
+    /// <param name="blendInDuration">Time to blend in (seconds).</param>
+    public void BlendAimIKOutAndIn(float minWeight, float maxWeight, float blendOutDuration, float blendInDuration)
+    {
+        if (aimIKBlendCoroutine != null)
+            StopCoroutine(aimIKBlendCoroutine);
+        aimIKBlendCoroutine = StartCoroutine(BlendAimIKOutAndInCoroutine(minWeight, maxWeight, blendOutDuration, blendInDuration));
+    }
+
+    private IEnumerator BlendAimIKOutAndInCoroutine(float minWeight, float maxWeight, float blendOutDuration, float blendInDuration)
+    {
+        // Blend out
+        float blendOutElapsed = 0f;
+        float blendOutStartWeight = aimIKCurrentWeight;
+        while (blendOutElapsed < blendOutDuration)
+        {
+            blendOutElapsed += Time.deltaTime;
+            float currentWeight = Mathf.Lerp(blendOutStartWeight, minWeight, blendOutElapsed / blendOutDuration);
+            if (aimIK != null)
+                aimIK.solver.IKPositionWeight = currentWeight;
+            aimIKCurrentWeight = currentWeight;
+            yield return null;
+        }
+
+        if (aimIK != null)
+            aimIK.solver.IKPositionWeight = minWeight;
+
+        aimIKCurrentWeight = minWeight;
+
+        // Blend in
+        float blendInElapsed = 0f;
+        float blendInStartWeight = minWeight;
+        while (blendInElapsed < blendInDuration)
+        {
+            blendInElapsed += Time.deltaTime;
+            float currentWeight = Mathf.Lerp(blendInStartWeight, maxWeight, blendInElapsed / blendInDuration);
+            if (aimIK != null)
+                aimIK.solver.IKPositionWeight = currentWeight;
+            aimIKCurrentWeight = currentWeight;
+            yield return null;
+        }
+
+        if (aimIK != null)
+            aimIK.solver.IKPositionWeight = maxWeight;
+
+        aimIKCurrentWeight = maxWeight;
+        aimIKBlendCoroutine = null;
     }
 }

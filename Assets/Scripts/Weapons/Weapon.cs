@@ -120,7 +120,7 @@ public class Weapon : MonoBehaviour
     {
         if (muzzleEffect != null)
         {
-            muzzleEffect.Stop();
+            muzzleEffect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
         else
         {

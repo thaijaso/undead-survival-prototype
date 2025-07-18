@@ -67,7 +67,6 @@ public class ShootState : AimState
         animationRecoilMagnitude = weaponManager.CurrentWeaponData.animationRecoilMagnitude;
         bulletSpreadHorizontal = weaponManager.CurrentWeaponData.bulletSpreadHorizontal;
         bulletSpreadVertical = weaponManager.CurrentWeaponData.bulletSpreadVertical;
-        //fireRate = weaponManager.CurrentWeaponData.fireRate;
         Debug.Log($"[{player.name}] ShootState.SetupWeaponDataForShooting(): Animation recoil magnitude: {animationRecoilMagnitude}, Bullet spread: {bulletSpreadHorizontal}/{bulletSpreadVertical}");
     }
 
@@ -85,9 +84,14 @@ public class ShootState : AimState
     public override void Exit(PlayerState nextState)
     {
         Debug.Log($"[{player.name}] ShootState.Exit(): Exiting to {nextState.GetType().Name}");
+
         base.Exit(nextState);
         animationManager.SetIsShooting(false);
-        weaponManager.StopMuzzleEffect();
+
+        if (weaponManager.CurrentWeaponData.isAutomatic)
+        {
+            weaponManager.StopMuzzleEffect();
+        }
     }
 
     public override void LogicUpdate()
@@ -123,6 +127,9 @@ public class ShootState : AimState
                 }
                 // Always consume buffer, even if timer not ready
                 player.PlayerInput.ConsumeAttackBuffer();
+                // After firing or consuming buffer, return to aim state
+                stateMachine.SetState(player.aim);
+                return;
             }
         }
     }
@@ -135,7 +142,6 @@ public class ShootState : AimState
     private void Shoot()
     {
         Debug.Log($"[{player.name}] ShootState.Shoot(): Firing weapon");
-
         animationManager.TriggerPistolShootPowerful();
         ApplyAnimationRecoil();
         ApplyCameraRecoil();

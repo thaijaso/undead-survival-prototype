@@ -42,7 +42,7 @@ public class MoveState : PlayerState
         animationManager.SetStopDirection(player.PlayerInput.stopDirectionIndex);
         animationManager.SetMoveCommited(player.PlayerInput.MoveCommited);
         
-        player.PlayerIKController.BlendIKWeights();
+        player.PlayerIKController.BlendAllIKWeights();
     }
 
     protected void HandleMovement(float speed, bool faceMoveDirection)

@@ -275878,7 +275878,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: cf40883952687d248bcb9b72865063c7, type: 3}
   m_Controller: {fileID: 9100000, guid: 6b3b6edb8b1c6d94ca86b7d8d0607f0f, type: 2}
-  m_CullingMode: 1
+  m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -295380,18 +295380,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0847ae42376a94341baab88add06f1c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  masterIKWeight: 1
   headLookWeight: 1
-  blendSpeed: 5
-  inspectorTargetIKWeight: 1
+  debugOverrideIKWeight: 0
   ikBlendPhaseThreshold: 0.25
   phase1BlendSpeed: 1
   phase2BlendSpeed: 3
+  aimIKWeight: 1
+  fbbIKWeight: 1
+  lookAtIKWeight: 1
+  debugOverridePerComponentIKWeight: 0
+  aimIKTargetWeight: 1
+  aimIKBlendSpeed: 5
+  fbbIKTargetWeight: 1
+  fbbIKBlendSpeed: 5
+  lookAtIKTargetWeight: 1
+  lookAtIKBlendSpeed: 5
   gunHoldOffset: {x: 0, y: 0, z: 0}
   leftHandOffset: {x: 0, y: 0, z: 0}
   recoil: {fileID: 0}
   leftHandIKTarget: {fileID: 825330374}
   leftHandGripSource: {fileID: 0}
-  debugOverrideIKWeight: 0
 --- !u!143 &1481012278
 CharacterController:
   m_ObjectHideFlags: 0
@@ -340763,7 +340772,7 @@ MonoBehaviour:
   solver:
     executedInEditor: 0
     IKPosition: {x: 0, y: 0, z: 0}
-    IKPositionWeight: 1
+    IKPositionWeight: 0
     root: {fileID: 1717255700}
     iterations: 4
     chain:
@@ -341204,7 +341213,7 @@ MonoBehaviour:
     executedInEditor: 0
     IKPosition: {x: 0, y: 0, z: 0}
     IKPositionWeight: 0
-    root: {fileID: 0}
+    root: {fileID: 1717255700}
     target: {fileID: 450608958}
     tolerance: 0
     maxIterations: 4
@@ -341215,8 +341224,8 @@ MonoBehaviour:
       weight: 0.2
       solverPosition: {x: 0, y: 0, z: 0}
       solverRotation: {x: 0, y: 0, z: 0, w: 1}
-      defaultLocalPosition: {x: 0, y: 0, z: 0}
-      defaultLocalRotation: {x: 0, y: 0, z: 0, w: 0}
+      defaultLocalPosition: {x: 0.00000016732636, y: 0.1751966, z: -0.023980116}
+      defaultLocalRotation: {x: -0.05391624, y: -0.0000034522257, z: -0.00000018980984, w: 0.99854547}
       length: 0
       sqrMag: 0
       axis: {x: -1, y: -0, z: -0}
@@ -341224,8 +341233,8 @@ MonoBehaviour:
       weight: 0.4
       solverPosition: {x: 0, y: 0, z: 0}
       solverRotation: {x: 0, y: 0, z: 0, w: 1}
-      defaultLocalPosition: {x: 0, y: 0, z: 0}
-      defaultLocalRotation: {x: 0, y: 0, z: 0, w: 0}
+      defaultLocalPosition: {x: -1.4968278e-16, y: 0.17678611, z: 0.0000000047683715}
+      defaultLocalRotation: {x: 0.08245012, y: -4.282021e-10, z: 0.000000005175705, w: 0.9965952}
       length: 0
       sqrMag: 0
       axis: {x: -1, y: -0, z: -0}
@@ -341233,8 +341242,8 @@ MonoBehaviour:
       weight: 0.6
       solverPosition: {x: 0, y: 0, z: 0}
       solverRotation: {x: 0, y: 0, z: 0, w: 1}
-      defaultLocalPosition: {x: 0, y: 0, z: 0}
-      defaultLocalRotation: {x: 0, y: 0, z: 0, w: 0}
+      defaultLocalPosition: {x: 6.9899165e-16, y: 0.176629, z: -0.0000000023841857}
+      defaultLocalRotation: {x: 0.063029096, y: -2.4717112e-10, z: 0.00000000391384, w: 0.9980117}
       length: 0
       sqrMag: 0
       axis: {x: -1, y: -0, z: -0}
@@ -341322,18 +341331,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0847ae42376a94341baab88add06f1c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  masterIKWeight: 1
   headLookWeight: 1
-  blendSpeed: 5
-  inspectorTargetIKWeight: 1
+  debugOverrideIKWeight: 0
   ikBlendPhaseThreshold: 0.25
   phase1BlendSpeed: 1
   phase2BlendSpeed: 3
+  aimIKWeight: 1
+  fbbIKWeight: 1
+  lookAtIKWeight: 1
+  debugOverridePerComponentIKWeight: 0
+  aimIKTargetWeight: 1
+  aimIKBlendSpeed: 5
+  fbbIKTargetWeight: 1
+  fbbIKBlendSpeed: 5
+  lookAtIKTargetWeight: 1
+  lookAtIKBlendSpeed: 5
   gunHoldOffset: {x: 0, y: 0, z: 0}
   leftHandOffset: {x: 0, y: 0, z: 0}
   recoil: {fileID: 1717255707}
   leftHandIKTarget: {fileID: 132545744}
   leftHandGripSource: {fileID: 0}
-  debugOverrideIKWeight: 0
 --- !u!143 &1717255715
 CharacterController:
   m_ObjectHideFlags: 0
@@ -395391,18 +395409,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0847ae42376a94341baab88add06f1c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  masterIKWeight: 1
   headLookWeight: 1
-  blendSpeed: 3
-  inspectorTargetIKWeight: 1
+  debugOverrideIKWeight: 0
   ikBlendPhaseThreshold: 0.25
   phase1BlendSpeed: 1
   phase2BlendSpeed: 3
+  aimIKWeight: 1
+  fbbIKWeight: 1
+  lookAtIKWeight: 1
+  debugOverridePerComponentIKWeight: 0
+  aimIKTargetWeight: 1
+  aimIKBlendSpeed: 5
+  fbbIKTargetWeight: 1
+  fbbIKBlendSpeed: 5
+  lookAtIKTargetWeight: 1
+  lookAtIKBlendSpeed: 5
   gunHoldOffset: {x: 0, y: 0, z: 0}
   leftHandOffset: {x: 0, y: 0, z: 0}
   recoil: {fileID: 2002609910}
   leftHandIKTarget: {fileID: 1670902680}
   leftHandGripSource: {fileID: 0}
-  debugOverrideIKWeight: 0
 --- !u!143 &2002609918
 CharacterController:
   m_ObjectHideFlags: 0
@@ -425537,18 +425564,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0847ae42376a94341baab88add06f1c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  masterIKWeight: 1
   headLookWeight: 1
-  blendSpeed: 5
-  inspectorTargetIKWeight: 1
+  debugOverrideIKWeight: 0
   ikBlendPhaseThreshold: 0.25
   phase1BlendSpeed: 1
   phase2BlendSpeed: 3
+  aimIKWeight: 1
+  fbbIKWeight: 1
+  lookAtIKWeight: 1
+  debugOverridePerComponentIKWeight: 0
+  aimIKTargetWeight: 1
+  aimIKBlendSpeed: 5
+  fbbIKTargetWeight: 1
+  fbbIKBlendSpeed: 5
+  lookAtIKTargetWeight: 1
+  lookAtIKBlendSpeed: 5
   gunHoldOffset: {x: 0, y: 0, z: 0}
   leftHandOffset: {x: 0, y: 0, z: 0}
   recoil: {fileID: 0}
   leftHandIKTarget: {fileID: 0}
   leftHandGripSource: {fileID: 0}
-  debugOverrideIKWeight: 0
 --- !u!114 &919132148350044581
 MonoBehaviour:
   m_ObjectHideFlags: 0

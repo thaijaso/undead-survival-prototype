@@ -233,8 +233,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 3a5ab7fb5ae6fd6489445fdcf3edda71, type: 3}
-  m_Resource: {fileID: 8300000, guid: 3a5ab7fb5ae6fd6489445fdcf3edda71, type: 3}
+  m_audioClip: {fileID: 8300000, guid: c4da98722696460469b662478c5a2ab7, type: 3}
+  m_Resource: {fileID: 8300000, guid: c4da98722696460469b662478c5a2ab7, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -1172,8 +1172,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 60597068372116503}
     m_Modifications:
     - target: {fileID: 3710666316004195795, guid: 25112e5d336a2da4790de77b81f1b7f5, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3710666316004195795, guid: 25112e5d336a2da4790de77b81f1b7f5, type: 3}
+      propertyPath: lengthInSec
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3710666316004195795, guid: 25112e5d336a2da4790de77b81f1b7f5, type: 3}
       propertyPath: playOnAwake
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3710666316004195795, guid: 25112e5d336a2da4790de77b81f1b7f5, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 4260384137580920632, guid: 25112e5d336a2da4790de77b81f1b7f5, type: 3}
       propertyPath: m_LocalPosition.x

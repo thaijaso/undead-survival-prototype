@@ -214,6 +214,7 @@ namespace UndeadSurvivalGame.Editor
                             Debug.Log($"[AutoSetup] Overwriting Animator.runtimeAnimatorController: {(before != null ? before.name : "null")} -> {templateController.name}");
                         animator.runtimeAnimatorController = templateController;
                         animator.applyRootMotion = false; // Disable root motion if overwriting
+                        animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
                         Debug.Log($"[AutoSetup] AnimatorController after: {animator.runtimeAnimatorController.name}, applyRootMotion: {animator.applyRootMotion}");
                     }
                     else if (animator.runtimeAnimatorController == null)

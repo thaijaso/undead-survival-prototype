@@ -57,7 +57,7 @@ namespace PlayerStates
                 return;
             }
 
-            player.PlayerIKController.BlendIKWeights();
+            player.PlayerIKController.BlendAllIKWeights();
         }
 
         public override void PhysicsUpdate()
