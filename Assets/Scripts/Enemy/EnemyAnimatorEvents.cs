@@ -14,7 +14,7 @@ public class EnemyAnimatorEvents : MonoBehaviour
             enabled = false; // Disable this script if no Enemy is found
         }
     }
-    
+
     // ====================================================
     // ANIMATION EVENTS - Called directly by Unity Animator
     // ====================================================
@@ -26,7 +26,7 @@ public class EnemyAnimatorEvents : MonoBehaviour
     public void OnTurnFinished()
     {
         Debug.Log($"[{name}] EnemyAnimatorEvents.OnTurnFinished(): Turn animation finished. Current state: {enemy.stateMachine.currentState.GetType().Name}");
-        
+
         // Delegate to the current state if it handles turn finishing
         if (enemy.stateMachine.currentState == enemy.Alert && enemy.Alert is AlertState alertState)
         {
@@ -85,7 +85,7 @@ public class EnemyAnimatorEvents : MonoBehaviour
     public void OnAttackFinished()
     {
         Debug.Log($"[{name}] EnemyAnimatorEvents.OnAttackFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
-        
+
         // Delegate to the current state if it's AttackState
         if (enemy.stateMachine.currentState == enemy.Attack && enemy.Attack is AttackState attackState)
         {
@@ -100,7 +100,7 @@ public class EnemyAnimatorEvents : MonoBehaviour
     public void OnAttackLostMomentum()
     {
         Debug.Log($"[{name}] EnemyAnimatorEvents.OnAttackLostMomentum(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
-        
+
         // Delegate to appropriate state handlers
         if (enemy.stateMachine.currentState == enemy.Attack && enemy.Attack is AttackState attackState)
         {
@@ -112,18 +112,47 @@ public class EnemyAnimatorEvents : MonoBehaviour
         }
     }
 
-    public void OnHitReactionFinished()
+    public void OnKnockbackFinished()
     {
-        Debug.Log($"[{name}] EnemyAnimatorEvents.OnHitReactionFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
-        
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnTorsoKnockbackFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+
         // Delegate to the current state if it handles hit reactions
         if (enemy.stateMachine.currentState == enemy.HitReaction && enemy.HitReaction is HitReactionState hitReactionState)
         {
-            hitReactionState.OnHitReactionFinished();
+            hitReactionState.OnTorsoKnockbackFinished();
         }
         else
         {
-            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnHitReactionFinished(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
+            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnTorsoKnockbackFinished(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
+        }
+    }
+
+    public void OnKnockdownFinished()
+    {
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnKnockdownFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+
+        // Delegate to the current state if it handles knockdowns
+        if (enemy.stateMachine.currentState == enemy.HitReaction && enemy.HitReaction is HitReactionState hitReactionState)
+        {
+            hitReactionState.OnKnockdownFinished();
+        }
+        else
+        {
+            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnKnockdownFinished(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
+        }
+    }
+
+    public void OnGetUp()
+    {
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnGetUp(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+
+        if (enemy.stateMachine.currentState == enemy.GetUp && enemy.GetUp is GetUpState getUpState)
+        {
+            getUpState.OnGetUp();
+        }
+        else
+        {
+            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnGetUp(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
         }
     }
 

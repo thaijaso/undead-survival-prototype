@@ -46,8 +46,9 @@ public class Enemy : MonoBehaviour
     public EnemyState Aggro { get; private set; }
     public EnemyState Chase { get; private set; }
     public EnemyState Attack { get; private set; }
+    public EnemyState HitReaction { get; private set; }
+    public EnemyState GetUp { get; private set; }
     public EnemyState Death { get; private set; }
-    public HitReactionState HitReaction { get; private set; }
 
     [TabGroup("Configuration")]
     [Required]
@@ -242,6 +243,9 @@ public class Enemy : MonoBehaviour
         HitReaction = new HitReactionState(this, stateMachine, AnimationManager, "HitReaction");
         Debug.Log($"[{gameObject.name}] ✓ HitReaction state initialized");
 
+        GetUp = new GetUpState(this, stateMachine, AnimationManager, "GetUp");
+        Debug.Log($"[{gameObject.name}] ✓ GetUp state initialized");
+
         Death = new DeathState(this, stateMachine, AnimationManager, "Death");
         Debug.Log($"[{gameObject.name}] ✓ Death state initialized");
 
@@ -274,8 +278,10 @@ public class Enemy : MonoBehaviour
             Debug.LogWarning("Limb component is null. Cannot process hit.");
             return;
         }
+
         limb.TakeDamage(damage);
         HealthManager.TakeDamage(damage);
+
         Debug.Log($"[{name}] Enemy.ProcessHit(): Took {damage} damage. Remaining health: {HealthManager.currentHealth}");
 
         if (HealthManager.currentHealth <= 0)

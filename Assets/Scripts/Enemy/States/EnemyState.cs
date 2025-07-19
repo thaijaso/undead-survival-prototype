@@ -180,6 +180,6 @@ public class EnemyState : IState<EnemyState>
     public void OnAggroAnimStarted()
     {
         Debug.Log($"[{enemy.name}] EnemyState.OnAggroAnimStarted(): Aggro animation started - IsTurning is {enemy.IsTurning}");
-        animationManager.SetHasAggroAnimStarted(true);
+        //animationManager.SetHasAggroAnimStarted(true);
     }
 }

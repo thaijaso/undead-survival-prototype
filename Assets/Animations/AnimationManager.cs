@@ -169,9 +169,14 @@ public class AnimationManager
         return hasFinished;
     }
 
-    public void TriggerIsHit()
+    public void TriggerKnockback()
     {
-        animator.SetTrigger("IsHit");
+        animator.SetTrigger("Knockback");
+    }
+
+    public void TriggerKnockdown()
+    {
+        animator.SetTrigger("Knockdown");
     }
 
     public void SetHasAggroed(bool hasAggroed)

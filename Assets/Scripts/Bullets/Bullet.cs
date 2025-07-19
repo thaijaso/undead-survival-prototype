@@ -139,22 +139,34 @@ public class Bullet : MonoBehaviour
         if (!enemy.DebugModeEnabled)
         {
             var currentState = enemy.stateMachine.currentState;
+            var hitReactionState = enemy.HitReaction as HitReactionState;
 
-            // Always trigger HitReactionState unless already in it
-            if (currentState != enemy.HitReaction || currentState == enemy.Death)
+            if (currentState == enemy.GetUp)
             {
-                enemy.HitReaction.SetHitLimb(limb);
-                enemy.stateMachine.SetState(enemy.HitReaction);
-                Debug.Log($"[Bullet] HandleEnemyStateTransition(): Transitioning to HitReactionState");
+                Debug.Log($"[Bullet] HandleEnemyStateTransition(): Enemy is currently getting up - no state change needed");
                 return;
             }
-            
+
+            if ((currentState != enemy.HitReaction || currentState == enemy.Death) && !IsArm(limb))
+            {
+                hitReactionState?.SetHitLimb(limb);
+                enemy.stateMachine.SetState(enemy.HitReaction);
+                Debug.Log($"[Bullet] HandleEnemyStateTransition(): Transitioning to HitReaction");
+                return;
+            }
+            else if (currentState == enemy.HitReaction && hitReactionState != null && !IsArm(limb))
+            {
+                hitReactionState.SetHitLimb(limb);
+                hitReactionState.OnSuccessiveHit();
+                return;
+            }
+        
             // Determine appropriate state based on current state and aggro history
             if (!enemy.HasAggroed)
             {
                 // First time being hit - go to Aggro state for initial reaction
                 enemy.stateMachine.SetState(enemy.Aggro);
-                Debug.Log($"[Bullet] HandleEnemyStateTransition(): First aggro - transitioning to Aggro state");
+                Debug.Log($"[Bullet] HandleEnemyStateTransition(): First aggro - transitioning to Aggro");
             }
             else if (currentState == enemy.Aggro)
             {
@@ -188,6 +200,12 @@ public class Bullet : MonoBehaviour
         }
     }
 
+    private bool IsArm(Limb limb)
+    {
+        return limb != null &&
+            (limb.LimbType == LimbType.UpperArm || limb.LimbType == LimbType.LowerArm || limb.LimbType == LimbType.Hand);
+    }
+
     private void SpawnBloodEffect(Vector3 hitPoint, Vector3 hitNormal, Enemy enemy)
     {
         GameObject bloodEffect = Instantiate(
@@ -201,6 +219,9 @@ public class Bullet : MonoBehaviour
 
     private void ApplyForceToMuscle(PuppetMaster puppetMaster, Rigidbody hitRigidbody, Vector3 force, Vector3 position)
     {
+        Limb hitLimb = hitRigidbody.GetComponent<Limb>();
+        Debug.Log($"[Bullet] ApplyForceToMuscle(): Applying force to muscle for hit limb: {hitLimb.LimbType}");
+
         // Find the muscle that owns this rigidbody
         foreach (Muscle muscle in puppetMaster.muscles)
         {
@@ -213,22 +234,22 @@ public class Bullet : MonoBehaviour
                     originalValues.pinWeight = muscle.props.pinWeight;
                     originalValues.muscleWeight = muscle.props.muscleWeight;
                     originalValues.muscleDamper = muscle.props.muscleDamper;
-                    
+
                     originalMuscleValues[muscle] = originalValues;
                 }
-                
+
                 // TODO: get these values from template for each limb for more control (feet move too much)
                 // Set specific weights for bullet impact effect
                 muscle.props.pinWeight = 0.6f;
                 muscle.props.muscleWeight = 0.7f;
                 muscle.props.muscleDamper = 0.5f; // Reduce damping for more dramatic movement
-                
+
                 // Then apply force through the muscle system for maximum effect
                 muscle.rigidbody.AddForceAtPosition(force, position, ForceMode.Impulse);
-                
+
                 // Schedule weight restoration through the PuppetMaster (won't be destroyed)
                 puppetMaster.StartCoroutine(RestoreMusclePropertiesDelayed(muscle, 0.5f));
-                
+
                 Debug.Log($"[Bullet] ApplyForceToMuscle(): Applied force {force.magnitude} to muscle: {muscle.target.name}");
                 break;
             }
