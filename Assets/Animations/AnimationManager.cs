@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 
 public class AnimationManager
@@ -182,5 +183,23 @@ public class AnimationManager
     public void SetHasAggroed(bool hasAggroed)
     {
         animator.SetBool("HasAggroed", hasAggroed);
+    }
+
+    public void TriggerLegKnockdown()
+    {
+        animator.SetTrigger("LegKnockdown");
+    }
+
+    public void SetIsChasing(bool isChasing)
+    {
+        animator.SetBool("IsChasing", isChasing);
+    }
+
+    public bool IsHitReactionPlaying()
+    {
+        return IsAnimationPlaying("Leg Knockdown", 0) ||
+               IsAnimationPlaying("Forward Knockback", 0) ||
+               IsAnimationPlaying("Forward Knockdown", 0) ||
+               IsAnimationPlaying("Get Up", 0);
     }
 }

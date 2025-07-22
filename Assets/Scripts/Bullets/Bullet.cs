@@ -140,70 +140,20 @@ public class Bullet : MonoBehaviour
         {
             var currentState = enemy.stateMachine.currentState;
             var hitReactionState = enemy.HitReaction as HitReactionState;
+            // hitReactionState?.SetHitLimb(limb);
 
-            if (currentState == enemy.GetUp)
-            {
-                Debug.Log($"[Bullet] HandleEnemyStateTransition(): Enemy is currently getting up - no state change needed");
-                return;
-            }
+            // if (currentState == enemy.Death || currentState == enemy.GetUp)
+            // {
+            //     Debug.Log($"[Bullet] HandleEnemyStateTransition(): Enemy is dead or getting up - no state change needed");
+            //     return;
+            // }
 
-            if ((currentState != enemy.HitReaction || currentState == enemy.Death) && !IsArm(limb))
-            {
-                hitReactionState?.SetHitLimb(limb);
-                enemy.stateMachine.SetState(enemy.HitReaction);
-                Debug.Log($"[Bullet] HandleEnemyStateTransition(): Transitioning to HitReaction");
-                return;
-            }
-            else if (currentState == enemy.HitReaction && hitReactionState != null && !IsArm(limb))
-            {
-                hitReactionState.SetHitLimb(limb);
-                hitReactionState.OnSuccessiveHit();
-                return;
-            }
-        
-            // Determine appropriate state based on current state and aggro history
-            if (!enemy.HasAggroed)
-            {
-                // First time being hit - go to Aggro state for initial reaction
-                enemy.stateMachine.SetState(enemy.Aggro);
-                Debug.Log($"[Bullet] HandleEnemyStateTransition(): First aggro - transitioning to Aggro");
-            }
-            else if (currentState == enemy.Aggro)
-            {
-                // Currently in aggro state (first aggro animation) - don't interrupt it
-                Debug.Log($"[Bullet] HandleEnemyStateTransition(): Enemy in Aggro state - not interrupting aggro animation");
-            }
-            else
-            {
-                // Already aggroed before and not currently in Aggro - behavior depends on current state
-                if (currentState == enemy.Idle || currentState == enemy.Patrol || currentState == enemy.Alert)
-                {
-                    // Re-engaging from a calm state - go to Chase (skip aggro animation)
-                    enemy.stateMachine.SetState(enemy.Chase);
-                    Debug.Log($"[Bullet] HandleEnemyStateTransition(): Re-engaging from {currentState.GetType().Name} - transitioning to Chase");
-                }
-                else if (currentState == enemy.Attack)
-                {
-                    // Already attacking - stay in attack, let natural transitions handle it
-                    Debug.Log($"[Bullet] HandleEnemyStateTransition(): Enemy already attacking - no state change needed");
-                }
-                else
-                {
-                    // In Chase - stay in chase, no need to force transition
-                    Debug.Log($"[Bullet] HandleEnemyStateTransition(): In Chase state - maintaining pursuit");
-                }
-            }
+            hitReactionState.OnHit(limb);
         }
         else
         {
             Debug.Log($"[Bullet] HandleEnemyStateTransition(): Enemy in debug mode - not forcing state transitions");
         }
-    }
-
-    private bool IsArm(Limb limb)
-    {
-        return limb != null &&
-            (limb.LimbType == LimbType.UpperArm || limb.LimbType == LimbType.LowerArm || limb.LimbType == LimbType.Hand);
     }
 
     private void SpawnBloodEffect(Vector3 hitPoint, Vector3 hitNormal, Enemy enemy)

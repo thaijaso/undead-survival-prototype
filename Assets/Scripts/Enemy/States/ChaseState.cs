@@ -23,6 +23,7 @@ public class ChaseState : EnemyState
     {
         Debug.Log($"[{enemy.name}] ChaseState.Enter(): Entering chase state");
         base.Enter();
+        animationManager.SetIsChasing(true);
 
         // Enable LookAtIK for player tracking during chase
         enemy.LookAtIK.enabled = true;
@@ -56,5 +57,6 @@ public class ChaseState : EnemyState
     {
         base.Exit(nextState);
         Debug.Log($"[{enemy.name}] ChaseState.Exit(): Exiting chase state");
+        animationManager.SetIsChasing(false);
     }
 }

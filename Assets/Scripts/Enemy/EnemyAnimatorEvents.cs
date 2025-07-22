@@ -1,4 +1,3 @@
-using Unity.Entities.UniversalDelegates;
 using UnityEngine;
 
 public class EnemyAnimatorEvents : MonoBehaviour
@@ -146,13 +145,28 @@ public class EnemyAnimatorEvents : MonoBehaviour
     {
         Debug.Log($"[{name}] EnemyAnimatorEvents.OnGetUp(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
 
-        if (enemy.stateMachine.currentState == enemy.GetUp && enemy.GetUp is GetUpState getUpState)
+        if (enemy.stateMachine.currentState == enemy.HitReaction && enemy.HitReaction is HitReactionState hitReactionState)
         {
-            getUpState.OnGetUp();
+            hitReactionState.OnGetUp();
         }
         else
         {
             Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnGetUp(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
+        }
+    }
+
+    public void OnLegKnockdownFinished()
+    {
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnLegKnockdownFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+
+        // Delegate to the current state if it handles leg knockdowns
+        if (enemy.stateMachine.currentState == enemy.HitReaction && enemy.HitReaction is HitReactionState hitReactionState)
+        {
+            hitReactionState.OnLegKnockdownFinished();
+        }
+        else
+        {
+            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnLegKnockdownFinished(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
         }
     }
 

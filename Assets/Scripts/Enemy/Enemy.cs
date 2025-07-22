@@ -47,7 +47,6 @@ public class Enemy : MonoBehaviour
     public EnemyState Chase { get; private set; }
     public EnemyState Attack { get; private set; }
     public EnemyState HitReaction { get; private set; }
-    public EnemyState GetUp { get; private set; }
     public EnemyState Death { get; private set; }
 
     [TabGroup("Configuration")]
@@ -242,9 +241,6 @@ public class Enemy : MonoBehaviour
 
         HitReaction = new HitReactionState(this, stateMachine, AnimationManager, "HitReaction");
         Debug.Log($"[{gameObject.name}] ✓ HitReaction state initialized");
-
-        GetUp = new GetUpState(this, stateMachine, AnimationManager, "GetUp");
-        Debug.Log($"[{gameObject.name}] ✓ GetUp state initialized");
 
         Death = new DeathState(this, stateMachine, AnimationManager, "Death");
         Debug.Log($"[{gameObject.name}] ✓ Death state initialized");
