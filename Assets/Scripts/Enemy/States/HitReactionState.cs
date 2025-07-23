@@ -6,16 +6,16 @@ public class HitReactionState : EnemyState
     public Limb HitLimb { get; private set; }
     public int hitCount { get; private set; } = 0;
 
-    public bool ShouldTriggerKnockback = false;
-    public bool IsTorsoKnockbackFinished = false;
+    private bool ShouldTriggerKnockback = false;
+    private bool IsTorsoKnockbackFinished = false;
 
-    public bool ShouldTriggerKnockdown = false;
-    public bool IsKnockdownFinished = false;
+    private bool ShouldTriggerKnockdown = false;
+    private bool IsKnockdownFinished = false;
 
-    public bool ShouldTriggerLegKnockdown = false;
-    public bool IsLegKnockdownFinished = false;
+    private bool IsKnockdownActive = false;
 
-    public bool IsGetUpFinished = false; // Indicates if the get-up action is complete
+    private bool ShouldTriggerLegKnockdown = false;
+    private bool IsLegKnockdownFinished = false;
 
     public HitReactionState(
         Enemy enemy,
@@ -46,6 +46,13 @@ public class HitReactionState : EnemyState
         Debug.Log($"[{enemy.name}] HitReactionState.Exit(): Exiting to {nextState?.GetType().Name}");
         base.Exit(nextState);
         hitCount = 0;
+        ShouldTriggerKnockback = false;
+        IsTorsoKnockbackFinished = false;
+        ShouldTriggerKnockdown = false;
+        IsKnockdownFinished = false;
+        IsKnockdownActive = false;
+        ShouldTriggerLegKnockdown = false;
+        IsLegKnockdownFinished = false;
     }
 
     public override void LogicUpdate()
@@ -84,11 +91,13 @@ public class HitReactionState : EnemyState
         {
             Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): Triggering knockdown animation");
             animationManager.TriggerKnockdown();
+            IsKnockdownActive = true;
             enemy.StartCoroutine(LerpZombieBackwards(2f, 0.5f)); // TODO: add to zombie template
             ShouldTriggerKnockdown = false;
+            return;
         }
 
-        if (IsKnockdownFinished && !animationManager.IsHitReactionPlaying())
+        if (IsKnockdownFinished && !IsKnockdownActive)
         {
             Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): Knockdown finished, transitioning to Chase");
             IsKnockdownFinished = false;
@@ -105,14 +114,13 @@ public class HitReactionState : EnemyState
             return;
         }
 
-        if (IsTorsoKnockbackFinished && !animationManager.IsHitReactionPlaying())
+        if (IsTorsoKnockbackFinished && !IsKnockdownActive && !animationManager.IsHitReactionPlaying())
         {
             Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): Torso knockback finished, transitioning to Chase");
             IsTorsoKnockbackFinished = false;
             enemy.stateMachine.SetState(enemy.Chase);
             return;
         }
-
     }
 
     private System.Collections.IEnumerator LerpZombieBackwards(float backwardDistance, float duration = 0.2f)
@@ -206,7 +214,7 @@ public class HitReactionState : EnemyState
     public void OnKnockdownFinished()
     {
         Debug.Log($"[{enemy.name}] HitReactionState.OnKnockdownFinished()");
-        // wait for OnGetUp() to be called
+        IsKnockdownActive = false;
     }
 
     public void OnLegKnockdownFinished()

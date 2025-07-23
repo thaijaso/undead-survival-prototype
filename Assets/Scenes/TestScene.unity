@@ -17566,7 +17566,7 @@ GameObject:
   - component: {fileID: 87514945}
   - component: {fileID: 87514944}
   - component: {fileID: 87514943}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -229717,7 +229717,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1161561094
 Transform:
   m_ObjectHideFlags: 0
@@ -325300,7 +325300,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1636860873
 Transform:
   m_ObjectHideFlags: 0
