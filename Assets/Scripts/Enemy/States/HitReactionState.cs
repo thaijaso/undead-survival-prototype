@@ -177,18 +177,7 @@ public class HitReactionState : EnemyState
             return;
         }
 
-        // 3. Handle vital point escalation
-        if (IsVitalPoint(HitLimb) && hitCount == 1)
-        {
-            Debug.Log($"[{enemy.name}] HitReactionState.OnHit(): Hit limb is a vital point ({HitLimb.LimbType}) - but is first hit.");
-            if (!enemy.HasAggroed)
-            {
-                Debug.Log($"[{enemy.name}] HitReactionState.OnHit(): Setting state to Aggro (HasAggroed=false, first vital hit)");
-                enemy.stateMachine.SetState(enemy.Aggro);
-            }
-            return;
-        }
-        else if (IsVitalPoint(HitLimb) && hitCount == 2 && !animationManager.IsHitReactionPlaying())
+        if (IsVitalPoint(HitLimb) && hitCount == 1 && !animationManager.IsHitReactionPlaying())
         {
             Debug.Log($"[{enemy.name}] HitReactionState.OnHit(): Hit limb is a vital point ({HitLimb.LimbType}) - setting ShouldTriggerKnockback to true.");
             ShouldTriggerKnockback = true;
@@ -196,7 +185,7 @@ public class HitReactionState : EnemyState
             // Wait for IsKnockdownFinished flag to be set by animation event
             return;
         }
-        else if (IsVitalPoint(HitLimb) && hitCount == 3 && animationManager.IsAnimationPlaying("Forward Knockback", 0))
+        else if (IsVitalPoint(HitLimb) && hitCount == 2 && animationManager.IsAnimationPlaying("Forward Knockback", 0))
         {
             Debug.Log($"[{enemy.name}] HitReactionState.OnHit(): Hit limb is a vital point ({HitLimb.LimbType}) - setting ShouldTriggerKnockdown to true.");
             ShouldTriggerKnockdown = true;
