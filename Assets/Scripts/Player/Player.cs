@@ -2,7 +2,7 @@
 using PlayerStates;
 using Sirenix.OdinInspector;
 
-[DefaultExecutionOrder(-100)] // Ensure Player runs before other components
+[DefaultExecutionOrder(-200)] // Ensure Player runs before other components
 public class Player : MonoBehaviour
 {
     public PlayerInput PlayerInput { get; private set; }

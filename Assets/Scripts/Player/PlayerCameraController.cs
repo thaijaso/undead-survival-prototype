@@ -123,6 +123,12 @@ public class PlayerCameraController : MonoBehaviour
     void Update()
     {
         HandleCursorLock();
+        //UpdateRotationSpeed();
+        //UpdateCameraOffsetLerp();
+    }
+
+    void LateUpdate()
+    {
         UpdateRotationSpeed();
         UpdateCameraOffsetLerp();
     }
@@ -202,7 +208,9 @@ public class PlayerCameraController : MonoBehaviour
             targetPosition = ray.origin + ray.direction * maxDistance;
         }
 
-        target.position = targetPosition;
+        // Smoothly move the target to the new position
+        float smoothingSpeed = 20f; // You can expose this as a field if you want to tweak it
+        target.position = Vector3.Lerp(target.position, targetPosition, Time.deltaTime * smoothingSpeed);
     }
 
     public void MoveAimIKTarget()
@@ -329,6 +337,7 @@ public class PlayerCameraController : MonoBehaviour
         {
             float currentX = cameraOffset.Offset.x;
             float newX = Mathf.Lerp(currentX, targetOffsetX, Time.deltaTime * offsetLerpSpeed);
+            newX = Mathf.Max(0f, newX); // Clamp to 0 or greater
             cameraOffset.Offset = new Vector3(newX, cameraOffset.Offset.y, cameraOffset.Offset.z);
         }
     }

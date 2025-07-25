@@ -50,6 +50,7 @@ public class StrafeState : MoveState
         }
 
         base.LogicUpdate();
+        HandleMovement(strafeSpeed, false);
 
         if (!player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming)
         {
@@ -70,11 +71,11 @@ public class StrafeState : MoveState
         }
     }
 
-    public override void LateUpdate()
-    {
-        base.LateUpdate();
-        HandleMovement(strafeSpeed, false);
-    }
+    // public override void LateUpdate()
+    // {
+    //     base.LateUpdate();
+    //     HandleMovement(strafeSpeed, false);
+    // }
 }
 
 

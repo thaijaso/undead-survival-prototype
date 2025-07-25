@@ -109,13 +109,10 @@ public class AimState : StrafeState
         if (nextState is IdleState || (nextState is StrafeState && nextState is not ShootState && nextState is not AimState) || nextState is SprintState)
         {
             animationManager.SetIsAiming(false);
-
             player.PlayerIKController.SetIKTargetWeight(0f);
             player.PlayerCameraController.DisableCameraSway();
             player.PlayerCameraController.ResetCameraOffset();
-
             player.CrosshairController.DisableCrosshair();
-            //player.PlayerIKController.DisableAimIK();
         }
     }
 
@@ -177,21 +174,10 @@ public class AimState : StrafeState
     {
         base.LateUpdate();
 
-        player.PlayerCameraController.MoveAimIKTarget();
-        player.PlayerCameraController.MoveBulletHitTarget();
-
-        Vector3 direction = player.PlayerInput.GetInputDirection();
-        Vector3 aimTarget = player.PlayerCameraController.GetAimTarget();
-
-        // 1. Solve all IKs (AimIK, FBBIK, RecoilIK, etc.)
-        player.PlayerIKController.UpdateIKs(direction, aimTarget);
-        
-        // Prevent crosshair expansion if we're in ShootState
-        if (stateMachine.currentState == player.shoot)
-            return;
-
+        // Only update aim IK target if camera axis has changed
         if (player.PlayerCameraController.HasCameraAxisChanged())
         {
+            player.PlayerCameraController.MoveAimIKTarget();
             float bulletSpreadHorizontal = weaponManager.CurrentWeaponData.bulletSpreadHorizontal;
             float bulletSpreadVertical = weaponManager.CurrentWeaponData.bulletSpreadVertical;
             player.CrosshairController.ExpandAndContractCrosshair(
@@ -201,5 +187,17 @@ public class AimState : StrafeState
                 0.1f
             );
         }
+
+        player.PlayerCameraController.MoveBulletHitTarget();
+
+        Vector3 direction = player.PlayerInput.GetInputDirection();
+        Vector3 aimTarget = player.PlayerCameraController.GetAimTarget();
+
+        // 1. Solve all IKs (AimIK, FBBIK, RecoilIK, etc.)
+        player.PlayerIKController.UpdateIKs(direction, aimTarget);
+
+        // Prevent crosshair expansion if we're in ShootState
+        if (stateMachine.currentState == player.shoot)
+            return;
     }
 }

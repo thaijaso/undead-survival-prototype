@@ -41,6 +41,7 @@ public class SprintState : MoveState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        HandleMovement(sprintSpeed, true);
     
         if (!player.PlayerInput.IsMoving)
         {
@@ -55,11 +56,5 @@ public class SprintState : MoveState
             stateMachine.SetState(player.aim);
             return;
         }
-    }
-
-    public override void LateUpdate()
-    {
-        base.LateUpdate();
-        HandleMovement(sprintSpeed, true);
     }
 }

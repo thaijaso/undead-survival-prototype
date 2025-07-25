@@ -3,6 +3,7 @@ using Sirenix.OdinInspector;
 using System.Collections;
 using UnityEngine;
 
+[DefaultExecutionOrder(-150)]
 public class PlayerIKController : MonoBehaviour
 {
     [Header("Master IK Weight")]
@@ -416,7 +417,7 @@ public class PlayerIKController : MonoBehaviour
             );
         }
     }
-    
+
     // Coroutine to blend AimIK out and in
     private Coroutine aimIKBlendCoroutine;
 

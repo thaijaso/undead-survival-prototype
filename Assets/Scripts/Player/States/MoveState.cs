@@ -41,9 +41,10 @@ public class MoveState : PlayerState
 
         animationManager.SetStopDirection(player.PlayerInput.stopDirectionIndex);
         animationManager.SetMoveCommited(player.PlayerInput.MoveCommited);
-        
+
         player.PlayerIKController.BlendAllIKWeights();
     }
+
 
     protected void HandleMovement(float speed, bool faceMoveDirection)
     {
@@ -75,7 +76,7 @@ public class MoveState : PlayerState
 
             int enemyRagdollLayer = LayerMask.NameToLayer("EnemyRagdoll");
             int playerRagdollLayer = LayerMask.NameToLayer("PlayerRagdoll");
-            int mask = ~( (1 << enemyRagdollLayer) | (1 << playerRagdollLayer) );
+            int mask = ~((1 << enemyRagdollLayer) | (1 << playerRagdollLayer));
 
             if (Physics.Raycast(rayStart, back, out RaycastHit wallHit, 0.8f, mask))
             {
@@ -107,13 +108,13 @@ public class MoveState : PlayerState
         if (Physics.Raycast(player.transform.position, Vector3.down, out RaycastHit hit, 1.5f))
         {
             Debug.DrawRay(player.transform.position, hit.normal, Color.red);
-            Debug.DrawRay(player.transform.position, moveDirection, Color.green); 
+            Debug.DrawRay(player.transform.position, moveDirection, Color.green);
             moveDirection = Vector3.ProjectOnPlane(moveDirection, hit.normal);
         }
 
         // 7. Player rotation
         Quaternion targetRotation = faceMoveDirection
-            ? Quaternion.LookRotation(moveDirection)
+            ? (moveDirection.sqrMagnitude > 0.001f ? Quaternion.LookRotation(moveDirection) : player.transform.rotation)
             : Quaternion.LookRotation(cameraForward);
 
         float rotationSpeed = player.PlayerInput.IsAiming
@@ -125,7 +126,7 @@ public class MoveState : PlayerState
             targetRotation,
             Time.deltaTime * rotationSpeed
         );
-        
+
         // 8. Move the player
         player.PlayerCharacterController.Move(moveDirection, speed);
 
@@ -133,5 +134,11 @@ public class MoveState : PlayerState
         Debug.DrawLine(player.transform.position, player.transform.position + cameraForward * 2f, Color.blue);
         Debug.DrawLine(player.transform.position, player.transform.position + cameraRight * 2f, Color.red);
         Debug.DrawLine(player.transform.position, player.transform.position + moveDirection * 2f, Color.green);
+    }
+
+    public override void LateUpdate()
+    {
+        base.LateUpdate();
+        player.PlayerIKController.BlendAllIKWeights();
     }
 }
