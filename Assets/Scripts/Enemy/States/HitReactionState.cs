@@ -15,6 +15,7 @@ using UnityEngine;
 public class HitReactionState : EnemyState
 {
     public Limb HitLimb { get; private set; }
+
     public int hitCount { get; private set; } = 0;
 
     private bool ShouldTriggerForwardKnockback = false;
@@ -33,6 +34,8 @@ public class HitReactionState : EnemyState
 
     private bool ShouldTriggerLegKnockdown = false;
     private bool IsLegKnockdownFinished = false;
+
+    private bool IsReactionInProgress = false;
 
     public HitReactionState(
         Enemy enemy,
@@ -56,6 +59,7 @@ public class HitReactionState : EnemyState
         enemy.SetHasAggroed(true);
         animationManager.SetIsAggro(true);
         animationManager.SetHasAggroed(true);
+        IsReactionInProgress = true;
     }
 
     public override void Exit(EnemyState nextState)
@@ -74,6 +78,7 @@ public class HitReactionState : EnemyState
         IsBackKnockbackFinished = false;
         ShouldTriggerBackKnockdown = false;
         IsBackKnockdownFinished = false;
+        IsReactionInProgress = false;
     }
 
     public override void LogicUpdate()
@@ -98,10 +103,10 @@ public class HitReactionState : EnemyState
             return;
         }
 
-        // If leg knockdown animation finished, transition to Chase
-        if (IsLegKnockdownFinished && !animationManager.IsHitReactionPlaying())
+        // If leg knockdown animation finished, transition to Chase (only if no other reaction is in progress)
+        if (IsLegKnockdownFinished && !animationManager.IsHitReactionPlaying() && !IsReactionInProgress)
         {
-            Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): Leg knockdown finished, transitioning to Chase");
+            Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): IsLegKnockdownFinished: {IsLegKnockdownFinished}, transitioning to Chase");
             IsLegKnockdownFinished = false;
             ShouldTriggerLegKnockdown = false;
             enemy.stateMachine.SetState(enemy.Chase);
@@ -118,9 +123,10 @@ public class HitReactionState : EnemyState
             return;
         }
 
-        if (IsForwardKnockdownFinished && !IsKnockdownActive)
+        // Only transition to Chase if no other reaction is in progress
+        if (IsForwardKnockdownFinished && !IsKnockdownActive && !IsReactionInProgress)
         {
-            Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): Knockdown finished, transitioning to Chase");
+            Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): IsForwardKnockdownFinished: {IsForwardKnockdownFinished}, transitioning to Chase");
             IsForwardKnockdownFinished = false;
             enemy.stateMachine.SetState(enemy.Chase);
             return;
@@ -135,9 +141,9 @@ public class HitReactionState : EnemyState
             return;
         }
 
-        if (IsForwardKnockbackFinished && !IsKnockdownActive && !animationManager.IsHitReactionPlaying())
+        if (IsForwardKnockbackFinished && !IsKnockdownActive && !animationManager.IsHitReactionPlaying() && !IsReactionInProgress)
         {
-            Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): Front knockback finished, transitioning to Chase");
+            Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): IsForwardKnockbackFinished: {IsForwardKnockbackFinished}, transitioning to Chase");
             IsForwardKnockbackFinished = false;
             enemy.stateMachine.SetState(enemy.Chase);
             return;
@@ -153,9 +159,9 @@ public class HitReactionState : EnemyState
             return;
         }
 
-        if (IsBackKnockdownFinished && !IsKnockdownActive)
+        if (IsBackKnockdownFinished && !IsKnockdownActive && !IsReactionInProgress)
         {
-            Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): Back knockdown finished, transitioning to Chase");
+            Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): IsBackKnockdownFinished: {IsBackKnockdownFinished}, transitioning to Chase");
             IsBackKnockdownFinished = false;
             enemy.stateMachine.SetState(enemy.Chase);
             return;
@@ -170,9 +176,9 @@ public class HitReactionState : EnemyState
             return;
         }
 
-        if (IsBackKnockbackFinished && !IsKnockdownActive && !animationManager.IsHitReactionPlaying())
+        if (IsBackKnockbackFinished && !IsKnockdownActive && !animationManager.IsHitReactionPlaying() && !IsReactionInProgress)
         {
-            Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): Back knockback finished, transitioning to Chase");
+            Debug.Log($"[{enemy.name}] HitReactionState.UpdateHitReactionState(): IsBackKnockbackFinished: {IsBackKnockbackFinished}, transitioning to Chase");
             IsBackKnockbackFinished = false;
             enemy.stateMachine.SetState(enemy.Chase);
             return;
@@ -204,9 +210,27 @@ public class HitReactionState : EnemyState
             return;
         }
 
+
         HitLimb = limb;
         hitCount++;
         Debug.Log($"[{enemy.name}] HitReactionState.OnHit(): Handling hit. Hit limb: {limb}, Hit count: {hitCount}, current state: {enemy.stateMachine.currentState.GetType().Name}.");
+
+        // Log all guard/active flags for debugging
+        Debug.Log($"[{enemy.name}] HitReactionState.OnHit() FLAGS: " +
+            $"ShouldTriggerForwardKnockback={ShouldTriggerForwardKnockback}, " +
+            $"IsForwardKnockbackFinished={IsForwardKnockbackFinished}, " +
+            $"ShouldTriggerForwardKnockdown={ShouldTriggerForwardKnockdown}, " +
+            $"IsForwardKnockdownFinished={IsForwardKnockdownFinished}, " +
+            $"ShouldTriggerBackKnockback={ShouldTriggerBackKnockback}, " +
+            $"IsBackKnockbackFinished={IsBackKnockbackFinished}, " +
+            $"ShouldTriggerBackKnockdown={ShouldTriggerBackKnockdown}, " +
+            $"IsBackKnockdownFinished={IsBackKnockdownFinished}, " +
+            $"ShouldTriggerLegKnockdown={ShouldTriggerLegKnockdown}, " +
+            $"IsLegKnockdownFinished={IsLegKnockdownFinished}, " +
+            $"IsKnockdownActive={IsKnockdownActive}, " +
+            $"IsReactionInProgress={IsReactionInProgress}, " +
+            $"IsHitReactionPlaying={animationManager.IsHitReactionPlaying()}" 
+        );
 
         // 1. Handle arm hits (no reaction, reset count, possible state change)
         if (IsArm(HitLimb))
@@ -250,6 +274,7 @@ public class HitReactionState : EnemyState
         {
             Debug.Log($"[{enemy.name}] HitReactionState.OnHit(): Hit limb is a vital point ({HitLimb.LimbType}) - setting ShouldTriggerKnockdown to true.");
             ShouldTriggerForwardKnockdown = true;
+            hitCount = 0;
             // Wait for IsForwardKnockdownFinished flag to be set by animation event
             return;
         }
@@ -265,6 +290,7 @@ public class HitReactionState : EnemyState
         {
             Debug.Log($"[{enemy.name}] HitReactionState.OnHit(): Hit limb is a vital point ({HitLimb.LimbType}) - setting ShouldTriggerBackKnockdown to true.");
             ShouldTriggerBackKnockdown = true;
+            hitCount = 0;
             // Wait for IsBackKnockdownFinished flag to be set by OnFaceDownGetUp animation event
             return;
         }
@@ -278,6 +304,7 @@ public class HitReactionState : EnemyState
     {
         Debug.Log($"[{enemy.name}] HitReactionState.OnForwardKnockbackFinished(): Hit reaction finished. Hitcount: {hitCount}, current state: {enemy.stateMachine.currentState.GetType().Name}.");
         IsForwardKnockbackFinished = true;
+        IsReactionInProgress = false;
     }
 
     public void OnForwardKnockdownFinished()
@@ -290,18 +317,21 @@ public class HitReactionState : EnemyState
     {
         Debug.Log($"[{enemy.name}] HitReactionState.OnLegKnockdownFinished()");
         IsLegKnockdownFinished = true;
+        IsReactionInProgress = false;
     }
 
     public void OnFaceUpGetUp()
     {
         Debug.Log($"[{enemy.name}] HitReactionState.OnGetUp()");
         IsForwardKnockdownFinished = true;
+        IsReactionInProgress = false;
     }
 
     public void OnBackKnockbackFinished()
     {
         Debug.Log($"[{enemy.name}] HitReactionState.OnBackKnockbackFinished()");
         IsBackKnockbackFinished = true;
+        IsReactionInProgress = false;
     }
 
     public void OnBackKnockdownFinished()
@@ -314,6 +344,7 @@ public class HitReactionState : EnemyState
     {
         Debug.Log($"[{enemy.name}] HitReactionState.OnFaceDownGetUp()");
         IsBackKnockdownFinished = true;
+        IsReactionInProgress = false;
     }
 
     private bool IsLeg(Limb limb)
