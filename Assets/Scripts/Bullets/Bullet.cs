@@ -35,9 +35,10 @@ public class Bullet : MonoBehaviour
         ContactPoint contact = collision.GetContact(0);
         Vector3 hitPoint = contact.point;
         Vector3 hitNormal = contact.normal;
-        
+        Vector3 bulletDirection = GetComponent<Rigidbody>().linearVelocity.normalized;
+
         // Handle enemy damage if this is a hitbox collision
-        HandleEnemyHitboxImpact(collision.collider, hitPoint, hitNormal);
+        HandleEnemyHitboxImpact(collision.collider, hitPoint, hitNormal, bulletDirection);
 
         // Apply physics force to any rigidbody (limbs, props, etc.)
         ApplyImpactForce(collision, contact);
@@ -83,7 +84,7 @@ public class Bullet : MonoBehaviour
         }
     }
 
-    private void HandleEnemyHitboxImpact(Collider hitCollider, Vector3 hitPoint, Vector3 hitNormal)
+    private void HandleEnemyHitboxImpact(Collider hitCollider, Vector3 hitPoint, Vector3 hitNormal, Vector3 bulletDirection)
     {
         // Check if the hit object is on the Hitbox layer
         if (hitCollider.gameObject.layer != LayerMask.NameToLayer("EnemyRagdoll"))
@@ -130,25 +131,16 @@ public class Bullet : MonoBehaviour
         SpawnBloodEffect(hitPoint, hitNormal, enemy);
 
         // Handle state transitions based on bullet impact
-        HandleEnemyStateTransition(enemy, limb);
+        HandleEnemyStateTransition(enemy, limb, bulletDirection);
     }
     
-    private void HandleEnemyStateTransition(Enemy enemy, Limb limb)
+    private void HandleEnemyStateTransition(Enemy enemy, Limb limb, Vector3 bulletDirection)
     {
         // Only force state transitions if the enemy is not in debug mode
         if (!enemy.DebugModeEnabled)
         {
-            var currentState = enemy.stateMachine.currentState;
             var hitReactionState = enemy.HitReaction as HitReactionState;
-            // hitReactionState?.SetHitLimb(limb);
-
-            // if (currentState == enemy.Death || currentState == enemy.GetUp)
-            // {
-            //     Debug.Log($"[Bullet] HandleEnemyStateTransition(): Enemy is dead or getting up - no state change needed");
-            //     return;
-            // }
-
-            hitReactionState.OnHit(limb);
+            hitReactionState.OnHit(limb, bulletDirection);
         }
         else
         {

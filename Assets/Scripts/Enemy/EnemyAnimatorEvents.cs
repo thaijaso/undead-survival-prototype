@@ -111,14 +111,14 @@ public class EnemyAnimatorEvents : MonoBehaviour
         }
     }
 
-    public void OnKnockbackFinished()
+    public void OnForwardKnockbackFinished()
     {
-        Debug.Log($"[{name}] EnemyAnimatorEvents.OnTorsoKnockbackFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnForwardKnockbackFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
 
         // Delegate to the current state if it handles hit reactions
         if (enemy.stateMachine.currentState == enemy.HitReaction && enemy.HitReaction is HitReactionState hitReactionState)
         {
-            hitReactionState.OnTorsoKnockbackFinished();
+            hitReactionState.OnForwardKnockbackFinished();
         }
         else
         {
@@ -126,32 +126,32 @@ public class EnemyAnimatorEvents : MonoBehaviour
         }
     }
 
-    public void OnKnockdownFinished()
+    public void OnForwardKnockdownFinished()
     {
-        Debug.Log($"[{name}] EnemyAnimatorEvents.OnKnockdownFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnForwardKnockdownFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
 
         // Delegate to the current state if it handles knockdowns
         if (enemy.stateMachine.currentState == enemy.HitReaction && enemy.HitReaction is HitReactionState hitReactionState)
         {
-            hitReactionState.OnKnockdownFinished();
+            hitReactionState.OnForwardKnockdownFinished();
         }
         else
         {
-            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnKnockdownFinished(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
+            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnForwardKnockdownFinished(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
         }
     }
 
-    public void OnGetUp()
+    public void OnFaceUpGetUp()
     {
-        Debug.Log($"[{name}] EnemyAnimatorEvents.OnGetUp(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnFaceUpGetUp(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
 
         if (enemy.stateMachine.currentState == enemy.HitReaction && enemy.HitReaction is HitReactionState hitReactionState)
         {
-            hitReactionState.OnGetUp();
+            hitReactionState.OnFaceUpGetUp();
         }
         else
         {
-            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnGetUp(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
+            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnFaceUpGetUp(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
         }
     }
 
@@ -167,6 +167,51 @@ public class EnemyAnimatorEvents : MonoBehaviour
         else
         {
             Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnLegKnockdownFinished(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
+        }
+    }
+
+    public void OnBackKnockbackFinished()
+    {
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnBackKnockbackFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+
+        // Delegate to the current state if it handles back knockbacks
+        if (enemy.stateMachine.currentState == enemy.HitReaction && enemy.HitReaction is HitReactionState hitReactionState)
+        {
+            hitReactionState.OnBackKnockbackFinished();
+        }
+        else
+        {
+            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnBackKnockbackFinished(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
+        }
+    }
+
+    public void OnBackKnockdownFinished()
+    {
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnBackKnockdownFinished(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+
+        // Delegate to the current state if it handles back knockdowns
+        if (enemy.stateMachine.currentState == enemy.HitReaction && enemy.HitReaction is HitReactionState hitReactionState)
+        {
+            hitReactionState.OnBackKnockdownFinished();
+        }
+        else
+        {
+            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnBackKnockdownFinished(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
+        }
+    }
+
+    public void OnFaceDownGetUp()
+    {
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnFaceDownGetUp(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+
+        // Delegate to the current state if it handles face down get up
+        if (enemy.stateMachine.currentState == enemy.HitReaction && enemy.HitReaction is HitReactionState hitReactionState)
+        {
+            hitReactionState.OnFaceDownGetUp();
+        }
+        else
+        {
+            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnFaceDownGetUp(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
         }
     }
 

@@ -5877,6 +5877,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Zombie (14)
       objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
@@ -23350,6 +23354,10 @@ PrefabInstance:
     - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: m_Name
       value: Zombie (17)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
@@ -94122,6 +94130,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Zombie (20)
       objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
@@ -111177,6 +111189,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Zombie (15)
       objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
@@ -111792,6 +111808,10 @@ PrefabInstance:
     - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: m_Name
       value: Zombie (19)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
@@ -176760,6 +176780,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Zombie (18)
       objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
@@ -181835,6 +181859,10 @@ PrefabInstance:
     - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: m_Name
       value: Zombie (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
@@ -216279,6 +216307,10 @@ PrefabInstance:
     - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: m_Name
       value: Zombie (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
@@ -250748,6 +250780,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Zombie (13)
       objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
@@ -252514,6 +252550,10 @@ PrefabInstance:
     - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: m_Name
       value: Zombie (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
@@ -262153,6 +262193,10 @@ PrefabInstance:
     - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: m_Name
       value: Zombie (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
@@ -287563,6 +287607,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Zombie (16)
       objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
@@ -292184,6 +292232,10 @@ PrefabInstance:
     - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: m_Name
       value: Zombie (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
@@ -318782,6 +318834,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Zombie (12)
       objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
@@ -331197,6 +331253,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Zombie (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
@@ -334835,6 +334895,10 @@ PrefabInstance:
     - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: m_Name
       value: Zombie (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
@@ -379963,6 +380027,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Zombie (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
@@ -412147,6 +412215,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Zombie (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
@@ -417519,6 +417591,10 @@ PrefabInstance:
     - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: m_Name
       value: Zombie (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2613740256056292980, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target

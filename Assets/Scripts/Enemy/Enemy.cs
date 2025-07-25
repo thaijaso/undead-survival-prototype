@@ -401,7 +401,6 @@ public class Enemy : MonoBehaviour
     public void SetIsAggroed(bool IsAggroed)
     {
         this.IsAggroed = IsAggroed;
-        Debug.Log($"[{name}] IsAggroed set to {IsAggroed}");
     }
 
     // Track if enemy has been aggroed before
@@ -409,6 +408,5 @@ public class Enemy : MonoBehaviour
     public void SetHasAggroed(bool value)
     {
         HasAggroed = value;
-        Debug.Log($"[{name}] HasAggroed set to {value}");
     }
 }

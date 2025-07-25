@@ -170,14 +170,14 @@ public class AnimationManager
         return hasFinished;
     }
 
-    public void TriggerKnockback()
+    public void TriggerForwardKnockback()
     {
-        animator.SetTrigger("Knockback");
+        animator.SetTrigger("ForwardKnockback");
     }
 
-    public void TriggerKnockdown()
+    public void TriggerForwardKnockdown()
     {
-        animator.SetTrigger("Knockdown");
+        animator.SetTrigger("ForwardKnockdown");
     }
 
     public void SetHasAggroed(bool hasAggroed)
@@ -195,11 +195,26 @@ public class AnimationManager
         animator.SetBool("IsChasing", isChasing);
     }
 
+    public void TriggerBackKnockback()
+    {
+        Debug.Log($"[{animator.gameObject.name}] Triggering Backward Knockback");
+        animator.SetTrigger("BackKnockback");
+    }
+
+    public void TriggerBackKnockdown()
+    {
+        Debug.Log($"[{animator.gameObject.name}] Triggering Backward Knockdown");
+        animator.SetTrigger("BackKnockdown");
+    }
+
     public bool IsHitReactionPlaying()
     {
         return IsAnimationPlaying("Leg Knockdown", 0) ||
                IsAnimationPlaying("Forward Knockback", 0) ||
                IsAnimationPlaying("Forward Knockdown", 0) ||
-               IsAnimationPlaying("Get Up", 0);
+               IsAnimationPlaying("Backward Knockback", 0) ||
+               IsAnimationPlaying("Backward Knockdown", 0) ||
+               IsAnimationPlaying("Face Up Get Up", 0) ||
+               IsAnimationPlaying("Face Down Get Up", 0);
     }
 }
