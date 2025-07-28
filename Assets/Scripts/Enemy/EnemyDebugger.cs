@@ -1,6 +1,7 @@
-using UnityEngine;
 using RootMotion.Dynamics;
 using Sirenix.OdinInspector;
+using UndeadSurvivalGame.Enemy;
+using UnityEngine;
 
 /// <summary>
 /// Handles all debug functionality for the Enemy class

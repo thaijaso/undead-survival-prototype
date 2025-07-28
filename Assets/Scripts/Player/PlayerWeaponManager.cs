@@ -1,4 +1,5 @@
 using UnityEngine;
+using UndeadSurvivalGame.Player;
 
 public class PlayerWeaponManager : MonoBehaviour
 {

@@ -1,10 +1,9 @@
-using UnityEngine;
 using PlayerStates;
-using RootMotion.FinalIK;
+using UndeadSurvivalGame.Player;
+using UnityEngine;
 
 public class AimState : StrafeState
 {
-
     public AimState(
         Player player,
         StateMachine<PlayerState> stateMachine,

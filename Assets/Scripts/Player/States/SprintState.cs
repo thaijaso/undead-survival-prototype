@@ -1,3 +1,4 @@
+using UndeadSurvivalGame.Player;
 using UnityEngine;
 
 public class SprintState : MoveState

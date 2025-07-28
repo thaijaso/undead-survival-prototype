@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace UndeadSurvivalGame.Editor
 {
-    [CustomEditor(typeof(Player))]
+    [CustomEditor(typeof(UndeadSurvivalGame.Player.Player))]
     public class PlayerEditor : OdinEditor
     {
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            Player player = (Player)target;
+            UndeadSurvivalGame.Player.Player player = (UndeadSurvivalGame.Player.Player)target;
             GUILayout.Space(10);
 
             // Static lock toggle

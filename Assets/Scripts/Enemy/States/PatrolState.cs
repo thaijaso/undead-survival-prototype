@@ -1,6 +1,5 @@
-using System.Collections.Generic;
-using Pathfinding;
 using UnityEngine;
+using UndeadSurvivalGame.Enemy;
 
 namespace EnemyStates
 {

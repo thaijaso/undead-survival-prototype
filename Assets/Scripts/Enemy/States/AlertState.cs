@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using UndeadSurvivalGame.Enemy;
 using UnityEngine;
 
 public class AlertState : EnemyState

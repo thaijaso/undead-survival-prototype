@@ -1,9 +1,9 @@
 using Pathfinding;
-using UnityEngine;
 using RootMotion.Dynamics;
 using RootMotion.FinalIK;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 
 namespace UndeadSurvivalGame.Editor
 {
@@ -48,7 +48,7 @@ namespace UndeadSurvivalGame.Editor
             { "hand.r", AssetDatabase.LoadAssetAtPath<LimbTemplate>("Assets/ScriptableObjects/Enemies/ZombieHandTemplate.asset")}
         };
 
-        public static void AutoSetupReferences(Enemy enemy, bool overwriteExisting = false)
+        public static void AutoSetupReferences(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = false)
         {
             Debug.Log($"[{enemy.gameObject.name}] Auto-Setting up references...");
 
@@ -79,7 +79,7 @@ namespace UndeadSurvivalGame.Editor
             SetupLimbs(enemy, overwriteExisting);
         }
 
-        private static void SetupEnemyTemplate(Enemy enemy)
+        private static void SetupEnemyTemplate(UndeadSurvivalGame.Enemy.Enemy enemy)
         {
             if (enemy == null)
                 return;
@@ -90,12 +90,12 @@ namespace UndeadSurvivalGame.Editor
                 if (guids != null && guids.Length > 0)
                 {
                     string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                    var mainAssembly = typeof(Enemy).Assembly;
+                    var mainAssembly = typeof(UndeadSurvivalGame.Enemy.Enemy).Assembly;
                     var enemyTemplateType = mainAssembly.GetType("EnemyTemplate");
                     var loadedTemplate = AssetDatabase.LoadAssetAtPath(path, enemyTemplateType);
                     if (loadedTemplate != null)
                     {
-                        var templateProp = typeof(Enemy).GetProperty("enemyTemplate");
+                        var templateProp = typeof(UndeadSurvivalGame.Enemy.Enemy).GetProperty("enemyTemplate");
                         if (templateProp != null && templateProp.CanWrite)
                         {
                             templateProp.SetValue(enemy, loadedTemplate);
@@ -104,7 +104,7 @@ namespace UndeadSurvivalGame.Editor
                         }
                         else
                         {
-                            var templateField = typeof(Enemy).GetField("enemyTemplate");
+                            var templateField = typeof(UndeadSurvivalGame.Enemy.Enemy).GetField("enemyTemplate");
                             if (templateField != null)
                             {
                                 templateField.SetValue(enemy, loadedTemplate);
@@ -129,7 +129,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPuppetMasterReference(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupPuppetMasterReference(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null)
                 return;
@@ -185,7 +185,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupAnimator(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupAnimator(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null) return;
             var animator = enemy.GetComponent<Animator>();
@@ -225,7 +225,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupEnemyAnimatorEvents(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupEnemyAnimatorEvents(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null) return;
 
@@ -244,7 +244,7 @@ namespace UndeadSurvivalGame.Editor
             EditorUtility.SetDirty(animatorEvents);
         }
 
-        private static void SetupFollowerEntity(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupFollowerEntity(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null || enemy.enemyTemplate == null)
                 return;
@@ -291,7 +291,7 @@ namespace UndeadSurvivalGame.Editor
             Debug.Log($"[AutoSetup] FollowerEntity settings applied from EnemyTemplate to {enemy.gameObject.name}.");
         }
 
-        private static void SetupAIDestinationSetter(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupAIDestinationSetter(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null || enemy.enemyTemplate == null)
                 return;
@@ -319,7 +319,7 @@ namespace UndeadSurvivalGame.Editor
             // Optionally set other properties from the template if needed
         }
 
-        private static void SetupHealthManagerForEnemy(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupHealthManagerForEnemy(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null || enemy.enemyTemplate == null)
                 return;
@@ -359,7 +359,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupLookAtIK(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupLookAtIK(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null)
                 return;
@@ -414,7 +414,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupEnemyDebugger(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupEnemyDebugger(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null)
                 return;
@@ -447,7 +447,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupBipedRagdollCreator(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupBipedRagdollCreator(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null) return;
 
@@ -491,7 +491,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupLimbs(Enemy enemy, bool overwriteExisting = true)
+        private static void SetupLimbs(UndeadSurvivalGame.Enemy.Enemy enemy, bool overwriteExisting = true)
         {
             if (enemy == null || enemy.transform.parent == null)
                 return;

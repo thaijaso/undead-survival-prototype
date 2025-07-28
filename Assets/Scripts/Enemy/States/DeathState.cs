@@ -1,4 +1,4 @@
-using System.Collections;
+using UndeadSurvivalGame.Enemy;
 using UnityEngine;
 
 public class DeathState : EnemyState

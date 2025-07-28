@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UndeadSurvivalGame.Player;
+using UnityEngine;
 
 namespace PlayerStates
 {

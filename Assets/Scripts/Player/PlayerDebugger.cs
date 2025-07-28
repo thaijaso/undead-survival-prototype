@@ -1,6 +1,7 @@
-using UnityEngine;
 using PlayerStates;
 using Sirenix.OdinInspector;
+using UnityEngine;
+using UndeadSurvivalGame.Player;
 
 /// <summary>
 /// Handles all debug functionality for the Player class

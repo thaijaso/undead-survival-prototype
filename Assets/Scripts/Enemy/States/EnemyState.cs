@@ -1,3 +1,4 @@
+using UndeadSurvivalGame.Enemy;
 using System.Collections;
 using System.Collections.Generic;
 using Pathfinding;

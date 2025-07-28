@@ -2,6 +2,7 @@ using RootMotion.FinalIK;
 using Sirenix.OdinInspector;
 using System.Collections;
 using UnityEngine;
+using UndeadSurvivalGame.Player;
 
 [DefaultExecutionOrder(-150)]
 public class PlayerIKController : MonoBehaviour

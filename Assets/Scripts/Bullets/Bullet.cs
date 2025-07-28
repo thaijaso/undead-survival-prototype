@@ -1,7 +1,8 @@
-using UnityEngine;
 using RootMotion.Dynamics;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UndeadSurvivalGame.Enemy;
 
 public class Bullet : MonoBehaviour
 {

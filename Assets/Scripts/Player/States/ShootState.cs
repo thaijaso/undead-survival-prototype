@@ -1,4 +1,6 @@
 using RootMotion.Dynamics;
+using UndeadSurvivalGame.Enemy;
+using UndeadSurvivalGame.Player;
 using UnityEngine;
 
 public class ShootState : AimState

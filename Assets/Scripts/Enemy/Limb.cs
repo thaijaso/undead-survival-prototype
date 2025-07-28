@@ -1,3 +1,5 @@
+using UndeadSurvivalGame.Enemy;
+using UndeadSurvivalGame.Player;
 using UnityEngine;
 
 public enum LimbType

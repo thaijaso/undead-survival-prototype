@@ -1,6 +1,5 @@
+using UndeadSurvivalGame.Enemy;
 using UnityEngine;
-using Pathfinding;
-using System.Collections;
 
 public class AggroState : EnemyState
 {
@@ -125,12 +124,6 @@ public class AggroState : EnemyState
     public override void Exit(EnemyState nextState)
     {
         base.Exit(nextState);
-
-        // Clean up animation state
-        // if (nextState != enemy.Attack || nextState != enemy.Chase)
-        // {
-        //     animationManager.SetIsAggro(false);
-        // }
 
         // Stop any rotation coroutines when exiting the state
         if (turnCoroutine != null)

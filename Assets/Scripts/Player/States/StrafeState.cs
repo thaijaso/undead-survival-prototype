@@ -1,3 +1,4 @@
+using UndeadSurvivalGame.Player;
 using UnityEngine;
 
 public class StrafeState : MoveState
@@ -17,7 +18,7 @@ public class StrafeState : MoveState
         animationName,
         weaponManager
     )
-    { 
+    {
         strafeSpeed = player.PlayerCharacterController.strafeSpeed;
     }
 
@@ -70,12 +71,6 @@ public class StrafeState : MoveState
             return;
         }
     }
-
-    // public override void LateUpdate()
-    // {
-    //     base.LateUpdate();
-    //     HandleMovement(strafeSpeed, false);
-    // }
 }
 
 

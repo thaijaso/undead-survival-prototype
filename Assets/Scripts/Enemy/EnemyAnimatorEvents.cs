@@ -1,3 +1,4 @@
+using UndeadSurvivalGame.Enemy;
 using UnityEngine;
 
 public class EnemyAnimatorEvents : MonoBehaviour
