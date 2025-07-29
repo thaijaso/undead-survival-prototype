@@ -1,4 +1,5 @@
 using UndeadSurvivalGame.Enemy;
+using UndeadSurvivalGame.Enemy.States;
 using UnityEngine;
 
 public class EnemyAnimatorEvents : MonoBehaviour

@@ -217,4 +217,9 @@ public class AnimationManager
                IsAnimationPlaying("Face Up Get Up", 0) ||
                IsAnimationPlaying("Face Down Get Up", 0);
     }
+
+    public void TriggerKnockback()
+    {
+        animator.SetTrigger("Knockback");
+    }
 }

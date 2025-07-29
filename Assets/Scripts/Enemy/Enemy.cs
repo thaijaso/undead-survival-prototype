@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using RootMotion.Dynamics;
 using RootMotion.FinalIK;
+using UndeadSurvivalGame.Enemy.States;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.Enemy

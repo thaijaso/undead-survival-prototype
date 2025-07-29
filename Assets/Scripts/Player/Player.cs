@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using PlayerStates;
+﻿using PlayerStates;
 using Sirenix.OdinInspector;
+using UndeadSurvivalGame.Player.States;
+using UnityEngine;
 
 namespace UndeadSurvivalGame.Player
 {
@@ -31,6 +32,7 @@ namespace UndeadSurvivalGame.Player
         internal PlayerState aim;
         internal PlayerState shoot;
         internal PlayerState strafe;
+        internal PlayerState hitReaction;
 
         [TabGroup("Configuration")]
         [Required]
@@ -219,6 +221,15 @@ namespace UndeadSurvivalGame.Player
                 BulletDecalManager
             );
             Debug.Log($"[{gameObject.name}] ✓ Shoot state initialized");
+
+            hitReaction = new HitReactionState(
+                this,
+                stateMachine,
+                AnimationManager,
+                "HitReaction",
+                WeaponManager
+            );
+            Debug.Log($"[{gameObject.name}] ✓ HitReaction state initialized");
 
             Debug.Log($"[{gameObject.name}] All player states initialized. Setting initial state to Idle...");
             // Set initial state

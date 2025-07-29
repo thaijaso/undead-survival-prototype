@@ -424818,6 +424818,10 @@ PrefabInstance:
       propertyPath: target
       value: 
       objectReference: {fileID: 1717255700}
+    - target: {fileID: 6534354121092536703, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: shape.radius
+      value: 0.23
+      objectReference: {fileID: 0}
     - target: {fileID: 6557532630828563003, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: PlayerTransform
       value: 

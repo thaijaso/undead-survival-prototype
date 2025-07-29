@@ -1,3 +1,4 @@
+using RootMotion.Dynamics;
 using UndeadSurvivalGame.Enemy;
 using UndeadSurvivalGame.Player;
 using UnityEngine;
@@ -107,79 +108,75 @@ public class Limb : MonoBehaviour
         }
     }
 
-    // Collision detection for zombie attacks
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.layer == LayerMask.NameToLayer("PlayerRagdoll"))
-        {
-            Debug.Log($"Trigger detected with {other.gameObject.name} using {LimbType} limb");
-        }
-        // Only process collisions for arm limbs during attacks
-        if (LimbType == LimbType.UpperArm || LimbType == LimbType.LowerArm || LimbType == LimbType.Hand)
-        {
-            // Check if we hit the player's CharacterController
-            CharacterController playerController = other.GetComponent<CharacterController>();
-            if (playerController != null)
-            {
-                // Get the player component to confirm it's the player
-                Player player = other.GetComponent<Player>();
-                if (player != null)
-                {
-                    Debug.Log($"Zombie {LimbType} hit Player's CharacterController!");
-
-                    // Optionally, we can also get the Enemy component to check if it's in attack state
-                    Enemy enemy = GetComponentInParent<Enemy>();
-                    if (enemy != null && enemy.stateMachine.currentState == enemy.Attack)
-                    {
-                        Debug.Log($"Confirmed: Zombie attack hit detected during Attack state!");
-                        OnZombieAttackHit(player, enemy);
-                    }
-                }
-            }
-        }
-    }
-
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("PlayerRagdoll"))
-        {
-            Debug.Log($"Collision detected with {collision.gameObject.name} using {LimbType} limb");
-        }
-        // Alternative collision detection using OnCollisionEnter if using solid colliders
-        if (LimbType == LimbType.UpperArm || LimbType == LimbType.LowerArm || LimbType == LimbType.Hand)
-        {
-            CharacterController playerController = collision.gameObject.GetComponent<CharacterController>();
-            if (playerController != null)
-            {
-                Player player = collision.gameObject.GetComponent<Player>();
-                if (player != null)
-                {
-                    Debug.Log($"Zombie {LimbType} collided with Player's CharacterController!");
+        if (!IsPlayerRagdollCollision(collision))
+            return;
 
-                    Enemy enemy = GetComponentInParent<Enemy>();
-                    if (enemy != null && enemy.stateMachine.currentState == enemy.Attack)
-                    {
-                        Debug.Log($"Confirmed: Zombie attack collision detected during Attack state!");
-                        OnZombieAttackHit(player, enemy);
-                    }
-                }
-            }
+        if (LimbType == LimbType.Hand)
+            TryProcessHandCollision(collision);
+    }
+
+    private bool IsPlayerRagdollCollision(Collision collision)
+    {
+        return collision.gameObject.layer == LayerMask.NameToLayer("PlayerRagdoll");
+    }
+
+    private void TryProcessHandCollision(Collision collision)
+    {
+        Debug.Log($"{LimbType} limb collided with {collision.gameObject.name}");
+
+        PuppetMaster playerPuppetMaster = GetPlayerPuppetMaster(collision);
+        if (playerPuppetMaster == null) return;
+
+        Player player = GetPlayerFromPuppetMaster(playerPuppetMaster, collision);
+        if (player == null) return;
+
+        PuppetMaster enemyPuppetMaster = GetComponentInParent<PuppetMaster>();
+        if (enemyPuppetMaster == null)
+        {
+            Debug.Log($"Limb.OnCollisionEnter(): No PuppetMaster found on {gameObject.name}");
+            return;
+        }
+
+        Debug.Log($"Limb.OnCollisionEnter(): Enemy PuppetMaster found on {gameObject.name}");
+        Enemy enemy = enemyPuppetMaster.targetRoot.GetComponent<Enemy>();
+        if (enemy == null)
+        {
+            Debug.Log($"Limb.OnCollisionEnter(): No Enemy component found on PuppetMaster for {gameObject.name}");
+            return;
+        }
+
+        if (player.hitReaction is UndeadSurvivalGame.Player.States.HitReactionState hitReaction &&
+            enemy.stateMachine.currentState is UndeadSurvivalGame.Enemy.States.AttackState attackState)
+        {
+            Debug.Log($"Limb.OnCollisionEnter(): Triggering hit reaction for player {player.name} from enemy {enemy.name}");
+            
+            // Call the OnHit method to trigger the hit reaction state
+            hitReaction.OnHit();
         }
     }
 
-    private void OnZombieAttackHit(Player player, Enemy enemy)
+    private PuppetMaster GetPlayerPuppetMaster(Collision collision)
     {
-        // This method can be expanded to handle the actual attack logic
-        Debug.Log($"Processing zombie attack hit from {enemy.name}'s {LimbType} on {player.name}");
+        PuppetMaster puppetMaster = collision.gameObject.GetComponentInParent<PuppetMaster>();
+        if (puppetMaster == null)
+        {
+            Debug.Log($"Limb.OnCollisionEnter(): No PuppetMaster found on {collision.gameObject.name}");
+            return null;
+        }
+        Debug.Log($"Limb.OnCollisionEnter(): PuppetMaster found on collision: {collision.gameObject.name}");
+        return puppetMaster;
+    }
 
-        // Here you could:
-        // - Deal damage to the player
-        // - Apply knockback
-        // - Trigger attack animations/effects
-        // - Play sound effects
-        // - Update attack state machine
-
-        // Example damage dealing (uncomment if you want to implement):
-        // player.HealthManager.TakeDamage(10); // Adjust damage as needed
+    private Player GetPlayerFromPuppetMaster(PuppetMaster puppetMaster, Collision collision)
+    {
+        Player player = puppetMaster.targetRoot.GetComponent<Player>();
+        if (player == null)
+        {
+            Debug.Log($"Limb.OnCollisionEnter(): No Player component found on PuppetMaster targetRoot for {collision.gameObject.name}");
+            return null;
+        }
+        return player;
     }
 }
