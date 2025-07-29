@@ -1,5 +1,7 @@
 using PlayerStates;
+using UndeadSurvivalGame.Enemy;
 using UndeadSurvivalGame.Player;
+using UndeadSurvivalGame.Player.States;
 using UnityEngine;
 
 public class AimState : StrafeState
@@ -105,7 +107,7 @@ public class AimState : StrafeState
         Debug.Log($"[{player.name}] AimState.Exit(): Exiting to {nextState.GetType().Name}");
         base.Exit(nextState);
 
-        if (nextState is IdleState || (nextState is StrafeState && nextState is not ShootState && nextState is not AimState) || nextState is SprintState)
+        if (ShouldResetAimState(nextState))
         {
             animationManager.SetIsAiming(false);
             player.PlayerIKController.SetIKTargetWeight(0f);
@@ -113,6 +115,19 @@ public class AimState : StrafeState
             player.PlayerCameraController.ResetCameraOffset();
             player.CrosshairController.DisableCrosshair();
         }
+    }
+
+    private bool ShouldResetAimState(PlayerState nextState)
+    {
+        return
+            nextState is IdleState
+            || (
+                nextState is StrafeState
+                && nextState is not ShootState
+                && nextState is not AimState
+            )
+            || nextState is SprintState
+            || nextState is UndeadSurvivalGame.Player.States.HitReactionState;
     }
 
     public override void LogicUpdate()

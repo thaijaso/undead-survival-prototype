@@ -10,6 +10,7 @@
 // | Leg Knockdown         | ShouldTriggerLegKnockdown      | IsLegKnockdownFinished         |                     |
 // ===============================
 
+using System.Collections;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.Enemy
@@ -187,7 +188,7 @@ namespace UndeadSurvivalGame.Enemy
             }
         }
 
-        private System.Collections.IEnumerator LerpZombieBackwards(float backwardDistance, float duration = 0.2f)
+        private IEnumerator LerpZombieBackwards(float backwardDistance, float duration = 0.2f)
         {
             // TODO: Use weapon template to determine distance and duration
             float elapsed = 0f;
@@ -366,6 +367,5 @@ namespace UndeadSurvivalGame.Enemy
             return limb != null &&
                 (limb.LimbType == LimbType.UpperArm || limb.LimbType == LimbType.LowerArm || limb.LimbType == LimbType.Hand);
         }
-        // End of HitReactionState
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.Player.States
@@ -24,6 +25,7 @@ namespace UndeadSurvivalGame.Player.States
             base.Enter();
             Debug.Log($"[{player.name}] HitReactionState.Enter(): Entering Hit Reaction state.");
             animationManager.TriggerKnockback();
+            player.StartCoroutine(LerpPlayerBack(.8f, .8f));
         }
 
         public void OnHit()
@@ -52,6 +54,23 @@ namespace UndeadSurvivalGame.Player.States
             {
                 Debug.LogWarning($"[{player.name}] HitReactionState.OnKnockbackFinished(): Not in HitReactionState, cannot transition.");
             }
+        }
+
+        private IEnumerator LerpPlayerBack(float backwardDistance, float duration = 0.2f)
+        {
+            Debug.Log($"[{player.name}] HitReactionState.LerpPlayerBack(): Starting to lerp player back.");
+            Vector3 startPosition = player.transform.position;
+            Vector3 targetPosition = startPosition - player.transform.forward * backwardDistance;
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                player.transform.position = Vector3.Lerp(startPosition, targetPosition, elapsed / duration);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            player.transform.position = targetPosition; // Ensure final position is set
         }
     }
 }
