@@ -88,5 +88,27 @@ namespace UndeadSurvivalGame.Enemy.States
             Debug.Log($"[{enemy.name}] AttackState.OnAttackLostMomentum(): Attack lost momentum - transitioning to Aggro state");
             enemy.SetAndLogSpeed(0, "AttackState.OnAttackLostMomentum()", 0f);
         }
+
+        public void OnAttackImpactFrame()
+        {
+            Debug.Log($"[{enemy.name}] AttackState.OnAttackImpact(): Attack impact frame reached - checking player hit");
+
+            // Check if the player is hit
+            if (enemy.IsPlayerInAttackRange())
+            {
+                Debug.Log($"[{enemy.name}] AttackState.OnAttackImpact(): Player is in attack range - dealing damage");
+                UndeadSurvivalGame.Player.Player player = enemy.PlayerTransform.GetComponent<UndeadSurvivalGame.Player.Player>();
+                var hitReaction = player.hitReaction as UndeadSurvivalGame.Player.States.HitReactionState;
+                if (hitReaction != null && hitReaction.ShouldEnterHitReaction())
+                {
+                    Debug.Log($"[{enemy.name}] AttackState.OnAttackImpact(): Player hit reaction should be triggered");
+                    player.stateMachine.SetState(player.hitReaction);
+                }
+            }
+            else
+            {
+                Debug.Log($"[{enemy.name}] AttackState.OnAttackImpact(): Player is out of attack range - no damage dealt");
+            }
+        }
     }
 }

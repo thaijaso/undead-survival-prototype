@@ -147,14 +147,27 @@ public class Limb : MonoBehaviour
             return;
         }
 
-        if (player.hitReaction is UndeadSurvivalGame.Player.States.HitReactionState hitReaction &&
-            enemy.stateMachine.currentState is UndeadSurvivalGame.Enemy.States.AttackState attackState)
+        if (ShouldTriggerHitReaction(player, enemy, out var hitReaction))
         {
             Debug.Log($"Limb.OnCollisionEnter(): Triggering hit reaction for player {player.name} from enemy {enemy.name}");
-            
-            // Call the OnHit method to trigger the hit reaction state
-            hitReaction.OnHit();
+            hitReaction.OnHandCollided();
         }
+    }
+
+    private bool ShouldTriggerHitReaction(Player player, Enemy enemy, out UndeadSurvivalGame.Player.States.HitReactionState hitReaction)
+    {
+        hitReaction = (UndeadSurvivalGame.Player.States.HitReactionState)player.hitReaction;
+        if (
+            enemy.stateMachine.currentState is UndeadSurvivalGame.Enemy.States.AttackState
+            && player.stateMachine.currentState is not UndeadSurvivalGame.Player.States.HitReactionState
+            && player.stateMachine.currentState is not UndeadSurvivalGame.Player.States.DeathState
+        )
+        {
+            return true;
+        }
+
+        hitReaction = null;
+        return false;
     }
 
     private PuppetMaster GetPlayerPuppetMaster(Collision collision)

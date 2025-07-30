@@ -5,6 +5,8 @@ namespace UndeadSurvivalGame.Player.States
 {
     public class HitReactionState : PlayerState
     {
+        private bool shouldEnterHitReaction = false;
+
         public HitReactionState(
             Player player,
             StateMachine<PlayerState> stateMachine,
@@ -28,19 +30,26 @@ namespace UndeadSurvivalGame.Player.States
             player.StartCoroutine(LerpPlayerBack(.8f, .8f));
         }
 
-        public void OnHit()
+        public override void Exit(PlayerState nextState)
         {
-            Debug.Log($"[{player.name}] HitReactionState.OnHit(): Player has been hit.");
+            base.Exit(nextState);
+            shouldEnterHitReaction = false;
+        }
+
+        public void OnHandCollided()
+        {
+            Debug.Log($"[{player.name}] HitReactionState.OnHandCollided(): Player has been hit.");
 
             if (player.stateMachine.currentState is HitReactionState)
             {
-                Debug.Log($"[{player.name}] HitReactionState.OnHit(): Already in Hit Reaction state, ignoring.");
+                Debug.Log($"[{player.name}] HitReactionState.OnHandCollided(): Already in Hit Reaction state, ignoring.");
                 return;
             }
 
-            player.stateMachine.SetState(player.hitReaction);
+            shouldEnterHitReaction = true;
         }
 
+        // Called by animation event when knockback animation finishes 
         public void OnKnockbackFinished()
         {
             Debug.Log($"[{player.name}] HitReactionState.OnKnockbackFinished(): Knockback animation finished.");
@@ -71,6 +80,11 @@ namespace UndeadSurvivalGame.Player.States
             }
 
             player.transform.position = targetPosition; // Ensure final position is set
+        }
+
+        public bool ShouldEnterHitReaction()
+        {
+            return shouldEnterHitReaction;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using PlayerStates;
+using RootMotion.Dynamics;
 using Sirenix.OdinInspector;
 using UndeadSurvivalGame.Player.States;
 using UnityEngine;
@@ -24,6 +25,8 @@ namespace UndeadSurvivalGame.Player
 
         public BulletDecalManager BulletDecalManager { get; private set; }
 
+        public PuppetMaster PuppetMaster { get; private set; }
+
         public StateMachine<PlayerState> stateMachine;
         
         internal PlayerState idle;
@@ -33,6 +36,7 @@ namespace UndeadSurvivalGame.Player
         internal PlayerState shoot;
         internal PlayerState strafe;
         internal PlayerState hitReaction;
+        internal PlayerState death;
 
         [TabGroup("Configuration")]
         [Required]
@@ -64,6 +68,7 @@ namespace UndeadSurvivalGame.Player
             SetupRecoil();
             SetupBulletHitscan();
             SetupBulletDecalManager();
+            SetupPuppetMaster();
 
             stateMachine = new StateMachine<PlayerState>(gameObject.name);
         }
@@ -165,6 +170,33 @@ namespace UndeadSurvivalGame.Player
                 Debug.Log($"[{gameObject.name}] HealthManager initialized successfully.");
         }
 
+        private void SetupPuppetMaster()
+        {
+            // Get the parent transform
+            Transform parent = transform.parent;
+            if (parent == null)
+            {
+                Debug.LogError($"[{gameObject.name}] Player.SetupPuppetMaster(): No parent found.");
+                return;
+            }
+
+            // Search all children of the parent (siblings) for PuppetMaster
+            PuppetMaster = null;
+            foreach (Transform child in parent)
+            {
+                if (child == transform) continue; // Skip self
+                PuppetMaster pm = child.GetComponent<PuppetMaster>();
+                if (pm != null)
+                {
+                    PuppetMaster = pm;
+                    Debug.Log($"[{gameObject.name}] Player.SetupPuppetMaster(): Found PuppetMaster on sibling '{child.name}'.");
+                    return;
+                }
+            }
+
+            Debug.LogError($"[{gameObject.name}] Player.SetupPuppetMaster(): PuppetMaster component not found on any sibling.");
+        }
+
         void Start()
         {
             // Initialize HealthManager with template data
@@ -231,6 +263,15 @@ namespace UndeadSurvivalGame.Player
             );
             Debug.Log($"[{gameObject.name}] ✓ HitReaction state initialized");
 
+            death = new DeathState(
+                this,
+                stateMachine,
+                AnimationManager,
+                "Death",
+                WeaponManager
+            );
+            Debug.Log($"[{gameObject.name}] ✓ Death state initialized.");
+
             Debug.Log($"[{gameObject.name}] All player states initialized. Setting initial state to Idle...");
             // Set initial state
             stateMachine.SetState(idle);
@@ -261,12 +302,12 @@ namespace UndeadSurvivalGame.Player
             if (HealthManager == null) return;
 
             HealthManager.TakeDamage(damage);
-            Debug.Log($"[{name}] Player.ProcessHit(): Took {damage} damage. Remaining health: {HealthManager.currentHealth}");
+            Debug.Log($"Player.ProcessHit(): [{name}] Took {damage} damage. Remaining health: {HealthManager.currentHealth}");
 
             if (HealthManager.currentHealth <= 0)
             {
-                Debug.Log($"[{name}] Player defeated!");
-                // TODO: Handle player death (game over, respawn, etc.)
+                Debug.Log($"Player.ProcessHit(): [{name}] Player health is 0!");
+                stateMachine.SetState(death);
             }
         }
     }

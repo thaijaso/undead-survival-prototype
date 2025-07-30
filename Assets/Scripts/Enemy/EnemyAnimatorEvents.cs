@@ -217,6 +217,21 @@ public class EnemyAnimatorEvents : MonoBehaviour
         }
     }
 
+    public void OnAttackImpactFrame()
+    {
+        Debug.Log($"[{name}] EnemyAnimatorEvents.OnAttackImpactFrame(): Current state: " + enemy.stateMachine.currentState.GetType().Name);
+
+        // Delegate to the current state if it handles attack impacts
+        if (enemy.stateMachine.currentState == enemy.Attack && enemy.Attack is AttackState attackState)
+        {
+            attackState.OnAttackImpactFrame();
+        }
+        else
+        {
+            Debug.LogWarning($"[{name}] EnemyAnimatorEvents.OnAttackImpactFrame(): Called but current state ({enemy.stateMachine.currentState.GetType().Name}) doesn't handle it");
+        }
+    }
+
     // ===============================================
     // END ANIMATION EVENTS
     // ===============================================

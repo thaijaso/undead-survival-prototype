@@ -10,6 +10,11 @@ public class EnemyTemplate : ScriptableObject
     [SuffixLabel("HP")]
     public int maxHealth = 100;
 
+    [TabGroup("Damage")]
+    [MinValue(0)]
+    [SuffixLabel("damage per hit")]
+    public int damage = 10;
+
     [TabGroup("Movement")]
     [MinValue(0f)]
     [SuffixLabel("units")]
@@ -78,7 +83,7 @@ public class EnemyTemplate : ScriptableObject
     // FollowerEntity Settings
     [TabGroup("FollowerEntity")]
     [MinValue(0f)]
-    public float followerRadius = 0.23f;
+    public float followerRadius = 0.5f;
     [TabGroup("FollowerEntity")]
     [MinValue(0f)]
     public float followerHeight = 1.94f;
