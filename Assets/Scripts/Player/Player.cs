@@ -55,6 +55,11 @@ namespace UndeadSurvivalGame.Player
         private CrosshairController crosshairController;
         public CrosshairController CrosshairController => crosshairController;
 
+        [TabGroup("References")]
+        [SerializeField]
+        private OverlayController overlayController;
+        public OverlayController OverlayController => overlayController;
+
         private void Awake()
         {
             SetupPlayerInput();
