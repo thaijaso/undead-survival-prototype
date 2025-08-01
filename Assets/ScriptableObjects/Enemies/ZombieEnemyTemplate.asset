@@ -27,7 +27,7 @@ MonoBehaviour:
   aggro180Phase2Duration: 0.35
   bloodEffectPrefab: {fileID: 1026642433091512, guid: 720698b0d96323248a1d2f3571f4ddf0, type: 3}
   alertDuration: 2
-  followerRadius: 0.23
+  followerRadius: 0.5
   followerHeight: 1.94
   followerOrientation: 0
   followerSpeed: 3

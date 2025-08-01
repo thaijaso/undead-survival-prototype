@@ -46896,6 +46896,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4234942047651768, guid: a2483fbde120a8c4a86e0e53b2f21afc, type: 3}
   m_PrefabInstance: {fileID: 224897889}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &225186455 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2522644130085109506, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+  m_PrefabInstance: {fileID: 6643683221032766408}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &225198374
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -425009,16 +425014,40 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: solver.root
+      value: 
+      objectReference: {fileID: 225186455}
+    - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: solver.target
       value: 
       objectReference: {fileID: 1166327836}
+    - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: solver.head.axis.x
+      value: 1.6077753e-13
+      objectReference: {fileID: 0}
+    - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: solver.head.axis.y
+      value: 1.0000001
+      objectReference: {fileID: 0}
+    - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: solver.head.axis.z
+      value: -0.00000011920929
+      objectReference: {fileID: 0}
+    - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: solver.IKPosition.y
+      value: 4.7320685
+      objectReference: {fileID: 0}
+    - target: {fileID: 4856612756727328757, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
+      propertyPath: solver.IKPosition.z
+      value: -3.8578038
+      objectReference: {fileID: 0}
     - target: {fileID: 5638970183710218498, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: target
       value: 
       objectReference: {fileID: 1717255700}
     - target: {fileID: 6534354121092536703, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: shape.radius
-      value: 0.23
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6557532630828563003, guid: fd9684c270e25e34985f56bb73daae4f, type: 3}
       propertyPath: PlayerTransform
