@@ -10,10 +10,12 @@ public class PlayerWeaponManager : MonoBehaviour
     public WeaponData CurrentWeaponData => currentWeaponData;
 
     public GameObject CurrentWeaponInstance { get; private set; }
-    public Weapon CurrentWeaponScript { get; private set; }
+    public Weapon CurrentWeapon { get; private set; }
 
     public bool IsWeaponHolstered { get; private set; } = false;
     private GameObject lastSpawnedWeaponPrefab;
+
+    private int totalAmmo = 6; // TEMP: Get from InventoryManager later
 
     // Fire timer logic
     public float FireTimer { get; private set; } = 0f;
@@ -57,12 +59,12 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public bool IsChamberEmpty()
     {
-        return CurrentWeaponScript.currentAmmo <= 0;
+        return CurrentWeapon.currentLoadedAmmo <= 0;
     }
 
     public bool IsChamberFull()
     {
-        return CurrentWeaponScript.currentAmmo == CurrentWeaponData.maxAmmo;
+        return CurrentWeapon.currentLoadedAmmo == CurrentWeaponData.maxAmmo;
     }
 
     public void SetAimIKOffsets()
@@ -92,8 +94,8 @@ public class PlayerWeaponManager : MonoBehaviour
 
             lastSpawnedWeaponPrefab = CurrentWeaponData.weaponPrefab;
             // Assign the Weapon script reference
-            CurrentWeaponScript = CurrentWeaponInstance.GetComponent<Weapon>();
-            if (CurrentWeaponScript == null)
+            CurrentWeapon = CurrentWeaponInstance.GetComponent<Weapon>();
+            if (CurrentWeapon == null)
             {
                 Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager: Spawned weapon prefab does not have a Weapon script attached!");
             }
@@ -121,7 +123,7 @@ public class PlayerWeaponManager : MonoBehaviour
 
             Destroy(CurrentWeaponInstance);
             CurrentWeaponInstance = null;
-            CurrentWeaponScript = null; // Clear reference
+            CurrentWeapon = null; // Clear reference
         }
         else
         {
@@ -288,12 +290,12 @@ public class PlayerWeaponManager : MonoBehaviour
         IsWeaponHolstered = isHolstered;
     }
 
-    public void DecrementAmmoCount()
+    public void DecrementCurrentLoadedAmmoCount()
     {
-        if (CurrentWeaponScript != null)
+        if (CurrentWeapon != null)
         {
-            CurrentWeaponScript.currentAmmo--;
-            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.DecrementAmmoCount(): Ammo decremented. Current ammo: {CurrentWeaponScript.currentAmmo}");
+            CurrentWeapon.currentLoadedAmmo--;
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.DecrementAmmoCount(): Ammo decremented. Current ammo: {CurrentWeapon.currentLoadedAmmo}");
         }
         else
         {
@@ -303,14 +305,63 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public void IncrementAmmoCount()
     {
-        if (CurrentWeaponScript != null)
+        if (CurrentWeapon != null)
         {
-            CurrentWeaponScript.currentAmmo++;
-            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IncrementAmmoCount(): Ammo incremented. Current ammo: {CurrentWeaponScript.currentAmmo}");
+            CurrentWeapon.currentLoadedAmmo++;
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IncrementAmmoCount(): Ammo incremented. Current ammo: {CurrentWeapon.currentLoadedAmmo}");
         }
         else
         {
             Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.IncrementAmmoCount(): CurrentWeaponScript is null! Cannot increment ammo count.");
+        }
+    }
+
+    public void DecrementTotalAmmoCount()
+    {
+        if (totalAmmo > 0)
+        {
+            totalAmmo--;
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.DecrementTotalAmmoCount(): Total ammo decremented. Remaining total ammo: {totalAmmo}");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DecrementTotalAmmoCount(): Total ammo is already zero! Cannot decrement.");
+        }
+    }
+
+    public void UpdateWeaponDisplay()
+    {
+        if (CurrentWeapon != null)
+        {
+            player.WeaponUIController.UpdateWeaponDisplay(CurrentWeapon.weaponData, CurrentWeapon.currentLoadedAmmo, totalAmmo);
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.UpdateWeaponDisplay(): CurrentWeaponScript is null! Cannot update weapon display.");
+        }
+    }
+
+    public void UpdateCurrentLoadedAmmoUI()
+    {
+        if (CurrentWeapon != null)
+        {
+            player.WeaponUIController.UpdateCurrentLoadedAmmoUI(CurrentWeapon.currentLoadedAmmo);
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.UpdateCurrentLoadedAmmo(): CurrentWeaponScript is null! Cannot update current loaded ammo.");
+        }
+    }
+
+    public void UpdateTotalAmmoUI()
+    {
+        if (CurrentWeapon != null)
+        {
+            player.WeaponUIController.UpdateTotalAmmoUI(totalAmmo);
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.UpdateTotalAmmo(): CurrentWeaponScript is null! Cannot update total ammo.");
         }
     }
 }

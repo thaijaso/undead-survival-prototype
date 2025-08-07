@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using Sirenix.OdinInspector;
+using System;
+using System.Collections.Generic;
 
 // WeaponData.cs
 // This ScriptableObject holds all static configuration, stats, and IK/recoil settings for a weapon type.
@@ -38,6 +40,21 @@ public class WeaponData : ScriptableObject
     public float bulletSpeed = 20f;// Bullet velocity
 
     public int maxAmmo = 6; // Max ammo capacity
+
+    [ValueDropdown(nameof(GetAllWeaponIconPaths))]
+    public string weaponIconPath;
+
+    // This method provides the dropdown options
+    private static IEnumerable<string> GetAllWeaponIconPaths()
+    {
+        // Example: Search for all sprites in a folder and return their asset paths
+        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:Sprite", new[] { "Assets/Resources/WeaponIcons" });
+        foreach (string guid in guids)
+        {
+            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+            yield return path;
+        }
+    }
 
     // Weapon firing mode
     [Header("Firing Mode")]
@@ -82,4 +99,6 @@ public class WeaponData : ScriptableObject
 
     [TabGroup("IK Recoil")]
     public RecoilIK.RecoilOffset[] offsets; // Array of offsets for IK recoil (per effector)
+
+
 }

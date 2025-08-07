@@ -37,7 +37,7 @@ public class Weapon : MonoBehaviour
     public Transform bulletHitTarget;
 
     [BoxGroup("Ammo", Order = 2)]
-    public int currentAmmo = 0;
+    public int currentLoadedAmmo = 0;
 
 #else
     // Visual and audio effects

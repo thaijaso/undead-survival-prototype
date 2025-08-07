@@ -28,6 +28,7 @@ namespace PlayerStates
             animationManager.SetMoveParams(0f, 0f);
             player.PlayerIKController.SetIKTargetWeight(0f);
             weaponManager.SpawnWeaponInWeaponHand();
+            weaponManager.UpdateWeaponDisplay();
         }
 
         public override void Exit(PlayerState nextState)

@@ -61,6 +61,11 @@ namespace UndeadSurvivalGame.Player
         private OverlayController overlayController;
         public OverlayController OverlayController => overlayController;
 
+        [TabGroup("References")]
+        [SerializeField]
+        private WeaponUIController weaponUIController;
+        public WeaponUIController WeaponUIController => weaponUIController;
+
         private void Awake()
         {
             SetupPlayerInput();
