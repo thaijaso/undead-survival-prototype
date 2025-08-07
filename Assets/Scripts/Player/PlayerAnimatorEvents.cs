@@ -19,7 +19,7 @@ public class PlayerAnimatorEvents : MonoBehaviour
         {
             Debug.LogError("[PlayerAnimatorEvents] Player component not found on this GameObject.");
         }
-    } 
+    }
 
     public void OnRightFootPlant()
     {
@@ -44,6 +44,20 @@ public class PlayerAnimatorEvents : MonoBehaviour
         else
         {
             Debug.LogWarning("[PlayerAnimatorEvents] OnKnockbackFinished called but not in HitReactionState.");
+        }
+    }
+
+    public void OnChamberLoaded()
+    {
+        Debug.Log("[PlayerAnimatorEvents] OnChamberLoaded() called.");
+        if (player.stateMachine.currentState is ReloadState reloadState)
+        {
+            Debug.Log("[PlayerAnimatorEvents] Delegating to ReloadState.OnChamberLoaded()");
+            reloadState.OnChamberLoaded();
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerAnimatorEvents] OnChamberLoaded called but not in ReloadState.");
         }
     }
 }

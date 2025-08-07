@@ -111,7 +111,7 @@ public class ShootState : AimState
         if (isAutomatic)
         {
             // Automatic: fire while held
-            if (player.PlayerInput.IsAttacking && weaponManager.CanFire())
+            if (player.PlayerInput.IsAttacking && weaponManager.IsFireCooldownComplete())
             {
                 Debug.Log("[ShootState] Automatic fire triggered");
                 Shoot();
@@ -122,10 +122,18 @@ public class ShootState : AimState
             // Semi-auto: fire only if timer is ready, ignore rapid clicks
             if (player.PlayerInput.AttackBuffered)
             {
-                if (weaponManager.CanFire())
+                if (weaponManager.IsFireCooldownComplete())
                 {
-                    Debug.Log("[ShootState] Semi-auto fire triggered (buffered)");
-                    Shoot();
+                    if (weaponManager.IsChamberEmpty())
+                    {
+                        Debug.Log("[ShootState] Cannot fire: chamber is empty");
+                        // TODO: play empty chamber sound
+                    }
+                    else
+                    {     
+                        Debug.Log("[ShootState] Semi-auto fire triggered (buffered)");
+                        Shoot();
+                    }
                 }
                 // Always consume buffer, even if timer not ready
                 player.PlayerInput.ConsumeAttackBuffer();
@@ -158,6 +166,7 @@ public class ShootState : AimState
 
         PlayWeaponEffects();
         weaponManager.ResetFireTimer();
+        weaponManager.DecrementAmmoCount();
     }
 
     // Apply visual recoil to weapon and animation:

@@ -39,7 +39,7 @@ namespace PlayerStates
         public override void LogicUpdate()
         {
             base.LogicUpdate();
-                       
+
             player.PlayerCharacterController.Move(Vector3.zero, 0f);
 
             if (!player.PlayerInput.IsSprinting && player.PlayerInput.IsMoving)
@@ -57,6 +57,12 @@ namespace PlayerStates
             if (player.PlayerInput.IsAiming)
             {
                 stateMachine.SetState(player.aim);
+                return;
+            }
+
+            if (player.PlayerInput.IsReloading)
+            {
+                stateMachine.SetState(player.reload);
                 return;
             }            
         }

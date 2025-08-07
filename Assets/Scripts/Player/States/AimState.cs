@@ -1,5 +1,4 @@
 using PlayerStates;
-using UndeadSurvivalGame.Enemy;
 using UndeadSurvivalGame.Player;
 using UndeadSurvivalGame.Player.States;
 using UnityEngine;
@@ -61,7 +60,7 @@ public class AimState : StrafeState
         );
     }
 
-    private void SetupWeapon()
+    private void  SetupWeapon()
     {
         GameObject weaponInstance = weaponManager.SpawnWeaponInWeaponHand();
         Weapon weaponScript = weaponInstance.GetComponent<Weapon>();
@@ -127,7 +126,7 @@ public class AimState : StrafeState
                 && nextState is not AimState
             )
             || nextState is SprintState
-            || nextState is UndeadSurvivalGame.Player.States.HitReactionState;
+            || nextState is HitReactionState;
     }
 
     public override void LogicUpdate()
@@ -170,6 +169,12 @@ public class AimState : StrafeState
         if (player.PlayerInput.IsAiming && player.PlayerInput.IsAttacking && stateMachine.currentState != player.shoot)
         {
             stateMachine.SetState(player.shoot);
+            return;
+        }
+
+        if (player.PlayerInput.IsReloading && !weaponManager.IsChamberFull())
+        {
+            stateMachine.SetState(player.reload);
             return;
         }
 

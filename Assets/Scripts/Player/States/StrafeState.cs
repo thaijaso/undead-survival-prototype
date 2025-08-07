@@ -53,7 +53,7 @@ public class StrafeState : MoveState
         base.LogicUpdate();
         HandleMovement(strafeSpeed, false);
 
-        if (!player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming)
+        if (!player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming && stateMachine.currentState != player.reload)
         {
             stateMachine.SetState(player.idle);
             return;
@@ -65,7 +65,10 @@ public class StrafeState : MoveState
             return;
         }
 
-        if (player.PlayerInput.IsAiming && stateMachine.currentState != player.aim && stateMachine.currentState != player.shoot)
+        if (player.PlayerInput.IsAiming
+            && stateMachine.currentState != player.aim
+            && stateMachine.currentState != player.shoot
+            && stateMachine.currentState != player.reload)
         {
             stateMachine.SetState(player.aim);
             return;

@@ -37,6 +37,7 @@ namespace UndeadSurvivalGame.Player
         internal PlayerState strafe;
         internal PlayerState hitReaction;
         internal PlayerState death;
+        internal PlayerState reload;
 
         [TabGroup("Configuration")]
         [Required]
@@ -277,7 +278,17 @@ namespace UndeadSurvivalGame.Player
             );
             Debug.Log($"[{gameObject.name}] ✓ Death state initialized.");
 
+            reload = new ReloadState(
+                this,
+                stateMachine,
+                AnimationManager,
+                "Reload",
+                WeaponManager
+            );
+            Debug.Log($"[{gameObject.name}] ✓ Reload state initialized.");
+
             Debug.Log($"[{gameObject.name}] All player states initialized. Setting initial state to Idle...");
+
             // Set initial state
             stateMachine.SetState(idle);
         }

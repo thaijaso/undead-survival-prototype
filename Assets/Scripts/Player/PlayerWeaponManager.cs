@@ -26,8 +26,6 @@ public class PlayerWeaponManager : MonoBehaviour
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.Awake(): Player component is missing!");
         }
-
-        
     }
 
     private void Update()
@@ -48,13 +46,23 @@ public class PlayerWeaponManager : MonoBehaviour
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.ResetFireTimer(): CurrentWeaponData is not set!");
             return;
         }
-        
+
         FireTimer = CurrentWeaponData.fireRate;
     }
 
-    public bool CanFire()
+    public bool IsFireCooldownComplete()
     {
         return FireTimer <= 0f;
+    }
+
+    public bool IsChamberEmpty()
+    {
+        return CurrentWeaponScript.currentAmmo <= 0;
+    }
+
+    public bool IsChamberFull()
+    {
+        return CurrentWeaponScript.currentAmmo == CurrentWeaponData.maxAmmo;
     }
 
     public void SetAimIKOffsets()
@@ -278,5 +286,31 @@ public class PlayerWeaponManager : MonoBehaviour
     public void SetIsWeaponHolstered(bool isHolstered)
     {
         IsWeaponHolstered = isHolstered;
+    }
+
+    public void DecrementAmmoCount()
+    {
+        if (CurrentWeaponScript != null)
+        {
+            CurrentWeaponScript.currentAmmo--;
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.DecrementAmmoCount(): Ammo decremented. Current ammo: {CurrentWeaponScript.currentAmmo}");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DecrementAmmoCount(): CurrentWeaponScript is null! Cannot decrement ammo count.");
+        }
+    }
+
+    public void IncrementAmmoCount()
+    {
+        if (CurrentWeaponScript != null)
+        {
+            CurrentWeaponScript.currentAmmo++;
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IncrementAmmoCount(): Ammo incremented. Current ammo: {CurrentWeaponScript.currentAmmo}");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.IncrementAmmoCount(): CurrentWeaponScript is null! Cannot increment ammo count.");
+        }
     }
 }

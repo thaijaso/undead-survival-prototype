@@ -222,4 +222,9 @@ public class AnimationManager
     {
         animator.SetTrigger("Knockback");
     }
+
+    public void TriggerRevolverReloadAnimation()
+    {
+        animator.SetTrigger("ReloadRevolver");
+    }
 }

@@ -37,6 +37,8 @@ public class WeaponData : ScriptableObject
     public float impactForce = 10f;// Force applied on hit
     public float bulletSpeed = 20f;// Bullet velocity
 
+    public int maxAmmo = 6; // Max ammo capacity
+
     // Weapon firing mode
     [Header("Firing Mode")]
     [Tooltip("If true, weapon fires continuously while held. If false, fires only on click.")]

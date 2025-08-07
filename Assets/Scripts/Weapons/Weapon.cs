@@ -1,4 +1,6 @@
 using UnityEngine;
+using NUnit.Framework;
+
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
@@ -12,21 +14,31 @@ public class Weapon : MonoBehaviour
 #if ODIN_INSPECTOR
     [BoxGroup("Prefab References", Order = 0)]
     public ParticleSystem muzzleEffect;
+
     [BoxGroup("Prefab References", Order = 0)]
     public AudioSource gunshot;
+
     [BoxGroup("Prefab References", Order = 0)]
     public GameObject bulletPrefab;
+
     [BoxGroup("Prefab References", Order = 0)]
     public ParticleSystem bulletTracer;
+
     [BoxGroup("Prefab References", Order = 0)]
     public Transform muzzleTransform;
+
     [BoxGroup("Prefab References", Order = 0)]
     public Transform leftHandGripSource;
+
     [BoxGroup("Prefab References", Order = 0)]
     public WeaponData weaponData;
 
     [BoxGroup("Scene References", Order = 1)]
     public Transform bulletHitTarget;
+
+    [BoxGroup("Ammo", Order = 2)]
+    public int currentAmmo = 0;
+
 #else
     // Visual and audio effects
     public ParticleSystem muzzleEffect; // Muzzle flash effect
@@ -43,6 +55,9 @@ public class Weapon : MonoBehaviour
     // Data and targeting
     public WeaponData weaponData;       // Reference to ScriptableObject with all weapon stats/config
     public Transform bulletHitTarget;   // Optional: world target for bullet direction (e.g., aim point)
+
+    // Bullet count
+    public int currentAmmo = 0;
 #endif
 
     private void Awake()

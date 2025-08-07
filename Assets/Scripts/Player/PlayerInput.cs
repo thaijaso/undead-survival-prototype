@@ -7,6 +7,7 @@ public class PlayerInput : MonoBehaviour
     private InputAction sprintAction;
     private InputAction aimAction;
     private InputAction attackAction;
+    private InputAction reloadAction;
 
     public bool IsMoving { get; internal set; }
 
@@ -21,11 +22,15 @@ public class PlayerInput : MonoBehaviour
     public bool IsAiming { get; internal set; }
     public bool IsAttacking { get; internal set; }
 
+    public bool IsReloading { get; internal set; }
+
     // True only on the frame the attack button is pressed
     public bool IsAttackPressed { get; private set; }
 
     // Buffered attack input: stays true until consumed
     public bool AttackBuffered { get; private set; }
+
+    public bool AimBuffered { get; private set; }
 
     [SerializeField]
     private float movementThreshold = 0.2f;
@@ -56,11 +61,17 @@ public class PlayerInput : MonoBehaviour
         sprintAction = InputSystem.actions.FindAction("Sprint");
         aimAction = InputSystem.actions.FindAction("Aim");
         attackAction = InputSystem.actions.FindAction("Attack");
+        reloadAction = InputSystem.actions.FindAction("Reload");
 
         // Event-based input buffering
         if (attackAction != null)
         {
             attackAction.performed += ctx => AttackBuffered = true;
+        }
+
+        if (aimAction != null)
+        {
+            aimAction.performed += ctx => AimBuffered = true;
         }
     }
 
@@ -70,6 +81,11 @@ public class PlayerInput : MonoBehaviour
         AttackBuffered = false;
     }
 
+    public void ConsumeAimBuffer()
+    {
+        AimBuffered = false;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -77,6 +93,7 @@ public class PlayerInput : MonoBehaviour
         IsSprinting = sprintAction.ReadValue<float>() > 0.0f;
         IsAiming = aimAction.ReadValue<float>() > 0.0f;
         IsAttacking = attackAction.ReadValue<float>() > 0.0f;
+        IsReloading = reloadAction.ReadValue<float>() > 0.0f;
 
         if (IsMoving)
         {
