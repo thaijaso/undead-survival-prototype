@@ -224,6 +224,30 @@ public class PlayerWeaponManager : MonoBehaviour
         weaponScript.PlayGunshotSound();
     }
 
+    public void PlayEmptyGunClick()
+    {
+        if (CurrentWeaponInstance == null)
+        {
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.PlayEmptyGunClick(): No weapon instance to play empty gun click on!");
+            return;
+        }
+
+        Weapon weaponScript = CurrentWeaponInstance.GetComponent<Weapon>();
+
+        if (weaponScript == null)
+        {
+            Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.PlayEmptyGunClick(): Weapon script not found on the weapon instance!");
+            return;
+        }
+
+        if (weaponScript.emptyGunClick == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.PlayEmptyGunClick(): Empty gun click sound is not assigned on weapon instance!");
+        }
+
+        weaponScript.PlayEmptyGunClick();
+    }
+
     public void SetRecoilIKSettings()
     {
         if (CurrentWeaponData == null)

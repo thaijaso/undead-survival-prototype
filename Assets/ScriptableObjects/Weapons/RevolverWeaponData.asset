@@ -31,9 +31,9 @@ MonoBehaviour:
   impactForce: 50
   bulletSpeed: 100
   maxAmmo: 6
-  weaponIconPath: Assets/Plugins/Synty/InterfaceApocalypseHUD/Sprites/Icons_Weapons/ICON_SM_Wep_Pistol_Revolver_01.png
+  weaponIconPath: Assets/Resources/WeaponIcons/ICON_SM_Wep_Pistol_Revolver_01.png
   isAutomatic: 0
-  ikRecoilWeight: 1
+  ikRecoilWeight: 0.412
   aimIKSolvedLast: 0
   handedness: 0
   twoHanded: 0

@@ -127,7 +127,7 @@ public class ShootState : AimState
                     if (weaponManager.IsChamberEmpty())
                     {
                         Debug.Log("[ShootState] Cannot fire: chamber is empty");
-                        // TODO: play empty chamber sound
+                        weaponManager.PlayEmptyGunClick();
                     }
                     else
                     {     

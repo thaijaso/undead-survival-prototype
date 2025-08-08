@@ -19,6 +19,9 @@ public class Weapon : MonoBehaviour
     public AudioSource gunshot;
 
     [BoxGroup("Prefab References", Order = 0)]
+    public AudioSource emptyGunClick;
+
+    [BoxGroup("Prefab References", Order = 0)]
     public GameObject bulletPrefab;
 
     [BoxGroup("Prefab References", Order = 0)]
@@ -152,6 +155,18 @@ public class Weapon : MonoBehaviour
         else
         {
             Debug.LogWarning("Gunshot sound is not assigned.");
+        }
+    }
+
+    public void PlayEmptyGunClick()
+    {
+        if (emptyGunClick != null)
+        {
+            emptyGunClick.PlayOneShot(emptyGunClick.clip);
+        }
+        else
+        {
+            Debug.LogWarning("Empty gun click sound is not assigned.");
         }
     }
 

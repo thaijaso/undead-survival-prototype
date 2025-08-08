@@ -409846,7 +409846,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponIcon: {fileID: 278649645}
-  ammoCount: {fileID: 602454732}
+  currentLoadedAmmo: {fileID: 602454732}
   ammoTotal: {fileID: 1820880796}
 --- !u!1001 &2093393166
 PrefabInstance:
