@@ -99,9 +99,13 @@ namespace UndeadSurvivalGame.Enemy.States
                 Debug.Log($"[{enemy.name}] AttackState.OnAttackImpact(): Player is in attack range - dealing damage");
                 UndeadSurvivalGame.Player.Player player = enemy.PlayerTransform.GetComponent<UndeadSurvivalGame.Player.Player>();
                 var hitReaction = player.hitReaction as UndeadSurvivalGame.Player.States.HitReactionState;
-                if (hitReaction != null && hitReaction.ShouldEnterHitReaction())
+                if (hitReaction != null
+                    && player.stateMachine.currentState is not UndeadSurvivalGame.Player.States.HitReactionState
+                    && player.stateMachine.currentState is not UndeadSurvivalGame.Player.States.DeathState)
                 {
+                    // Trigger hit reaction and process damage
                     Debug.Log($"[{enemy.name}] AttackState.OnAttackImpact(): Player hit reaction should be triggered");
+                    player.ProcessHit(enemy.enemyTemplate.damage);
                     player.stateMachine.SetState(player.hitReaction);
                 }
             }

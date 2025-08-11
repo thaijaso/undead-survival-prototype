@@ -147,10 +147,16 @@ public class Limb : MonoBehaviour
             return;
         }
 
+        Debug.Log($"Limb.OnCollisionEnter(): Player state: {player.stateMachine.currentState}, Enemy state: {enemy.stateMachine.currentState}");
+
         if (ShouldTriggerHitReaction(player, enemy, out var hitReaction))
         {
             Debug.Log($"Limb.OnCollisionEnter(): Triggering hit reaction for player {player.name} from enemy {enemy.name}");
             hitReaction.OnHandCollided();
+        }
+        else
+        {
+            Debug.Log($"Limb.OnCollisionEnter(): No hit reaction triggered for player {player.name} from enemy {enemy.name}");
         }
     }
 

@@ -66,6 +66,11 @@ namespace UndeadSurvivalGame.Player
         private WeaponUIController weaponUIController;
         public WeaponUIController WeaponUIController => weaponUIController;
 
+        [TabGroup("References")]
+        [SerializeField]
+        private HealthUIController healthUIController;
+        public HealthUIController HealthUIController => healthUIController;
+
         private void Awake()
         {
             SetupPlayerInput();
@@ -80,6 +85,7 @@ namespace UndeadSurvivalGame.Player
             SetupBulletHitscan();
             SetupBulletDecalManager();
             SetupPuppetMaster();
+            SetupHealthBar();
 
             stateMachine = new StateMachine<PlayerState>(gameObject.name);
         }
@@ -208,6 +214,18 @@ namespace UndeadSurvivalGame.Player
             Debug.LogError($"[{gameObject.name}] Player.SetupPuppetMaster(): PuppetMaster component not found on any sibling.");
         }
 
+        private void SetupHealthBar()
+        {
+            if (healthUIController != null && HealthManager != null)
+            {
+                healthUIController.Initialize(HealthManager.healthPercentage);
+            }
+            else
+            {
+                Debug.LogError($"[{gameObject.name}] Player.SetupHealthBar(): HealthUIController or HealthManager is not assigned.");
+            }
+        }
+
         void Start()
         {
             // Initialize HealthManager with template data
@@ -221,6 +239,9 @@ namespace UndeadSurvivalGame.Player
             {
                 Debug.LogError($"[{gameObject.name}] PlayerTemplate is not assigned. Cannot initialize HealthManager.");
             }
+
+            // Setup HealthBar
+            SetupHealthBar();
 
             // Initialize PlayerCharacterController with template data
             if (PlayerCharacterController != null && playerTemplate != null)
@@ -323,6 +344,9 @@ namespace UndeadSurvivalGame.Player
             if (HealthManager == null) return;
 
             HealthManager.TakeDamage(damage);
+
+            float percentage = (float)HealthManager.currentHealth / HealthManager.maxHealth * 100f;
+            healthUIController.UpdateHealthBar(percentage);
             Debug.Log($"Player.ProcessHit(): [{name}] Took {damage} damage. Remaining health: {HealthManager.currentHealth}");
 
             if (HealthManager.currentHealth <= 0)

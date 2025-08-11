@@ -82,10 +82,5 @@ namespace UndeadSurvivalGame.Player.States
 
             player.transform.position = targetPosition; // Ensure final position is set
         }
-
-        public bool ShouldEnterHitReaction()
-        {
-            return shouldEnterHitReaction;
-        }
     }
 }

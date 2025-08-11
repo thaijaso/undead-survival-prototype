@@ -7,6 +7,8 @@ public class HealthManager : MonoBehaviour
     public int maxHealth = 100;
     public int currentHealth;
 
+    public float healthPercentage => (float)currentHealth / maxHealth * 100f;
+
     [Header("Events")]
     public UnityEvent onDamaged;
     public UnityEvent onDeath;
