@@ -38,6 +38,10 @@ public class InventoryGridUIController : MonoBehaviour
                 slot.ItemCount.SetActive(true);
                 slot.ItemCount.GetComponent<TextMeshProUGUI>().text = itemStack.quantity.ToString();
             }
+            else
+            {
+                slot.ItemCount.SetActive(false);
+            }
         }
     }
 }
