@@ -71,6 +71,11 @@ namespace UndeadSurvivalGame.Player
         private HealthUIController healthUIController;
         public HealthUIController HealthUIController => healthUIController;
 
+        [TabGroup("References")]
+        [SerializeField]
+        private PlayerMenuUIController playerMenuUIController;
+        public PlayerMenuUIController PlayerMenuUIController => playerMenuUIController;
+
         private void Awake()
         {
             SetupPlayerInput();

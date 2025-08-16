@@ -53,6 +53,11 @@ public class PlayerState : IState<PlayerState>
         {
             animationManager.SetIsWeaponHolstered(false);
         }
+
+        if (player.PlayerInput.IsPlayerMenuPressed)
+        {
+            player.PlayerMenuUIController.TogglePlayerMenu();
+        }
     }
 
     public virtual void PhysicsUpdate()

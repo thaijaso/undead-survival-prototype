@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -54,6 +55,24 @@ public class PlayerCameraController : MonoBehaviour
 
     [SerializeField]
     private float offsetLerpSpeed = 5f; // Internal lerp speed
+
+    [SerializeField]
+    private PlayerMenuUIController playerMenuUIController;
+
+    private bool isPlayerMenuActive = false;
+
+    private void OnEnable()
+    {
+        SetupPlayerMenuToggledHandler();
+    }
+
+    private void OnDisable()
+    {
+        if (playerMenuUIController != null)
+        {
+            playerMenuUIController.OnPlayerMenuToggled -= HandlePlayerMenuToggled;
+        }
+    }
 
     private void Awake()
     {
@@ -120,11 +139,27 @@ public class PlayerCameraController : MonoBehaviour
         }
     }
 
+    private void SetupPlayerMenuToggledHandler()
+    {
+        if (playerMenuUIController != null)
+        {
+            playerMenuUIController.OnPlayerMenuToggled += HandlePlayerMenuToggled;
+        }
+        else
+        {
+            Debug.LogWarning($"PlayerCameraController.SetupPlayerMenuToggledHandler(): PlayerMenuUIController is not assigned.");
+        }
+    }
+
+    private void HandlePlayerMenuToggled(bool isMenuActive)
+    {
+        Debug.Log($"PlayerCameraController.HandlePlayerMenuToggled(): Player menu toggled. Active: {isMenuActive}");
+        isPlayerMenuActive = isMenuActive;
+    }
+
     void Update()
     {
         HandleCursorLock();
-        //UpdateRotationSpeed();
-        //UpdateCameraOffsetLerp();
     }
 
     void LateUpdate()
@@ -139,16 +174,14 @@ public class PlayerCameraController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): ESC key detected - unlocking cursor.");
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            CursorUtils.ShowCursor();
         }
 
         // Detect mouse click to re-lock cursor
-        if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked)
+        if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked && !isPlayerMenuActive)
         {
             Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Mouse click detected - locking cursor.");
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            CursorUtils.HideCursor();
         }
 
         // Monitor Unity's cursor state - check both lockState and visibility

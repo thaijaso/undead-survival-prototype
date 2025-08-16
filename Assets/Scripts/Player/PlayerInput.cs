@@ -8,6 +8,7 @@ public class PlayerInput : MonoBehaviour
     private InputAction aimAction;
     private InputAction attackAction;
     private InputAction reloadAction;
+    private InputAction playerMenuAction;
 
     public bool IsMoving { get; internal set; }
 
@@ -31,6 +32,8 @@ public class PlayerInput : MonoBehaviour
     public bool AttackBuffered { get; private set; }
 
     public bool AimBuffered { get; private set; }
+
+    public bool IsPlayerMenuPressed { get; private set; }
 
     [SerializeField]
     private float movementThreshold = 0.2f;
@@ -62,6 +65,7 @@ public class PlayerInput : MonoBehaviour
         aimAction = InputSystem.actions.FindAction("Aim");
         attackAction = InputSystem.actions.FindAction("Attack");
         reloadAction = InputSystem.actions.FindAction("Reload");
+        playerMenuAction = InputSystem.actions.FindAction("PlayerMenu");
 
         // Event-based input buffering
         if (attackAction != null)
@@ -94,6 +98,7 @@ public class PlayerInput : MonoBehaviour
         IsAiming = aimAction.ReadValue<float>() > 0.0f;
         IsAttacking = attackAction.ReadValue<float>() > 0.0f;
         IsReloading = reloadAction.ReadValue<float>() > 0.0f;
+        IsPlayerMenuPressed = playerMenuAction.triggered;
 
         if (IsMoving)
         {
