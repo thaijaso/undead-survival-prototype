@@ -88,9 +88,7 @@ public class PlayerCameraController : MonoBehaviour
         currentHorizontalAxisValue = orbitalFollow.HorizontalAxis.Value;
         currentVerticalAxisValue = orbitalFollow.VerticalAxis.Value;
 
-        // Initialize cursor to unlocked state so user can see it initially
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        CursorUtils.HideCursor(); // Hide cursor on start
 
         // Force initial cursor lock state detection
         HandleCursorLock();

@@ -12,5 +12,6 @@ public static class CursorUtils
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        Debug.Log($"CursorUtils.HideCursor() called. lockState: {Cursor.lockState}, visible: {Cursor.visible}");
     }
 }

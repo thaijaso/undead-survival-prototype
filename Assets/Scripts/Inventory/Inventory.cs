@@ -8,7 +8,7 @@ public class Inventory : MonoBehaviour
     int capacity = 15;
 
     [SerializeField]
-    List<ItemStack> itemStacks = new();
+    public List<ItemStack> itemStacks = new();
 
     public event Action OnInventoryChanged;
 

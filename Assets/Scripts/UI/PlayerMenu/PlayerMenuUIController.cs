@@ -6,16 +6,16 @@ public class PlayerMenuUIController : MonoBehaviour
     public GameObject playerMenu;
     public event Action<bool> OnPlayerMenuToggled; // true = open, false = closed
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Awake()
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        if (playerMenu == null)
+        {
+            Debug.LogWarning("Player menu is not assigned in the PlayerMenuController.");
+        }
+        else
+        {
+            playerMenu.SetActive(false); // Ensure menu is initially closed
+        }
     }
 
     public void TogglePlayerMenu()
@@ -33,7 +33,7 @@ public class PlayerMenuUIController : MonoBehaviour
             CursorUtils.ShowCursor();
         else
             CursorUtils.HideCursor();
-            
+
         OnPlayerMenuToggled?.Invoke(isMenuActive);
     }
 }

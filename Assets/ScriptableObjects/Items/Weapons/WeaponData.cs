@@ -1,7 +1,11 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 // WeaponData.cs
 // This ScriptableObject holds all static configuration, stats, and IK/recoil settings for a weapon type.
@@ -41,9 +45,12 @@ public class WeaponData : ScriptableObject
 
     public int maxAmmo = 6; // Max ammo capacity
 
+#if UNITY_EDITOR
     [ValueDropdown(nameof(GetAllWeaponIconPaths))]
+#endif
     public string weaponIconPath;
 
+#if UNITY_EDITOR
     // This method provides the dropdown options
     private static IEnumerable<string> GetAllWeaponIconPaths()
     {
@@ -55,6 +62,7 @@ public class WeaponData : ScriptableObject
             yield return path;
         }
     }
+#endif
 
     // Weapon firing mode
     [Header("Firing Mode")]
