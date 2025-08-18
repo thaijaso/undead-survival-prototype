@@ -6,14 +6,18 @@ public class InventorySlotUI : MonoBehaviour
 {
     private int index;
     public Image BorderBackground;
-    public string BorderBackgroundSelectedColor = "#FFFFFFFA";
-    public string BorderBackgroundUnselectedColor = "#6F6F6FFA";
+    public Color BorderBackgroundSelectedColor = Color.white;
+    public Color BorderBackgroundUnselectedColor = new(0.4352941f, 0.4352941f, 0.4352941f, 1f);
+    public Color BorderBackgroundEmptyColor = new(0.9607843f, 0.0f, 0.0f, 1f);
     public Image HoverBackground;
     public GameObject ItemIcon;
     public GameObject ItemCount;
     public GameObject ItemCountBackground;
 
     public MMF_Player ClickPlayerFeedback;
+
+    private bool isSelected;
+    private bool isEmpty;
 
     public void SetIndex(int index)
     {
@@ -27,13 +31,33 @@ public class InventorySlotUI : MonoBehaviour
 
     public void SetSelected(bool isSelected)
     {
-        if (isSelected)
+        Debug.Log($"InventorySlotUI.SetSelected() {gameObject.name} isSelected: {isSelected}");
+
+        this.isSelected = isSelected;
+        UpdateBorderColor();
+    }
+
+    public void SetEmpty(bool isEmpty)
+    {
+        Debug.Log($"InventorySlotUI.SetEmpty(): {gameObject.name} isEmpty: " + isEmpty);
+
+        this.isEmpty = isEmpty;
+        UpdateBorderColor();
+    }
+
+    private void UpdateBorderColor()
+    {
+        if (isEmpty)
         {
-            BorderBackground.color = ColorUtility.TryParseHtmlString(BorderBackgroundSelectedColor, out Color selectedColor) ? selectedColor : Color.white;
+            BorderBackground.color = BorderBackgroundEmptyColor;
+        }
+        else if (isSelected)
+        {
+            BorderBackground.color = BorderBackgroundSelectedColor;
         }
         else
         {
-            BorderBackground.color = ColorUtility.TryParseHtmlString(BorderBackgroundUnselectedColor, out Color unselectedColor) ? unselectedColor : Color.white;
+            BorderBackground.color = BorderBackgroundUnselectedColor;
         }
     }
 }

@@ -94916,6 +94916,10 @@ PrefabInstance:
       propertyPath: ItemCountBackground
       value: 
       objectReference: {fileID: 2103816665}
+    - target: {fileID: 2383244230488942016, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      propertyPath: BorderBackgroundEmptyColor
+      value: '#6F6F6F32'
+      objectReference: {fileID: 0}
     - target: {fileID: 2566774580433215430, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -359749,6 +359753,10 @@ PrefabInstance:
     - target: {fileID: 4564438223453225373, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4649096568519139812, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      propertyPath: m_Color.a
+      value: 0.19607843
       objectReference: {fileID: 0}
     - target: {fileID: 4859776372639382899, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_LocalPosition.y

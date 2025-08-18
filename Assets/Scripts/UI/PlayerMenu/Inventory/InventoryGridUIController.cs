@@ -150,9 +150,12 @@ public class InventoryGridUIController : MonoBehaviour
             InventorySlotUI slot = InventorySlots[index];
             slot.SetIndex(index);
 
-            if (index < Inventory.ItemStacks.Count)
+            if (Inventory != null && Inventory.ItemStacks != null && index < Inventory.ItemStacks.Count)
             {
                 ItemStack itemStack = Inventory.ItemStacks[index];
+
+                // Slot has item
+                slot.SetEmpty(false);
 
                 // Display icon
                 slot.ItemIcon.SetActive(true);
@@ -174,6 +177,7 @@ public class InventoryGridUIController : MonoBehaviour
             {
                 slot.ItemIcon.SetActive(false);
                 slot.ItemCount.SetActive(false);
+                slot.SetEmpty(true);
             }
         }
     }

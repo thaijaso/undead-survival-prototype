@@ -54,8 +54,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BorderBackground: {fileID: 4649096568519139812}
-  BorderBackgroundSelectedColor: '#FFFFFFFA'
-  BorderBackgroundUnselectedColor: '#6F6F6FFA'
+  BorderBackgroundSelectedColor: {r: 1, g: 1, b: 1, a: 1}
+  BorderBackgroundUnselectedColor: {r: 0.4352941, g: 0.4352941, b: 0.4352941, a: 1}
+  BorderBackgroundEmptyColor: {r: 0.4352941, g: 0.4352941, b: 0.4352941, a: 0.039215688}
   HoverBackground: {fileID: 576193595136557487}
   ItemIcon: {fileID: 1898557628640664394}
   ItemCount: {fileID: 4564438223453225373}
