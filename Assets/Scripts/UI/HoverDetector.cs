@@ -18,6 +18,9 @@ public class HoverDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     [SerializeField]
     private SelectedItemDescriptionUI SelectedItemDescriptionUI;
 
+    [SerializeField]
+    private InventorySlotUI InventorySlotUI;
+
     void Awake()
     {
         SetupInventory();
@@ -25,6 +28,7 @@ public class HoverDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         SetupInventorySelectedItemNameUI();
         SetupSelectedItemTypeUI();
         SetupSelectedItemDescriptionUI();
+        SetupInventorySlotUI();
     }
 
     private void SetupInventory()
@@ -87,6 +91,18 @@ public class HoverDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         }
     }
 
+    private void SetupInventorySlotUI()
+    {
+        if (InventorySlotUI == null)
+        {
+            InventorySlotUI = GetComponent<InventorySlotUI>();
+            if (InventorySlotUI == null)
+            {
+                Debug.LogWarning("HoverDetector requires an InventorySlotUI on the same GameObject.");
+            }
+        }
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         Debug.Log($"[{gameObject.name}] HoverDetector.OnPointerEnter(): Pointer entered on {gameObject.name}");
@@ -104,6 +120,12 @@ public class HoverDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void OnPointerClick(PointerEventData eventData)
     {
         Debug.Log($"[{gameObject.name}] HoverDetector.OnPointerClick(): Pointer clicked on {gameObject.name}");
+        HandleSlotSelection();
+        PlayClickFeedback();
+    }
+
+    private void HandleSlotSelection()
+    {
         InventorySlotUI inventorySlot = GetComponent<InventorySlotUI>();
         if (InventoryGridUIController != null && inventorySlot != null)
         {
@@ -122,6 +144,18 @@ public class HoverDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         else
         {
             Debug.LogWarning("InventoryGridUIController or InventorySlotUI is not set.");
+        }
+    }
+
+    private void PlayClickFeedback()
+    {
+        if (InventorySlotUI.ClickPlayerFeedback != null)
+        {
+            InventorySlotUI.ClickPlayerFeedback.PlayFeedbacks();
+        }
+        else
+        {
+            Debug.LogWarning("ClickPlayerFeedback is not set in InventorySlotUI.");
         }
     }
 }

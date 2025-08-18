@@ -1,3 +1,4 @@
+using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,8 @@ public class InventorySlotUI : MonoBehaviour
 
     public GameObject ItemIcon;
     public GameObject ItemCount;
+
+    public MMF_Player ClickPlayerFeedback;
 
     public void SetIndex(int index)
     {
