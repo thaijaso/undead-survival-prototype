@@ -46370,6 +46370,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1513906977057301426, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3720642566718995436, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -94908,6 +94912,10 @@ PrefabInstance:
       propertyPath: BorderBackground
       value: 
       objectReference: {fileID: 982606975}
+    - target: {fileID: 2383244230488942016, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      propertyPath: ItemCountBackground
+      value: 
+      objectReference: {fileID: 2103816665}
     - target: {fileID: 2566774580433215430, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -415532,6 +415540,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 4393567602920372, guid: fbed9141f96af57409f2433018669184, type: 3}
   m_PrefabInstance: {fileID: 2103586031}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2103816665 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1611175400534888008, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+  m_PrefabInstance: {fileID: 476918300}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2104065038
 PrefabInstance:

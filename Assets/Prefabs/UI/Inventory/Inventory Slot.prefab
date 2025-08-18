@@ -59,6 +59,7 @@ MonoBehaviour:
   HoverBackground: {fileID: 576193595136557487}
   ItemIcon: {fileID: 1898557628640664394}
   ItemCount: {fileID: 4564438223453225373}
+  ItemCountBackground: {fileID: 1611175400534888008}
   ClickPlayerFeedback: {fileID: 5384416102225183427}
 --- !u!114 &1768316427935037820
 MonoBehaviour:

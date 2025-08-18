@@ -166,6 +166,7 @@ public class InventoryGridUIController : MonoBehaviour
                 }
                 else
                 {
+                    slot.ItemCountBackground.SetActive(false);
                     slot.ItemCount.SetActive(false);
                 }
             }

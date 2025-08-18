@@ -9,9 +9,9 @@ public class InventorySlotUI : MonoBehaviour
     public string BorderBackgroundSelectedColor = "#FFFFFFFA";
     public string BorderBackgroundUnselectedColor = "#6F6F6FFA";
     public Image HoverBackground;
-
     public GameObject ItemIcon;
     public GameObject ItemCount;
+    public GameObject ItemCountBackground;
 
     public MMF_Player ClickPlayerFeedback;
 
