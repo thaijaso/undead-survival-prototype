@@ -19,7 +19,6 @@ MonoBehaviour:
   weaponType: 0
   ammoType: 1
   description: Despite being eclipsed by newer calibers, its thunderous roar and
-    brute stopping power endure in the hands of hunters and marksmen, the very epitome
-    of "fearsome yet reliable."
+    brute stopping power endure in the hands of hunters and marksmen.
   isStackable: 1
   maxStack: 24
