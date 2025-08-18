@@ -45,6 +45,11 @@ public class InventorySlotUI : MonoBehaviour
         UpdateBorderColor();
     }
 
+    public bool IsEmpty()
+    {
+        return isEmpty;
+    }
+
     private void UpdateBorderColor()
     {
         if (isEmpty)

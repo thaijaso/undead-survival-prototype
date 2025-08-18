@@ -106,8 +106,11 @@ public class HoverDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void OnPointerEnter(PointerEventData eventData)
     {
         Debug.Log($"[{gameObject.name}] HoverDetector.OnPointerEnter(): Pointer entered on {gameObject.name}");
-        InventorySlotUI inventorySlot = GetComponent<InventorySlotUI>();
-        inventorySlot.HoverBackground.enabled = true;
+
+        if (!InventorySlotUI.IsEmpty())
+        {
+            InventorySlotUI.HoverBackground.enabled = true;
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -120,8 +123,12 @@ public class HoverDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void OnPointerClick(PointerEventData eventData)
     {
         Debug.Log($"[{gameObject.name}] HoverDetector.OnPointerClick(): Pointer clicked on {gameObject.name}");
-        HandleSlotSelection();
-        PlayClickFeedback();
+
+        if (!InventorySlotUI.IsEmpty())
+        {
+            HandleSlotSelection();
+            PlayClickFeedback();
+        }
     }
 
     private void HandleSlotSelection()
