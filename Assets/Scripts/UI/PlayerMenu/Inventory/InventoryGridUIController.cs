@@ -164,6 +164,7 @@ public class InventoryGridUIController : MonoBehaviour
                 // Display count if stackable
                 if (itemStack.item.isStackable)
                 {
+                    slot.ItemCountBackground.SetActive(true);
                     slot.ItemCount.SetActive(true);
                     slot.ItemCount.GetComponent<TextMeshProUGUI>().text = itemStack.quantity.ToString();
                 }
@@ -175,6 +176,7 @@ public class InventoryGridUIController : MonoBehaviour
             }
             else
             {
+                slot.ItemCountBackground.SetActive(false);
                 slot.ItemIcon.SetActive(false);
                 slot.ItemCount.SetActive(false);
                 slot.SetEmpty(true);

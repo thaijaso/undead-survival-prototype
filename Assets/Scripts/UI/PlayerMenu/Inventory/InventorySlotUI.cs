@@ -13,8 +13,8 @@ public class InventorySlotUI : MonoBehaviour
     public GameObject ItemIcon;
     public GameObject ItemCount;
     public GameObject ItemCountBackground;
-
-    public MMF_Player ClickPlayerFeedback;
+    public MMF_Player HoverFeedback;
+    public MMF_Player ClickFeedback;
 
     private bool isSelected;
     private bool isEmpty;

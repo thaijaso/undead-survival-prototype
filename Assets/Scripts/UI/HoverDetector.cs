@@ -110,6 +110,7 @@ public class HoverDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if (!InventorySlotUI.IsEmpty())
         {
             InventorySlotUI.HoverBackground.enabled = true;
+            InventorySlotUI.HoverFeedback.PlayFeedbacks();
         }
     }
 
@@ -156,9 +157,9 @@ public class HoverDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     private void PlayClickFeedback()
     {
-        if (InventorySlotUI.ClickPlayerFeedback != null)
+        if (InventorySlotUI.ClickFeedback != null)
         {
-            InventorySlotUI.ClickPlayerFeedback.PlayFeedbacks();
+            InventorySlotUI.ClickFeedback.PlayFeedbacks();
         }
         else
         {
