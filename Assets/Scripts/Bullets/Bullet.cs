@@ -14,7 +14,7 @@ public class Bullet : MonoBehaviour
     public int damage = 1; // Damage to apply
     
     [HideInInspector]
-    public WeaponData weaponData; // Reference to weapon data for damage calculations
+    public WeaponConfig weaponData; // Reference to weapon data for damage calculations
 
     // Static dictionary to track original muscle properties
     private static Dictionary<Muscle, MuscleOriginalValues> originalMuscleValues = new Dictionary<Muscle, MuscleOriginalValues>();

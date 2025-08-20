@@ -12,10 +12,6 @@ public class PlayerMenuUIController : MonoBehaviour
         {
             Debug.LogWarning("Player menu is not assigned in the PlayerMenuController.");
         }
-        else
-        {
-            playerMenu.SetActive(false); // Ensure menu is initially closed
-        }
     }
 
     public void TogglePlayerMenu()

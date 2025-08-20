@@ -27,6 +27,8 @@ namespace UndeadSurvivalGame.Player
 
         public PuppetMaster PuppetMaster { get; private set; }
 
+        public Inventory PlayerInventory { get; private set; }
+
         public StateMachine<PlayerState> stateMachine;
         
         internal PlayerState idle;
@@ -90,7 +92,9 @@ namespace UndeadSurvivalGame.Player
             SetupBulletHitscan();
             SetupBulletDecalManager();
             SetupPuppetMaster();
-            SetupHealthBar();
+            SetupHealthManager();
+            SetupPlayerInventory();
+            SetupPlayerMenuUIController();
 
             stateMachine = new StateMachine<PlayerState>(gameObject.name);
         }
@@ -219,16 +223,29 @@ namespace UndeadSurvivalGame.Player
             Debug.LogError($"[{gameObject.name}] Player.SetupPuppetMaster(): PuppetMaster component not found on any sibling.");
         }
 
-        private void SetupHealthBar()
+        private void SetupPlayerMenuUIController()
         {
-            if (healthUIController != null && HealthManager != null)
+            if (playerMenuUIController == null)
             {
-                healthUIController.Initialize(HealthManager.healthPercentage);
+                playerMenuUIController = FindFirstObjectByType<PlayerMenuUIController>();
+                if (playerMenuUIController == null)
+                {
+                    Debug.LogError($"[{gameObject.name}] Player.SetupPlayerMenuUIController(): No PlayerMenuUIController found in scene!");
+                }
             }
             else
             {
-                Debug.LogError($"[{gameObject.name}] Player.SetupHealthBar(): HealthUIController or HealthManager is not assigned.");
+                Debug.Log($"[{gameObject.name}] Player.SetupPlayerMenuUIController(): PlayerMenuUIController already assigned.");
             }
+            playerMenuUIController.gameObject.SetActive(false);
+        }
+
+        private void SetupPlayerInventory()
+        {
+            PlayerInventory = GetComponent<Inventory>();
+
+            if (PlayerInventory == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupPlayerInventory(): Inventory component is missing!");
         }
 
         void Start()
@@ -245,8 +262,10 @@ namespace UndeadSurvivalGame.Player
                 Debug.LogError($"[{gameObject.name}] PlayerTemplate is not assigned. Cannot initialize HealthManager.");
             }
 
-            // Setup HealthBar
-            SetupHealthBar();
+            // UI initialization: 
+            InitHealthUIController();
+
+            WeaponManager.SpawnWeaponInWeaponHand();
 
             // Initialize PlayerCharacterController with template data
             if (PlayerCharacterController != null && playerTemplate != null)
@@ -322,6 +341,18 @@ namespace UndeadSurvivalGame.Player
 
             // Set initial state
             stateMachine.SetState(idle);
+        }
+
+        private void InitHealthUIController()
+        {
+            if (healthUIController != null && HealthManager != null)
+            {
+                healthUIController.Initialize(HealthManager.healthPercentage);
+            }
+            else
+            {
+                Debug.LogError($"[{gameObject.name}] Player.SetupHealthBar(): HealthUIController or HealthManager is not assigned.");
+            }
         }
 
         // Update is called once per frame

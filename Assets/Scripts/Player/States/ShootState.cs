@@ -66,20 +66,20 @@ public class ShootState : AimState
 
     private void SetupWeaponDataForShooting()
     {
-        animationRecoilMagnitude = weaponManager.CurrentWeaponData.animationRecoilMagnitude;
-        bulletSpreadHorizontal = weaponManager.CurrentWeaponData.bulletSpreadHorizontal;
-        bulletSpreadVertical = weaponManager.CurrentWeaponData.bulletSpreadVertical;
+        animationRecoilMagnitude = weaponManager.CurrentWeaponConfig.animationRecoilMagnitude;
+        bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
+        bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
         Debug.Log($"[{player.name}] ShootState.SetupWeaponDataForShooting(): Animation recoil magnitude: {animationRecoilMagnitude}, Bullet spread: {bulletSpreadHorizontal}/{bulletSpreadVertical}");
     }
 
     private void SetupWeaponDataForCameraRecoil()
     {
         player.PlayerCameraController.SetCameraRecoilFromWeaponData(
-            weaponManager.CurrentWeaponData.cameraRecoilX,
-            weaponManager.CurrentWeaponData.cameraRecoilY,
-            weaponManager.CurrentWeaponData.cameraRecoilZ,
-            weaponManager.CurrentWeaponData.cameraRecoilSnapiness,
-            weaponManager.CurrentWeaponData.cameraRecoilReturnSpeed
+            weaponManager.CurrentWeaponConfig.cameraRecoilX,
+            weaponManager.CurrentWeaponConfig.cameraRecoilY,
+            weaponManager.CurrentWeaponConfig.cameraRecoilZ,
+            weaponManager.CurrentWeaponConfig.cameraRecoilSnapiness,
+            weaponManager.CurrentWeaponConfig.cameraRecoilReturnSpeed
         );
     }
 
@@ -90,7 +90,7 @@ public class ShootState : AimState
         base.Exit(nextState);
         animationManager.SetIsShooting(false);
 
-        if (weaponManager.CurrentWeaponData.isAutomatic)
+        if (weaponManager.CurrentWeaponConfig.isAutomatic)
         {
             weaponManager.StopMuzzleEffect();
         }
@@ -106,7 +106,7 @@ public class ShootState : AimState
             return;
         }
 
-        bool isAutomatic = weaponManager.CurrentWeaponData.isAutomatic;
+        bool isAutomatic = weaponManager.CurrentWeaponConfig.isAutomatic;
 
         if (isAutomatic)
         {
@@ -208,7 +208,7 @@ public class ShootState : AimState
 
     private void FireRigidbodyBullet()
     {
-        Weapon weapon = weaponManager.CurrentWeaponInstance.GetComponent<Weapon>();
+        Weapon weapon = weaponManager.CurrentWeaponGameObject.GetComponent<Weapon>();
         weapon.Fire();
     }
 
@@ -248,7 +248,7 @@ public class ShootState : AimState
         }
 
         // Do damage to the enemy
-        enemy.ProcessHit(weaponManager.CurrentWeaponData.damage, limb);
+        enemy.ProcessHit(weaponManager.CurrentWeaponConfig.damage, limb);
 
         // Spawn blood effect regardless of body part presence
         SpawnBloodEffect(hit, enemy);

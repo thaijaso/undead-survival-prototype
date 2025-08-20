@@ -8,20 +8,7 @@ public class SelectedItemNameUI : MonoBehaviour
 
     private void Awake()
     {
-        SetupInventory();
         SetupItemName();
-    }
-
-    private void SetupInventory()
-    {
-        if (inventory == null)
-        {
-            inventory = transform.parent.GetComponentInChildren<Inventory>();
-            if (inventory == null)
-            {
-                Debug.LogWarning("SelectedItemNameUI requires an Inventory component in the parent.");
-            }
-        }
     }
 
     private void SetupItemName()

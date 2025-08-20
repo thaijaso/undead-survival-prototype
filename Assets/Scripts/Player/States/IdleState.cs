@@ -23,12 +23,16 @@ namespace PlayerStates
         public override void Enter()
         {
             Debug.Log($"[{player.name}] IdleState.Enter(): Entering Idle state.");
+
             animationManager.SetIsIdle(true);
             animationManager.SetIsStrafing(false);
             animationManager.SetMoveParams(0f, 0f);
+
             player.PlayerIKController.SetIKTargetWeight(0f);
-            weaponManager.SpawnWeaponInWeaponHand();
-            weaponManager.UpdateWeaponDisplay();
+
+            weaponManager.SpawnWeaponInWeaponHand(); // TODO: refactor to equipment manager
+            //weaponManager.UpdateWeaponDisplay();
+            //weaponManager.UpdateAmmoDisplay();
         }
 
         public override void Exit(PlayerState nextState)

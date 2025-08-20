@@ -28,6 +28,7 @@ public class IntegerUIScale : MonoBehaviour
     }
 
     void Apply() {
+        if (scaler == null || canvas == null) return; // Prevent null reference errors
         float h = canvas ? canvas.pixelRect.height : Screen.height;   // works in editor
         float raw = h / referenceHeight;
         float snapped = Mathf.Round(raw / step) * step;

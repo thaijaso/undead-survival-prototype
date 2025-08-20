@@ -14,6 +14,13 @@ public class Inventory : MonoBehaviour
 
     public IReadOnlyList<ItemStack> ItemStacks => itemStacks;
 
+    void Start()
+    {
+        // Initialize inventory with preset data if needed
+        // This could be loaded from a file or set up in the editor
+        OnInventoryChanged?.Invoke(); // Fire event so UI updates
+    }
+
     /// <summary>
     /// Attempts to add the specified quantity of an item to the inventory.
     /// Returns the number of items that could not be added (remaining quantity).
@@ -106,5 +113,35 @@ public class Inventory : MonoBehaviour
         }
 
         return quantity;
+    }
+
+    public int GetItemQuantity(string itemID)
+    {
+        int total = 0;
+
+        foreach (var itemStack in itemStacks)
+        {
+            if (itemStack.item.itemID == itemID)
+            {
+                total += itemStack.quantity;
+            }
+        }
+
+        return total;
+    }
+
+    public int GetAmmoTypeQuantity(AmmoType ammoType)
+    {
+        int total = 0;
+
+        foreach (var itemStack in itemStacks)
+        {
+            if (itemStack.item.itemType == ItemType.Ammo && itemStack.item.ammoType == ammoType)
+            {
+                total += itemStack.quantity;
+            }
+        }
+
+        return total;
     }
 }

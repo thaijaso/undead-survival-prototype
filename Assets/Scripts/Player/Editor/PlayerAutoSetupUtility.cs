@@ -319,14 +319,14 @@ namespace UndeadSurvivalGame.Editor
                 Debug.Log($"[AutoSetup] PlayerWeaponManager component added to {player.gameObject.name}.");
             }
             // Try to load the RevolverWeaponData asset from a known path
-            var revolverWeaponData = AssetDatabase.LoadAssetAtPath<WeaponData>("Assets/ScriptableObjects/Weapons/RevolverWeaponData.asset");
+            var revolverWeaponData = AssetDatabase.LoadAssetAtPath<WeaponConfig>("Assets/ScriptableObjects/Weapons/RevolverWeaponData.asset");
             if (revolverWeaponData != null)
             {
                 // Set the private serialized field 'currentWeaponData' via reflection
                 var currentWeaponDataField = weaponManager.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 if (currentWeaponDataField != null)
                 {
-                    var currentValue = currentWeaponDataField.GetValue(weaponManager) as WeaponData;
+                    var currentValue = currentWeaponDataField.GetValue(weaponManager) as WeaponConfig;
                     if (overwriteExisting || currentValue == null)
                     {
                         currentWeaponDataField.SetValue(weaponManager, revolverWeaponData);
@@ -1113,7 +1113,7 @@ namespace UndeadSurvivalGame.Editor
             var pwm = player.GetComponent<PlayerWeaponManager>();
             if (pwm != null)
             {
-                var weaponData = pwm.CurrentWeaponData;
+                var weaponData = pwm.CurrentWeaponConfig;
                 if (weaponData == null)
                 {
                     // Try to auto-assign a WeaponData asset if one exists
@@ -1121,7 +1121,7 @@ namespace UndeadSurvivalGame.Editor
                     if (guids != null && guids.Length > 0)
                     {
                         string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
-                        var defaultWeaponData = UnityEditor.AssetDatabase.LoadAssetAtPath<WeaponData>(path);
+                        var defaultWeaponData = UnityEditor.AssetDatabase.LoadAssetAtPath<WeaponConfig>(path);
                         if (defaultWeaponData != null)
                         {
                             var currentWeaponDataField = pwm.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);

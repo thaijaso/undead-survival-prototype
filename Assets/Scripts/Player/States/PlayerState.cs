@@ -45,15 +45,6 @@ public class PlayerState : IState<PlayerState>
             player.PlayerCameraController.ZoomOut();
         }
 
-        if (weaponManager.IsWeaponHolstered)
-        {
-            animationManager.SetIsWeaponHolstered(true);
-        }
-        else
-        {
-            animationManager.SetIsWeaponHolstered(false);
-        }
-
         if (player.PlayerInput.IsPlayerMenuPressed)
         {
             player.PlayerMenuUIController.TogglePlayerMenu();

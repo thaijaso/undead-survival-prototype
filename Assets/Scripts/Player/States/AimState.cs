@@ -41,15 +41,15 @@ public class AimState : StrafeState
 
     private void SetupCamera()
     {
-        player.PlayerCameraController.SetCameraSwayAmount(weaponManager.CurrentWeaponData.weaponSway);
+        player.PlayerCameraController.SetCameraSwayAmount(weaponManager.CurrentWeaponConfig.weaponSway);
         player.PlayerCameraController.EnableCameraSway();
         player.PlayerCameraController.SetCameraOffset();
     }
 
     private void SetupCrosshair()
     {
-        float bulletSpreadHorizontal = weaponManager.CurrentWeaponData.bulletSpreadHorizontal;
-        float bulletSpreadVertical = weaponManager.CurrentWeaponData.bulletSpreadVertical;
+        float bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
+        float bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
 
         player.CrosshairController.EnableCrosshair();
         Debug.Log($"[{player.name}] AimState.SetupCrosshair(): Expanding and contracting crosshair");
@@ -62,12 +62,12 @@ public class AimState : StrafeState
 
     private void  SetupWeapon()
     {
-        GameObject weaponInstance = weaponManager.SpawnWeaponInWeaponHand();
+        GameObject weaponInstance = weaponManager.SpawnWeaponInWeaponHand(); // TODO: Refactor to equipmentmanager
         Weapon weaponScript = weaponInstance.GetComponent<Weapon>();
         SetupWeaponScriptIKAndGrip(weaponScript);
         weaponManager.SetAimIKOffsets();
         weaponManager.SetRecoilIKSettings();
-        weaponManager.SetIsWeaponHolstered(false);
+
     }
 
     private void SetupWeaponScriptIKAndGrip(Weapon weaponScript)
@@ -152,8 +152,8 @@ public class AimState : StrafeState
             {
                 player.CrosshairController.ExpandAndContractCrosshair(
                     1f,
-                    weaponManager.CurrentWeaponData.bulletSpreadHorizontal,
-                    weaponManager.CurrentWeaponData.bulletSpreadVertical,
+                    weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal,
+                    weaponManager.CurrentWeaponConfig.bulletSpreadVertical,
                     0.1f
                 );
             }
@@ -182,8 +182,8 @@ public class AimState : StrafeState
         {
             player.CrosshairController.ExpandAndContractCrosshair(
                 1f,
-                weaponManager.CurrentWeaponData.bulletSpreadHorizontal,
-                weaponManager.CurrentWeaponData.bulletSpreadVertical,
+                weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal,
+                weaponManager.CurrentWeaponConfig.bulletSpreadVertical,
                 0.1f
             );
         }
@@ -197,8 +197,8 @@ public class AimState : StrafeState
         if (player.PlayerCameraController.HasCameraAxisChanged())
         {
             player.PlayerCameraController.MoveAimIKTarget();
-            float bulletSpreadHorizontal = weaponManager.CurrentWeaponData.bulletSpreadHorizontal;
-            float bulletSpreadVertical = weaponManager.CurrentWeaponData.bulletSpreadVertical;
+            float bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
+            float bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
             player.CrosshairController.ExpandAndContractCrosshair(
                 1f,
                 bulletSpreadHorizontal,

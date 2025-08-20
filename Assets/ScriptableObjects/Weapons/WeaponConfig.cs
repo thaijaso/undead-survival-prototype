@@ -12,7 +12,7 @@ using UnityEngine;
 // It is referenced by Weapon MonoBehaviours and can be reused across multiple weapon prefabs/instances.
 
 [CreateAssetMenu(fileName = "WeaponData", menuName = "ScriptableObjects/Weapons/Weapon Data", order = 0)]
-public class WeaponData : ScriptableObject
+public class WeaponConfig : ScriptableObject
 {
     public enum WeaponType { Pistol, Rifle }
     [Header("Weapon Type")]
@@ -42,23 +42,24 @@ public class WeaponData : ScriptableObject
     public float weaponSway = 1f;  // Sway amount
     public float impactForce = 10f;// Force applied on hit
     public float bulletSpeed = 20f;// Bullet velocity
-
     public int maxAmmo = 6; // Max ammo capacity
+
+    public AmmoType ammoType; // Ammo type used by this weapon
 
 #if UNITY_EDITOR
     [ValueDropdown(nameof(GetAllWeaponIconPaths))]
 #endif
-    public string weaponIconPath;
+    public string currentWeaponIconPath;
 
 #if UNITY_EDITOR
     // This method provides the dropdown options
     private static IEnumerable<string> GetAllWeaponIconPaths()
     {
         // Example: Search for all sprites in a folder and return their asset paths
-        string[] guids = UnityEditor.AssetDatabase.FindAssets("t:Sprite", new[] { "Assets/Resources/WeaponIcons" });
+        string[] guids = AssetDatabase.FindAssets("t:Sprite", new[] { "Assets/Resources/WeaponIcons" });
         foreach (string guid in guids)
         {
-            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+            string path = AssetDatabase.GUIDToAssetPath(guid);
             yield return path;
         }
     }

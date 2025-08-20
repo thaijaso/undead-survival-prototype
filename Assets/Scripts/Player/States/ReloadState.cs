@@ -42,15 +42,15 @@ namespace UndeadSurvivalGame.Player.States
         {
             Debug.Log($"[{player.name}] ReloadState.OnChamberLoaded(): Chamber loaded");
             // Logic to handle when the chamber is loaded, e.g. increment ammo
-            if (weaponManager.CurrentWeapon != null)
+            if (weaponManager.CurrentWeaponScript != null)
             {
-                weaponManager.IncrementAmmoCount();
-                weaponManager.DecrementTotalAmmoCount();
-                weaponManager.UpdateCurrentLoadedAmmoUI();
-                weaponManager.UpdateTotalAmmoUI();
-                Debug.Log($"[{player.name}] Ammo after reload: {weaponManager.CurrentWeapon.currentLoadedAmmo}");
+                //weaponManager.IncrementAmmoCount();
+                //weaponManager.DecrementTotalAmmoCount();
+                //weaponManager.UpdateCurrentLoadedAmmoUI();
+                //weaponManager.UpdateTotalAmmoUI();
+                Debug.Log($"[{player.name}] Ammo after reload: {weaponManager.CurrentWeaponScript.currentLoadedAmmo}");
 
-                if (weaponManager.CurrentWeapon.currentLoadedAmmo >= weaponManager.CurrentWeaponData.maxAmmo)
+                if (weaponManager.CurrentWeaponScript.currentLoadedAmmo >= weaponManager.CurrentWeaponConfig.maxAmmo)
                 {
                     Debug.Log($"[{player.name}] Reload complete, switching to Aim state.");
                     stateMachine.SetState(player.aim);

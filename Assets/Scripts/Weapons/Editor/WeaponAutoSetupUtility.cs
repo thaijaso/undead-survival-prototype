@@ -170,7 +170,7 @@ namespace UndeadSurvivalGame.Editor
                 foreach (var guid in guids)
                 {
                     string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-                    var weaponData = AssetDatabase.LoadAssetAtPath<WeaponData>(assetPath);
+                    var weaponData = AssetDatabase.LoadAssetAtPath<WeaponConfig>(assetPath);
                     if (weaponData != null && weaponData.name == expectedName)
                     {
                         weapon.weaponData = weaponData;

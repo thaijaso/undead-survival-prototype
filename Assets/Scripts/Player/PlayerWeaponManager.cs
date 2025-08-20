@@ -1,16 +1,17 @@
 using UnityEngine;
 using UndeadSurvivalGame.Player;
+using Pathfinding.Examples;
 
 public class PlayerWeaponManager : MonoBehaviour
 {
     private Player player;
 
     [SerializeField]
-    private WeaponData currentWeaponData;
-    public WeaponData CurrentWeaponData => currentWeaponData;
+    private WeaponConfig currentWeaponConfig;
+    public WeaponConfig CurrentWeaponConfig => currentWeaponConfig;
 
-    public GameObject CurrentWeaponInstance { get; private set; }
-    public Weapon CurrentWeapon { get; private set; }
+    public GameObject CurrentWeaponGameObject { get; private set; }
+    public Weapon CurrentWeaponScript { get; private set; }
 
     public bool IsWeaponHolstered { get; private set; } = false;
     private GameObject lastSpawnedWeaponPrefab;
@@ -41,15 +42,20 @@ public class PlayerWeaponManager : MonoBehaviour
         }
     }
 
+    public bool IsInitialized()
+    {
+        return CurrentWeaponConfig != null && CurrentWeaponScript != null;
+    }
+
     public void ResetFireTimer()
     {
-        if (CurrentWeaponData == null)
+        if (CurrentWeaponConfig == null)
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.ResetFireTimer(): CurrentWeaponData is not set!");
             return;
         }
 
-        FireTimer = CurrentWeaponData.fireRate;
+        FireTimer = CurrentWeaponConfig.fireRate;
     }
 
     public bool IsFireCooldownComplete()
@@ -59,71 +65,71 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public bool IsChamberEmpty()
     {
-        return CurrentWeapon.currentLoadedAmmo <= 0;
+        return CurrentWeaponScript.currentLoadedAmmo <= 0;
     }
 
     public bool IsChamberFull()
     {
-        return CurrentWeapon.currentLoadedAmmo == CurrentWeaponData.maxAmmo;
+        return CurrentWeaponScript.currentLoadedAmmo == CurrentWeaponConfig.maxAmmo;
     }
 
     public void SetAimIKOffsets()
     {
-        player.PlayerIKController.SetGunHoldOffset(CurrentWeaponData.aimIKOffsets);
+        player.PlayerIKController.SetGunHoldOffset(CurrentWeaponConfig.aimIKOffsets);
     }
 
     public GameObject SpawnWeaponInWeaponHand()
     {
-        if (CurrentWeaponData == null)
+        if (CurrentWeaponConfig == null)
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponInWeaponHand(): CurrentWeaponData is not set!");
             return null;
         }
 
-        if (CurrentWeaponInstance == null || lastSpawnedWeaponPrefab != CurrentWeaponData.weaponPrefab)
+        if (CurrentWeaponGameObject == null || lastSpawnedWeaponPrefab != CurrentWeaponConfig.weaponPrefab)
         {
-            if (CurrentWeaponInstance != null)
+            if (CurrentWeaponGameObject != null)
             {
-                Destroy(CurrentWeaponInstance);
+                Destroy(CurrentWeaponGameObject);
             }
 
-            CurrentWeaponInstance = Instantiate(
-                CurrentWeaponData.weaponPrefab,
+            CurrentWeaponGameObject = Instantiate(
+                CurrentWeaponConfig.weaponPrefab,
                 player.WeaponHand.transform
             );
 
-            lastSpawnedWeaponPrefab = CurrentWeaponData.weaponPrefab;
+            lastSpawnedWeaponPrefab = CurrentWeaponConfig.weaponPrefab;
             // Assign the Weapon script reference
-            CurrentWeapon = CurrentWeaponInstance.GetComponent<Weapon>();
-            if (CurrentWeapon == null)
+            CurrentWeaponScript = CurrentWeaponGameObject.GetComponent<Weapon>();
+            if (CurrentWeaponScript == null)
             {
                 Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager: Spawned weapon prefab does not have a Weapon script attached!");
             }
         }
 
-        return CurrentWeaponInstance;
+        return CurrentWeaponGameObject;
     }
 
     public void DespawnWeaponInWeaponHand()
     {
-        if (CurrentWeaponData == null)
+        if (CurrentWeaponConfig == null)
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.DespawnWeaponInWeaponHand(): CurrentWeaponData is not set!");
             return;
         }
 
-        if (CurrentWeaponInstance != null)
+        if (CurrentWeaponGameObject != null)
         {
-            Weapon weaponScript = CurrentWeaponInstance.GetComponent<Weapon>();
+            Weapon weaponScript = CurrentWeaponGameObject.GetComponent<Weapon>();
 
             if (weaponScript != null)
             {
                 weaponScript.StopMuzzleEffect();
             }
 
-            Destroy(CurrentWeaponInstance);
-            CurrentWeaponInstance = null;
-            CurrentWeapon = null; // Clear reference
+            Destroy(CurrentWeaponGameObject);
+            CurrentWeaponGameObject = null;
+            CurrentWeaponScript = null; // Clear reference
         }
         else
         {
@@ -133,13 +139,13 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public void PlayMuzzleEffect()
     {
-        if (CurrentWeaponInstance == null)
+        if (CurrentWeaponGameObject == null)
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.PlayMuzzleEffect(): No weapon instance to play muzzle effect on!");
             return;
         }
 
-        Weapon weaponScript = CurrentWeaponInstance.GetComponent<Weapon>();
+        Weapon weaponScript = CurrentWeaponGameObject.GetComponent<Weapon>();
 
         if (weaponScript == null)
         {
@@ -152,7 +158,7 @@ public class PlayerWeaponManager : MonoBehaviour
             Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.PlayMuzzleEffect(): Muzzle effect is not assigned on weapon instance!\n" +
                 $"  - Did you assign a prefab instead of a scene instance?\n" +
                 $"  - The muzzle effect should be a child of the weapon in the hierarchy, not a prefab asset.\n" +
-                $"  - Weapon instance: {CurrentWeaponInstance.name} (active: {CurrentWeaponInstance.activeInHierarchy})");
+                $"  - Weapon instance: {CurrentWeaponGameObject.name} (active: {CurrentWeaponGameObject.activeInHierarchy})");
             return;
         }
 
@@ -170,13 +176,13 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public void StopMuzzleEffect()
     {
-        if (CurrentWeaponInstance == null)
+        if (CurrentWeaponGameObject == null)
         {
             Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.StopMuzzleEffect(): No weapon instance to stop muzzle effect on!");
             return;
         }
 
-        Weapon weaponScript = CurrentWeaponInstance.GetComponent<Weapon>();
+        Weapon weaponScript = CurrentWeaponGameObject.GetComponent<Weapon>();
 
         if (weaponScript == null)
         {
@@ -189,13 +195,13 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public void PlayGunshotSound()
     {
-        if (CurrentWeaponInstance == null)
+        if (CurrentWeaponGameObject == null)
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.PlayGunshotSound(): No weapon instance to play gunshot sound on!");
             return;
         }
 
-        Weapon weaponScript = CurrentWeaponInstance.GetComponent<Weapon>();
+        Weapon weaponScript = CurrentWeaponGameObject.GetComponent<Weapon>();
 
         if (weaponScript == null)
         {
@@ -208,7 +214,7 @@ public class PlayerWeaponManager : MonoBehaviour
             Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.PlayGunshotSound(): Gunshot AudioSource is not assigned on weapon instance!\n" +
                 $"  - Did you assign a prefab instead of a scene instance?\n" +
                 $"  - The gunshot AudioSource should be a child of the weapon in the hierarchy, not a prefab asset.\n" +
-                $"  - Weapon instance: {CurrentWeaponInstance.name} (active: {CurrentWeaponInstance.activeInHierarchy})");
+                $"  - Weapon instance: {CurrentWeaponGameObject.name} (active: {CurrentWeaponGameObject.activeInHierarchy})");
             return;
         }
 
@@ -226,13 +232,13 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public void PlayEmptyGunClick()
     {
-        if (CurrentWeaponInstance == null)
+        if (CurrentWeaponGameObject == null)
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.PlayEmptyGunClick(): No weapon instance to play empty gun click on!");
             return;
         }
 
-        Weapon weaponScript = CurrentWeaponInstance.GetComponent<Weapon>();
+        Weapon weaponScript = CurrentWeaponGameObject.GetComponent<Weapon>();
 
         if (weaponScript == null)
         {
@@ -250,7 +256,7 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public void SetRecoilIKSettings()
     {
-        if (CurrentWeaponData == null)
+        if (CurrentWeaponConfig == null)
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.ApplyIKRecoilSettingsToComponent(): CurrentWeaponData is not set!");
             return;
@@ -262,7 +268,7 @@ public class PlayerWeaponManager : MonoBehaviour
         }
 
         var recoil = player.Recoil;
-        var weaponData = CurrentWeaponData;
+        var weaponData = CurrentWeaponConfig;
         recoil.ikRecoilWeight = weaponData.ikRecoilWeight;
         recoil.aimIKSolvedLast = weaponData.aimIKSolvedLast;
         recoil.handedness = (RecoilIK.Handedness)weaponData.handedness;
@@ -309,17 +315,12 @@ public class PlayerWeaponManager : MonoBehaviour
         }
     }
 
-    public void SetIsWeaponHolstered(bool isHolstered)
-    {
-        IsWeaponHolstered = isHolstered;
-    }
-
     public void DecrementCurrentLoadedAmmoCount()
     {
-        if (CurrentWeapon != null)
+        if (CurrentWeaponScript != null)
         {
-            CurrentWeapon.currentLoadedAmmo--;
-            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.DecrementAmmoCount(): Ammo decremented. Current ammo: {CurrentWeapon.currentLoadedAmmo}");
+            CurrentWeaponScript.currentLoadedAmmo--;
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.DecrementAmmoCount(): Ammo decremented. Current ammo: {CurrentWeaponScript.currentLoadedAmmo}");
         }
         else
         {
@@ -329,10 +330,10 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public void IncrementAmmoCount()
     {
-        if (CurrentWeapon != null)
+        if (CurrentWeaponScript != null)
         {
-            CurrentWeapon.currentLoadedAmmo++;
-            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IncrementAmmoCount(): Ammo incremented. Current ammo: {CurrentWeapon.currentLoadedAmmo}");
+            CurrentWeaponScript.currentLoadedAmmo++;
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IncrementAmmoCount(): Ammo incremented. Current ammo: {CurrentWeaponScript.currentLoadedAmmo}");
         }
         else
         {
@@ -355,9 +356,9 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public void UpdateWeaponDisplay()
     {
-        if (CurrentWeapon != null)
+        if (CurrentWeaponScript != null)
         {
-            player.WeaponUIController.UpdateWeaponDisplay(CurrentWeapon.weaponData, CurrentWeapon.currentLoadedAmmo, totalAmmo);
+            player.WeaponUIController.UpdateWeaponDisplay(CurrentWeaponScript.weaponData, CurrentWeaponScript.currentLoadedAmmo, totalAmmo);
         }
         else
         {
@@ -367,25 +368,13 @@ public class PlayerWeaponManager : MonoBehaviour
 
     public void UpdateCurrentLoadedAmmoUI()
     {
-        if (CurrentWeapon != null)
+        if (CurrentWeaponScript != null)
         {
-            player.WeaponUIController.UpdateCurrentLoadedAmmoUI(CurrentWeapon.currentLoadedAmmo);
+            player.WeaponUIController.UpdateCurrentLoadedAmmoUI(CurrentWeaponScript.currentLoadedAmmo);
         }
         else
         {
             Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.UpdateCurrentLoadedAmmo(): CurrentWeaponScript is null! Cannot update current loaded ammo.");
-        }
-    }
-
-    public void UpdateTotalAmmoUI()
-    {
-        if (CurrentWeapon != null)
-        {
-            player.WeaponUIController.UpdateTotalAmmoUI(totalAmmo);
-        }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.UpdateTotalAmmo(): CurrentWeaponScript is null! Cannot update total ammo.");
         }
     }
 }

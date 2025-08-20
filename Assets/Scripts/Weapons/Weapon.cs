@@ -34,7 +34,7 @@ public class Weapon : MonoBehaviour
     public Transform leftHandGripSource;
 
     [BoxGroup("Prefab References", Order = 0)]
-    public WeaponData weaponData;
+    public WeaponConfig weaponData;
 
     [BoxGroup("Scene References", Order = 1)]
     public Transform bulletHitTarget;
