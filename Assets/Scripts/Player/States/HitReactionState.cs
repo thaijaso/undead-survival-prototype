@@ -26,7 +26,7 @@ namespace UndeadSurvivalGame.Player.States
         {
             base.Enter();
             Debug.Log($"[{player.name}] HitReactionState.Enter(): Entering Hit Reaction state.");
-            player.OverlayController.PlayBloodEffect();
+            //player.OverlayController.PlayBloodEffect();
             animationManager.TriggerKnockback();
             player.StartCoroutine(LerpPlayerBack(.8f, .8f));
         }

@@ -154,6 +154,12 @@ public class Inventory : MonoBehaviour
             if (itemStack.item.itemType == ItemType.Ammo && itemStack.item.ammoType == ammoType)
             {
                 itemStack.DecrementQuantity();
+
+                if (itemStack.IsEmpty)
+                {
+                    itemStacks.Remove(itemStack);
+                }
+
                 OnInventoryChanged?.Invoke();
                 return;
             }

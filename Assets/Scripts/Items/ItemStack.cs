@@ -27,7 +27,7 @@ public class ItemStack
         }
     }
 
-    public bool IsEmpty => item == null;
+    public bool IsEmpty => quantity == 0;
 
     public void DecrementQuantity()
     {
