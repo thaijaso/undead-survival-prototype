@@ -24,6 +24,7 @@ namespace UndeadSurvivalGame.Player.States
             base.Enter();
             Debug.Log($"[{player.name}] ReloadState.Enter(): Entering Reload state");
             animationManager.TriggerRevolverReloadAnimation();
+            animationManager.SetIsReloading(true);
             player.PlayerInput.ConsumeAimBuffer(); // Consume any buffered aim input on entering reload
         }
 
@@ -40,17 +41,21 @@ namespace UndeadSurvivalGame.Player.States
 
         public void OnChamberLoaded()
         {
+             // Logic to handle when the chamber is loaded, e.g. increment ammo
             Debug.Log($"[{player.name}] ReloadState.OnChamberLoaded(): Chamber loaded");
-            // Logic to handle when the chamber is loaded, e.g. increment ammo
+
             if (weaponManager.CurrentWeaponScript != null)
             {
                 weaponManager.IncrementLoadedAmmoCount();
                 player.PlayerInventory.DecrementAmmo(weaponManager.CurrentWeaponConfig.ammoType);
-                Debug.Log($"[{player.name}] Ammo after reload: {weaponManager.CurrentWeaponScript.currentLoadedAmmo}");
 
-                if (weaponManager.CurrentWeaponScript.currentLoadedAmmo >= weaponManager.CurrentWeaponConfig.maxAmmo)
+                int totalAmmo = player.PlayerInventory.GetAmmoTypeQuantity(weaponManager.CurrentWeaponConfig.ammoType);
+                Debug.Log($"[{player.name}] Ammo loaded after reload: {weaponManager.CurrentWeaponScript.currentLoadedAmmo}, totalAmmo: {totalAmmo}");
+
+                if (weaponManager.CurrentWeaponScript.currentLoadedAmmo >= weaponManager.CurrentWeaponConfig.maxAmmo || totalAmmo == 0)
                 {
-                    Debug.Log($"[{player.name}] Reload complete, switching to Aim state.");
+                    animationManager.SetIsReloading(false);
+                    Debug.Log($"[{player.name}] Reload complete, switching to idle state.");
                     stateMachine.SetState(player.idle);
                 }
             }

@@ -227,4 +227,9 @@ public class AnimationManager
     {
         animator.SetTrigger("ReloadRevolver");
     }
+
+    public void SetIsReloading(bool isReloading)
+    {
+        animator.SetBool("IsReloading", isReloading);
+    }
 }
