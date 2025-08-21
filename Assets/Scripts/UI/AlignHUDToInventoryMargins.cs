@@ -12,7 +12,6 @@ public class AlignHudToInventoryMargins : MonoBehaviour
     public CanvasScaler hudScaler;         // Constant Pixel Size scaler
 
     [Header("Bottom margin mode")]
-    public bool bottomMatchesInventoryBottom = false;  // true: use inventory’s bottom margin
     public bool bottomMirrorsInventoryTop   = true;    // true: use inventory’s TOP margin for HUD BOTTOM
     public float fixedBottomPx = 80f;                  // used if both flags are false
 
@@ -52,9 +51,8 @@ public class AlignHudToInventoryMargins : MonoBehaviour
 
         // BOTTOM margin: choose one
         float bottomMarginPixels;
-        if (bottomMatchesInventoryBottom)
-            bottomMarginPixels = Mathf.Max(0, inventoryBottomLeft.y - screenRect.yMin) + extraBottomPx;            // match inventory bottom
-        else if (bottomMirrorsInventoryTop)
+       
+        if (bottomMirrorsInventoryTop)
             bottomMarginPixels = Mathf.Max(0, screenRect.yMax - inventoryTopLeft.y) + extraBottomPx;            // mirror inventory TOP
         else
             bottomMarginPixels = fixedBottomPx + extraBottomPx;                                // fixed value

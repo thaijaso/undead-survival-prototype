@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +11,7 @@ public class WeaponUIController : MonoBehaviour
     public Image WeaponIcon => weaponIcon;
 
     [SerializeField]
-    private TextMeshProUGUI currentLoadedAmmo;
+    private List<GameObject> ammoListUI;
 
     [SerializeField]
     private TextMeshProUGUI ammoTotal;
@@ -26,6 +27,7 @@ public class WeaponUIController : MonoBehaviour
         if (playerInventory == null)
         {
             playerInventory = FindFirstObjectByType<Inventory>();
+
             if (playerInventory == null)
             {
                 Debug.LogError($"[{gameObject.name}] WeaponUIController: No Inventory found in scene!");
@@ -35,6 +37,7 @@ public class WeaponUIController : MonoBehaviour
         if (playerWeaponManager == null)
         {
             playerWeaponManager = FindFirstObjectByType<PlayerWeaponManager>();
+
             if (playerWeaponManager == null)
             {
                 Debug.LogError($"[{gameObject.name}] WeaponUIController: No PlayerWeaponManager found in scene!");
@@ -48,6 +51,13 @@ public class WeaponUIController : MonoBehaviour
         {
             playerInventory.OnInventoryChanged += UpdateTotalAmmoUI;
         }
+
+        if (playerWeaponManager != null)
+        {
+            playerWeaponManager.OnWeaponSetup += UpdateCurrentWeaponUI;
+            playerWeaponManager.OnBulletLoaded += AddBulletInBulletList;
+            playerWeaponManager.OnBulletFired += RemoveBulletInBulletList;
+        }
     }
 
     void OnDisable()
@@ -56,14 +66,26 @@ public class WeaponUIController : MonoBehaviour
         {
             playerInventory.OnInventoryChanged -= UpdateTotalAmmoUI;
         }
+
+        if (playerWeaponManager != null)
+        {
+            playerWeaponManager.OnWeaponSetup -= UpdateCurrentWeaponUI;
+            playerWeaponManager.OnBulletLoaded -= AddBulletInBulletList;
+            playerWeaponManager.OnBulletFired -= RemoveBulletInBulletList;
+        }
     }
 
-    public void UpdateWeaponDisplay(WeaponConfig weaponData, int currentLoadedAmmo, int ammoTotal)
+    public void UpdateCurrentWeaponUI(Weapon weaponScript, WeaponConfig weaponConfig)
     {
-        // Update weapon icon if path is valid
-        if (weaponData != null && !string.IsNullOrEmpty(weaponData.currentWeaponIconPath))
+        UpdateCurrentWeaponIcon(weaponConfig);
+        UpdateBulletListUI(weaponScript.currentLoadedAmmo, weaponConfig.maxAmmo);
+    }
+
+    private void UpdateCurrentWeaponIcon(WeaponConfig weaponConfig)
+    {
+        if (weaponConfig != null && !string.IsNullOrEmpty(weaponConfig.currentWeaponIconPath))
         {
-            string resourcePath = GetResourcesRelativePath(weaponData.currentWeaponIconPath);
+            string resourcePath = GetResourcesRelativePath(weaponConfig.currentWeaponIconPath);
             Debug.Log($"[{gameObject.name}] WeaponUIController.UpdateWeaponDisplay(): Loading icon from path: {resourcePath}");
             var sprite = Resources.Load<Sprite>(resourcePath);
             if (sprite != null)
@@ -72,17 +94,47 @@ public class WeaponUIController : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[{gameObject.name}] WeaponUIController.UpdateWeaponDisplay(): Icon sprite not found at path: {weaponData.currentWeaponIconPath}");
+                Debug.LogWarning($"[{gameObject.name}] WeaponUIController.UpdateWeaponDisplay(): Icon sprite not found at path: {weaponConfig.currentWeaponIconPath}");
             }
         }
         else
         {
             Debug.LogWarning($"[{gameObject.name}] WeaponUIController.UpdateWeaponDisplay(): Invalid weapon data or icon path.");
         }
+    }
 
-        // Update ammo text fields
-        //this.currentLoadedAmmo.text = currentLoadedAmmo.ToString(); TODO: enable ammo list
-        this.ammoTotal.text = $"{ammoTotal}";
+    private void UpdateBulletListUI(int currentLoadedAmmo, int maxAmmo)
+    {
+        if (playerWeaponManager == null || playerWeaponManager.CurrentWeaponConfig == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] WeaponUIController.UpdateBulletListUI(): PlayerWeaponManager or CurrentWeaponConfig is not set.");
+            return;
+        }
+
+        Debug.Log($"[{gameObject.name}] WeaponUIController.UpdateBulletListUI(): Updating ammo list UI with current loaded ammo: {currentLoadedAmmo}, max ammo: {maxAmmo}");
+
+        // Enable toggles
+        for (int index = 0; index < ammoListUI.Count; index++)
+        {
+            ammoListUI[index].SetActive(index < maxAmmo);
+        }
+
+        // Set toggle state 
+        for (int index = 0; index < currentLoadedAmmo; index++)
+        {
+            if (index < ammoListUI.Count)
+            {
+                Toggle toggle = ammoListUI[index].GetComponent<Toggle>();
+                if (toggle != null)
+                {
+                    toggle.isOn = true;
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] WeaponUIController.UpdateBulletListUI(): Ammo index {index} exceeds ammo list UI count.");
+            }
+        }
     }
 
     private string GetResourcesRelativePath(string assetPath)
@@ -104,10 +156,61 @@ public class WeaponUIController : MonoBehaviour
         return assetPath;
     }
 
-    public void UpdateCurrentLoadedAmmoUI(int currentLoadedAmmo)
+    private void AddBulletInBulletList()
     {
-        // Update ammo text fields
-        this.currentLoadedAmmo.text = currentLoadedAmmo.ToString();
+        if (playerWeaponManager == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] WeaponUIController.AddBulletInBulletList(): PlayerWeaponManager is not set.");
+            return;
+        }
+
+        int currentLoadedAmmo = playerWeaponManager.CurrentWeaponScript.currentLoadedAmmo;
+        Debug.Log($"[{gameObject.name}] WeaponUIController.AddBulletInBulletList(): Current loaded ammo: {currentLoadedAmmo}");
+
+        if (currentLoadedAmmo > 0 && currentLoadedAmmo < ammoListUI.Count)
+        {
+            Toggle toggle = ammoListUI[currentLoadedAmmo - 1].GetComponent<Toggle>();
+
+            if (toggle != null)
+            {
+                toggle.isOn = true;
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] WeaponUIController.AddBulletInBulletList(): Invalid current loaded ammo: {currentLoadedAmmo}");
+        }
+    }
+
+    private void DecrementTotalAmmo()
+    {
+        Debug.Log($"[{gameObject.name}] WeaponUIController.DecrementTotalAmmo(): Decrementing total ammo.");
+    }
+
+    public void RemoveBulletInBulletList()
+    {
+        if (playerWeaponManager == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] WeaponUIController.RemoveBulletInBulletList(): PlayerWeaponManager is not set.");
+            return;
+        }
+
+        int currentLoadedAmmo = playerWeaponManager.CurrentWeaponScript.currentLoadedAmmo;
+        Debug.Log($"[{gameObject.name}] WeaponUIController.RemoveBulletInBulletList(): Current loaded ammo: {currentLoadedAmmo}");
+
+        if (currentLoadedAmmo >= 0 && currentLoadedAmmo < ammoListUI.Count)
+        {
+            Toggle toggle = ammoListUI[currentLoadedAmmo].GetComponent<Toggle>();
+
+            if (toggle != null)
+            {
+                toggle.isOn = false;
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] WeaponUIController.RemoveBulletInBulletList(): Invalid current loaded ammo: {currentLoadedAmmo}");
+        }
     }
 
     public void UpdateTotalAmmoUI()

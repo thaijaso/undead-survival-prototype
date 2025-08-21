@@ -144,4 +144,21 @@ public class Inventory : MonoBehaviour
 
         return total;
     }
+
+    public void DecrementAmmo(AmmoType ammoType)
+    {
+        if (ammoType == AmmoType.None) return;
+
+        foreach (var itemStack in itemStacks)
+        {
+            if (itemStack.item.itemType == ItemType.Ammo && itemStack.item.ammoType == ammoType)
+            {
+                itemStack.DecrementQuantity();
+                OnInventoryChanged?.Invoke();
+                return;
+            }
+        }
+
+        Debug.LogWarning($"[{gameObject.name}] Inventory.DecrementAmmo(): No ammo of type {ammoType} found.");
+    }
 }

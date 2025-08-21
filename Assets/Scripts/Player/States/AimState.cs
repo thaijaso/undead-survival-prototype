@@ -60,14 +60,17 @@ public class AimState : StrafeState
         );
     }
 
-    private void  SetupWeapon()
+    private void SetupWeapon()
     {
-        GameObject weaponInstance = weaponManager.SpawnWeaponInWeaponHand(); // TODO: Refactor to equipmentmanager
-        Weapon weaponScript = weaponInstance.GetComponent<Weapon>();
-        SetupWeaponScriptIKAndGrip(weaponScript);
+        if (weaponManager == null)
+        {
+            Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): WeaponManager is null!");
+            return;
+        }
+
+        SetupWeaponScriptIKAndGrip(weaponManager.CurrentWeaponScript);
         weaponManager.SetAimIKOffsets();
         weaponManager.SetRecoilIKSettings();
-
     }
 
     private void SetupWeaponScriptIKAndGrip(Weapon weaponScript)
@@ -172,7 +175,7 @@ public class AimState : StrafeState
             return;
         }
 
-        if (player.PlayerInput.IsReloading && !weaponManager.IsChamberFull())
+        if (player.PlayerInput.IsReloading && weaponManager.CanReload())
         {
             stateMachine.SetState(player.reload);
             return;

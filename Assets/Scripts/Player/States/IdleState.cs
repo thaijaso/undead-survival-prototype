@@ -29,10 +29,6 @@ namespace PlayerStates
             animationManager.SetMoveParams(0f, 0f);
 
             player.PlayerIKController.SetIKTargetWeight(0f);
-
-            weaponManager.SpawnWeaponInWeaponHand(); // TODO: refactor to equipment manager
-            //weaponManager.UpdateWeaponDisplay();
-            //weaponManager.UpdateAmmoDisplay();
         }
 
         public override void Exit(PlayerState nextState)
@@ -65,11 +61,11 @@ namespace PlayerStates
                 return;
             }
 
-            if (player.PlayerInput.IsReloading)
+            if (player.PlayerInput.IsReloading && weaponManager.CanReload())
             {
                 stateMachine.SetState(player.reload);
                 return;
-            }            
+            }     
         }
 
         public override void PhysicsUpdate()

@@ -1,6 +1,6 @@
 using UnityEngine;
 using UndeadSurvivalGame.Player;
-using Pathfinding.Examples;
+using System;
 
 public class PlayerWeaponManager : MonoBehaviour
 {
@@ -16,10 +16,12 @@ public class PlayerWeaponManager : MonoBehaviour
     public bool IsWeaponHolstered { get; private set; } = false;
     private GameObject lastSpawnedWeaponPrefab;
 
-    private int totalAmmo = 6; // TEMP: Get from InventoryManager later
-
     // Fire timer logic
     public float FireTimer { get; private set; } = 0f;
+
+    public event Action<Weapon, WeaponConfig> OnWeaponSetup;
+    public event Action OnBulletLoaded;
+    public event Action OnBulletFired;
 
     private void Awake()
     {
@@ -28,6 +30,21 @@ public class PlayerWeaponManager : MonoBehaviour
         if (player == null)
         {
             Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.Awake(): Player component is missing!");
+        }
+    }
+
+    private void Start()
+    {
+        if (CurrentWeaponConfig == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.Start(): CurrentWeaponConfig is not set!");
+            return;
+        }
+
+        if (CurrentWeaponScript == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.Start(): CurrentWeaponScript is null! Is there a weapon gameobject in WeaponHand?");
+            return;
         }
     }
 
@@ -99,6 +116,7 @@ public class PlayerWeaponManager : MonoBehaviour
             );
 
             lastSpawnedWeaponPrefab = CurrentWeaponConfig.weaponPrefab;
+
             // Assign the Weapon script reference
             CurrentWeaponScript = CurrentWeaponGameObject.GetComponent<Weapon>();
             if (CurrentWeaponScript == null)
@@ -107,6 +125,7 @@ public class PlayerWeaponManager : MonoBehaviour
             }
         }
 
+        OnWeaponSetup?.Invoke(CurrentWeaponScript, CurrentWeaponConfig);
         return CurrentWeaponGameObject;
     }
 
@@ -315,11 +334,12 @@ public class PlayerWeaponManager : MonoBehaviour
         }
     }
 
-    public void DecrementCurrentLoadedAmmoCount()
+    public void DecrementLoadedAmmoCount()
     {
         if (CurrentWeaponScript != null)
         {
             CurrentWeaponScript.currentLoadedAmmo--;
+            OnBulletFired?.Invoke();
             Debug.Log($"[{gameObject.name}] PlayerWeaponManager.DecrementAmmoCount(): Ammo decremented. Current ammo: {CurrentWeaponScript.currentLoadedAmmo}");
         }
         else
@@ -328,12 +348,13 @@ public class PlayerWeaponManager : MonoBehaviour
         }
     }
 
-    public void IncrementAmmoCount()
+    public void IncrementLoadedAmmoCount()
     {
         if (CurrentWeaponScript != null)
         {
             CurrentWeaponScript.currentLoadedAmmo++;
-            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IncrementAmmoCount(): Ammo incremented. Current ammo: {CurrentWeaponScript.currentLoadedAmmo}");
+            OnBulletLoaded?.Invoke();
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IncrementLoadedAmmoCount(): Ammo incremented. Current ammo: {CurrentWeaponScript.currentLoadedAmmo}");
         }
         else
         {
@@ -341,40 +362,15 @@ public class PlayerWeaponManager : MonoBehaviour
         }
     }
 
-    public void DecrementTotalAmmoCount()
-    {
-        if (totalAmmo > 0)
-        {
-            totalAmmo--;
-            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.DecrementTotalAmmoCount(): Total ammo decremented. Remaining total ammo: {totalAmmo}");
-        }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DecrementTotalAmmoCount(): Total ammo is already zero! Cannot decrement.");
-        }
-    }
-
-    public void UpdateWeaponDisplay()
+    public bool CanReload()
     {
         if (CurrentWeaponScript != null)
         {
-            player.WeaponUIController.UpdateWeaponDisplay(CurrentWeaponScript.weaponData, CurrentWeaponScript.currentLoadedAmmo, totalAmmo);
+            int ammoTypeQuantity = player.PlayerInventory.GetAmmoTypeQuantity(CurrentWeaponConfig.ammoType);
+            return CurrentWeaponScript.currentLoadedAmmo < CurrentWeaponConfig.maxAmmo
+                && ammoTypeQuantity > 0
+                && !IsChamberFull();
         }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.UpdateWeaponDisplay(): CurrentWeaponScript is null! Cannot update weapon display.");
-        }
-    }
-
-    public void UpdateCurrentLoadedAmmoUI()
-    {
-        if (CurrentWeaponScript != null)
-        {
-            player.WeaponUIController.UpdateCurrentLoadedAmmoUI(CurrentWeaponScript.currentLoadedAmmo);
-        }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.UpdateCurrentLoadedAmmo(): CurrentWeaponScript is null! Cannot update current loaded ammo.");
-        }
+        return false;
     }
 }

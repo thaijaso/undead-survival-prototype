@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 [Serializable]
 public class ItemStack
@@ -27,4 +28,13 @@ public class ItemStack
     }
 
     public bool IsEmpty => item == null;
+
+    public void DecrementQuantity()
+    {
+        quantity--;
+        if (quantity <= 0)
+        {
+            Debug.Log($"[{GetType().Name}] DecrementQuantity(): Item '{item?.name}' is depleted.");
+        }
+    }
 }

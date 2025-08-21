@@ -166,8 +166,8 @@ public class ShootState : AimState
 
         PlayWeaponEffects();
         weaponManager.ResetFireTimer();
-        weaponManager.DecrementCurrentLoadedAmmoCount();
-        weaponManager.UpdateCurrentLoadedAmmoUI();
+        weaponManager.DecrementLoadedAmmoCount();
+        //weaponManager.UpdateCurrentLoadedAmmoUI();
     }
 
     // Apply visual recoil to weapon and animation:

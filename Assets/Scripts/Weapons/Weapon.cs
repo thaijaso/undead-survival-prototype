@@ -1,14 +1,14 @@
 using UnityEngine;
-using NUnit.Framework;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
 #endif
 
-// Weapon.cs
-// This MonoBehaviour represents a runtime weapon instance in the scene. It handles firing, effects, and references to visual/audio components.
-// It references a WeaponData ScriptableObject for all static configuration and stats.
-
+/// <summary>
+/// This MonoBehaviour represents a runtime weapon instance in the scene.
+/// It handles firing, effects, and references to visual/audio components.
+/// It references a WeaponConfig ScriptableObject for all static configuration and stats.
+/// </summary>
 public class Weapon : MonoBehaviour
 {
 #if ODIN_INSPECTOR
