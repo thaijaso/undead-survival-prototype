@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d7f46b871e76544fa3620c2c3ea6194, type: 3}
+  m_Name: 9mmItem
+  m_EditorClassIdentifier: 
+  itemID: ammo.9mm
+  itemName: 9mm
+  itemIcon: {fileID: 21300000, guid: d6ad0d3d913381c4bb9fc515848e43e7, type: 3}
+  itemType: 4
+  weaponType: 0
+  ammoType: 2
+  description: "Light recoil, heavy results. The world\u2019s most borrowed caliber."
+  isStackable: 1
+  maxStack: 24

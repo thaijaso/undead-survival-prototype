@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d7f46b871e76544fa3620c2c3ea6194, type: 3}
-  m_Name: Magnum44Item
+  m_Name: 44MagnumItem
   m_EditorClassIdentifier: 
   itemID: ammo.magnum44
   itemName: .44 Magnum
-  itemIcon: {fileID: 21300000, guid: 9a76caa469a6b724a91c5e4c1f931eb3, type: 3}
+  itemIcon: {fileID: 21300000, guid: efb713db2c7047b4189f815c3b1d8e68, type: 3}
   itemType: 4
   weaponType: 0
   ammoType: 1

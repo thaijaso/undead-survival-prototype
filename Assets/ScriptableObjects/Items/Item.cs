@@ -35,5 +35,6 @@ public enum WeaponType
 public enum AmmoType
 {
     None,
-    Magnum44
+    Magnum44,
+    NineMM
 }
