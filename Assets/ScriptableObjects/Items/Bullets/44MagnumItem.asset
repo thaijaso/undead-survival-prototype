@@ -22,3 +22,4 @@ MonoBehaviour:
     brute stopping power endure in the hands of hunters and marksmen.
   isStackable: 1
   maxStack: 24
+  prefab: {fileID: 1200214826615850, guid: 3c1fb60ea0f47294bab4dfa1e382d773, type: 3}

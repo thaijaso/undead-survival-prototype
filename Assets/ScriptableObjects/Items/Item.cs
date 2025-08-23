@@ -12,6 +12,7 @@ public class Item : ScriptableObject
     public string description;
     public bool isStackable;
     public int maxStack = 1;
+    public GameObject prefab;
 }
 
 public enum ItemType
