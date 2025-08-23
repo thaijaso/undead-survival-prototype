@@ -8,20 +8,17 @@ public class ProximityUI : MonoBehaviour
     [SerializeField]
     private GameObject button;
 
-    [SerializeField]
-    private Transform player;  // Assign your Player root transform 
-    public float showButtonRadius = 3f;
-    public float showArrowRadius = 5f;
-
     void Awake()
     {
-        if (player == null)
+        if (arrow == null)
         {
-            var go = GameObject.FindGameObjectWithTag("Player");
-            if (go) player = go.transform;
+            arrow = transform.Find("Arrow").gameObject;
         }
 
-        if (!player)  Debug.LogWarning($"[{name}] No Player found. Tag your player 'Player' or assign Transform.");
+        if (button == null)
+        {
+            button = transform.Find("PCButtonWhite").gameObject;
+        }
     }
 
     void Reset()
@@ -30,17 +27,23 @@ public class ProximityUI : MonoBehaviour
         button = transform.Find("PCButtonWhite").gameObject; // TODO: implement controller support
     }
 
-    void Update()
+    public void EnableArrow()
     {
-        if (player == null) return;
+        arrow.SetActive(true);
+    }
 
-        float dist = Vector3.Distance(player.position, transform.position);
+    public void DisableArrow()
+    {
+        arrow.SetActive(false);
+    }
 
-        // Enable if within range, disable otherwise
-        bool shouldShowButton = dist <= showButtonRadius;
-        bool shouldShowArrow = dist <= showArrowRadius;
+    public void EnableButton()
+    {
+        button.SetActive(true);
+    }
 
-        button.SetActive(shouldShowButton);
-        arrow.SetActive(shouldShowArrow);
+    public void DisableButton()
+    {
+        button.SetActive(false);
     }
 }
