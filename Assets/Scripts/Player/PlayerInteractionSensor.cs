@@ -1,58 +1,97 @@
+using System.Collections.Generic;
+using RootMotion.FinalIK;
 using UnityEngine;
 
 public class PlayerInteractionSensor : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
+    public float arrowColliderRadius = 10f;
+    public float buttonLineOfSightDistance = 5f;
+    public float lineofSightRadius = 0.5f;
+    private HashSet<ProximityUI> prevInteractables = new();
+    private ProximityUI prevLineOfSightButton = null;
 
     // Update is called once per frame
     void Update()
     {
-
+        ToggleArrowsForNearbyInteractables();
+        ToggleButtonByLineOfSight();
     }
 
-    public void OnChildTriggerEnter(ChildInteractionTrigger trigger, Collider other)
+    // Show arrow UI for nearby interactables
+    private void ToggleArrowsForNearbyInteractables()
     {
-        Debug.Log($"[{name}] triggerType: {trigger.triggerType} detected interactable: {other.gameObject.name}");
+        Collider[] hits = Physics.OverlapSphere(transform.position, arrowColliderRadius, LayerMask.GetMask("Interactable"));
+        HashSet<ProximityUI> curNearbyInteractables = new();
 
-        if (trigger.triggerType == TriggerType.Arrow)
+        // Enable arrows for interactables that are in range
+        foreach (Collider hit in hits)
         {
-            // Show arrow UI
-            Debug.Log($"[{name}] Show Arrow UI");
-            ProximityUI proximityUI = other.GetComponent<ProximityUI>();
-
+            ProximityUI proximityUI = hit.GetComponent<ProximityUI>();
             if (proximityUI != null)
             {
                 proximityUI.EnableArrow();
-            }
-            else
-            {
-                Debug.LogWarning($"[{name}] No ProximityUI component found on {other.gameObject.name}");
+                curNearbyInteractables.Add(proximityUI);
             }
         }
-    }
-    
-    public void OnChildTriggerExit(ChildInteractionTrigger trigger, Collider other)
-    {
-        Debug.Log($"[{name}] triggerType: {trigger.triggerType} lost interactable: {other.gameObject.name}");
 
-        if (trigger.triggerType == TriggerType.Arrow)
+        // Disable arrows for interactables that are no longer in range
+        foreach (ProximityUI prevInteractable in prevInteractables)
         {
-            // Hide arrow UI
-            Debug.Log($"[{name}] Hide Arrow UI");
-            ProximityUI proximityUI = other.GetComponent<ProximityUI>();
+            if (!curNearbyInteractables.Contains(prevInteractable))
+            {
+                prevInteractable.DisableArrow();
+            }
+        }
 
-            if (proximityUI != null)
+        prevInteractables = curNearbyInteractables;
+    }
+
+    private void ToggleButtonByLineOfSight()
+    {
+        Camera cam = Camera.main;
+        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // Center of the screen
+
+        ProximityUI lineOfSightButton = null;
+
+        if (Physics.SphereCast(ray, lineofSightRadius,out RaycastHit hit, buttonLineOfSightDistance, LayerMask.GetMask("Interactable")))
+        {
+            ProximityUI interactable = hit.collider.GetComponent<ProximityUI>();
+
+            if (interactable != null && prevInteractables.Contains(interactable))
             {
-                proximityUI.DisableArrow();
+                lineOfSightButton = interactable;
             }
-            else
-            {
-                Debug.LogWarning($"[{name}] No ProximityUI component found on {other.gameObject.name}");
-            }
+        }
+
+        if (prevLineOfSightButton != null && prevLineOfSightButton != lineOfSightButton)
+        {
+            prevLineOfSightButton.DisableButton();
+        }
+
+        lineOfSightButton?.EnableButton();
+        prevLineOfSightButton = lineOfSightButton;
+    }
+
+    void OnDrawGizmos()
+    {
+        Camera cam = Camera.main;
+        if (cam != null)
+        {
+            Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            Vector3 start = ray.origin;
+            Vector3 end = ray.origin + ray.direction * buttonLineOfSightDistance;
+
+            // Draw the start sphere
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(start, lineofSightRadius);
+
+            // Draw the end sphere
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(end, lineofSightRadius);
+
+            // Draw the line between start and end
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(start, end);
         }
     }
 }
