@@ -122,6 +122,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   arrow: {fileID: 2755917745907689189}
   button: {fileID: 7628382331242498276}
+  textBackground: {fileID: 702092053806499734}
+  textMeshPro: {fileID: 5336836159937521000}
 --- !u!65 &644110025840383462
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -231,6 +233,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5201481962463834418, guid: 7f4884fb86eb4044fba02302aec48298, type: 3}
+      propertyPath: m_text
+      value: Pickup .44 Magnum Ammo x10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5201481962463834418, guid: 7f4884fb86eb4044fba02302aec48298, type: 3}
+      propertyPath: m_fontSize
+      value: 0.035
+      objectReference: {fileID: 0}
+    - target: {fileID: 5201481962463834418, guid: 7f4884fb86eb4044fba02302aec48298, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 0.035
+      objectReference: {fileID: 0}
     - target: {fileID: 5431823792743948919, guid: 7f4884fb86eb4044fba02302aec48298, type: 3}
       propertyPath: m_Name
       value: InteractUICanvas
@@ -240,6 +254,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7f4884fb86eb4044fba02302aec48298, type: 3}
+--- !u!1 &702092053806499734 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 829072997905716172, guid: 7f4884fb86eb4044fba02302aec48298, type: 3}
+  m_PrefabInstance: {fileID: 161883843451360346}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2755917745907689189 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2594597757197939391, guid: 7f4884fb86eb4044fba02302aec48298, type: 3}
@@ -250,6 +269,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3804289118037528674, guid: 7f4884fb86eb4044fba02302aec48298, type: 3}
   m_PrefabInstance: {fileID: 161883843451360346}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5336836159937521000 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5201481962463834418, guid: 7f4884fb86eb4044fba02302aec48298, type: 3}
+  m_PrefabInstance: {fileID: 161883843451360346}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &7628382331242498276 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7773869568477912254, guid: 7f4884fb86eb4044fba02302aec48298, type: 3}

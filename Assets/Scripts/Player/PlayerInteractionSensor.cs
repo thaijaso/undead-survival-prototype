@@ -7,14 +7,14 @@ public class PlayerInteractionSensor : MonoBehaviour
     public float arrowColliderRadius = 10f;
     public float buttonLineOfSightDistance = 5f;
     public float lineofSightRadius = 0.5f;
-    private HashSet<ProximityUI> prevInteractables = new();
-    private ProximityUI prevLineOfSightButton = null;
+    private HashSet<ProximityUI> prevProximityUIs = new();
+    private ProximityUI prevProximityUI = null;
 
     // Update is called once per frame
     void Update()
     {
         ToggleArrowsForNearbyInteractables();
-        ToggleButtonByLineOfSight();
+        ToggleButtonAndTextByLineOfSight();
     }
 
     // Show arrow UI for nearby interactables
@@ -35,7 +35,7 @@ public class PlayerInteractionSensor : MonoBehaviour
         }
 
         // Disable arrows for interactables that are no longer in range
-        foreach (ProximityUI prevInteractable in prevInteractables)
+        foreach (ProximityUI prevInteractable in prevProximityUIs)
         {
             if (!curNearbyInteractables.Contains(prevInteractable))
             {
@@ -43,33 +43,35 @@ public class PlayerInteractionSensor : MonoBehaviour
             }
         }
 
-        prevInteractables = curNearbyInteractables;
+        prevProximityUIs = curNearbyInteractables;
     }
 
-    private void ToggleButtonByLineOfSight()
+    private void ToggleButtonAndTextByLineOfSight()
     {
         Camera cam = Camera.main;
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // Center of the screen
 
-        ProximityUI lineOfSightButton = null;
+        ProximityUI curProximityUI = null;
 
         if (Physics.SphereCast(ray, lineofSightRadius,out RaycastHit hit, buttonLineOfSightDistance, LayerMask.GetMask("Interactable")))
         {
-            ProximityUI interactable = hit.collider.GetComponent<ProximityUI>();
+            ProximityUI proximityUI = hit.collider.GetComponent<ProximityUI>();
 
-            if (interactable != null && prevInteractables.Contains(interactable))
+            if (proximityUI != null && prevProximityUIs.Contains(proximityUI))
             {
-                lineOfSightButton = interactable;
+                curProximityUI = proximityUI;
             }
         }
 
-        if (prevLineOfSightButton != null && prevLineOfSightButton != lineOfSightButton)
+        if (prevProximityUI != null && prevProximityUI != curProximityUI)
         {
-            prevLineOfSightButton.DisableButton();
+            prevProximityUI.DisableButton();
+            prevProximityUI.DisableTextBackground();
         }
 
-        lineOfSightButton?.EnableButton();
-        prevLineOfSightButton = lineOfSightButton;
+        curProximityUI?.EnableButton();
+        curProximityUI?.EnableTextBackground();
+        prevProximityUI = curProximityUI;
     }
 
     void OnDrawGizmos()

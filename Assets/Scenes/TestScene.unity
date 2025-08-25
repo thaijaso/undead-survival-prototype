@@ -115735,6 +115735,10 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 1717255700}
+    - target: {fileID: 2234756134649142616, guid: 77f01f33907846242b6abbc5f4e83bfe, type: 3}
+      propertyPath: itemStack.quantity
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 2887803812547858835, guid: 77f01f33907846242b6abbc5f4e83bfe, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.18
@@ -232392,7 +232396,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -47.7, y: 47.7}
+  m_AnchoredPosition: {x: -59.25, y: 59.25}
   m_SizeDelta: {x: 290.4293, y: 141.266}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1161392514
