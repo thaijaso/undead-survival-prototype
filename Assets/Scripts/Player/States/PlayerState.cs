@@ -49,6 +49,11 @@ public class PlayerState : IState<PlayerState>
         {
             player.PlayerMenuUIController.TogglePlayerMenu();
         }
+
+        if (player.PlayerInput.IsInteracting && player.InteractionSensor.CurrentInteractable != null)
+        {
+            player.InteractionSensor.CurrentInteractable.Interact(player);
+        }
     }
 
     public virtual void PhysicsUpdate()

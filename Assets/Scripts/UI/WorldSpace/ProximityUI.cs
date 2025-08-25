@@ -52,45 +52,59 @@ public class ProximityUI : MonoBehaviour
         textBackground.SetActive(false);
     }
 
-    void Reset()
-    {
-        arrow = transform.Find("Arrow").gameObject;
-        button = transform.Find("PCButtonWhite").gameObject; // TODO: implement controller support
-        textBackground = transform.Find("TextBackground").gameObject;
-    }
-
     public void EnableArrow()
     {
-        arrow.SetActive(true);
+        if (arrow != null)
+        {
+            arrow.SetActive(true);
+        }
     }
 
     public void DisableArrow()
     {
-        arrow.SetActive(false);
+        if (arrow != null)
+        {
+            arrow.SetActive(false);
+        }
     }
 
     public void EnableButton()
     {
-        button.SetActive(true);
+        if (button != null)
+        {
+            button.SetActive(true);
+        }
     }
 
     public void DisableButton()
     {
-        button.SetActive(false);
+        if (button != null)
+        {
+            button.SetActive(false);
+        }
     }
 
     public void EnableTextBackground()
     {
-        textBackground.SetActive(true);
+        if (textBackground != null)
+        {
+            textBackground.SetActive(true);
+        }
     }
 
     public void DisableTextBackground()
     {
-        textBackground.SetActive(false);
+        if (textBackground != null)
+        {
+            textBackground.SetActive(false);
+        }
     }
 
     public void SetText(string text)
     {
-        textMeshPro.text = text;
+        if (textMeshPro != null)
+        {
+            textMeshPro.text = text;
+        }
     }
 }

@@ -163,6 +163,13 @@ public class Bullet : MonoBehaviour
     private void ApplyForceToMuscle(PuppetMaster puppetMaster, Rigidbody hitRigidbody, Vector3 force, Vector3 position)
     {
         Limb hitLimb = hitRigidbody.GetComponent<Limb>();
+
+        if (hitLimb == null)
+        {
+            Debug.Log($"[Bullet] ApplyForceToMuscle(): No Limb component found on hit rigidbody: {hitRigidbody.name}");
+            return;
+        }
+
         Debug.Log($"[Bullet] ApplyForceToMuscle(): Applying force to muscle for hit limb: {hitLimb.LimbType}");
 
         // Find the muscle that owns this rigidbody

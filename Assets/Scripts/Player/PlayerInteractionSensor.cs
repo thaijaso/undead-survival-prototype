@@ -1,14 +1,14 @@
 using System.Collections.Generic;
-using RootMotion.FinalIK;
 using UnityEngine;
 
-public class PlayerInteractionSensor : MonoBehaviour
+public class InteractionSensor : MonoBehaviour
 {
+    public IInteractable CurrentInteractable { get; private set; } = null;
     public float arrowColliderRadius = 10f;
     public float buttonLineOfSightDistance = 5f;
     public float lineofSightRadius = 0.5f;
-    private HashSet<ProximityUI> prevProximityUIs = new();
-    private ProximityUI prevProximityUI = null;
+    private HashSet<ProximityUI> activeArrowsUI = new();
+    private ProximityUI focusedProximityUI = null;
 
     // Update is called once per frame
     void Update()
@@ -27,7 +27,7 @@ public class PlayerInteractionSensor : MonoBehaviour
         foreach (Collider hit in hits)
         {
             ProximityUI proximityUI = hit.GetComponent<ProximityUI>();
-            if (proximityUI != null)
+            if (proximityUI != null && proximityUI.gameObject != null)
             {
                 proximityUI.EnableArrow();
                 curNearbyInteractables.Add(proximityUI);
@@ -35,15 +35,22 @@ public class PlayerInteractionSensor : MonoBehaviour
         }
 
         // Disable arrows for interactables that are no longer in range
-        foreach (ProximityUI prevInteractable in prevProximityUIs)
+        foreach (ProximityUI activeArrowUI in activeArrowsUI)
         {
-            if (!curNearbyInteractables.Contains(prevInteractable))
+            if (activeArrowUI == null)
+                continue; // Skip destroyed objects
+
+            if (!curNearbyInteractables.Contains(activeArrowUI))
             {
-                prevInteractable.DisableArrow();
+                if (activeArrowUI != null)
+                {
+                    activeArrowUI.DisableArrow();
+                }
             }
         }
 
-        prevProximityUIs = curNearbyInteractables;
+        activeArrowsUI = curNearbyInteractables;
+        activeArrowsUI.RemoveWhere(ui => ui == null); // Clean up any null references
     }
 
     private void ToggleButtonAndTextByLineOfSight()
@@ -53,25 +60,40 @@ public class PlayerInteractionSensor : MonoBehaviour
 
         ProximityUI curProximityUI = null;
 
-        if (Physics.SphereCast(ray, lineofSightRadius,out RaycastHit hit, buttonLineOfSightDistance, LayerMask.GetMask("Interactable")))
+        if (Physics.SphereCast(ray, lineofSightRadius, out RaycastHit hit, buttonLineOfSightDistance, LayerMask.GetMask("Interactable")))
         {
             ProximityUI proximityUI = hit.collider.GetComponent<ProximityUI>();
 
-            if (proximityUI != null && prevProximityUIs.Contains(proximityUI))
+            if (proximityUI != null && activeArrowsUI.Contains(proximityUI))
             {
                 curProximityUI = proximityUI;
             }
         }
 
-        if (prevProximityUI != null && prevProximityUI != curProximityUI)
+        if (focusedProximityUI != null && focusedProximityUI != curProximityUI)
         {
-            prevProximityUI.DisableButton();
-            prevProximityUI.DisableTextBackground();
+            focusedProximityUI.DisableButton();
+            focusedProximityUI.DisableTextBackground();
         }
 
+        CurrentInteractable = curProximityUI?.GetComponent<IInteractable>();
         curProximityUI?.EnableButton();
         curProximityUI?.EnableTextBackground();
-        prevProximityUI = curProximityUI;
+        focusedProximityUI = curProximityUI;
+    }
+
+    public void RemoveProximityUIRefs(ProximityUI proximityUI)
+    {
+        if (activeArrowsUI.Contains(proximityUI))
+        {
+            activeArrowsUI.Remove(proximityUI);
+        }
+
+        if (focusedProximityUI == proximityUI)
+        {
+            focusedProximityUI = null;
+            CurrentInteractable = null;
+        }
     }
 
     void OnDrawGizmos()

@@ -9,6 +9,7 @@ public class PlayerInput : MonoBehaviour
     private InputAction attackAction;
     private InputAction reloadAction;
     private InputAction playerMenuAction;
+    private InputAction interactAction;
 
     public bool IsMoving { get; internal set; }
 
@@ -18,6 +19,7 @@ public class PlayerInput : MonoBehaviour
     private float moveGraceTimer = 0f;
     private float graceDuration = 0.2f;
 
+    public bool IsInteracting { get; internal set; }
     public bool IsSprinting { get; internal set; }
     public bool IsJumping { get; internal set; }
     public bool IsAiming { get; internal set; }
@@ -66,6 +68,9 @@ public class PlayerInput : MonoBehaviour
         attackAction = InputSystem.actions.FindAction("Attack");
         reloadAction = InputSystem.actions.FindAction("Reload");
         playerMenuAction = InputSystem.actions.FindAction("PlayerMenu");
+        interactAction = InputSystem.actions.FindAction("Interact");
+
+        Debug.Log("interactAction:" + interactAction);
 
         // Event-based input buffering
         if (attackAction != null)
@@ -99,6 +104,9 @@ public class PlayerInput : MonoBehaviour
         IsAttacking = attackAction.ReadValue<float>() > 0.0f;
         IsReloading = reloadAction.ReadValue<float>() > 0.0f;
         IsPlayerMenuPressed = playerMenuAction.triggered;
+        IsInteracting = interactAction.triggered;
+
+        Debug.Log("IsInteracting:" + IsInteracting);
 
         if (IsMoving)
         {

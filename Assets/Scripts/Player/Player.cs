@@ -29,6 +29,8 @@ namespace UndeadSurvivalGame.Player
 
         public Inventory PlayerInventory { get; private set; }
 
+        public InteractionSensor InteractionSensor { get; private set; }
+
         public StateMachine<PlayerState> stateMachine;
         
         internal PlayerState idle;
@@ -95,6 +97,7 @@ namespace UndeadSurvivalGame.Player
             SetupHealthManager();
             SetupPlayerInventory();
             SetupPlayerMenuUIController();
+            SetupPlayerInteractionSensor();
 
             stateMachine = new StateMachine<PlayerState>(gameObject.name);
         }
@@ -246,6 +249,14 @@ namespace UndeadSurvivalGame.Player
 
             if (PlayerInventory == null)
                 Debug.LogError($"[{gameObject.name}] Player.SetupPlayerInventory(): Inventory component is missing!");
+        }
+
+        private void SetupPlayerInteractionSensor()
+        {
+            InteractionSensor = GetComponentInChildren<InteractionSensor>();
+
+            if (InteractionSensor == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupPlayerInteractionSensor(): PlayerInteractionSensor component is missing!");
         }
 
         void Start()

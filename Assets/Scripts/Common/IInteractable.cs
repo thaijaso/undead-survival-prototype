@@ -1,6 +1,6 @@
-using UnityEngine;
+using UndeadSurvivalGame.Player;
 
 public interface IInteractable
 {
-    void Interact();
+    void Interact(Player player);
 }
