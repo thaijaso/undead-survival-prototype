@@ -106,8 +106,6 @@ public class PlayerInput : MonoBehaviour
         IsPlayerMenuPressed = playerMenuAction.triggered;
         IsInteracting = interactAction.triggered;
 
-        Debug.Log("IsInteracting:" + IsInteracting);
-
         if (IsMoving)
         {
             moveGraceTimer += Time.deltaTime;

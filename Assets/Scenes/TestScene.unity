@@ -343515,7 +343515,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4adddc78228213c49a9fb571b2755efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  capacity: 15
+  capacity: 2
   itemStacks: []
 --- !u!1001 &1717560231
 PrefabInstance:

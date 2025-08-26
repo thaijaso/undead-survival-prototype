@@ -1,9 +1,12 @@
+using System;
 using UndeadSurvivalGame.Player;
 using UnityEngine;
 
 public class ItemPickupInteractable : MonoBehaviour, IInteractable
 {
     public ItemStack itemStack;
+
+    public event Action<string, int> OnPickupFailed;
 
     private void Awake()
     {
@@ -21,7 +24,7 @@ public class ItemPickupInteractable : MonoBehaviour, IInteractable
             return;
         }
 
-        proximityUI.SetText($"Pickup {itemStack.item.itemName} x{itemStack.quantity}");
+        proximityUI.SetPickupText(itemStack.item.itemName, itemStack.quantity);
     }
 
     public void Interact(Player player)
@@ -41,7 +44,7 @@ public class ItemPickupInteractable : MonoBehaviour, IInteractable
             {
                 Debug.Log($"ItemPickupInteractable.Interact(): {name} could not pick up {itemStack}. Inventory full.");
                 itemStack.quantity = remaining;
-                // TODO: invoke event for ui to update
+                OnPickupFailed?.Invoke(itemStack.item.itemName, itemStack.quantity);
             }
         }
     }

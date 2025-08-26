@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class ProximityUI : MonoBehaviour
 {
+    public string itemPickupTemplate = $"Pickup {{itemName}} x{{quantity}}";
+
     [SerializeField]
     private GameObject arrow;
 
@@ -15,11 +17,14 @@ public class ProximityUI : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI textMeshPro;
 
+    private ItemPickupInteractable itemPickupInteractable;
+
     void Awake()
     {
         SetupArrow();
         SetupButton();
         SetupTextBackground();
+        SetupItemPickupInteractable();
     }
 
     private void SetupArrow()
@@ -50,6 +55,16 @@ public class ProximityUI : MonoBehaviour
         }
 
         textBackground.SetActive(false);
+    }
+
+    private void SetupItemPickupInteractable()
+    {
+        itemPickupInteractable = GetComponent<ItemPickupInteractable>();
+
+        if (itemPickupInteractable != null)
+        {
+            itemPickupInteractable.OnPickupFailed += SetPickupText;
+        }
     }
 
     public void EnableArrow()
@@ -100,7 +115,15 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    public void SetText(string text)
+    public void SetPickupText(string itemName, int quantity)
+    {
+        string text = itemPickupTemplate
+            .Replace("{itemName}", itemName)
+            .Replace("{quantity}", quantity.ToString());
+        SetText(text);
+    }
+
+    private void SetText(string text)
     {
         if (textMeshPro != null)
         {
