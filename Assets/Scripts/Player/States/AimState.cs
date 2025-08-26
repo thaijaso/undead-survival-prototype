@@ -196,19 +196,15 @@ public class AimState : StrafeState
     {
         base.LateUpdate();
 
-        // Only update aim IK target if camera axis has changed
-        if (player.PlayerCameraController.HasCameraAxisChanged())
-        {
-            player.PlayerCameraController.MoveAimIKTarget();
-            float bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
-            float bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
-            player.CrosshairController.ExpandAndContractCrosshair(
-                1f,
-                bulletSpreadHorizontal,
-                bulletSpreadVertical,
-                0.1f
-            );
-        }
+        player.PlayerCameraController.MoveAimIKTarget();
+        float bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
+        float bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
+        player.CrosshairController.ExpandAndContractCrosshair(
+            1f,
+            bulletSpreadHorizontal,
+            bulletSpreadVertical,
+            0.1f
+        );
 
         player.PlayerCameraController.MoveBulletHitTarget();
 
