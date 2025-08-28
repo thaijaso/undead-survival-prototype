@@ -1,9 +1,11 @@
+using MoreMountains.Feedbacks;
 using TMPro;
 using UnityEngine;
 
 public class ProximityUI : MonoBehaviour
 {
     public string itemPickupTemplate = $"Pickup {{itemName}} x{{quantity}}";
+    public string inventoryFullTemplate = "Inventory Full";
 
     [SerializeField]
     private GameObject arrow;
@@ -17,7 +19,11 @@ public class ProximityUI : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI textMeshPro;
 
+    [SerializeField]
+    private MMF_Player InventoryFullFeedback;
+
     private ItemPickupInteractable itemPickupInteractable;
+
 
     void Awake()
     {
@@ -25,6 +31,7 @@ public class ProximityUI : MonoBehaviour
         SetupButton();
         SetupTextBackground();
         SetupItemPickupInteractable();
+        SetupInventoryFullFeedback();
     }
 
     private void SetupArrow()
@@ -63,7 +70,21 @@ public class ProximityUI : MonoBehaviour
 
         if (itemPickupInteractable != null)
         {
-            itemPickupInteractable.OnPickupFailed += SetPickupText;
+            itemPickupInteractable.OnPickupAllFailed += SetPickupText;
+            itemPickupInteractable.OnInventoryFull += HandleInventoryFull;
+        }
+    }
+
+    private void SetupInventoryFullFeedback()
+    {
+        if (InventoryFullFeedback == null)
+        {
+            InventoryFullFeedback = GetComponentInChildren<MMF_Player>(true);
+        }
+
+        if (InventoryFullFeedback == null)
+        {
+            Debug.LogWarning($"ProximityUI.SetupInventoryFullFeedback(): {name} has no InventoryFullFeedback assigned or found in children.");
         }
     }
 
@@ -130,4 +151,23 @@ public class ProximityUI : MonoBehaviour
             textMeshPro.text = text;
         }
     }
+
+    private void HandleInventoryFull()
+    {
+        PlayInventoryFullFeedback();
+        SetInventoryFullText();
+    }
+
+    private void PlayInventoryFullFeedback()
+    {
+        if (InventoryFullFeedback != null)
+        {
+            InventoryFullFeedback.PlayFeedbacks();
+        }
+    }
+
+    private void SetInventoryFullText()
+    {
+        SetText(inventoryFullTemplate);
+    }   
 }

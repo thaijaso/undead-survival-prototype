@@ -5,7 +5,6 @@ namespace UndeadSurvivalGame.Player.States
 {
     public class HitReactionState : PlayerState
     {
-        private bool shouldEnterHitReaction = false;
 
         public HitReactionState(
             Player player,
@@ -34,7 +33,6 @@ namespace UndeadSurvivalGame.Player.States
         public override void Exit(PlayerState nextState)
         {
             base.Exit(nextState);
-            shouldEnterHitReaction = false;
         }
 
         public void OnHandCollided()
@@ -46,8 +44,6 @@ namespace UndeadSurvivalGame.Player.States
                 Debug.Log($"[{player.name}] HitReactionState.OnHandCollided(): Already in Hit Reaction state, ignoring.");
                 return;
             }
-
-            shouldEnterHitReaction = true;
         }
 
         // Called by animation event when knockback animation finishes 

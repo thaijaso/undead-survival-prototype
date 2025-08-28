@@ -13,6 +13,8 @@ public class Item : ScriptableObject
     public bool isStackable;
     public int maxStack = 1;
     public GameObject prefab;
+    public AudioClip pickupAllSound;
+    public AudioClip pickupSomeSound;
 }
 
 public enum ItemType

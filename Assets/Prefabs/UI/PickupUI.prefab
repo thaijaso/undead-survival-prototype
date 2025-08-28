@@ -757,7 +757,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.04
+  m_fontSize: 0.035
   m_fontSizeBase: 0.04
   m_fontWeight: 400
   m_enableAutoSizing: 0
@@ -1103,7 +1103,7 @@ GameObject:
   - component: {fileID: 6155525379461340686}
   - component: {fileID: 2144504315230074551}
   m_Layer: 14
-  m_Name: InteractUICanvas
+  m_Name: PickupUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

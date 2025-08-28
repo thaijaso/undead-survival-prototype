@@ -6,6 +6,7 @@ public class ItemStack
 {
     public Item item;
     public int quantity = 1;
+    
 
     public ItemStack(Item item, int quantity = 1)
     {

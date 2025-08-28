@@ -1,4 +1,5 @@
 using System;
+using MoreMountains.Tools;
 using UndeadSurvivalGame.Player;
 using UnityEngine;
 
@@ -6,7 +7,8 @@ public class ItemPickupInteractable : MonoBehaviour, IInteractable
 {
     public ItemStack itemStack;
 
-    public event Action<string, int> OnPickupFailed;
+    public event Action<string, int> OnPickupAllFailed;
+    public event Action OnInventoryFull;
 
     private void Awake()
     {
@@ -35,16 +37,40 @@ public class ItemPickupInteractable : MonoBehaviour, IInteractable
 
             if (remaining == 0)
             {
-                Debug.Log($"ItemPickupInteractable.Interact(): {name} picked up {itemStack}");
+                Debug.Log($"ItemPickupInteractable.Interact(): picked up {itemStack.item.itemName}");
+
+                MMSoundManager.Instance.PlaySound(
+                    itemStack.item.pickupAllSound,
+                    MMSoundManager.MMSoundManagerTracks.Sfx,
+                    transform.position
+                );
+
                 ProximityUI proximityUI = GetComponent<ProximityUI>();
                 player.InteractionSensor.RemoveProximityUIRefs(proximityUI);
                 Destroy(gameObject);
             }
+            else if (remaining < itemStack.quantity)
+            {
+                Debug.Log($"ItemPickupInteractable.Interact(): {name} could not pick up entire {itemStack.item.itemName}. Inventory full.");
+
+                MMSoundManager.Instance.PlaySound(
+                    itemStack.item.pickupSomeSound,
+                    MMSoundManager.MMSoundManagerTracks.Sfx,
+                    transform.position
+                );
+                itemStack.quantity = remaining;
+                OnPickupAllFailed?.Invoke(itemStack.item.itemName, itemStack.quantity);
+            }
+            else if (remaining == itemStack.quantity)
+            {
+                Debug.Log($"ItemPickupInteractable.Interact(): {name} could not pickup any of {itemStack.item.itemName}.");
+
+                // Play error sound?
+                OnInventoryFull?.Invoke();
+            }
             else
             {
-                Debug.Log($"ItemPickupInteractable.Interact(): {name} could not pick up {itemStack}. Inventory full.");
-                itemStack.quantity = remaining;
-                OnPickupFailed?.Invoke(itemStack.item.itemName, itemStack.quantity);
+                Debug.LogError($"ItemPickupInteractable.Interact(): {name} encountered an error while trying to pick up {itemStack}.");
             }
         }
     }

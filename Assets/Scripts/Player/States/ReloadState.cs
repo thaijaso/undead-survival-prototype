@@ -28,6 +28,11 @@ namespace UndeadSurvivalGame.Player.States
             player.PlayerInput.ConsumeAimBuffer(); // Consume any buffered aim input on entering reload
         }
 
+        public override void Exit(PlayerState nextState)
+        {
+            animationManager.SetIsReloading(false);
+        }
+
         public override void LogicUpdate()
         {
             base.LogicUpdate();
