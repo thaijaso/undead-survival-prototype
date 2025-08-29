@@ -36409,6 +36409,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerMenu: {fileID: 167462149}
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1001 &167842851
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -93377,6 +93378,50 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4553212922083844, guid: e93fbbea579814243867da098662e194, type: 3}
   m_PrefabInstance: {fileID: 468134651}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &468989260
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 468989261}
+  - component: {fileID: 468989262}
+  m_Layer: 0
+  m_Name: HUDManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &468989261
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468989260}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &468989262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468989260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51ad1ac75f623ea4c957f7f670895846, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1001 &469141736
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -232396,7 +232441,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -55.35, y: 55.35}
+  m_AnchoredPosition: {x: -96, y: 96}
   m_SizeDelta: {x: 290.4293, y: 141.266}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1161392514
@@ -437131,3 +437176,4 @@ SceneRoots:
   - {fileID: 1983331480}
   - {fileID: 1540528138}
   - {fileID: 1928716640}
+  - {fileID: 468989261}

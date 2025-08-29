@@ -167,4 +167,18 @@ public class Inventory : MonoBehaviour
 
         Debug.LogWarning($"[{gameObject.name}] Inventory.DecrementAmmo(): No ammo of type {ammoType} found.");
     }
+
+    public void DropItemStack(ItemStack itemStack)
+    {
+        if (itemStacks.Contains(itemStack))
+        {
+            itemStacks.Remove(itemStack);
+            // TODO: spawn item in the world
+            OnInventoryChanged?.Invoke();
+        }
+        else
+        {
+            Debug.LogWarning("Attempted to drop an item stack that is not in the inventory.");
+        }
+    }
 }

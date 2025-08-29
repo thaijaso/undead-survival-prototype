@@ -106,7 +106,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "PlayerMenu",
+                    "name": "OpenPlayerMenu",
                     "type": "Button",
                     "id": "dfba37ab-7b4b-4a8b-839e-88ed8649d36f",
                     "expectedControlType": "",
@@ -508,7 +508,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "PlayerMenu",
+                    "action": "OpenPlayerMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -604,6 +604,15 @@
                     "type": "PassThrough",
                     "id": "9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be",
                     "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ClosePlayerMenu",
+                    "type": "Button",
+                    "id": "b9d9e6dd-2dc0-4586-b733-0899d1d10ad5",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -1025,6 +1034,17 @@
                     "processors": "",
                     "groups": "XR",
                     "action": "TrackedDeviceOrientation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "556ed3d7-7281-4816-87cb-c3e8362a3a0d",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ClosePlayerMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

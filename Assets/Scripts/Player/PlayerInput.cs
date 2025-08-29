@@ -67,10 +67,8 @@ public class PlayerInput : MonoBehaviour
         aimAction = InputSystem.actions.FindAction("Aim");
         attackAction = InputSystem.actions.FindAction("Attack");
         reloadAction = InputSystem.actions.FindAction("Reload");
-        playerMenuAction = InputSystem.actions.FindAction("PlayerMenu");
+        playerMenuAction = InputSystem.actions.FindAction("OpenPlayerMenu");
         interactAction = InputSystem.actions.FindAction("Interact");
-
-        Debug.Log("interactAction:" + interactAction);
 
         // Event-based input buffering
         if (attackAction != null)
@@ -106,6 +104,11 @@ public class PlayerInput : MonoBehaviour
         IsPlayerMenuPressed = playerMenuAction.triggered;
         IsInteracting = interactAction.triggered;
 
+        HandleMoveCommitedGracePeriod();
+    }
+
+    private void HandleMoveCommitedGracePeriod()
+    {
         if (IsMoving)
         {
             moveGraceTimer += Time.deltaTime;

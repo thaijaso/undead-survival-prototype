@@ -70,8 +70,8 @@ public class ProximityUI : MonoBehaviour
 
         if (itemPickupInteractable != null)
         {
-            itemPickupInteractable.OnPickupAllFailed += SetPickupText;
-            itemPickupInteractable.OnInventoryFull += HandleInventoryFullFeedbacks;
+            itemPickupInteractable.OnPickupAllFailed += DisplayPickupPrompt;
+            itemPickupInteractable.OnInventoryFull += ShowInventoryFullFeedback;
         }
     }
 
@@ -88,7 +88,7 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    public void EnableArrow()
+    public void ShowArrowIndicator()
     {
         if (arrow != null)
         {
@@ -96,7 +96,7 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    public void DisableArrow()
+    public void HideArrowIndicator()
     {
         if (arrow != null)
         {
@@ -104,7 +104,7 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    public void EnableButton()
+    public void ShowPickupButton()
     {
         if (button != null)
         {
@@ -112,7 +112,7 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    public void DisableButton()
+    public void HidePickupButton()
     {
         if (button != null)
         {
@@ -120,7 +120,7 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    public void EnableTextBackground()
+    public void ShowTextBackground()
     {
         if (textBackground != null)
         {
@@ -128,7 +128,7 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    public void DisableTextBackground()
+    public void HideTextBackground()
     {
         if (textBackground != null)
         {
@@ -136,15 +136,15 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    public void SetPickupText(string itemName, int quantity)
+    public void DisplayPickupPrompt(string itemName, int quantity)
     {
         string text = itemPickupTemplate
             .Replace("{itemName}", itemName)
             .Replace("{quantity}", quantity.ToString());
-        SetText(text);
+        DisplayPromptText(text);
     }
 
-    private void SetText(string text)
+    private void DisplayPromptText(string text)
     {
         if (textMeshPro != null)
         {
@@ -152,13 +152,13 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    private void HandleInventoryFullFeedbacks()
+    private void ShowInventoryFullFeedback()
     {
-        PlayInventoryFullFeedback();
-        SetInventoryFullText();
+        PlayInventoryFullEffect();
+        DisplayInventoryFullText();
     }
 
-    private void PlayInventoryFullFeedback()
+    private void PlayInventoryFullEffect()
     {
         if (InventoryFullFeedback != null)
         {
@@ -166,8 +166,15 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    private void SetInventoryFullText()
+    private void DisplayInventoryFullText()
     {
-        SetText(inventoryFullTemplate);
+        DisplayPromptText(inventoryFullTemplate);
+    }
+
+    public void HideAllPrompts()
+    {
+        HideArrowIndicator();
+        HidePickupButton();
+        HideTextBackground();
     }   
 }

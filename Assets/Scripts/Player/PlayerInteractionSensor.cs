@@ -29,7 +29,7 @@ public class InteractionSensor : MonoBehaviour
             ProximityUI proximityUI = hit.GetComponent<ProximityUI>();
             if (proximityUI != null && proximityUI.gameObject != null)
             {
-                proximityUI.EnableArrow();
+                proximityUI.ShowArrowIndicator();
                 curNearbyInteractables.Add(proximityUI);
             }
         }
@@ -44,7 +44,7 @@ public class InteractionSensor : MonoBehaviour
             {
                 if (activeArrowUI != null)
                 {
-                    activeArrowUI.DisableArrow();
+                    activeArrowUI.HideArrowIndicator();
                 }
             }
         }
@@ -72,13 +72,13 @@ public class InteractionSensor : MonoBehaviour
 
         if (focusedProximityUI != null && focusedProximityUI != curProximityUI)
         {
-            focusedProximityUI.DisableButton();
-            focusedProximityUI.DisableTextBackground();
+            focusedProximityUI.HidePickupButton();
+            focusedProximityUI.HideTextBackground();
         }
 
         CurrentInteractable = curProximityUI?.GetComponent<IInteractable>();
-        curProximityUI?.EnableButton();
-        curProximityUI?.EnableTextBackground();
+        curProximityUI?.ShowPickupButton();
+        curProximityUI?.ShowTextBackground();
         focusedProximityUI = curProximityUI;
     }
 

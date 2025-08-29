@@ -130,7 +130,7 @@ public class InventoryGridUIController : MonoBehaviour
     /// <summary>
     /// Update slot visuals based on Inventory data.
     /// </summary>
-    void RefreshGrid()
+    private void RefreshGrid()
     {
         Debug.Log("Refreshing inventory grid UI...");
 
@@ -182,5 +182,32 @@ public class InventoryGridUIController : MonoBehaviour
                 slot.SetEmpty(true);
             }
         }
+    }
+
+    public void DropSelectedItem()
+    {
+        if (SelectedSlot == null)
+        {
+            Debug.LogWarning("No slot is selected to drop an item from.");
+            return;
+        }
+
+        int selectedIndex = SelectedSlot.GetIndex();
+
+        if (selectedIndex < 0 || selectedIndex >= Inventory.ItemStacks.Count)
+        {
+            Debug.LogWarning("Selected slot index is out of range of the inventory item stacks.");
+            return;
+        }
+
+        ItemStack selectedItemStack = Inventory.ItemStacks[selectedIndex];
+
+        if (selectedItemStack == null)
+        {
+            Debug.LogWarning("Selected slot does not contain a valid item stack to drop.");
+            return;
+        }
+
+        Inventory.DropItemStack(selectedItemStack);
     }
 }

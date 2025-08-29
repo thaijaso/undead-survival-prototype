@@ -26,7 +26,7 @@ public class ItemPickupInteractable : MonoBehaviour, IInteractable
             return;
         }
 
-        proximityUI.SetPickupText(itemStack.item.itemName, itemStack.quantity);
+        proximityUI.DisplayPickupPrompt(itemStack.item.itemName, itemStack.quantity);
     }
 
     public void Interact(Player player)
