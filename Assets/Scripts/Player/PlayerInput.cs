@@ -17,7 +17,7 @@ public class PlayerInput : MonoBehaviour
     public bool MoveCommited { get; internal set; }
 
     private float moveGraceTimer = 0f;
-    private float graceDuration = 0.2f;
+    private float graceDuration = 0.15f;
 
     public bool IsInteracting { get; internal set; }
     public bool IsSprinting { get; internal set; }

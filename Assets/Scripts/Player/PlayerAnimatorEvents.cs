@@ -7,8 +7,8 @@ public class PlayerAnimatorEvents : MonoBehaviour
 {
     private Player player;
 
-    public enum Foot { Left, Right, Both }
-    public Foot lastPlantedFoot = Foot.Both; // Default
+    public enum Foot { Left, Right }
+    public Foot lastPlantedFoot = Foot.Right; // Default
 
     void Awake()
     {

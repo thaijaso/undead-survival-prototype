@@ -71,7 +71,7 @@ public class ProximityUI : MonoBehaviour
         if (itemPickupInteractable != null)
         {
             itemPickupInteractable.OnPickupAllFailed += SetPickupText;
-            itemPickupInteractable.OnInventoryFull += HandleInventoryFull;
+            itemPickupInteractable.OnInventoryFull += HandleInventoryFullFeedbacks;
         }
     }
 
@@ -152,7 +152,7 @@ public class ProximityUI : MonoBehaviour
         }
     }
 
-    private void HandleInventoryFull()
+    private void HandleInventoryFullFeedbacks()
     {
         PlayInventoryFullFeedback();
         SetInventoryFullText();
