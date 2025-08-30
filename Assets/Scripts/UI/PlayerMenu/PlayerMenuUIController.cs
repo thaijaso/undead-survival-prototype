@@ -4,6 +4,12 @@ using UnityEngine.InputSystem;
 
 public class PlayerMenuUIController : MonoBehaviour
 {
+    [SerializeField]
+    private UIInput uiInput;
+
+    [SerializeField]
+    private InventoryGridUIController inventoryGridUIController;
+
     public GameObject playerMenu;
     public event Action<bool> OnPlayerMenuToggled; // true = open, false = closed
 
@@ -25,6 +31,7 @@ public class PlayerMenuUIController : MonoBehaviour
         SetupInputActionsAsset();
         SetupInputActionMaps();
         SetupInputActions();
+        SetupInventoryGridUIController();
     }
 
     private void SetupInputActionsAsset()
@@ -63,6 +70,19 @@ public class PlayerMenuUIController : MonoBehaviour
         }
     }
 
+    private void SetupInventoryGridUIController()
+    {
+        if (inventoryGridUIController == null)
+        {
+            inventoryGridUIController = GetComponentInChildren<InventoryGridUIController>();
+
+            if (inventoryGridUIController == null)
+            {
+                Debug.LogWarning("PlayerMenuUIController requires an InventoryGridUIController in the children.");
+            }
+        }
+    }
+
     public void TogglePlayerMenu()
     {
         if (playerMenu == null)
@@ -76,6 +96,7 @@ public class PlayerMenuUIController : MonoBehaviour
 
         ToggleCursor(isMenuActive);
         ToggleActionMap(isMenuActive);
+        ToggleUIInput(isMenuActive);
 
         OnPlayerMenuToggled?.Invoke(isMenuActive);
     }
@@ -99,6 +120,46 @@ public class PlayerMenuUIController : MonoBehaviour
         {
             uiMap.Disable();
             playerMap.Enable();
+        }
+    }
+
+    private void ToggleUIInput(bool isMenuActive)
+    {
+        if (uiInput == null)
+        {
+            Debug.LogWarning("UIInput component is not assigned.");
+            return;
+        }
+
+        if (isMenuActive)
+            uiInput.EnableUIInput();
+        else
+            uiInput.DisableUIInput();
+    }
+
+    private void OnEnable()
+    {
+        if (uiInput != null)
+        {
+            uiInput.OnDropItem += HandleDropItem;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (uiInput != null)
+        {
+            uiInput.OnDropItem -= HandleDropItem;
+        }
+    }
+
+    private void HandleDropItem()
+    {
+        Debug.Log("DropItem event received.");
+
+        if (inventoryGridUIController != null)
+        {
+            inventoryGridUIController.DropSelectedItem();
         }
     }
 }

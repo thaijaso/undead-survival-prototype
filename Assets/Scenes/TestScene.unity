@@ -36408,6 +36408,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2210a29cd3235314ba05a226e05446ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uiInput: {fileID: 1468555638}
+  inventoryGridUIController: {fileID: 0}
   playerMenu: {fileID: 167462149}
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1001 &167842851
@@ -93422,6 +93424,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51ad1ac75f623ea4c957f7f670895846, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  playerMenuUIController: {fileID: 0}
+  proximityUIs: []
+  interactionSensor: {fileID: 0}
 --- !u!1001 &469141736
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -293799,6 +293804,51 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4552406823354082, guid: c1b54ba7ac627a844a95c658d9dc3ea5, type: 3}
   m_PrefabInstance: {fileID: 1468045778}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1468555637
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1468555639}
+  - component: {fileID: 1468555638}
+  m_Layer: 0
+  m_Name: UIInput
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1468555638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1468555637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ffc426ac7e24f54eb774f5df0d71d28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+--- !u!4 &1468555639
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1468555637}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.19247, y: 0, z: -15.50917}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1468561628
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -294755,7 +294805,7 @@ GameObject:
   - component: {fileID: 1472460666}
   - component: {fileID: 1472460665}
   m_Layer: 5
-  m_Name: PlayerMenuCanvas
+  m_Name: PlayerMenuUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -309352,7 +309402,7 @@ GameObject:
   - component: {fileID: 1540528136}
   - component: {fileID: 1540528135}
   m_Layer: 0
-  m_Name: CurrentWeaponCanvas
+  m_Name: CurrentWeaponUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -437177,3 +437227,4 @@ SceneRoots:
   - {fileID: 1540528138}
   - {fileID: 1928716640}
   - {fileID: 468989261}
+  - {fileID: 1468555639}
