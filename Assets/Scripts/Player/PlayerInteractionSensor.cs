@@ -34,6 +34,19 @@ public class InteractionSensor : MonoBehaviour
             }
         }
 
+        // Hide arrows for all except the focused one if there is a focused interactable 
+        if (focusedProximityUI != null)
+        {
+            foreach (ProximityUI activeArrowUI in activeArrowsUI)
+            {
+                if (activeArrowUI != focusedProximityUI && activeArrowUI != null)
+                {
+                    activeArrowUI.HideArrowIndicator();
+                }
+            }
+        }
+
+
         // Disable arrows for interactables that are no longer in range
         foreach (ProximityUI activeArrowUI in activeArrowsUI)
         {
