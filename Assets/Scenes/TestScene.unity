@@ -36408,9 +36408,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2210a29cd3235314ba05a226e05446ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerMenuUI: {fileID: 167462149}
   uiInput: {fileID: 1468555638}
   inventoryGridUIController: {fileID: 0}
-  playerMenu: {fileID: 167462149}
+  bottomBarPrimaryActionContainer: {fileID: 0}
+  bottomBarSecondaryActionContainer: {fileID: 0}
+  bottomBarTertiaryActionContainer: {fileID: 0}
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1001 &167842851
 PrefabInstance:
@@ -293745,7 +293748,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1468555639}
   - component: {fileID: 1468555638}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -294736,7 +294739,7 @@ GameObject:
   - component: {fileID: 1472460666}
   - component: {fileID: 1472460665}
   m_Layer: 5
-  m_Name: PlayerMenuUI
+  m_Name: PlayerMenuContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -4,14 +4,23 @@ using UnityEngine.InputSystem;
 
 public class PlayerMenuUIController : MonoBehaviour
 {
+    public GameObject PlayerMenuUI;
+    public event Action<bool> OnPlayerMenuToggled; // true = open, false = closed
+
     [SerializeField]
     private UIInput uiInput;
 
     [SerializeField]
     private InventoryGridUIController inventoryGridUIController;
 
-    public GameObject playerMenu;
-    public event Action<bool> OnPlayerMenuToggled; // true = open, false = closed
+    [SerializeField]
+    private GameObject bottomBarPrimaryActionContainer;
+
+    [SerializeField]
+    private GameObject bottomBarSecondaryActionContainer;
+
+    [SerializeField]
+    private GameObject bottomBarTertiaryActionContainer;
 
     [SerializeField]
     private InputActionAsset inputActions;
@@ -21,17 +30,38 @@ public class PlayerMenuUIController : MonoBehaviour
 
     private InputAction closePlayerMenuAction;
 
-    private void Awake()
+    private void OnEnable()
     {
-        if (playerMenu == null)
+        if (PlayerMenuUI == null)
         {
             Debug.LogWarning("Player menu is not assigned in the PlayerMenuController.");
         }
 
+        SetupPlayerMenuUI();
         SetupInputActionsAsset();
         SetupInputActionMaps();
         SetupInputActions();
         SetupInventoryGridUIController();
+        SetupBottomBarActionContainers();
+        SubscribeToUIInputEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromUIInputEvents();
+    }
+
+    private void SetupPlayerMenuUI()
+    {
+        if (PlayerMenuUI == null)
+        {
+            PlayerMenuUI = GameObject.Find("PlayerMenuUI");
+        }
+
+        if (PlayerMenuUI == null)
+        {
+            Debug.LogWarning("PlayerMenuUIController requires a PlayerMenuUI GameObject in the scene.");
+        }
     }
 
     private void SetupInputActionsAsset()
@@ -85,14 +115,14 @@ public class PlayerMenuUIController : MonoBehaviour
 
     public void TogglePlayerMenu()
     {
-        if (playerMenu == null)
+        if (PlayerMenuUI == null)
         {
-            Debug.LogWarning("Player menu is not assigned in the PlayerMenuController.");
+            Debug.LogWarning("PlayerMenuUI is not assigned in the PlayerMenuController.");
             return;
         }
 
-        bool isMenuActive = !playerMenu.activeSelf;
-        playerMenu.SetActive(isMenuActive);
+        bool isMenuActive = !PlayerMenuUI.activeSelf;
+        PlayerMenuUI.SetActive(isMenuActive);
 
         ToggleCursor(isMenuActive);
         ToggleActionMap(isMenuActive);
@@ -137,15 +167,30 @@ public class PlayerMenuUIController : MonoBehaviour
             uiInput.DisableUIInput();
     }
 
-    private void OnEnable()
+    private void SubscribeToUIInputEvents()
     {
+        if (uiInput == null)
+        {
+            SetupUIInput();
+        }
+
         if (uiInput != null)
         {
             uiInput.OnDropItem += HandleDropItem;
         }
     }
 
-    private void OnDisable()
+    private void SetupUIInput()
+    {
+        uiInput = GameObject.Find("/UIInput").GetComponent<UIInput>();
+
+        if (uiInput == null)
+        {
+            Debug.LogWarning("UIInput component not found.");
+        }
+    }
+
+    private void UnsubscribeFromUIInputEvents()
     {
         if (uiInput != null)
         {
@@ -162,4 +207,50 @@ public class PlayerMenuUIController : MonoBehaviour
             inventoryGridUIController.DropSelectedItem();
         }
     }
+
+    private void SetupBottomBarActionContainers()
+    {
+        SetupPrimaryActionContainer();
+        SetupSecondaryActionContainer();
+        SetupTertiaryActionContainer();
+    }
+
+    private void SetupPrimaryActionContainer()
+    {
+        if (bottomBarPrimaryActionContainer == null)
+        {
+            bottomBarPrimaryActionContainer = PlayerMenuUI.transform.Find("Container/BottomBarContainer/PrimaryActionContainer").gameObject;
+        }
+
+        if (bottomBarPrimaryActionContainer == null)
+        {
+            Debug.LogWarning("PlayerMenuUIController requires a PrimaryActionContainer in the BottomBarContainer.");
+        }
+    }
+    private void SetupSecondaryActionContainer()
+    {
+        if (bottomBarSecondaryActionContainer == null)
+        {
+            bottomBarSecondaryActionContainer = PlayerMenuUI.transform.Find("Container/BottomBarContainer/SecondaryActionContainer").gameObject;
+        }
+
+        if (bottomBarSecondaryActionContainer == null)
+        {
+            Debug.LogWarning("PlayerMenuUIController requires a SecondaryActionContainer in the BottomBarContainer.");
+        }
+    }
+
+    private void SetupTertiaryActionContainer()
+    {
+        if (bottomBarTertiaryActionContainer == null)
+        {
+            bottomBarTertiaryActionContainer = PlayerMenuUI.transform.Find("Container/BottomBarContainer/TertiaryActionContainer").gameObject;
+        }
+
+        if (bottomBarTertiaryActionContainer == null)
+        {
+            Debug.LogWarning("PlayerMenuUIController requires a TertiaryActionContainer in the BottomBarContainer.");
+        }
+    }
+
 }
