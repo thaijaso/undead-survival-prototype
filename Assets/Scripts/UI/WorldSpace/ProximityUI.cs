@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ProximityUI : MonoBehaviour
 {
-    public string itemPickupTemplate = $"Pickup {{itemName}} x{{quantity}}";
+    public string itemPickupTemplate = $"{{itemName}} ({{quantity}})";
     public string inventoryFullTemplate = "Inventory Full";
 
     [SerializeField]
@@ -23,7 +23,6 @@ public class ProximityUI : MonoBehaviour
     private MMF_Player InventoryFullFeedback;
 
     private ItemPickupInteractable itemPickupInteractable;
-
 
     void Awake()
     {

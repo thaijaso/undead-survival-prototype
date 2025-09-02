@@ -74,12 +74,27 @@ public class InteractionSensor : MonoBehaviour
         {
             focusedProximityUI.HidePickupButton();
             focusedProximityUI.HideTextBackground();
+            ResetItemPickupText(focusedProximityUI);
         }
 
         CurrentInteractable = curProximityUI?.GetComponent<IInteractable>();
         curProximityUI?.ShowPickupButton();
         curProximityUI?.ShowTextBackground();
         focusedProximityUI = curProximityUI;
+    }
+
+    private void ResetItemPickupText(ProximityUI proximityUI)
+    {
+        ItemPickupInteractable itemPickup = proximityUI.GetComponent<ItemPickupInteractable>();
+
+        if (itemPickup != null && itemPickup.itemStack != null)
+        {
+            proximityUI.DisplayPickupPrompt(itemPickup.itemStack.item.itemName, itemPickup.itemStack.quantity);
+        }
+        else
+        {
+            Debug.LogWarning($"ResetItemPickupText(): {proximityUI.name} has no ItemPickupInteractable component.");
+        }
     }
 
     public void RemoveProximityUIRefs(ProximityUI proximityUI)
