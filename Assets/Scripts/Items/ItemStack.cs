@@ -1,41 +1,44 @@
 using System;
 using UnityEngine;
 
-[Serializable]
-public class ItemStack
+namespace UndeadSurvivalGame.Gameplay
 {
-    public Item item;
-    public int quantity = 1;
-    
-
-    public ItemStack(Item item, int quantity = 1)
+    [Serializable]
+    public class ItemStack
     {
-        this.item = item;
-        this.quantity = quantity;
-    }
+        public Item item;
+        public int quantity = 1;
+        
 
-    public void AddQuantity(int amount)
-    {
-        quantity += amount;
-    }
-
-    public void RemoveQuantity(int amount)
-    {
-        quantity -= amount;
-        if (quantity <= 0)
+        public ItemStack(Item item, int quantity = 1)
         {
-            item = null; // Clear item if quantity is zero or less
+            this.item = item;
+            this.quantity = quantity;
         }
-    }
 
-    public bool IsEmpty => quantity == 0;
-
-    public void DecrementQuantity()
-    {
-        quantity--;
-        if (quantity <= 0)
+        public void AddQuantity(int amount)
         {
-            Debug.Log($"[{GetType().Name}] DecrementQuantity(): Item '{item?.name}' is depleted.");
+            quantity += amount;
+        }
+
+        public void RemoveQuantity(int amount)
+        {
+            quantity -= amount;
+            if (quantity <= 0)
+            {
+                item = null; // Clear item if quantity is zero or less
+            }
+        }
+
+        public bool IsEmpty => quantity == 0;
+
+        public void DecrementQuantity()
+        {
+            quantity--;
+            if (quantity <= 0)
+            {
+                Debug.Log($"[{GetType().Name}] DecrementQuantity(): Item '{item?.name}' is depleted.");
+            }
         }
     }
 }

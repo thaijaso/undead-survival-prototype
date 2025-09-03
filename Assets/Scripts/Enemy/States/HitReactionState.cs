@@ -13,7 +13,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace UndeadSurvivalGame.Enemy
+namespace UndeadSurvivalGame.EnemySystems
 {
     public class HitReactionState : EnemyState
     {
@@ -41,7 +41,7 @@ namespace UndeadSurvivalGame.Enemy
         private bool IsReactionInProgress = false;
 
         public HitReactionState(
-            UndeadSurvivalGame.Enemy.Enemy enemy,
+            UndeadSurvivalGame.EnemySystems.Enemy enemy,
             StateMachine<EnemyState> stateMachine,
             AnimationManager animationManager,
             string animationName

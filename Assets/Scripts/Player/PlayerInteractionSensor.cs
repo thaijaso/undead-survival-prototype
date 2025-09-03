@@ -1,149 +1,154 @@
 using System.Collections.Generic;
+using UndeadSurvivalGame.Gameplay;
+using UndeadSurvivalGame.UI;
 using UnityEngine;
 
-public class InteractionSensor : MonoBehaviour
+namespace UndeadSurvivalGame.PlayerSystems
 {
-    public IInteractable CurrentInteractable { get; private set; } = null;
-    public float arrowColliderRadius = 10f;
-    public float buttonLineOfSightDistance = 5f;
-    public float lineofSightRadius = 0.5f;
-    private HashSet<ProximityUI> activeArrowsUI = new();
-    private ProximityUI focusedProximityUI = null;
-
-    // Update is called once per frame
-    void Update()
+    public class InteractionSensor : MonoBehaviour
     {
-        ToggleArrowsForNearbyInteractables();
-        ToggleButtonAndTextByLineOfSight();
-    }
+        public IInteractable CurrentInteractable { get; private set; } = null;
+        public float arrowColliderRadius = 10f;
+        public float buttonLineOfSightDistance = 5f;
+        public float lineofSightRadius = 0.5f;
+        private HashSet<ProximityUI> activeArrowsUI = new();
+        private ProximityUI focusedProximityUI = null;
 
-    // Show arrow UI for nearby interactables
-    private void ToggleArrowsForNearbyInteractables()
-    {
-        Collider[] hits = Physics.OverlapSphere(transform.position, arrowColliderRadius, LayerMask.GetMask("Interactable"));
-        HashSet<ProximityUI> curNearbyInteractables = new();
-
-        // Enable arrows for interactables that are in range
-        foreach (Collider hit in hits)
+        // Update is called once per frame
+        void Update()
         {
-            ProximityUI proximityUI = hit.GetComponent<ProximityUI>();
-            if (proximityUI != null && proximityUI.gameObject != null)
-            {
-                proximityUI.ShowArrowIndicator();
-                curNearbyInteractables.Add(proximityUI);
-            }
+            ToggleArrowsForNearbyInteractables();
+            ToggleButtonAndTextByLineOfSight();
         }
 
-        // Hide arrows for all except the focused one if there is a focused interactable 
-        if (focusedProximityUI != null)
+        // Show arrow UI for nearby interactables
+        private void ToggleArrowsForNearbyInteractables()
         {
+            Collider[] hits = Physics.OverlapSphere(transform.position, arrowColliderRadius, LayerMask.GetMask("Interactable"));
+            HashSet<ProximityUI> curNearbyInteractables = new();
+
+            // Enable arrows for interactables that are in range
+            foreach (Collider hit in hits)
+            {
+                ProximityUI proximityUI = hit.GetComponent<ProximityUI>();
+                if (proximityUI != null && proximityUI.gameObject != null)
+                {
+                    proximityUI.ShowArrowIndicator();
+                    curNearbyInteractables.Add(proximityUI);
+                }
+            }
+
+            // Hide arrows for all except the focused one if there is a focused interactable 
+            if (focusedProximityUI != null)
+            {
+                foreach (ProximityUI activeArrowUI in activeArrowsUI)
+                {
+                    if (activeArrowUI != focusedProximityUI && activeArrowUI != null)
+                    {
+                        activeArrowUI.HideArrowIndicator();
+                    }
+                }
+            }
+
+
+            // Disable arrows for interactables that are no longer in range
             foreach (ProximityUI activeArrowUI in activeArrowsUI)
             {
-                if (activeArrowUI != focusedProximityUI && activeArrowUI != null)
+                if (activeArrowUI == null)
+                    continue; // Skip destroyed objects
+
+                if (!curNearbyInteractables.Contains(activeArrowUI))
                 {
-                    activeArrowUI.HideArrowIndicator();
+                    if (activeArrowUI != null)
+                    {
+                        activeArrowUI.HideArrowIndicator();
+                    }
                 }
             }
+
+            activeArrowsUI = curNearbyInteractables;
+            activeArrowsUI.RemoveWhere(ui => ui == null); // Clean up any null references
         }
 
-
-        // Disable arrows for interactables that are no longer in range
-        foreach (ProximityUI activeArrowUI in activeArrowsUI)
+        private void ToggleButtonAndTextByLineOfSight()
         {
-            if (activeArrowUI == null)
-                continue; // Skip destroyed objects
+            Camera cam = Camera.main;
+            Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // Center of the screen
 
-            if (!curNearbyInteractables.Contains(activeArrowUI))
+            ProximityUI curProximityUI = null;
+
+            if (Physics.SphereCast(ray, lineofSightRadius, out RaycastHit hit, buttonLineOfSightDistance, LayerMask.GetMask("Interactable")))
             {
-                if (activeArrowUI != null)
+                ProximityUI proximityUI = hit.collider.GetComponent<ProximityUI>();
+
+                if (proximityUI != null && activeArrowsUI.Contains(proximityUI))
                 {
-                    activeArrowUI.HideArrowIndicator();
+                    curProximityUI = proximityUI;
                 }
             }
+
+            if (focusedProximityUI != null && focusedProximityUI != curProximityUI)
+            {
+                focusedProximityUI.HidePickupButton();
+                focusedProximityUI.HideTextBackground();
+                ResetItemPickupText(focusedProximityUI);
+            }
+
+            CurrentInteractable = curProximityUI?.GetComponent<IInteractable>();
+            curProximityUI?.ShowPickupButton();
+            curProximityUI?.ShowTextBackground();
+            focusedProximityUI = curProximityUI;
         }
 
-        activeArrowsUI = curNearbyInteractables;
-        activeArrowsUI.RemoveWhere(ui => ui == null); // Clean up any null references
-    }
-
-    private void ToggleButtonAndTextByLineOfSight()
-    {
-        Camera cam = Camera.main;
-        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // Center of the screen
-
-        ProximityUI curProximityUI = null;
-
-        if (Physics.SphereCast(ray, lineofSightRadius, out RaycastHit hit, buttonLineOfSightDistance, LayerMask.GetMask("Interactable")))
+        private void ResetItemPickupText(ProximityUI proximityUI)
         {
-            ProximityUI proximityUI = hit.collider.GetComponent<ProximityUI>();
+            ItemPickupInteractable itemPickup = proximityUI.GetComponent<ItemPickupInteractable>();
 
-            if (proximityUI != null && activeArrowsUI.Contains(proximityUI))
+            if (itemPickup != null && itemPickup.itemStack != null)
             {
-                curProximityUI = proximityUI;
+                proximityUI.DisplayPickupPrompt(itemPickup.itemStack.item.itemName, itemPickup.itemStack.quantity);
+            }
+            else
+            {
+                Debug.LogWarning($"ResetItemPickupText(): {proximityUI.name} has no ItemPickupInteractable component.");
             }
         }
 
-        if (focusedProximityUI != null && focusedProximityUI != curProximityUI)
+        public void RemoveProximityUIRefs(ProximityUI proximityUI)
         {
-            focusedProximityUI.HidePickupButton();
-            focusedProximityUI.HideTextBackground();
-            ResetItemPickupText(focusedProximityUI);
+            if (activeArrowsUI.Contains(proximityUI))
+            {
+                activeArrowsUI.Remove(proximityUI);
+            }
+
+            if (focusedProximityUI == proximityUI)
+            {
+                focusedProximityUI = null;
+                CurrentInteractable = null;
+            }
         }
 
-        CurrentInteractable = curProximityUI?.GetComponent<IInteractable>();
-        curProximityUI?.ShowPickupButton();
-        curProximityUI?.ShowTextBackground();
-        focusedProximityUI = curProximityUI;
-    }
-
-    private void ResetItemPickupText(ProximityUI proximityUI)
-    {
-        ItemPickupInteractable itemPickup = proximityUI.GetComponent<ItemPickupInteractable>();
-
-        if (itemPickup != null && itemPickup.itemStack != null)
+        void OnDrawGizmos()
         {
-            proximityUI.DisplayPickupPrompt(itemPickup.itemStack.item.itemName, itemPickup.itemStack.quantity);
-        }
-        else
-        {
-            Debug.LogWarning($"ResetItemPickupText(): {proximityUI.name} has no ItemPickupInteractable component.");
-        }
-    }
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+                Vector3 start = ray.origin;
+                Vector3 end = ray.origin + ray.direction * buttonLineOfSightDistance;
 
-    public void RemoveProximityUIRefs(ProximityUI proximityUI)
-    {
-        if (activeArrowsUI.Contains(proximityUI))
-        {
-            activeArrowsUI.Remove(proximityUI);
-        }
+                // Draw the start sphere
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawWireSphere(start, lineofSightRadius);
 
-        if (focusedProximityUI == proximityUI)
-        {
-            focusedProximityUI = null;
-            CurrentInteractable = null;
-        }
-    }
+                // Draw the end sphere
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere(end, lineofSightRadius);
 
-    void OnDrawGizmos()
-    {
-        Camera cam = Camera.main;
-        if (cam != null)
-        {
-            Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-            Vector3 start = ray.origin;
-            Vector3 end = ray.origin + ray.direction * buttonLineOfSightDistance;
-
-            // Draw the start sphere
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(start, lineofSightRadius);
-
-            // Draw the end sphere
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(end, lineofSightRadius);
-
-            // Draw the line between start and end
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(start, end);
+                // Draw the line between start and end
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(start, end);
+            }
         }
     }
 }

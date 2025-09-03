@@ -1,80 +1,80 @@
-using UndeadSurvivalGame.Player;
 using UnityEngine;
 
-public class StrafeState : MoveState
-{
-    private float strafeSpeed = 2.0f;
+namespace UndeadSurvivalGame.PlayerSystems
+{ 
 
-    public StrafeState(
-        Player player,
-        StateMachine<PlayerState> stateMachine,
-        AnimationManager animationManager,
-        string animationName,
-        PlayerWeaponManager weaponManager
-    ) : base(
-        player,
-        stateMachine,
-        animationManager,
-        animationName,
-        weaponManager
-    )
+    public class StrafeState : MoveState
     {
-        strafeSpeed = player.PlayerCharacterController.strafeSpeed;
-    }
+        private float strafeSpeed = 2.0f;
 
-    public override void Enter()
-    {
-        base.Enter();
-        Debug.Log($"[{player.name}] StrafeState.Enter(): Entering Strafe state");
-        animationManager.SetIsStrafing(true);
-    }
-
-    public override void Exit(PlayerState nextState)
-    {
-        Debug.Log($"[{player.name}] StrafeState.Exit(): Exiting to {nextState.GetType().Name}");
-        base.Exit(nextState);
-        animationManager.SetIsStrafing(false);
-    }
-
-    public override void LogicUpdate()
-    {
-        // Guard: Only update if this is the current state
-        if (stateMachine.currentState != this)
+        public StrafeState(
+            Player player,
+            StateMachine<PlayerState> stateMachine,
+            AnimationManager animationManager,
+            string animationName,
+            PlayerWeaponManager weaponManager
+        ) : base(
+            player,
+            stateMachine,
+            animationManager,
+            animationName,
+            weaponManager
+        )
         {
-            return;
+            strafeSpeed = player.PlayerCharacterController.strafeSpeed;
         }
 
-        // Prevent automatic transitions if debug mode is active
-        if (IsDebugAimLockActive)
+        public override void Enter()
         {
-            return;
+            base.Enter();
+            Debug.Log($"[{player.name}] StrafeState.Enter(): Entering Strafe state");
+            animationManager.SetIsStrafing(true);
         }
 
-        base.LogicUpdate();
-        HandleMovement(strafeSpeed, false);
-
-        if (!player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming && stateMachine.currentState != player.reload)
+        public override void Exit(PlayerState nextState)
         {
-            stateMachine.SetState(player.idle);
-            return;
+            Debug.Log($"[{player.name}] StrafeState.Exit(): Exiting to {nextState.GetType().Name}");
+            base.Exit(nextState);
+            animationManager.SetIsStrafing(false);
         }
 
-        if (player.PlayerInput.IsSprinting && player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming)
+        public override void LogicUpdate()
         {
-            stateMachine.SetState(player.sprint);
-            return;
-        }
+            // Guard: Only update if this is the current state
+            if (stateMachine.currentState != this)
+            {
+                return;
+            }
 
-        if (player.PlayerInput.IsAiming
-            && stateMachine.currentState != player.aim
-            && stateMachine.currentState != player.shoot
-            && stateMachine.currentState != player.reload)
-        {
-            stateMachine.SetState(player.aim);
-            return;
+            // Prevent automatic transitions if debug mode is active
+            if (IsDebugAimLockActive)
+            {
+                return;
+            }
+
+            base.LogicUpdate();
+            HandleMovement(strafeSpeed, false);
+
+            if (!player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming && stateMachine.currentState != player.reload)
+            {
+                stateMachine.SetState(player.idle);
+                return;
+            }
+
+            if (player.PlayerInput.IsSprinting && player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming)
+            {
+                stateMachine.SetState(player.sprint);
+                return;
+            }
+
+            if (player.PlayerInput.IsAiming
+                && stateMachine.currentState != player.aim
+                && stateMachine.currentState != player.shoot
+                && stateMachine.currentState != player.reload)
+            {
+                stateMachine.SetState(player.aim);
+                return;
+            }
         }
     }
 }
-
-
-

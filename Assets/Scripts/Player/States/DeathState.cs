@@ -1,7 +1,7 @@
 using UnityEngine;
 using RootMotion.Dynamics; // Add this if PuppetMaster is from RootMotion.Dynamics
 
-namespace UndeadSurvivalGame.Player.States
+namespace UndeadSurvivalGame.PlayerSystems
 {
     public class DeathState : PlayerState
     {

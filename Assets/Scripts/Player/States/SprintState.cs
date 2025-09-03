@@ -1,61 +1,63 @@
-using UndeadSurvivalGame.Player;
 using UnityEngine;
 
-public class SprintState : MoveState
+namespace UndeadSurvivalGame.PlayerSystems
 {
-    private float sprintSpeed = 5.0f; // Speed of the player movement when sprinting
-
-    public SprintState(
-        Player player,
-        StateMachine<PlayerState> stateMachine,
-        AnimationManager animationManager,
-        string animationName,
-        PlayerWeaponManager weaponManager
-    ) : base(
-        player,
-        stateMachine,
-        animationManager,
-        animationName,
-        weaponManager
-    )
+    public class SprintState : MoveState
     {
-        sprintSpeed = player.PlayerCharacterController.sprintSpeed;
-    }
+        private float sprintSpeed = 5.0f; // Speed of the player movement when sprinting
 
-    public override void Enter()
-    {
-        Debug.Log($"[{player.name}] SprintState.Enter(): Entering Sprint state");
-        base.Enter();
-        // Set the sprinting animation
-        animationManager.SetIsSprinting(true);
-    }
-
-    public override void Exit(PlayerState nextState)
-    {
-        Debug.Log($"[{player.name}] SprintState.Exit(): Exiting to {nextState.GetType().Name}");
-        base.Exit(nextState);
-        // Reset the sprinting animation
-        animationManager.SetIsSprinting(false);
-        animationManager.SetMoveParams(0f, 0f);
-    }
-
-    public override void LogicUpdate()
-    {
-        base.LogicUpdate();
-        HandleMovement(sprintSpeed, true);
-    
-        if (!player.PlayerInput.IsMoving)
+        public SprintState(
+            Player player,
+            StateMachine<PlayerState> stateMachine,
+            AnimationManager animationManager,
+            string animationName,
+            PlayerWeaponManager weaponManager
+        ) : base(
+            player,
+            stateMachine,
+            animationManager,
+            animationName,
+            weaponManager
+        )
         {
-            animationManager.SetIsSprinting(false);
-            stateMachine.SetState(player.idle);
-            return;
+            sprintSpeed = player.PlayerCharacterController.sprintSpeed;
         }
 
-        if (player.PlayerInput.IsAiming)
+        public override void Enter()
         {
+            Debug.Log($"[{player.name}] SprintState.Enter(): Entering Sprint state");
+            base.Enter();
+            // Set the sprinting animation
+            animationManager.SetIsSprinting(true);
+        }
+
+        public override void Exit(PlayerState nextState)
+        {
+            Debug.Log($"[{player.name}] SprintState.Exit(): Exiting to {nextState.GetType().Name}");
+            base.Exit(nextState);
+            // Reset the sprinting animation
             animationManager.SetIsSprinting(false);
-            stateMachine.SetState(player.aim);
-            return;
+            animationManager.SetMoveParams(0f, 0f);
+        }
+
+        public override void LogicUpdate()
+        {
+            base.LogicUpdate();
+            HandleMovement(sprintSpeed, true);
+
+            if (!player.PlayerInput.IsMoving)
+            {
+                animationManager.SetIsSprinting(false);
+                stateMachine.SetState(player.idle);
+                return;
+            }
+
+            if (player.PlayerInput.IsAiming)
+            {
+                animationManager.SetIsSprinting(false);
+                stateMachine.SetState(player.aim);
+                return;
+            }
         }
     }
 }

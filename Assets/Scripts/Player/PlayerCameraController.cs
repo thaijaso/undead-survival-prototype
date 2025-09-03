@@ -1,399 +1,402 @@
-using System.Reflection.Metadata;
+using UndeadSurvivalGame.UI;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class PlayerCameraController : MonoBehaviour
+namespace UndeadSurvivalGame.PlayerSystems
 {
-    public float CameraHorizontalRotationSpeed { get; private set; }
-    private float previousHorizontalAxisValue = 0f;
-
-    [SerializeField]
-    private CinemachineCamera playerCamera;
-
-    [SerializeField]
-    private Transform followTarget;
-
-    [SerializeField]
-    private Transform aimIKTarget;
-
-    [SerializeField]
-    private Transform bulletHitTarget;
-
-    [SerializeField]
-    private float followFOV = 40f;
-
-    [SerializeField]
-    private float aimFOV = 28.7f;
-
-    [SerializeField]
-    private float zoomSpeed = 5f;
-
-    [SerializeField]
-    private float aimCamOffsetX = 0.5f;
-
-    private CinemachineBasicMultiChannelPerlin noise;
-
-    private CinemachineOrbitalFollow orbitalFollow;
-
-    private float cameraSwayAmount = 1f; // Default sway amount
-
-    public Transform GetForwardsFollowTarget() => followTarget;
-
-    private float currentHorizontalAxisValue;
-
-    private float currentVerticalAxisValue;
-
-    private bool lockCursor = false; // Whether to lock the cursor in the center of the screen
-    private bool lastLockCursorState = false; // Track previous cursor lock state
-
-    private CameraRecoil cameraRecoil;
-    private CinemachineInputAxisController inputAxisController;
-
-    private CinemachineCameraOffset cameraOffset;
-
-    private float targetOffsetX = 0f;
-
-    [SerializeField]
-    private float offsetLerpSpeed = 5f; // Internal lerp speed
-
-    [SerializeField]
-    private PlayerMenuUIController playerMenuUIController;
-
-    private bool isPlayerMenuActive = false;
-
-    private void OnEnable()
+    public class PlayerCameraController : MonoBehaviour
     {
-        SetupPlayerMenuToggledHandler();
-    }
+        public float CameraHorizontalRotationSpeed { get; private set; }
+        private float previousHorizontalAxisValue = 0f;
 
-    private void OnDisable()
-    {
-        if (playerMenuUIController != null)
+        [SerializeField]
+        private CinemachineCamera playerCamera;
+
+        [SerializeField]
+        private Transform followTarget;
+
+        [SerializeField]
+        private Transform aimIKTarget;
+
+        [SerializeField]
+        private Transform bulletHitTarget;
+
+        [SerializeField]
+        private float followFOV = 40f;
+
+        [SerializeField]
+        private float aimFOV = 28.7f;
+
+        [SerializeField]
+        private float zoomSpeed = 5f;
+
+        [SerializeField]
+        private float aimCamOffsetX = 0.5f;
+
+        private CinemachineBasicMultiChannelPerlin noise;
+
+        private CinemachineOrbitalFollow orbitalFollow;
+
+        private float cameraSwayAmount = 1f; // Default sway amount
+
+        public Transform GetForwardsFollowTarget() => followTarget;
+
+        private float currentHorizontalAxisValue;
+
+        private float currentVerticalAxisValue;
+
+        private bool lockCursor = false; // Whether to lock the cursor in the center of the screen
+        private bool lastLockCursorState = false; // Track previous cursor lock state
+
+        private CameraRecoil cameraRecoil;
+        private CinemachineInputAxisController inputAxisController;
+
+        private CinemachineCameraOffset cameraOffset;
+
+        private float targetOffsetX = 0f;
+
+        [SerializeField]
+        private float offsetLerpSpeed = 5f; // Internal lerp speed
+
+        [SerializeField]
+        private PlayerMenuUIController playerMenuUIController;
+
+        private bool isPlayerMenuActive = false;
+
+        private void OnEnable()
         {
-            playerMenuUIController.OnPlayerMenuToggled -= HandlePlayerMenuToggled;
-        }
-    }
-
-    private void Awake()
-    {
-        SetupNoise();
-        SetupOrbitalFollow();
-        SetupCameraRecoil();
-        SetupCinemachineInputAxisController();
-        SetupCinemachineCameraOffset();
-    }
-
-    private void Start()
-    {
-        currentHorizontalAxisValue = orbitalFollow.HorizontalAxis.Value;
-        currentVerticalAxisValue = orbitalFollow.VerticalAxis.Value;
-
-        CursorUtils.HideCursor(); // Hide cursor on start
-
-        // Force initial cursor lock state detection
-        HandleCursorLock();
-    }
-
-    private void SetupNoise()
-    {
-        noise = playerCamera.GetCinemachineComponent(CinemachineCore.Stage.Noise) as CinemachineBasicMultiChannelPerlin;
-        if (noise == null)
-        {
-            Debug.LogError($"[{gameObject.name}] PlayerCameraController.SetupCameraSway(): CinemachineBasicMultiChannelPerlin component not found on the follow camera.");
-        }
-    }
-
-    private void SetupOrbitalFollow()
-    {
-        orbitalFollow = playerCamera.GetCinemachineComponent(CinemachineCore.Stage.Body) as CinemachineOrbitalFollow;
-        if (orbitalFollow == null)
-        {
-            Debug.LogError($"[{gameObject.name}] PlayerCameraController.SetupOrbitalFollow(): CinemachineOrbitalFollow component not found on the follow camera.");
-        }
-    }
-
-    private void SetupCameraRecoil()
-    {
-        cameraRecoil = playerCamera.GetComponent<CameraRecoil>();
-    }
-
-    private void SetupCinemachineInputAxisController()
-    {
-        inputAxisController = playerCamera.GetComponent<CinemachineInputAxisController>();
-        Debug.Log($"[{gameObject.name}] PlayerCameraController.SetupCinemachineInputAxisController(): CinemachineInputAxisController found: {(inputAxisController != null)}.");
-
-        if (inputAxisController != null)
-        {
-            Debug.Log($"[{gameObject.name}] PlayerCameraController.SetupCinemachineInputAxisController(): Initial inputAxisController.enabled state: {inputAxisController.enabled}.");
-        }
-    }
-
-    private void SetupCinemachineCameraOffset()
-    {
-        cameraOffset = playerCamera.GetComponent<CinemachineCameraOffset>();
-        if (cameraOffset == null)
-        {
-            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetupCinemachineCameraOffset(): CinemachineCameraOffset component not found on the follow camera.");
-        }
-    }
-
-    private void SetupPlayerMenuToggledHandler()
-    {
-        if (playerMenuUIController != null)
-        {
-            playerMenuUIController.OnPlayerMenuToggled += HandlePlayerMenuToggled;
-        }
-        else
-        {
-            Debug.LogWarning($"PlayerCameraController.SetupPlayerMenuToggledHandler(): PlayerMenuUIController is not assigned.");
-        }
-    }
-
-    private void HandlePlayerMenuToggled(bool isMenuActive)
-    {
-        Debug.Log($"PlayerCameraController.HandlePlayerMenuToggled(): Player menu toggled. Active: {isMenuActive}");
-        isPlayerMenuActive = isMenuActive;
-    }
-
-    void Update()
-    {
-        HandleCursorLock();
-    }
-
-    void LateUpdate()
-    {
-        UpdateRotationSpeed();
-        UpdateCameraOffsetLerp();
-    }
-
-    private void HandleCursorLock()
-    {
-        // Fallback ESC key handling - detect ESC press and unlock cursor manually
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): ESC key detected - unlocking cursor.");
-            CursorUtils.ShowCursor();
+            SetupPlayerMenuToggledHandler();
         }
 
-        // Detect mouse click to re-lock cursor
-        if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked && !isPlayerMenuActive)
+        private void OnDisable()
         {
-            Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Mouse click detected - locking cursor.");
-            CursorUtils.HideCursor();
-        }
-
-        // Monitor Unity's cursor state - check both lockState and visibility
-        // Sometimes Unity changes visibility without changing lockState
-        bool currentCursorLocked = (Cursor.lockState == CursorLockMode.Locked) && !Cursor.visible;
-
-        // Only update inputAxisController if cursor lock state has changed
-        if (lastLockCursorState != currentCursorLocked)
-        {
-            Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Cursor lock state changed to: {currentCursorLocked}." +
-                     $"(lockState: {Cursor.lockState}, visible: {Cursor.visible})");
-
-            // Enable/disable input axis controller based on cursor lock state
-            if (inputAxisController != null)
+            if (playerMenuUIController != null)
             {
-                inputAxisController.enabled = currentCursorLocked;
-                Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Set inputAxisController.enabled to: {currentCursorLocked}.");
-            }
-
-            lastLockCursorState = currentCursorLocked;
-            lockCursor = currentCursorLocked; // Keep our internal state in sync
-        }
-    }
-
-    private void UpdateRotationSpeed()
-    {
-        float current = orbitalFollow.HorizontalAxis.Value;
-        CameraHorizontalRotationSpeed = Mathf.Abs((current - previousHorizontalAxisValue) / Time.deltaTime);
-        previousHorizontalAxisValue = current;
-    }
-
-    private void MoveTargetToRaycast(Transform target, float maxDistance, float minDistance)
-    {
-        Camera unityCam = Camera.main;
-        if (unityCam == null || target == null) return;
-
-        Vector3 screenCenter = new(Screen.width / 2f, Screen.height / 2f, 0f);
-        Ray ray = unityCam.ScreenPointToRay(screenCenter);
-
-        RaycastHit hit;
-        Vector3 targetPosition;
-
-        if (Physics.Raycast(ray, out hit, maxDistance))
-        {
-            float hitDistance = Vector3.Distance(ray.origin, hit.point);
-            if (hitDistance < minDistance)
-            {
-                targetPosition = ray.origin + ray.direction * minDistance;
-            }
-            else
-            {
-                targetPosition = hit.point;
+                playerMenuUIController.OnPlayerMenuToggled -= HandlePlayerMenuToggled;
             }
         }
-        else
+
+        private void Awake()
         {
-            targetPosition = ray.origin + ray.direction * maxDistance;
+            SetupNoise();
+            SetupOrbitalFollow();
+            SetupCameraRecoil();
+            SetupCinemachineInputAxisController();
+            SetupCinemachineCameraOffset();
         }
 
-        // Smoothly move the target to the new position
-        float smoothingSpeed = 20f; // You can expose this as a field if you want to tweak it
-        target.position = Vector3.Lerp(target.position, targetPosition, Time.deltaTime * smoothingSpeed);
-    }
-
-    public void MoveAimIKTarget()
-    {
-        MoveTargetToRaycast(aimIKTarget, 5f, 5f); // TODO: define max / min distance in a weapon template
-    }
-
-    public void MoveBulletHitTarget()
-    {
-        MoveTargetToRaycast(bulletHitTarget, 100f, 0f); // Always use hit point, even at close range
-    }
-
-    public Vector3 GetAimTarget()
-    {
-        return aimIKTarget.position;
-    }
-
-    public Transform GetFollowCamTransform()
-    {
-        return playerCamera.transform;
-    }
-
-    public void ZoomIn()
-    {
-        if (Mathf.Abs(playerCamera.Lens.FieldOfView - aimFOV) > 0.01f)
-        {
-            playerCamera.Lens.FieldOfView = Mathf.Lerp(
-                playerCamera.Lens.FieldOfView,
-                aimFOV,
-                Time.deltaTime * zoomSpeed
-            );
-        }
-    }
-
-    public void ZoomOut()
-    {
-        if (Mathf.Abs(playerCamera.Lens.FieldOfView - followFOV) > 0.01f)
-        {
-            playerCamera.Lens.FieldOfView = Mathf.Lerp(
-                playerCamera.Lens.FieldOfView,
-                followFOV,
-                Time.deltaTime * zoomSpeed
-            );
-        }
-    }
-
-    public void SetCameraSwayAmount(float swayAmount)
-    {
-        cameraSwayAmount = swayAmount;
-
-        if (noise != null)
-        {
-            noise.AmplitudeGain = swayAmount;
-        }
-    }
-
-    public void EnableCameraSway()
-    {
-        if (noise != null)
-        {
-            noise.AmplitudeGain = cameraSwayAmount;
-        }
-    }
-
-    public void DisableCameraSway()
-    {
-        if (noise != null)
-        {
-            noise.AmplitudeGain = 0f;
-        }
-    }
-
-    public bool HasCameraAxisChanged()
-    {
-        if (Mathf.Abs(currentHorizontalAxisValue - orbitalFollow.HorizontalAxis.Value) > 0.01f ||
-            Mathf.Abs(currentVerticalAxisValue - orbitalFollow.VerticalAxis.Value) > 0.01f)
+        private void Start()
         {
             currentHorizontalAxisValue = orbitalFollow.HorizontalAxis.Value;
             currentVerticalAxisValue = orbitalFollow.VerticalAxis.Value;
 
-            return true;
+            CursorUtils.HideCursor(); // Hide cursor on start
+
+            // Force initial cursor lock state detection
+            HandleCursorLock();
         }
 
-        return false;
-    }
+        private void SetupNoise()
+        {
+            noise = playerCamera.GetCinemachineComponent(CinemachineCore.Stage.Noise) as CinemachineBasicMultiChannelPerlin;
+            if (noise == null)
+            {
+                Debug.LogError($"[{gameObject.name}] PlayerCameraController.SetupCameraSway(): CinemachineBasicMultiChannelPerlin component not found on the follow camera.");
+            }
+        }
 
-    public void ApplyCameraRecoil()
-    {
-        if (cameraRecoil != null)
+        private void SetupOrbitalFollow()
         {
-            cameraRecoil.Fire();
+            orbitalFollow = playerCamera.GetCinemachineComponent(CinemachineCore.Stage.Body) as CinemachineOrbitalFollow;
+            if (orbitalFollow == null)
+            {
+                Debug.LogError($"[{gameObject.name}] PlayerCameraController.SetupOrbitalFollow(): CinemachineOrbitalFollow component not found on the follow camera.");
+            }
         }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.ApplyCameraRecoil(): CameraRecoil component not found on the player camera.");
-        }
-    }
 
-    public void SetCameraRecoilFromWeaponData(float recoilX, float recoilY, float recoilZ, float snapiness, float returnSpeed)
-    {
-        if (cameraRecoil != null)
+        private void SetupCameraRecoil()
         {
-            cameraRecoil.recoilX = recoilX;
-            cameraRecoil.recoilY = recoilY;
-            cameraRecoil.recoilZ = recoilZ;
-            cameraRecoil.snapiness = snapiness;
-            cameraRecoil.returnSpeed = returnSpeed;
+            cameraRecoil = playerCamera.GetComponent<CameraRecoil>();
         }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetCameraRecoilFromWeaponData(): CameraRecoil component not found on the player camera.");
-        }
-    }
 
-    public void SetCameraOffsetLerp(float targetX, float? lerpSpeed = null)
-    {
-        targetOffsetX = targetX;
-        offsetLerpSpeed = lerpSpeed ?? offsetLerpSpeed;
-    }
+        private void SetupCinemachineInputAxisController()
+        {
+            inputAxisController = playerCamera.GetComponent<CinemachineInputAxisController>();
+            Debug.Log($"[{gameObject.name}] PlayerCameraController.SetupCinemachineInputAxisController(): CinemachineInputAxisController found: {(inputAxisController != null)}.");
 
-    private void UpdateCameraOffsetLerp()
-    {
-        if (cameraOffset != null)
-        {
-            float currentX = cameraOffset.Offset.x;
-            float newX = Mathf.Lerp(currentX, targetOffsetX, Time.deltaTime * offsetLerpSpeed);
-            newX = Mathf.Max(0f, newX); // Clamp to 0 or greater
-            cameraOffset.Offset = new Vector3(newX, cameraOffset.Offset.y, cameraOffset.Offset.z);
+            if (inputAxisController != null)
+            {
+                Debug.Log($"[{gameObject.name}] PlayerCameraController.SetupCinemachineInputAxisController(): Initial inputAxisController.enabled state: {inputAxisController.enabled}.");
+            }
         }
-    }
 
-    public void SetCameraOffset()
-    {
-        if (cameraOffset != null)
+        private void SetupCinemachineCameraOffset()
         {
-            SetCameraOffsetLerp(aimCamOffsetX); // Uses inspector speed by default
+            cameraOffset = playerCamera.GetComponent<CinemachineCameraOffset>();
+            if (cameraOffset == null)
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetupCinemachineCameraOffset(): CinemachineCameraOffset component not found on the follow camera.");
+            }
         }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetCameraOffset(): CinemachineCameraOffset component not found on the player camera.");
-        }
-    }
 
-    public void ResetCameraOffset()
-    {
-        if (cameraOffset != null)
+        private void SetupPlayerMenuToggledHandler()
         {
-            SetCameraOffsetLerp(0f); // Uses inspector speed by default
+            if (playerMenuUIController != null)
+            {
+                playerMenuUIController.OnPlayerMenuToggled += HandlePlayerMenuToggled;
+            }
+            else
+            {
+                Debug.LogWarning($"PlayerCameraController.SetupPlayerMenuToggledHandler(): PlayerMenuUIController is not assigned.");
+            }
         }
-        else
+
+        private void HandlePlayerMenuToggled(bool isMenuActive)
         {
-            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.ResetCameraOffset(): CinemachineCameraOffset component not found on the player camera.");
+            Debug.Log($"PlayerCameraController.HandlePlayerMenuToggled(): Player menu toggled. Active: {isMenuActive}");
+            isPlayerMenuActive = isMenuActive;
+        }
+
+        void Update()
+        {
+            HandleCursorLock();
+        }
+
+        void LateUpdate()
+        {
+            UpdateRotationSpeed();
+            UpdateCameraOffsetLerp();
+        }
+
+        private void HandleCursorLock()
+        {
+            // Fallback ESC key handling - detect ESC press and unlock cursor manually
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): ESC key detected - unlocking cursor.");
+                CursorUtils.ShowCursor();
+            }
+
+            // Detect mouse click to re-lock cursor
+            if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked && !isPlayerMenuActive)
+            {
+                Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Mouse click detected - locking cursor.");
+                CursorUtils.HideCursor();
+            }
+
+            // Monitor Unity's cursor state - check both lockState and visibility
+            // Sometimes Unity changes visibility without changing lockState
+            bool currentCursorLocked = (Cursor.lockState == CursorLockMode.Locked) && !Cursor.visible;
+
+            // Only update inputAxisController if cursor lock state has changed
+            if (lastLockCursorState != currentCursorLocked)
+            {
+                Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Cursor lock state changed to: {currentCursorLocked}." +
+                        $"(lockState: {Cursor.lockState}, visible: {Cursor.visible})");
+
+                // Enable/disable input axis controller based on cursor lock state
+                if (inputAxisController != null)
+                {
+                    inputAxisController.enabled = currentCursorLocked;
+                    Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Set inputAxisController.enabled to: {currentCursorLocked}.");
+                }
+
+                lastLockCursorState = currentCursorLocked;
+                lockCursor = currentCursorLocked; // Keep our internal state in sync
+            }
+        }
+
+        private void UpdateRotationSpeed()
+        {
+            float current = orbitalFollow.HorizontalAxis.Value;
+            CameraHorizontalRotationSpeed = Mathf.Abs((current - previousHorizontalAxisValue) / Time.deltaTime);
+            previousHorizontalAxisValue = current;
+        }
+
+        private void MoveTargetToRaycast(Transform target, float maxDistance, float minDistance)
+        {
+            Camera unityCam = Camera.main;
+            if (unityCam == null || target == null) return;
+
+            Vector3 screenCenter = new(Screen.width / 2f, Screen.height / 2f, 0f);
+            Ray ray = unityCam.ScreenPointToRay(screenCenter);
+
+            RaycastHit hit;
+            Vector3 targetPosition;
+
+            if (Physics.Raycast(ray, out hit, maxDistance))
+            {
+                float hitDistance = Vector3.Distance(ray.origin, hit.point);
+                if (hitDistance < minDistance)
+                {
+                    targetPosition = ray.origin + ray.direction * minDistance;
+                }
+                else
+                {
+                    targetPosition = hit.point;
+                }
+            }
+            else
+            {
+                targetPosition = ray.origin + ray.direction * maxDistance;
+            }
+
+            // Smoothly move the target to the new position
+            float smoothingSpeed = 20f; // You can expose this as a field if you want to tweak it
+            target.position = Vector3.Lerp(target.position, targetPosition, Time.deltaTime * smoothingSpeed);
+        }
+
+        public void MoveAimIKTarget()
+        {
+            MoveTargetToRaycast(aimIKTarget, 5f, 5f); // TODO: define max / min distance in a weapon template
+        }
+
+        public void MoveBulletHitTarget()
+        {
+            MoveTargetToRaycast(bulletHitTarget, 100f, 0f); // Always use hit point, even at close range
+        }
+
+        public Vector3 GetAimTarget()
+        {
+            return aimIKTarget.position;
+        }
+
+        public Transform GetFollowCamTransform()
+        {
+            return playerCamera.transform;
+        }
+
+        public void ZoomIn()
+        {
+            if (Mathf.Abs(playerCamera.Lens.FieldOfView - aimFOV) > 0.01f)
+            {
+                playerCamera.Lens.FieldOfView = Mathf.Lerp(
+                    playerCamera.Lens.FieldOfView,
+                    aimFOV,
+                    Time.deltaTime * zoomSpeed
+                );
+            }
+        }
+
+        public void ZoomOut()
+        {
+            if (Mathf.Abs(playerCamera.Lens.FieldOfView - followFOV) > 0.01f)
+            {
+                playerCamera.Lens.FieldOfView = Mathf.Lerp(
+                    playerCamera.Lens.FieldOfView,
+                    followFOV,
+                    Time.deltaTime * zoomSpeed
+                );
+            }
+        }
+
+        public void SetCameraSwayAmount(float swayAmount)
+        {
+            cameraSwayAmount = swayAmount;
+
+            if (noise != null)
+            {
+                noise.AmplitudeGain = swayAmount;
+            }
+        }
+
+        public void EnableCameraSway()
+        {
+            if (noise != null)
+            {
+                noise.AmplitudeGain = cameraSwayAmount;
+            }
+        }
+
+        public void DisableCameraSway()
+        {
+            if (noise != null)
+            {
+                noise.AmplitudeGain = 0f;
+            }
+        }
+
+        public bool HasCameraAxisChanged()
+        {
+            if (Mathf.Abs(currentHorizontalAxisValue - orbitalFollow.HorizontalAxis.Value) > 0.01f ||
+                Mathf.Abs(currentVerticalAxisValue - orbitalFollow.VerticalAxis.Value) > 0.01f)
+            {
+                currentHorizontalAxisValue = orbitalFollow.HorizontalAxis.Value;
+                currentVerticalAxisValue = orbitalFollow.VerticalAxis.Value;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public void ApplyCameraRecoil()
+        {
+            if (cameraRecoil != null)
+            {
+                cameraRecoil.Fire();
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.ApplyCameraRecoil(): CameraRecoil component not found on the player camera.");
+            }
+        }
+
+        public void SetCameraRecoilFromWeaponData(float recoilX, float recoilY, float recoilZ, float snapiness, float returnSpeed)
+        {
+            if (cameraRecoil != null)
+            {
+                cameraRecoil.recoilX = recoilX;
+                cameraRecoil.recoilY = recoilY;
+                cameraRecoil.recoilZ = recoilZ;
+                cameraRecoil.snapiness = snapiness;
+                cameraRecoil.returnSpeed = returnSpeed;
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetCameraRecoilFromWeaponData(): CameraRecoil component not found on the player camera.");
+            }
+        }
+
+        public void SetCameraOffsetLerp(float targetX, float? lerpSpeed = null)
+        {
+            targetOffsetX = targetX;
+            offsetLerpSpeed = lerpSpeed ?? offsetLerpSpeed;
+        }
+
+        private void UpdateCameraOffsetLerp()
+        {
+            if (cameraOffset != null)
+            {
+                float currentX = cameraOffset.Offset.x;
+                float newX = Mathf.Lerp(currentX, targetOffsetX, Time.deltaTime * offsetLerpSpeed);
+                newX = Mathf.Max(0f, newX); // Clamp to 0 or greater
+                cameraOffset.Offset = new Vector3(newX, cameraOffset.Offset.y, cameraOffset.Offset.z);
+            }
+        }
+
+        public void SetCameraOffset()
+        {
+            if (cameraOffset != null)
+            {
+                SetCameraOffsetLerp(aimCamOffsetX); // Uses inspector speed by default
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetCameraOffset(): CinemachineCameraOffset component not found on the player camera.");
+            }
+        }
+
+        public void ResetCameraOffset()
+        {
+            if (cameraOffset != null)
+            {
+                SetCameraOffsetLerp(0f); // Uses inspector speed by default
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.ResetCameraOffset(): CinemachineCameraOffset component not found on the player camera.");
+            }
         }
     }
 }

@@ -5,10 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using RootMotion.Dynamics;
 using RootMotion.FinalIK;
-using UndeadSurvivalGame.Enemy.States;
+using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 
-namespace UndeadSurvivalGame.Enemy
+namespace UndeadSurvivalGame.EnemySystems
 {
     [DefaultExecutionOrder(-100)] // Ensure Enemy runs before other components
     public class Enemy : MonoBehaviour

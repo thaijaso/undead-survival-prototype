@@ -1,24 +1,27 @@
 using TMPro;
 using UnityEngine;
 
-public class SelectedItemDescriptionUI : MonoBehaviour
-{
-    [SerializeField]
-    private TextMeshProUGUI ItemDescriptionText;
-
-    private void Awake()
+namespace UndeadSurvivalGame.UI
+{ 
+    public class SelectedItemDescriptionUI : MonoBehaviour
     {
-        if (ItemDescriptionText == null)
+        [SerializeField]
+        private TextMeshProUGUI ItemDescriptionText;
+
+        private void Awake()
         {
-            ItemDescriptionText = GetComponentInChildren<TextMeshProUGUI>();
+            if (ItemDescriptionText == null)
+            {
+                ItemDescriptionText = GetComponentInChildren<TextMeshProUGUI>();
+            }
         }
-    }
 
-    public void SetItemDescription(string description)
-    {
-        if (ItemDescriptionText != null)
+        public void SetItemDescription(string description)
         {
-            ItemDescriptionText.text = description;
+            if (ItemDescriptionText != null)
+            {
+                ItemDescriptionText.text = description;
+            }
         }
     }
 }

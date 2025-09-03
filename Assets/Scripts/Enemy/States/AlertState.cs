@@ -1,5 +1,5 @@
 using System;
-using UndeadSurvivalGame.Enemy;
+using UndeadSurvivalGame.EnemySystems;
 using UnityEngine;
 
 public class AlertState : EnemyState

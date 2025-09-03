@@ -1,17 +1,20 @@
 using UnityEngine;
 
-public static class CursorUtils
+namespace UndeadSurvivalGame.UI
 {
-    public static void ShowCursor()
+    public static class CursorUtils
     {
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-    }
+        public static void ShowCursor()
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
 
-    public static void HideCursor()
-    {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-        Debug.Log($"CursorUtils.HideCursor() called. lockState: {Cursor.lockState}, visible: {Cursor.visible}");
+        public static void HideCursor()
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            Debug.Log($"CursorUtils.HideCursor() called. lockState: {Cursor.lockState}, visible: {Cursor.visible}");
+        }
     }
 }

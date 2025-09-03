@@ -3,7 +3,7 @@ using UnityEditor;
 #endif
 
 using UnityEngine;
-using UndeadSurvivalGame.Player;
+using UndeadSurvivalGame.PlayerSystems;
 
 public class WeaponIKOffsetEditorRuntime : MonoBehaviour
 {

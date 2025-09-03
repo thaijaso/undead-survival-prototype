@@ -1,156 +1,185 @@
-using PlayerStates;
-using UndeadSurvivalGame.Player;
-using UndeadSurvivalGame.Player.States;
+using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 
-public class AimState : StrafeState
+namespace UndeadSurvivalGame.PlayerSystems
 {
-    public AimState(
-        Player player,
-        StateMachine<PlayerState> stateMachine,
-        AnimationManager animationManager,
-        string animationName,
-        PlayerWeaponManager weaponManager
-    ) : base(
-        player,
-        stateMachine,
-        animationManager,
-        animationName,
-        weaponManager
-    )
+    public class AimState : StrafeState
     {
-    }
+        public AimState(
+            Player player,
+            StateMachine<PlayerState> stateMachine,
+            AnimationManager animationManager,
+            string animationName,
+            PlayerWeaponManager weaponManager
+        ) : base(
+            player,
+            stateMachine,
+            animationManager,
+            animationName,
+            weaponManager
+        )
+        {}
 
-    public override void Enter()
-    {
-        Debug.Log($"[{player.name}] AimState.Enter(): Entering Aim state");
-        base.Enter();
-
-        animationManager.SetIsAiming(true);
-
-        SetupIK();
-        SetupCrosshair();
-        SetupCamera();
-        SetupWeapon();
-    }
-
-    private void SetupIK()
-    {
-        player.PlayerIKController.SetIKTargetWeight(1f);
-    }
-
-    private void SetupCamera()
-    {
-        player.PlayerCameraController.SetCameraSwayAmount(weaponManager.CurrentWeaponConfig.weaponSway);
-        player.PlayerCameraController.EnableCameraSway();
-        player.PlayerCameraController.SetCameraOffset();
-    }
-
-    private void SetupCrosshair()
-    {
-        float bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
-        float bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
-
-        player.CrosshairController.EnableCrosshair();
-        Debug.Log($"[{player.name}] AimState.SetupCrosshair(): Expanding and contracting crosshair");
-        player.CrosshairController.ExpandAndContractCrosshair(
-            bulletSpreadHorizontal,
-            bulletSpreadVertical,
-            1f
-        );
-    }
-
-    private void SetupWeapon()
-    {
-        if (weaponManager == null)
+        public override void Enter()
         {
-            Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): WeaponManager is null!");
-            return;
+            Debug.Log($"[{player.name}] AimState.Enter(): Entering Aim state");
+            base.Enter();
+
+            animationManager.SetIsAiming(true);
+
+            SetupIK();
+            SetupCrosshair();
+            SetupCamera();
+            SetupWeapon();
         }
 
-        SetupWeaponScriptIKAndGrip(weaponManager.CurrentWeaponScript);
-        weaponManager.SetAimIKOffsets();
-        weaponManager.SetRecoilIKSettings();
-    }
-
-    private void SetupWeaponScriptIKAndGrip(Weapon weaponScript)
-    {
-        if (weaponScript != null)
+        private void SetupIK()
         {
-            // Set muzzle transform for aiming
-            if (weaponScript.muzzleTransform != null)
+            player.PlayerIKController.SetIKTargetWeight(1f);
+        }
+
+        private void SetupCamera()
+        {
+            player.PlayerCameraController.SetCameraSwayAmount(weaponManager.CurrentWeaponConfig.weaponSway);
+            player.PlayerCameraController.EnableCameraSway();
+            player.PlayerCameraController.SetCameraOffset();
+        }
+
+        private void SetupCrosshair()
+        {
+            float bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
+            float bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
+
+            player.CrosshairController.EnableCrosshair();
+            Debug.Log($"[{player.name}] AimState.SetupCrosshair(): Expanding and contracting crosshair");
+            player.CrosshairController.ExpandAndContractCrosshair(
+                bulletSpreadHorizontal,
+                bulletSpreadVertical,
+                1f
+            );
+        }
+
+        private void SetupWeapon()
+        {
+            if (weaponManager == null)
             {
-                player.PlayerIKController.SetAimTransform(weaponScript.muzzleTransform);
+                Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): WeaponManager is null!");
+                return;
+            }
+
+            SetupWeaponScriptIKAndGrip(weaponManager.CurrentWeaponScript);
+            weaponManager.SetAimIKOffsets();
+            weaponManager.SetRecoilIKSettings();
+        }
+
+        private void SetupWeaponScriptIKAndGrip(Weapon weaponScript)
+        {
+            if (weaponScript != null)
+            {
+                // Set muzzle transform for aiming
+                if (weaponScript.muzzleTransform != null)
+                {
+                    player.PlayerIKController.SetAimTransform(weaponScript.muzzleTransform);
+                }
+                else
+                {
+                    Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): MuzzleTransform not set on weapon prefab!");
+                }
+
+                // Set left hand grip source
+                if (weaponScript.leftHandGripSource != null)
+                {
+                    Debug.Log($"[{player.name}] AimState.SetupWeapon(): Setting left hand grip source to {weaponScript.leftHandGripSource.name}");
+                    player.PlayerIKController.SetLeftHandGripSource(weaponScript.leftHandGripSource);
+                }
+                else
+                {
+                    Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): Left hand grip source not set on weapon prefab!");
+                }
             }
             else
             {
-                Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): MuzzleTransform not set on weapon prefab!");
+                Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): Weapon script not found on weapon instance!");
             }
+        }
 
-            // Set left hand grip source
-            if (weaponScript.leftHandGripSource != null)
+        public override void Exit(PlayerState nextState)
+        {
+            Debug.Log($"[{player.name}] AimState.Exit(): Exiting to {nextState.GetType().Name}");
+            base.Exit(nextState);
+
+            if (ShouldResetAimState(nextState))
             {
-                Debug.Log($"[{player.name}] AimState.SetupWeapon(): Setting left hand grip source to {weaponScript.leftHandGripSource.name}");
-                player.PlayerIKController.SetLeftHandGripSource(weaponScript.leftHandGripSource);
+                animationManager.SetIsAiming(false);
+                player.PlayerIKController.SetIKTargetWeight(0f);
+                player.PlayerCameraController.DisableCameraSway();
+                player.PlayerCameraController.ResetCameraOffset();
+                player.CrosshairController.DisableCrosshair();
             }
-            else
+        }
+
+        private bool ShouldResetAimState(PlayerState nextState)
+        {
+            return
+                nextState is IdleState
+                || (
+                    nextState is StrafeState
+                    && nextState is not ShootState
+                    && nextState is not AimState
+                )
+                || nextState is SprintState
+                || nextState is HitReactionState;
+        }
+
+        public override void LogicUpdate()
+        {
+            // Guard: Only update if this is the current state
+            if (stateMachine.currentState != this)
             {
-                Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): Left hand grip source not set on weapon prefab!");
+                return;
             }
-        }
-        else
-        {
-            Debug.LogWarning($"[{player.name}] AimState.SetupWeapon(): Weapon script not found on weapon instance!");
-        }
-    }
 
-    public override void Exit(PlayerState nextState)
-    {
-        Debug.Log($"[{player.name}] AimState.Exit(): Exiting to {nextState.GetType().Name}");
-        base.Exit(nextState);
+            base.LogicUpdate();
 
-        if (ShouldResetAimState(nextState))
-        {
-            animationManager.SetIsAiming(false);
-            player.PlayerIKController.SetIKTargetWeight(0f);
-            player.PlayerCameraController.DisableCameraSway();
-            player.PlayerCameraController.ResetCameraOffset();
-            player.CrosshairController.DisableCrosshair();
-        }
-    }
+            player.PlayerCameraController.ZoomIn();
 
-    private bool ShouldResetAimState(PlayerState nextState)
-    {
-        return
-            nextState is IdleState
-            || (
-                nextState is StrafeState
-                && nextState is not ShootState
-                && nextState is not AimState
-            )
-            || nextState is SprintState
-            || nextState is HitReactionState;
-    }
+            // Always update IK offsets, even in debug mode
+            weaponManager.SetAimIKOffsets();
 
-    public override void LogicUpdate()
-    {
-        // Guard: Only update if this is the current state
-        if (stateMachine.currentState != this)
-        {
-            return;
-        }
+            // Prevent automatic transitions if debug mode is active
+            if (PlayerDebugger.ForceAimDebugMode)
+            {
+                player.PlayerIKController.SetIKTargetWeight(1f); // Ensure IK weight is set every frame in debug mode
+                if (player.PlayerInput.IsMoving)
+                {
+                    player.CrosshairController.ExpandAndContractCrosshair(
+                        1f,
+                        weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal,
+                        weaponManager.CurrentWeaponConfig.bulletSpreadVertical,
+                        0.1f
+                    );
+                }
+                return;
+            }
 
-        base.LogicUpdate();
+            if (player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming)
+            {
+                stateMachine.SetState(player.strafe);
+                return;
+            }
 
-        player.PlayerCameraController.ZoomIn();
+            if (player.PlayerInput.IsAiming && player.PlayerInput.IsAttacking && stateMachine.currentState != player.shoot)
+            {
+                stateMachine.SetState(player.shoot);
+                return;
+            }
 
-        // Always update IK offsets, even in debug mode
-        weaponManager.SetAimIKOffsets();
+            if (player.PlayerInput.IsReloading && weaponManager.CanReload())
+            {
+                stateMachine.SetState(player.reload);
+                return;
+            }
 
-        // Prevent automatic transitions if debug mode is active
-        if (PlayerDebugger.ForceAimDebugMode)
-        {
-            player.PlayerIKController.SetIKTargetWeight(1f); // Ensure IK weight is set every frame in debug mode
             if (player.PlayerInput.IsMoving)
             {
                 player.CrosshairController.ExpandAndContractCrosshair(
@@ -160,62 +189,34 @@ public class AimState : StrafeState
                     0.1f
                 );
             }
-            return;
         }
 
-        if (player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming)
+        public override void LateUpdate()
         {
-            stateMachine.SetState(player.strafe);
-            return;
-        }
+            base.LateUpdate();
 
-        if (player.PlayerInput.IsAiming && player.PlayerInput.IsAttacking && stateMachine.currentState != player.shoot)
-        {
-            stateMachine.SetState(player.shoot);
-            return;
-        }
-
-        if (player.PlayerInput.IsReloading && weaponManager.CanReload())
-        {
-            stateMachine.SetState(player.reload);
-            return;
-        }
-
-        if (player.PlayerInput.IsMoving)
-        {
+            player.PlayerCameraController.MoveAimIKTarget();
+            float bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
+            float bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
             player.CrosshairController.ExpandAndContractCrosshair(
                 1f,
-                weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal,
-                weaponManager.CurrentWeaponConfig.bulletSpreadVertical,
+                bulletSpreadHorizontal,
+                bulletSpreadVertical,
                 0.1f
             );
+
+            player.PlayerCameraController.MoveBulletHitTarget();
+
+            Vector3 direction = player.PlayerInput.GetInputDirection();
+            Vector3 aimTarget = player.PlayerCameraController.GetAimTarget();
+
+            // 1. Solve all IKs (AimIK, FBBIK, RecoilIK, etc.)
+            player.PlayerIKController.UpdateIKs(direction, aimTarget);
+
+            // Prevent crosshair expansion if we're in ShootState
+            if (stateMachine.currentState == player.shoot)
+                return;
         }
     }
-
-    public override void LateUpdate()
-    {
-        base.LateUpdate();
-
-        player.PlayerCameraController.MoveAimIKTarget();
-        float bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
-        float bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
-        player.CrosshairController.ExpandAndContractCrosshair(
-            1f,
-            bulletSpreadHorizontal,
-            bulletSpreadVertical,
-            0.1f
-        );
-
-        player.PlayerCameraController.MoveBulletHitTarget();
-
-        Vector3 direction = player.PlayerInput.GetInputDirection();
-        Vector3 aimTarget = player.PlayerCameraController.GetAimTarget();
-
-        // 1. Solve all IKs (AimIK, FBBIK, RecoilIK, etc.)
-        player.PlayerIKController.UpdateIKs(direction, aimTarget);
-
-        // Prevent crosshair expansion if we're in ShootState
-        if (stateMachine.currentState == player.shoot)
-            return;
-    }
 }
+

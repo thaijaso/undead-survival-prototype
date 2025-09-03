@@ -1,25 +1,27 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class SelectedItemTypeUI : MonoBehaviour
+namespace UndeadSurvivalGame.UI
 {
-    public TextMeshProUGUI itemTypeText;
-
-    private void Awake()
+    public class SelectedItemTypeUI : MonoBehaviour
     {
-        if (itemTypeText == null)
+        public TextMeshProUGUI itemTypeText;
+
+        private void Awake()
         {
-            itemTypeText = GetComponentInChildren<TextMeshProUGUI>();
             if (itemTypeText == null)
             {
-                Debug.LogWarning("SelectedItemTypeUI requires a TextMeshProUGUI component in the children.");
+                itemTypeText = GetComponentInChildren<TextMeshProUGUI>();
+                if (itemTypeText == null)
+                {
+                    Debug.LogWarning("SelectedItemTypeUI requires a TextMeshProUGUI component in the children.");
+                }
             }
         }
-    }
 
-    public void SetItemType(string itemType)
-    {
-        itemTypeText.text = itemType;
+        public void SetItemType(string itemType)
+        {
+            itemTypeText.text = itemType;
+        }
     }
 }

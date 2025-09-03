@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace UndeadSurvivalGame.Editor
 {
-    [CustomEditor(typeof(UndeadSurvivalGame.Enemy.Enemy))]
+    [CustomEditor(typeof(UndeadSurvivalGame.EnemySystems.Enemy))]
     public class EnemyEditor : OdinEditor
     {
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            UndeadSurvivalGame.Enemy.Enemy enemy = (UndeadSurvivalGame.Enemy.Enemy)target;
+            UndeadSurvivalGame.EnemySystems.Enemy enemy = (UndeadSurvivalGame.EnemySystems.Enemy)target;
             GUILayout.Space(10);
 
             // Static lock toggle

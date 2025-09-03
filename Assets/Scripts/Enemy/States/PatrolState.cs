@@ -1,5 +1,5 @@
 using UnityEngine;
-using UndeadSurvivalGame.Enemy;
+using UndeadSurvivalGame.EnemySystems;
 
 namespace EnemyStates
 {

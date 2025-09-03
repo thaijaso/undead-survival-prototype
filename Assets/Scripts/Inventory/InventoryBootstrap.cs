@@ -1,18 +1,21 @@
 using UnityEngine;
 
-public class InventoryBootstrap : MonoBehaviour
+namespace UndeadSurvivalGame.Gameplay
 {
-    public Inventory inventory;
-    public InventoryPreset preset;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class InventoryBootstrap : MonoBehaviour
     {
-        if (inventory != null && preset != null)
+        public Inventory inventory;
+        public InventoryPreset preset;
+
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
         {
-            foreach (var itemStack in preset.startingItems)
+            if (inventory != null && preset != null)
             {
-                inventory.TryAdd(itemStack.item, itemStack.quantity);
+                foreach (var itemStack in preset.startingItems)
+                {
+                    inventory.TryAdd(itemStack.item, itemStack.quantity);
+                }
             }
         }
     }

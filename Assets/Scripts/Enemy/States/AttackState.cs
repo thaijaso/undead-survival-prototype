@@ -1,8 +1,8 @@
+using UndeadSurvivalGame.PlayerSystems;
 using UnityEngine;
 
-namespace UndeadSurvivalGame.Enemy.States
+namespace UndeadSurvivalGame.EnemySystems
 {
-
     public class AttackState : EnemyState
     {
         public AttackState(
@@ -16,8 +16,7 @@ namespace UndeadSurvivalGame.Enemy.States
             animationManager,
             animationName
         )
-        {
-        }
+        {}
 
         public override void Enter()
         {
@@ -97,11 +96,11 @@ namespace UndeadSurvivalGame.Enemy.States
             if (enemy.IsPlayerInAttackRange())
             {
                 Debug.Log($"[{enemy.name}] AttackState.OnAttackImpact(): Player is in attack range - dealing damage");
-                UndeadSurvivalGame.Player.Player player = enemy.PlayerTransform.GetComponent<UndeadSurvivalGame.Player.Player>();
-                var hitReaction = player.hitReaction as UndeadSurvivalGame.Player.States.HitReactionState;
+                Player player = enemy.PlayerTransform.GetComponent<Player>();
+                var hitReaction = player.hitReaction as PlayerSystems.HitReactionState;
                 if (hitReaction != null
-                    && player.stateMachine.currentState is not UndeadSurvivalGame.Player.States.HitReactionState
-                    && player.stateMachine.currentState is not UndeadSurvivalGame.Player.States.DeathState)
+                    && player.stateMachine.currentState is not PlayerSystems.HitReactionState
+                    && player.stateMachine.currentState is not PlayerSystems.DeathState)
                 {
                     // Trigger hit reaction and process damage
                     Debug.Log($"[{enemy.name}] AttackState.OnAttackImpact(): Player hit reaction should be triggered");

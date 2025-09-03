@@ -1,30 +1,34 @@
 using TMPro;
+using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 
-public class SelectedItemNameUI : MonoBehaviour
-{
-    public Inventory inventory;
-    public TextMeshProUGUI itemName;
-
-    private void Awake()
+namespace UndeadSurvivalGame.UI
+{ 
+    public class SelectedItemNameUI : MonoBehaviour
     {
-        SetupItemName();
-    }
+        public Inventory inventory;
+        public TextMeshProUGUI itemName;
 
-    private void SetupItemName()
-    {
-        if (itemName == null)
+        private void Awake()
         {
-            itemName = GetComponentInChildren<TextMeshProUGUI>();
+            SetupItemName();
+        }
+
+        private void SetupItemName()
+        {
             if (itemName == null)
             {
-                Debug.LogWarning("SelectedItemNameUI requires a TextMeshProUGUI component in the children.");
+                itemName = GetComponentInChildren<TextMeshProUGUI>();
+                if (itemName == null)
+                {
+                    Debug.LogWarning("SelectedItemNameUI requires a TextMeshProUGUI component in the children.");
+                }
             }
         }
-    }
 
-    public void SetItemName(string itemName)
-    {
-        this.itemName.text = itemName;
+        public void SetItemName(string itemName)
+        {
+            this.itemName.text = itemName;
+        }
     }
 }

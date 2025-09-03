@@ -1,10 +1,11 @@
-﻿using PlayerStates;
-using RootMotion.Dynamics;
+﻿using RootMotion.Dynamics;
 using Sirenix.OdinInspector;
-using UndeadSurvivalGame.Player.States;
+using UndeadSurvivalGame.Effects;
+using UndeadSurvivalGame.Gameplay;
+using UndeadSurvivalGame.UI;
 using UnityEngine;
 
-namespace UndeadSurvivalGame.Player
+namespace UndeadSurvivalGame.PlayerSystems
 {
     [DefaultExecutionOrder(-200)] // Ensure Player runs before other components
     public class Player : MonoBehaviour

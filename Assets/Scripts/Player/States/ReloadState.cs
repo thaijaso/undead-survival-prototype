@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UndeadSurvivalGame.Player.States
+namespace UndeadSurvivalGame.PlayerSystems
 {
     public class ReloadState : StrafeState
     {

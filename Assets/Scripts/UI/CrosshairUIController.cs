@@ -1,127 +1,130 @@
 using UnityEngine;
 using System.Collections;
 
-public class CrosshairController : MonoBehaviour
+namespace UndeadSurvivalGame.UI
 {
-    [Header("References")]
-    public RectTransform topArm;
-    public RectTransform bottomArm;
-    public RectTransform leftArm;
-    public RectTransform rightArm;
-
-    [Header("Parameters")]
-    public float baseDistance = 10f;
-    public float spreadMultiplier = 50f;
-    public float defaultDuration = 0.1f;
-
-    private float currentSpread = 0f;
-    private float targetSpread = 0f;
-    private float bulletSpreadHorizontal = 0f;
-    private float bulletSpreadVertical = 0f;
-
-    private Coroutine animationCoroutine;
-
-    private void Awake()
+    public class CrosshairController : MonoBehaviour
     {
-        gameObject.SetActive(false);
-    }
+        [Header("References")]
+        public RectTransform topArm;
+        public RectTransform bottomArm;
+        public RectTransform leftArm;
+        public RectTransform rightArm;
 
-    public void SetCrosshair(float spread, float bulletSpreadH, float bulletSpreadV, float duration = -1f)
-    {
-        targetSpread = Mathf.Clamp01(spread);
-        bulletSpreadHorizontal = bulletSpreadH;
-        bulletSpreadVertical = bulletSpreadV;
+        [Header("Parameters")]
+        public float baseDistance = 10f;
+        public float spreadMultiplier = 50f;
+        public float defaultDuration = 0.1f;
 
-        if (animationCoroutine != null)
-            StopCoroutine(animationCoroutine);
+        private float currentSpread = 0f;
+        private float targetSpread = 0f;
+        private float bulletSpreadHorizontal = 0f;
+        private float bulletSpreadVertical = 0f;
 
-        animationCoroutine = StartCoroutine(AnimateToTarget(duration > 0 ? duration : defaultDuration));
-    }
+        private Coroutine animationCoroutine;
 
-    private IEnumerator AnimateToTarget(float duration)
-    {
-        float startSpread = currentSpread;
-        float time = 0f;
-
-        while (time < duration)
+        private void Awake()
         {
-            time += Time.deltaTime;
-            currentSpread = Mathf.Lerp(startSpread, targetSpread, time / duration);
-            UpdateArms();
-            yield return null;
+            gameObject.SetActive(false);
         }
 
-        currentSpread = targetSpread;
-        UpdateArms();
-    }
+        public void SetCrosshair(float spread, float bulletSpreadH, float bulletSpreadV, float duration = -1f)
+        {
+            targetSpread = Mathf.Clamp01(spread);
+            bulletSpreadHorizontal = bulletSpreadH;
+            bulletSpreadVertical = bulletSpreadV;
 
-    private void UpdateArms()
-    {
-        float horizontalOffset = baseDistance + (currentSpread * spreadMultiplier) + (bulletSpreadHorizontal * spreadMultiplier);
-        float verticalOffset = baseDistance + (currentSpread * spreadMultiplier) + (bulletSpreadVertical * spreadMultiplier);
+            if (animationCoroutine != null)
+                StopCoroutine(animationCoroutine);
 
-        if (topArm) topArm.anchoredPosition = new Vector2(0, verticalOffset);
-        if (bottomArm) bottomArm.anchoredPosition = new Vector2(0, -verticalOffset);
-        if (leftArm) leftArm.anchoredPosition = new Vector2(-horizontalOffset, 0);
-        if (rightArm) rightArm.anchoredPosition = new Vector2(horizontalOffset, 0);
-    }
+            animationCoroutine = StartCoroutine(AnimateToTarget(duration > 0 ? duration : defaultDuration));
+        }
 
-    public void ResetCrosshair()
-    {
-        SetCrosshair(0f, 0f, 0f, 0.05f);
-    }
+        private IEnumerator AnimateToTarget(float duration)
+        {
+            float startSpread = currentSpread;
+            float time = 0f;
 
-    public bool IsCrosshairExpanded()
-    {
-        return currentSpread > 0.01f;
-    }
+            while (time < duration)
+            {
+                time += Time.deltaTime;
+                currentSpread = Mathf.Lerp(startSpread, targetSpread, time / duration);
+                UpdateArms();
+                yield return null;
+            }
 
-    public void EnableCrosshair()
-    {
-        gameObject.SetActive(true);
-    }
+            currentSpread = targetSpread;
+            UpdateArms();
+        }
 
-    public void DisableCrosshair()
-    {
-        gameObject.SetActive(false);
-    }
+        private void UpdateArms()
+        {
+            float horizontalOffset = baseDistance + (currentSpread * spreadMultiplier) + (bulletSpreadHorizontal * spreadMultiplier);
+            float verticalOffset = baseDistance + (currentSpread * spreadMultiplier) + (bulletSpreadVertical * spreadMultiplier);
 
-    public void ExpandAndContractCrosshair(
-        float expandSpread = 1f,
-        float bulletSpreadH = 0f,
-        float bulletSpreadV = 0f,
-        float expandDuration = 0.1f,
-        float holdDuration = 0.1f,
-        float contractDuration = 0.1f
-    )
-    {
-        if (animationCoroutine != null)
-            StopCoroutine(animationCoroutine);
+            if (topArm) topArm.anchoredPosition = new Vector2(0, verticalOffset);
+            if (bottomArm) bottomArm.anchoredPosition = new Vector2(0, -verticalOffset);
+            if (leftArm) leftArm.anchoredPosition = new Vector2(-horizontalOffset, 0);
+            if (rightArm) rightArm.anchoredPosition = new Vector2(horizontalOffset, 0);
+        }
 
-        animationCoroutine = StartCoroutine(ExpandAndContractRoutine(
-            expandSpread,
-            bulletSpreadH,
-            bulletSpreadV,
-            expandDuration,
-            holdDuration,
-            contractDuration
-        ));
-    }
+        public void ResetCrosshair()
+        {
+            SetCrosshair(0f, 0f, 0f, 0.05f);
+        }
 
-    private IEnumerator ExpandAndContractRoutine(
-        float expandSpread,
-        float bulletSpreadH,
-        float bulletSpreadV,
-        float expandDuration,
-        float holdDuration,
-        float contractDuration
-    )
-    {
-        // Expand
-        SetCrosshair(expandSpread, bulletSpreadH, bulletSpreadV, expandDuration);
-        yield return new WaitForSeconds(expandDuration + holdDuration);
+        public bool IsCrosshairExpanded()
+        {
+            return currentSpread > 0.01f;
+        }
 
-        // Contract
-        SetCrosshair(0f, 0f, 0f, contractDuration);
+        public void EnableCrosshair()
+        {
+            gameObject.SetActive(true);
+        }
+
+        public void DisableCrosshair()
+        {
+            gameObject.SetActive(false);
+        }
+
+        public void ExpandAndContractCrosshair(
+            float expandSpread = 1f,
+            float bulletSpreadH = 0f,
+            float bulletSpreadV = 0f,
+            float expandDuration = 0.1f,
+            float holdDuration = 0.1f,
+            float contractDuration = 0.1f
+        )
+        {
+            if (animationCoroutine != null)
+                StopCoroutine(animationCoroutine);
+
+            animationCoroutine = StartCoroutine(ExpandAndContractRoutine(
+                expandSpread,
+                bulletSpreadH,
+                bulletSpreadV,
+                expandDuration,
+                holdDuration,
+                contractDuration
+            ));
+        }
+
+        private IEnumerator ExpandAndContractRoutine(
+            float expandSpread,
+            float bulletSpreadH,
+            float bulletSpreadV,
+            float expandDuration,
+            float holdDuration,
+            float contractDuration
+        )
+        {
+            // Expand
+            SetCrosshair(expandSpread, bulletSpreadH, bulletSpreadV, expandDuration);
+            yield return new WaitForSeconds(expandDuration + holdDuration);
+
+            // Contract
+            SetCrosshair(0f, 0f, 0f, contractDuration);
+        }
     }
 }

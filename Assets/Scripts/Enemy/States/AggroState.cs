@@ -1,4 +1,4 @@
-using UndeadSurvivalGame.Enemy;
+using UndeadSurvivalGame.EnemySystems;
 using UnityEngine;
 
 public class AggroState : EnemyState

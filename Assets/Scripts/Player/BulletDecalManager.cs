@@ -2,87 +2,92 @@ using UnityEngine;
 
 /// <summary>
 /// This class manages spawning the correct decal based on the hit surface.
-public class BulletDecalManager : MonoBehaviour
-{
-    public static BulletDecalManager Instance { get; private set; }
+/// </summary>
 
-    [System.Serializable]
-    public struct MaterialDecalPair
+namespace UndeadSurvivalGame.Effects
+{ 
+    public class BulletDecalManager : MonoBehaviour
     {
-        public PhysicsMaterial material;
-        public GameObject[] bulletDecalPrefabs;
-    }
+        public static BulletDecalManager Instance { get; private set; }
 
-    public MaterialDecalPair[] materialDecals;
-    public GameObject defaultDecal;
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
+        [System.Serializable]
+        public struct MaterialDecalPair
         {
-            Debug.LogWarning($"[{gameObject.name}] BulletDecalManager.Awake(): Multiple BulletDecalManager instances detected! Destroying duplicate.");
-            Destroy(gameObject);
-            return;
+            public PhysicsMaterial material;
+            public GameObject[] bulletDecalPrefabs;
         }
 
-        Instance = this;
-    }
+        public MaterialDecalPair[] materialDecals;
+        public GameObject defaultDecal;
 
-    public void SpawnBulletDecal(RaycastHit hit)
-    {
-        string matName = hit.collider.sharedMaterial ? hit.collider.sharedMaterial.name : "";
-        GameObject prefab = defaultDecal;
-
-        foreach (var entry in materialDecals)
+        private void Awake()
         {
-            if (entry.material && entry.material.name == matName)
+            if (Instance != null && Instance != this)
             {
-                // Randomly select a decal from the array
-                if (entry.bulletDecalPrefabs.Length > 0)
+                Debug.LogWarning($"[{gameObject.name}] BulletDecalManager.Awake(): Multiple BulletDecalManager instances detected! Destroying duplicate.");
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+        }
+
+        public void SpawnBulletDecal(RaycastHit hit)
+        {
+            string matName = hit.collider.sharedMaterial ? hit.collider.sharedMaterial.name : "";
+            GameObject prefab = defaultDecal;
+
+            foreach (var entry in materialDecals)
+            {
+                if (entry.material && entry.material.name == matName)
                 {
-                    prefab = entry.bulletDecalPrefabs[Random.Range(0, entry.bulletDecalPrefabs.Length)];
+                    // Randomly select a decal from the array
+                    if (entry.bulletDecalPrefabs.Length > 0)
+                    {
+                        prefab = entry.bulletDecalPrefabs[Random.Range(0, entry.bulletDecalPrefabs.Length)];
+                    }
+                    break;
                 }
-                break;
+            }
+
+            if (prefab)
+            {
+                GameObject decal = Instantiate(prefab, hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
+                decal.transform.SetParent(hit.collider.transform); // Optional: parent to surface
             }
         }
 
-        if (prefab)
+        public void SpawnBulletDecal(ContactPoint contact)
         {
-            GameObject decal = Instantiate(prefab, hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
-            decal.transform.SetParent(hit.collider.transform); // Optional: parent to surface
-        }
-    }
+            string matName = contact.otherCollider.sharedMaterial ? contact.otherCollider.sharedMaterial.name : "";
+            GameObject prefab = defaultDecal;
 
-    public void SpawnBulletDecal(ContactPoint contact)
-    {
-        string matName = contact.otherCollider.sharedMaterial ? contact.otherCollider.sharedMaterial.name : "";
-        GameObject prefab = defaultDecal;
-
-        foreach (var entry in materialDecals)
-        {
-            if (entry.material && entry.material.name == matName)
+            foreach (var entry in materialDecals)
             {
-                // Randomly select a decal from the array
-                if (entry.bulletDecalPrefabs.Length > 0)
+                if (entry.material && entry.material.name == matName)
                 {
-                    prefab = entry.bulletDecalPrefabs[Random.Range(0, entry.bulletDecalPrefabs.Length)];
+                    // Randomly select a decal from the array
+                    if (entry.bulletDecalPrefabs.Length > 0)
+                    {
+                        prefab = entry.bulletDecalPrefabs[Random.Range(0, entry.bulletDecalPrefabs.Length)];
+                    }
+                    break;
                 }
-                break;
+            }
+
+            if (prefab)
+            {
+                GameObject decal = Instantiate(prefab, contact.point, Quaternion.FromToRotation(Vector3.up, contact.normal));
+                decal.transform.SetParent(contact.otherCollider.transform); // Optional: parent to surface
             }
         }
 
-        if (prefab)
+        private void OnDestroy()
         {
-            GameObject decal = Instantiate(prefab, contact.point, Quaternion.FromToRotation(Vector3.up, contact.normal));
-            decal.transform.SetParent(contact.otherCollider.transform); // Optional: parent to surface
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (Instance == this)
-        {
-            Instance = null;
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
     }
 }

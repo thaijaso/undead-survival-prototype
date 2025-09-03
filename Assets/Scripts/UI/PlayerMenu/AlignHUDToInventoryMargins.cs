@@ -1,64 +1,67 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-[ExecuteAlways]
-public class AlignHudToInventoryMargins : MonoBehaviour
+namespace UndeadSurvivalGame.UI
 {
-    [Header("Source (inventory on main canvas)")]
-    public RectTransform inventoryPanel;   // inventory window root/background
-
-    [Header("Target (your HUD canvas)")]
-    public Canvas hudCanvas;               // HUD canvas (Screen Space - Overlay)
-    public CanvasScaler hudScaler;         // Constant Pixel Size scaler
-
-    [Header("Bottom margin mode")]
-    public bool bottomMirrorsInventoryTop   = true;    // true: use inventory’s TOP margin for HUD BOTTOM
-    public float fixedBottomPx = 80f;                  // used if both flags are false
-
-    [Header("Extras")]
-    public float extraRightPx  = 0f;
-    public float extraBottomPx = 0f;
-
-    RectTransform hudRectTransform;
-
-    void OnEnable()
+    [ExecuteAlways]
+    public class AlignHudToInventoryMargins : MonoBehaviour
     {
-        hudRectTransform = (RectTransform)transform;
-        Canvas.willRenderCanvases += Apply;
-    }
+        [Header("Source (inventory on main canvas)")]
+        public RectTransform inventoryPanel;   // inventory window root/background
 
-    void OnDisable() { Canvas.willRenderCanvases -= Apply; }
+        [Header("Target (your HUD canvas)")]
+        public Canvas hudCanvas;               // HUD canvas (Screen Space - Overlay)
+        public CanvasScaler hudScaler;         // Constant Pixel Size scaler
 
-    void Apply()
-    {
-        if (!hudRectTransform || !inventoryPanel || !hudCanvas || !hudScaler) return;
+        [Header("Bottom margin mode")]
+        public bool bottomMirrorsInventoryTop   = true;    // true: use inventory’s TOP margin for HUD BOTTOM
+        public float fixedBottomPx = 80f;                  // used if both flags are false
 
-        // Require bottom-right anchoring on the HUD panel
-        hudRectTransform.anchorMin = hudRectTransform.anchorMax = new Vector2(1f, 0f);
-        hudRectTransform.pivot     = new Vector2(1f, 0f);
+        [Header("Extras")]
+        public float extraRightPx  = 0f;
+        public float extraBottomPx = 0f;
 
-        // Inventory rect -> screen pixels
-        var inventoryWorldCorners = new Vector3[4];                 // 0=BL,1=TL,2=TR,3=BR
-        inventoryPanel.GetWorldCorners(inventoryWorldCorners);
-        Vector2 inventoryBottomLeft = RectTransformUtility.WorldToScreenPoint(null, inventoryWorldCorners[0]);
-        Vector2 inventoryTopLeft = RectTransformUtility.WorldToScreenPoint(null, inventoryWorldCorners[1]);
-        Vector2 inventoryTopRight = RectTransformUtility.WorldToScreenPoint(null, inventoryWorldCorners[2]);
+        RectTransform hudRectTransform;
 
-        Rect screenRect = hudCanvas.pixelRect;
+        void OnEnable()
+        {
+            hudRectTransform = (RectTransform)transform;
+            Canvas.willRenderCanvases += Apply;
+        }
 
-        // RIGHT margin = screen right - inv right
-        float rightMarginPixels = Mathf.Max(0, screenRect.xMax - inventoryTopRight.x) + extraRightPx;
+        void OnDisable() { Canvas.willRenderCanvases -= Apply; }
 
-        // BOTTOM margin: choose one
-        float bottomMarginPixels;
-       
-        if (bottomMirrorsInventoryTop)
-            bottomMarginPixels = Mathf.Max(0, screenRect.yMax - inventoryTopLeft.y) + extraBottomPx;            // mirror inventory TOP
-        else
-            bottomMarginPixels = fixedBottomPx + extraBottomPx;                                // fixed value
+        void Apply()
+        {
+            if (!hudRectTransform || !inventoryPanel || !hudCanvas || !hudScaler) return;
 
-        // Convert screen pixels -> HUD canvas units (Constant Pixel Size)
-        float scaleFactor = Mathf.Max(0.0001f, hudScaler.scaleFactor);
-        hudRectTransform.anchoredPosition = new Vector2(-rightMarginPixels / scaleFactor, bottomMarginPixels / scaleFactor);
+            // Require bottom-right anchoring on the HUD panel
+            hudRectTransform.anchorMin = hudRectTransform.anchorMax = new Vector2(1f, 0f);
+            hudRectTransform.pivot     = new Vector2(1f, 0f);
+
+            // Inventory rect -> screen pixels
+            var inventoryWorldCorners = new Vector3[4];                 // 0=BL,1=TL,2=TR,3=BR
+            inventoryPanel.GetWorldCorners(inventoryWorldCorners);
+            Vector2 inventoryBottomLeft = RectTransformUtility.WorldToScreenPoint(null, inventoryWorldCorners[0]);
+            Vector2 inventoryTopLeft = RectTransformUtility.WorldToScreenPoint(null, inventoryWorldCorners[1]);
+            Vector2 inventoryTopRight = RectTransformUtility.WorldToScreenPoint(null, inventoryWorldCorners[2]);
+
+            Rect screenRect = hudCanvas.pixelRect;
+
+            // RIGHT margin = screen right - inv right
+            float rightMarginPixels = Mathf.Max(0, screenRect.xMax - inventoryTopRight.x) + extraRightPx;
+
+            // BOTTOM margin: choose one
+            float bottomMarginPixels;
+        
+            if (bottomMirrorsInventoryTop)
+                bottomMarginPixels = Mathf.Max(0, screenRect.yMax - inventoryTopLeft.y) + extraBottomPx;            // mirror inventory TOP
+            else
+                bottomMarginPixels = fixedBottomPx + extraBottomPx;                                // fixed value
+
+            // Convert screen pixels -> HUD canvas units (Constant Pixel Size)
+            float scaleFactor = Mathf.Max(0.0001f, hudScaler.scaleFactor);
+            hudRectTransform.anchoredPosition = new Vector2(-rightMarginPixels / scaleFactor, bottomMarginPixels / scaleFactor);
+        }
     }
 }

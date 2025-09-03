@@ -1,4 +1,4 @@
-using UndeadSurvivalGame.Enemy;
+using UndeadSurvivalGame.EnemySystems;
 using UnityEngine;
 
 // ChaseState handles the enemy's pursuit behavior after initial aggro

@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 using UndeadSurvivalGame.Editor;
+using UndeadSurvivalGame.Gameplay;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector.Editor;
 #endif

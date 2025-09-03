@@ -1,7 +1,6 @@
-﻿using UndeadSurvivalGame.Player;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace PlayerStates
+namespace UndeadSurvivalGame.PlayerSystems
 {
     public class IdleState : PlayerState
     {
@@ -18,7 +17,7 @@ namespace PlayerStates
             animationName, 
             weaponManager
         )
-        { }
+        {}
 
         public override void Enter()
         {

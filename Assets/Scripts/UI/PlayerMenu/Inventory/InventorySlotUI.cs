@@ -2,67 +2,70 @@ using MoreMountains.Feedbacks;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventorySlotUI : MonoBehaviour
+namespace UndeadSurvivalGame.UI
 {
-    private int index;
-    public Image BorderBackground;
-    public Color BorderBackgroundSelectedColor = Color.white;
-    public Color BorderBackgroundUnselectedColor = new(0.4352941f, 0.4352941f, 0.4352941f, 1f);
-    public Color BorderBackgroundEmptyColor = new(0.9607843f, 0.0f, 0.0f, 1f);
-    public Image HoverBackground;
-    public GameObject ItemIcon;
-    public GameObject ItemCount;
-    public GameObject ItemCountBackground;
-    public MMF_Player HoverFeedback;
-    public MMF_Player ClickFeedback;
-
-    private bool isSelected;
-    private bool isEmpty;
-
-    public void SetIndex(int index)
+    public class InventorySlotUI : MonoBehaviour
     {
-        this.index = index;
-    }
+        private int index;
+        public Image BorderBackground;
+        public Color BorderBackgroundSelectedColor = Color.white;
+        public Color BorderBackgroundUnselectedColor = new(0.4352941f, 0.4352941f, 0.4352941f, 1f);
+        public Color BorderBackgroundEmptyColor = new(0.9607843f, 0.0f, 0.0f, 1f);
+        public Image HoverBackground;
+        public GameObject ItemIcon;
+        public GameObject ItemCount;
+        public GameObject ItemCountBackground;
+        public MMF_Player HoverFeedback;
+        public MMF_Player ClickFeedback;
 
-    public int GetIndex()
-    {
-        return index;
-    }
+        private bool isSelected;
+        private bool isEmpty;
 
-    public void SetSelected(bool isSelected)
-    {
-        Debug.Log($"InventorySlotUI.SetSelected() {gameObject.name} isSelected: {isSelected}");
-
-        this.isSelected = isSelected;
-        UpdateBorderColor();
-    }
-
-    public void SetEmpty(bool isEmpty)
-    {
-        Debug.Log($"InventorySlotUI.SetEmpty(): {gameObject.name} isEmpty: " + isEmpty);
-
-        this.isEmpty = isEmpty;
-        UpdateBorderColor();
-    }
-
-    public bool IsEmpty()
-    {
-        return isEmpty;
-    }
-
-    private void UpdateBorderColor()
-    {
-        if (isEmpty)
+        public void SetIndex(int index)
         {
-            BorderBackground.color = BorderBackgroundEmptyColor;
+            this.index = index;
         }
-        else if (isSelected)
+
+        public int GetIndex()
         {
-            BorderBackground.color = BorderBackgroundSelectedColor;
+            return index;
         }
-        else
+
+        public void SetSelected(bool isSelected)
         {
-            BorderBackground.color = BorderBackgroundUnselectedColor;
+            Debug.Log($"InventorySlotUI.SetSelected() {gameObject.name} isSelected: {isSelected}");
+
+            this.isSelected = isSelected;
+            UpdateBorderColor();
+        }
+
+        public void SetEmpty(bool isEmpty)
+        {
+            Debug.Log($"InventorySlotUI.SetEmpty(): {gameObject.name} isEmpty: " + isEmpty);
+
+            this.isEmpty = isEmpty;
+            UpdateBorderColor();
+        }
+
+        public bool IsEmpty()
+        {
+            return isEmpty;
+        }
+
+        private void UpdateBorderColor()
+        {
+            if (isEmpty)
+            {
+                BorderBackground.color = BorderBackgroundEmptyColor;
+            }
+            else if (isSelected)
+            {
+                BorderBackground.color = BorderBackgroundSelectedColor;
+            }
+            else
+            {
+                BorderBackground.color = BorderBackgroundUnselectedColor;
+            }
         }
     }
 }

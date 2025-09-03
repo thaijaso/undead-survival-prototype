@@ -1,6 +1,6 @@
 using RootMotion.Dynamics;
 using Sirenix.OdinInspector;
-using UndeadSurvivalGame.Enemy;
+using UndeadSurvivalGame.EnemySystems;
 using UnityEngine;
 
 /// <summary>

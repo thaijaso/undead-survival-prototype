@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public class Billboard : MonoBehaviour
-{
-    void LateUpdate()
+namespace UndeadSurvivalGame.UI
+{ 
+    public class Billboard : MonoBehaviour
     {
-        // Keep the billboard facing the camera
-        if (Camera.main)
+        void LateUpdate()
         {
-            transform.forward = Camera.main.transform.forward;
+            // Keep the billboard facing the camera
+            if (Camera.main)
+            {
+                transform.forward = Camera.main.transform.forward;
+            }
         }
     }
 }

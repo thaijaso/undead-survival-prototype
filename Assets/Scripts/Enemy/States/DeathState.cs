@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UndeadSurvivalGame.Enemy.States
+namespace UndeadSurvivalGame.EnemySystems
 {
     public class DeathState : EnemyState
     {

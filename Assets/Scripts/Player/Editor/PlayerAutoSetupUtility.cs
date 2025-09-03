@@ -2,6 +2,10 @@ using Pathfinding;
 using RootMotion;
 using RootMotion.Dynamics;
 using RootMotion.FinalIK;
+using UndeadSurvivalGame.Gameplay;
+using UndeadSurvivalGame.Effects;
+using UndeadSurvivalGame.PlayerSystems;
+using UndeadSurvivalGame.UI;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -12,7 +16,7 @@ namespace UndeadSurvivalGame.Editor
 {
     public static class PlayerAutoSetupUtility
     {
-        public static void AutoSetupReferences(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true)
+        public static void AutoSetupReferences(Player player, bool overwriteExisting = true)
         {
             if (player == null)
             {
@@ -59,7 +63,7 @@ namespace UndeadSurvivalGame.Editor
             EditorUtility.SetDirty(player);
         }
 
-        private static void SetupPlayerTemplate(UndeadSurvivalGame.Player.Player player)
+        private static void SetupPlayerTemplate(Player player)
         {
             if (player.playerTemplate == null)
             {
@@ -68,12 +72,12 @@ namespace UndeadSurvivalGame.Editor
                 if (guids != null && guids.Length > 0)
                 {
                     string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                    var mainAssembly = typeof(UndeadSurvivalGame.Player.Player).Assembly;
+                    var mainAssembly = typeof(Player).Assembly;
                     var playerTemplateType = mainAssembly.GetType("PlayerTemplate");
                     var loadedTemplate = AssetDatabase.LoadAssetAtPath(path, playerTemplateType);
                     if (loadedTemplate != null)
                     {
-                        var playerTemplateProp = typeof(UndeadSurvivalGame.Player.Player).GetProperty("playerTemplate");
+                        var playerTemplateProp = typeof(Player).GetProperty("playerTemplate");
                         if (playerTemplateProp != null && playerTemplateProp.CanWrite)
                         {
                             playerTemplateProp.SetValue(player, loadedTemplate);
@@ -81,7 +85,7 @@ namespace UndeadSurvivalGame.Editor
                         }
                         else
                         {
-                            var playerTemplateField = typeof(UndeadSurvivalGame.Player.Player).GetField("playerTemplate");
+                            var playerTemplateField = typeof(Player).GetField("playerTemplate");
                             if (playerTemplateField != null)
                             {
                                 playerTemplateField.SetValue(player, loadedTemplate);
@@ -105,7 +109,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerDebugger(UndeadSurvivalGame.Player.Player player)
+        private static void SetupPlayerDebugger(Player player)
         {
             if (player == null) return;
             var playerDebugger = player.GetComponent<PlayerDebugger>();
@@ -116,7 +120,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupAnimator(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true)
+        private static void SetupAnimator(Player player, bool overwriteExisting = true)
         {
             if (player == null) return;
             var animator = player.GetComponent<Animator>();
@@ -139,7 +143,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerInput(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true)
+        private static void SetupPlayerInput(Player player, bool overwriteExisting = true)
         {
             if (player == null || player.playerTemplate == null)
                 return;
@@ -158,7 +162,7 @@ namespace UndeadSurvivalGame.Editor
                     Debug.Log($"[AutoSetup] PlayerInput component already exists on {player.gameObject.name}.");
                 }
                 // Explicitly set the property on Player for robustness
-                var prop = typeof(UndeadSurvivalGame.Player.Player).GetProperty("PlayerInput");
+                var prop = typeof(Player).GetProperty("PlayerInput");
                 if (prop != null && prop.CanWrite)
                 {
                     prop.SetValue(player, playerInput);
@@ -185,7 +189,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupCharacterControllerFromTemplate(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true)
+        private static void SetupCharacterControllerFromTemplate(Player player, bool overwriteExisting = true)
         {
             if (player == null)
             {
@@ -307,7 +311,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerWeaponManager(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true)
+        private static void SetupPlayerWeaponManager(Player player, bool overwriteExisting = true)
         {
             if (player == null)
                 return;
@@ -344,7 +348,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerWeaponHand(UndeadSurvivalGame.Player.Player player)
+        private static void SetupPlayerWeaponHand(Player player)
         {
             if (player == null || player.playerTemplate == null)
                 return;
@@ -397,7 +401,7 @@ namespace UndeadSurvivalGame.Editor
             // Assign the Player.WeaponHand reference (private field) via reflection
             if (weaponHand != null)
             {
-                var weaponHandField = typeof(UndeadSurvivalGame.Player.Player).GetField("weaponHand", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var weaponHandField = typeof(Player).GetField("weaponHand", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 if (weaponHandField != null)
                 {
                     weaponHandField.SetValue(player, weaponHand);
@@ -410,7 +414,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerBulletHitTarget(UndeadSurvivalGame.Player.Player player)
+        private static void SetupPlayerBulletHitTarget(Player player)
         {
             if (player == null || player.playerTemplate == null)
                 return;
@@ -455,7 +459,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerFollowTarget(UndeadSurvivalGame.Player.Player player)
+        private static void SetupPlayerFollowTarget(Player player)
         {
             if (player == null || player.playerTemplate == null)
                 return;
@@ -500,7 +504,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerAimIKTarget(UndeadSurvivalGame.Player.Player player)
+        private static void SetupPlayerAimIKTarget(Player player)
         {
             if (player == null || player.playerTemplate == null)
                 return;
@@ -545,7 +549,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerLeftHandIKTarget(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true)
+        private static void SetupPlayerLeftHandIKTarget(Player player, bool overwriteExisting = true)
         {
             if (player == null || player.playerTemplate == null)
                 return;
@@ -616,7 +620,7 @@ namespace UndeadSurvivalGame.Editor
             return null;
         }
 
-        private static (Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget) SetupCameraTargetsAndSettings(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true)
+        private static (Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget) SetupCameraTargetsAndSettings(Player player, bool overwriteExisting = true)
         {
             if (player == null)
                 return (null, null, null);
@@ -635,7 +639,7 @@ namespace UndeadSurvivalGame.Editor
                     Debug.Log($"[AutoSetup] PlayerCameraController component already exists on {player.gameObject.name}.");
                 }
                 // Explicitly set the property on Player for robustness
-                var prop = typeof(UndeadSurvivalGame.Player.Player).GetProperty("PlayerCameraController");
+                var prop = typeof(Player).GetProperty("PlayerCameraController");
                 if (prop != null && prop.CanWrite)
                 {
                     prop.SetValue(player, pcc);
@@ -683,7 +687,7 @@ namespace UndeadSurvivalGame.Editor
             return (followTarget, aimIKTarget, bulletHitTarget);
         }
 
-        private static Transform GetOrCreateCameraTarget(UndeadSurvivalGame.Player.Player player, Transform existing, string name, GameObject prefab, Vector3 defaultPosition)
+        private static Transform GetOrCreateCameraTarget(Player player, Transform existing, string name, GameObject prefab, Vector3 defaultPosition)
         {
             if (existing == null)
             {
@@ -712,7 +716,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetCinemachineFollow(UndeadSurvivalGame.Player.Player player, Transform followTarget, bool overwriteExisting)
+        private static void SetCinemachineFollow(Player player, Transform followTarget, bool overwriteExisting)
         {
             var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
             if (playerCameraGO != null && followTarget != null)
@@ -738,14 +742,14 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetCameraControllerTargets(UndeadSurvivalGame.Player.Player player, Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget, bool overwriteExisting)
+        private static void SetCameraControllerTargets(Player player, Transform followTarget, Transform aimIKTarget, Transform bulletHitTarget, bool overwriteExisting)
         {
             SetCameraControllerFollowTarget(player, followTarget, overwriteExisting);
             SetCameraControllerAimIKTarget(player, aimIKTarget, overwriteExisting);
             SetCameraBulletHitTarget(player, bulletHitTarget, overwriteExisting);
         }
 
-        private static void SetCameraControllerFollowTarget(UndeadSurvivalGame.Player.Player player, Transform followTarget, bool overwriteExisting)
+        private static void SetCameraControllerFollowTarget(Player player, Transform followTarget, bool overwriteExisting)
         {
             var followTargetField = player.PlayerCameraController.GetType().GetField("followTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (followTargetField != null)
@@ -777,7 +781,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetCameraControllerAimIKTarget(UndeadSurvivalGame.Player.Player player, Transform aimIKTarget, bool overwriteExisting)
+        private static void SetCameraControllerAimIKTarget(Player player, Transform aimIKTarget, bool overwriteExisting)
         {
             var aimIKTargetField = player.PlayerCameraController.GetType().GetField("aimIKTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (aimIKTargetField != null)
@@ -809,7 +813,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetCameraBulletHitTarget(UndeadSurvivalGame.Player.Player player, Transform bulletHitTarget, bool overwriteExisting)
+        private static void SetCameraBulletHitTarget(Player player, Transform bulletHitTarget, bool overwriteExisting)
         {
             var bulletHitTargetField = player.PlayerCameraController.GetType().GetField("bulletHitTarget", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (bulletHitTargetField != null)
@@ -841,7 +845,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetPlayerCameraField(UndeadSurvivalGame.Player.Player player, bool overwriteExisting)
+        private static void SetPlayerCameraField(Player player, bool overwriteExisting)
         {
             var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
             if (playerCameraGO != null)
@@ -882,7 +886,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetCameraSettings(UndeadSurvivalGame.Player.Player player, bool overwriteExisting)
+        private static void SetCameraSettings(Player player, bool overwriteExisting)
         {
             if (player.playerTemplate != null)
             {
@@ -898,7 +902,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetCameraSettingFloat(UndeadSurvivalGame.Player.Player player, string fieldName, float templateValue, bool overwriteExisting)
+        private static void SetCameraSettingFloat(Player player, string fieldName, float templateValue, bool overwriteExisting)
         {
             var field = player.PlayerCameraController.GetType().GetField(fieldName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (field != null)
@@ -924,7 +928,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupCrosshairController(UndeadSurvivalGame.Player.Player player)
+        private static void SetupCrosshairController(Player player)
         {
             if (player == null) return;
             // Auto-assign CrosshairController if not already set
@@ -933,7 +937,7 @@ namespace UndeadSurvivalGame.Editor
                 var crosshair = Object.FindFirstObjectByType<CrosshairController>();
                 if (crosshair != null)
                 {
-                var crosshairField = typeof(UndeadSurvivalGame.Player.Player).GetField("crosshairController", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var crosshairField = typeof(Player).GetField("crosshairController", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     if (crosshairField != null)
                     {
                         crosshairField.SetValue(player, crosshair);
@@ -961,7 +965,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupAimIK(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true, Transform aimIKTarget = null)
+        private static void SetupAimIK(Player player, bool overwriteExisting = true, Transform aimIKTarget = null)
         {
             if (player == null)
                 return;
@@ -1018,7 +1022,7 @@ namespace UndeadSurvivalGame.Editor
             Debug.LogWarning($"[AutoSetup] Could not find bone '{boneName}' in AimIK.bones array.");
         }
 
-        private static void SetupRecoilIK(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true)
+        private static void SetupRecoilIK(Player player, bool overwriteExisting = true)
         {
             if (player == null)
                 return;
@@ -1043,7 +1047,7 @@ namespace UndeadSurvivalGame.Editor
             PrefabUtility.RecordPrefabInstancePropertyModifications(recoilIK);
         }
 
-        private static void AssignAimIKToRecoilIK(UndeadSurvivalGame.Player.Player player, RecoilIK recoilIK)
+        private static void AssignAimIKToRecoilIK(Player player, RecoilIK recoilIK)
         {
             var aimIK = player.GetComponent<AimIK>();
             if (aimIK != null)
@@ -1074,7 +1078,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void AssignFBBIKToRecoilIK(UndeadSurvivalGame.Player.Player player, RecoilIK recoilIK)
+        private static void AssignFBBIKToRecoilIK(Player player, RecoilIK recoilIK)
         {
             var fbbik = player.GetComponent<FullBodyBipedIK>();
             if (fbbik != null)
@@ -1108,7 +1112,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void AssignRecoilIKSettingsFromWeaponManager(UndeadSurvivalGame.Player.Player player, RecoilIK recoilIK)
+        private static void AssignRecoilIKSettingsFromWeaponManager(Player player, RecoilIK recoilIK)
         {
             var pwm = player.GetComponent<PlayerWeaponManager>();
             if (pwm != null)
@@ -1175,7 +1179,7 @@ namespace UndeadSurvivalGame.Editor
         }
 
         // Adds or assigns FullBodyBipedIK to the player if missing
-        private static void SetupFBBIK(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true)
+        private static void SetupFBBIK(Player player, bool overwriteExisting = true)
         {
             if (player == null) return;
 
@@ -1235,7 +1239,7 @@ namespace UndeadSurvivalGame.Editor
         }
 
         // Adds or assigns BulletDecalManager to the player if missing
-        private static void SetupBulletDecalManager(UndeadSurvivalGame.Player.Player player)
+        private static void SetupBulletDecalManager(Player player)
         {
             if (player == null)
                 return;
@@ -1254,7 +1258,7 @@ namespace UndeadSurvivalGame.Editor
             PrefabUtility.RecordPrefabInstancePropertyModifications(bulletDecalManager);
         }
 
-        private static void SetupPlayerCharacterController(UndeadSurvivalGame.Player.Player player)
+        private static void SetupPlayerCharacterController(Player player)
         {
             if (player == null)
                 return;
@@ -1269,7 +1273,7 @@ namespace UndeadSurvivalGame.Editor
                 Debug.Log($"[AutoSetup] PlayerCharacterController component already exists on {player.gameObject.name}.");
             }
             // Optionally, set as property if needed
-            var type = typeof(UndeadSurvivalGame.Player.Player);
+            var type = typeof(Player);
             var prop = type.GetProperty("PlayerCharacterController");
             if (prop != null && prop.CanWrite)
             {
@@ -1277,7 +1281,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupHealthManager(UndeadSurvivalGame.Player.Player player)
+        private static void SetupHealthManager(Player player)
         {
             if (player == null)
                 return;
@@ -1296,7 +1300,7 @@ namespace UndeadSurvivalGame.Editor
                     Debug.Log($"[AutoSetup] HealthManager component already exists on {player.gameObject.name}.");
                 }
                 // Explicitly set the property on Player for robustness
-                var prop = typeof(UndeadSurvivalGame.Player.Player).GetProperty("HealthManager");
+                var prop = typeof(Player).GetProperty("HealthManager");
                 if (prop != null && prop.CanWrite)
                 {
                     prop.SetValue(player, healthManager);
@@ -1309,7 +1313,7 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupBulletHitscan(UndeadSurvivalGame.Player.Player player)
+        private static void SetupBulletHitscan(Player player)
         {
             if (player == null)
                 return;
@@ -1327,7 +1331,7 @@ namespace UndeadSurvivalGame.Editor
             }
 
             // Assign to Player property/field for robustness
-            var prop = typeof(UndeadSurvivalGame.Player.Player).GetProperty("BulletHitscan");
+            var prop = typeof(Player).GetProperty("BulletHitscan");
             if (prop != null && prop.CanWrite)
             {
                 prop.SetValue(player, bulletHitscan);
@@ -1335,7 +1339,7 @@ namespace UndeadSurvivalGame.Editor
             }
             else
             {
-                var field = typeof(UndeadSurvivalGame.Player.Player).GetField("bulletHitscan", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var field = typeof(Player).GetField("bulletHitscan", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 if (field != null)
                 {
                     field.SetValue(player, bulletHitscan);
@@ -1352,7 +1356,7 @@ namespace UndeadSurvivalGame.Editor
             PrefabUtility.RecordPrefabInstancePropertyModifications(bulletHitscan);
         }
 
-        private static void SetupPlayerAnimatorEvents(UndeadSurvivalGame.Player.Player player)
+        private static void SetupPlayerAnimatorEvents(Player player)
         {
             if (player == null) return;
             var animatorEvents = player.GetComponent<PlayerAnimatorEvents>();
@@ -1367,9 +1371,9 @@ namespace UndeadSurvivalGame.Editor
             }
         }
 
-        private static void SetupPlayerComponentReferences(UndeadSurvivalGame.Player.Player player)
+        private static void SetupPlayerComponentReferences(Player player)
         {
-            var type = typeof(UndeadSurvivalGame.Player.Player);
+            var type = typeof(Player);
             var playerInput = player.GetComponent<PlayerInput>();
             if (playerInput != null)
                 type.GetProperty("PlayerInput")?.SetValue(player, playerInput);
@@ -1500,7 +1504,7 @@ namespace UndeadSurvivalGame.Editor
         }
 
         // Sets all AiDestinationSetter.target fields on Enemy GameObjects to the player
-        private static void AssignPlayerToEnemies(UndeadSurvivalGame.Player.Player player)
+        private static void AssignPlayerToEnemies(Player player)
         {
             if (player == null || player.gameObject == null)
                 return;
@@ -1515,7 +1519,7 @@ namespace UndeadSurvivalGame.Editor
 
             int setCount = 0;
             // Find all Enemy components in children (recursively)
-            var enemyComponents = enemiesRoot.GetComponentsInChildren<UndeadSurvivalGame.Enemy.Enemy>(true);
+            var enemyComponents = enemiesRoot.GetComponentsInChildren<UndeadSurvivalGame.EnemySystems.Enemy>(true);
             foreach (var enemyComponent in enemyComponents)
             {
                 if (enemyComponent == null) continue;
@@ -1560,7 +1564,7 @@ namespace UndeadSurvivalGame.Editor
             Debug.Log($"[AutoSetup] SetupEnemyPlayerReference: Set Player Transform for {setCount} Enemy components.");
         }
         
-        private static void SetupBipedRagdollCreator(UndeadSurvivalGame.Player.Player player, bool overwriteExisting = true)
+        private static void SetupBipedRagdollCreator(Player player, bool overwriteExisting = true)
         {
             if (player == null) return;
 

@@ -1,4 +1,4 @@
-using UndeadSurvivalGame.Player;
+using UndeadSurvivalGame.PlayerSystems;
 
 public interface IInteractable
 {

@@ -1,7 +1,6 @@
+using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.SceneManagement;
-using UnityEditor.Experimental.SceneManagement;
 
 namespace UndeadSurvivalGame.Editor
 {

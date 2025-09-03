@@ -1,73 +1,78 @@
+using UndeadSurvivalGame.PlayerSystems;
 using UnityEngine;
 
-public class HUDManager : MonoBehaviour
+namespace UndeadSurvivalGame.UI
 {
-    [SerializeField]
-    private PlayerMenuUIController playerMenuUIController;
 
-    [SerializeField]
-    private ProximityUI[] proximityUIs;
-
-    [SerializeField]
-    private InteractionSensor interactionSensor;
-
-    private void Awake()
+    public class HUDManager : MonoBehaviour
     {
-        SetupProximityUIs();
-        SetupInteractionSensor();
-        SetupPlayerMenuUIController();
-        SetupTogglePlayerMenuHandler();
-    }
+        [SerializeField]
+        private PlayerMenuUIController playerMenuUIController;
 
-    private void SetupProximityUIs()
-    {
-        proximityUIs = FindObjectsByType<ProximityUI>(FindObjectsSortMode.None);
-    }
+        [SerializeField]
+        private ProximityUI[] proximityUIs;
 
-    private void SetupPlayerMenuUIController()
-    {
-        if (playerMenuUIController == null)
+        [SerializeField]
+        private InteractionSensor interactionSensor;
+
+        private void Awake()
         {
-            playerMenuUIController = FindFirstObjectByType<PlayerMenuUIController>(FindObjectsInactive.Include);
+            SetupProximityUIs();
+            SetupInteractionSensor();
+            SetupPlayerMenuUIController();
+            SetupTogglePlayerMenuHandler();
         }
 
-        if (playerMenuUIController == null)
+        private void SetupProximityUIs()
         {
-            Debug.LogWarning("HUDManager: No PlayerMenuUIController found in scene.");
-        }
-    }
-
-    private void SetupInteractionSensor()
-    {
-        if (interactionSensor == null)
-        {
-            interactionSensor = FindFirstObjectByType<InteractionSensor>(FindObjectsInactive.Include);
+            proximityUIs = FindObjectsByType<ProximityUI>(FindObjectsSortMode.None);
         }
 
-        if (interactionSensor == null)
+        private void SetupPlayerMenuUIController()
         {
-            Debug.LogWarning("HUDManager: No InteractionSensor found in scene.");
-        }
-    }
-
-
-    private void SetupTogglePlayerMenuHandler()
-    {
-        if (playerMenuUIController != null && interactionSensor != null)
-        {
-            playerMenuUIController.OnPlayerMenuToggled += HandlePlayerMenuToggled;
-        }
-    }
-
-    private void HandlePlayerMenuToggled(bool isMenuOpen)
-    {
-        interactionSensor.enabled = !isMenuOpen;
-        
-        foreach (var proximityUI in proximityUIs)
-        {
-            if (isMenuOpen)
+            if (playerMenuUIController == null)
             {
-                proximityUI.HideAllPrompts();
+                playerMenuUIController = FindFirstObjectByType<PlayerMenuUIController>(FindObjectsInactive.Include);
+            }
+
+            if (playerMenuUIController == null)
+            {
+                Debug.LogWarning("HUDManager: No PlayerMenuUIController found in scene.");
+            }
+        }
+
+        private void SetupInteractionSensor()
+        {
+            if (interactionSensor == null)
+            {
+                interactionSensor = FindFirstObjectByType<InteractionSensor>(FindObjectsInactive.Include);
+            }
+
+            if (interactionSensor == null)
+            {
+                Debug.LogWarning("HUDManager: No InteractionSensor found in scene.");
+            }
+        }
+
+
+        private void SetupTogglePlayerMenuHandler()
+        {
+            if (playerMenuUIController != null && interactionSensor != null)
+            {
+                playerMenuUIController.OnPlayerMenuToggled += HandlePlayerMenuToggled;
+            }
+        }
+
+        private void HandlePlayerMenuToggled(bool isMenuOpen)
+        {
+            interactionSensor.enabled = !isMenuOpen;
+
+            foreach (var proximityUI in proximityUIs)
+            {
+                if (isMenuOpen)
+                {
+                    proximityUI.HideAllPrompts();
+                }
             }
         }
     }

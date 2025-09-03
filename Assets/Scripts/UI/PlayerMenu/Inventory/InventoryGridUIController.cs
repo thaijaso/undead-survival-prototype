@@ -1,213 +1,217 @@
 using System.Collections.Generic;
 using TMPro;
+using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventoryGridUIController : MonoBehaviour
+namespace UndeadSurvivalGame.UI
 {
-    public InventorySlotUI SelectedSlot { get; private set; }
-
-    [SerializeField]
-    private Inventory Inventory;
-
-    [SerializeField]
-    private List<InventorySlotUI> InventorySlots;
-
-    [SerializeField]
-    private SelectedItemNameUI SelectedItemNameUI;
-
-    [SerializeField]
-    private SelectedItemTypeUI SelectedItemTypeUI;
-
-    [SerializeField]
-    private SelectedItemDescriptionUI SelectedItemDescriptionUI;
-
-    void Awake()
+    public class InventoryGridUIController : MonoBehaviour
     {
-        SetupInventorySlots();
-        SetupSelectedItemNameUI();
-        SetupSelectedItemTypeUI();
-        SetupSelectedItemDescriptionUI();
-    }
+        public InventorySlotUI SelectedSlot { get; private set; }
 
-    private void SetupInventorySlots()
-    {
-        if (InventorySlots == null || InventorySlots.Count == 0)
+        [SerializeField]
+        private Inventory Inventory;
+
+        [SerializeField]
+        private List<InventorySlotUI> InventorySlots;
+
+        [SerializeField]
+        private SelectedItemNameUI SelectedItemNameUI;
+
+        [SerializeField]
+        private SelectedItemTypeUI SelectedItemTypeUI;
+
+        [SerializeField]
+        private SelectedItemDescriptionUI SelectedItemDescriptionUI;
+
+        void Awake()
         {
-            InventorySlots = new List<InventorySlotUI>(GetComponentsInChildren<InventorySlotUI>());
+            SetupInventorySlots();
+            SetupSelectedItemNameUI();
+            SetupSelectedItemTypeUI();
+            SetupSelectedItemDescriptionUI();
         }
 
-        if (InventorySlots.Count == 0)
+        private void SetupInventorySlots()
         {
-            Debug.LogWarning("No InventorySlots found in children.");
-        }
-    }
+            if (InventorySlots == null || InventorySlots.Count == 0)
+            {
+                InventorySlots = new List<InventorySlotUI>(GetComponentsInChildren<InventorySlotUI>());
+            }
 
-    private void SetupSelectedItemNameUI()
-    {
-        if (SelectedItemNameUI == null)
+            if (InventorySlots.Count == 0)
+            {
+                Debug.LogWarning("No InventorySlots found in children.");
+            }
+        }
+
+        private void SetupSelectedItemNameUI()
         {
-            SelectedItemNameUI = transform.parent.GetComponentInChildren<SelectedItemNameUI>();
             if (SelectedItemNameUI == null)
             {
-                Debug.LogWarning("InventoryGridUIController requires a SelectedItemNameUI in the children.");
+                SelectedItemNameUI = transform.parent.GetComponentInChildren<SelectedItemNameUI>();
+                if (SelectedItemNameUI == null)
+                {
+                    Debug.LogWarning("InventoryGridUIController requires a SelectedItemNameUI in the children.");
+                }
             }
         }
-    }
 
-    private void SetupSelectedItemTypeUI()
-    {
-        if (SelectedItemTypeUI == null)
+        private void SetupSelectedItemTypeUI()
         {
-            SelectedItemTypeUI = transform.parent.GetComponentInChildren<SelectedItemTypeUI>();
             if (SelectedItemTypeUI == null)
             {
-                Debug.LogWarning("InventoryGridUIController requires a SelectedItemTypeUI in the children.");
+                SelectedItemTypeUI = transform.parent.GetComponentInChildren<SelectedItemTypeUI>();
+                if (SelectedItemTypeUI == null)
+                {
+                    Debug.LogWarning("InventoryGridUIController requires a SelectedItemTypeUI in the children.");
+                }
             }
         }
-    }
 
-    private void SetupSelectedItemDescriptionUI()
-    {
-        if (SelectedItemDescriptionUI == null)
+        private void SetupSelectedItemDescriptionUI()
         {
-            SelectedItemDescriptionUI = transform.parent.GetComponentInChildren<SelectedItemDescriptionUI>();
             if (SelectedItemDescriptionUI == null)
             {
-                Debug.LogWarning("InventoryGridUIController requires a SelectedItemDescriptionUI in the children.");
+                SelectedItemDescriptionUI = transform.parent.GetComponentInChildren<SelectedItemDescriptionUI>();
+                if (SelectedItemDescriptionUI == null)
+                {
+                    Debug.LogWarning("InventoryGridUIController requires a SelectedItemDescriptionUI in the children.");
+                }
             }
         }
-    }
 
-    void OnEnable()
-    {
-        Inventory.OnInventoryChanged += RefreshGrid;
-        RefreshGrid();
-    }
-
-    void OnDisable()
-    {
-        Inventory.OnInventoryChanged -= RefreshGrid;
-    }
-
-    void Start()
-    {
-        if (InventorySlots.Count > 0)
+        void OnEnable()
         {
-            SelectSlot(InventorySlots[0]);
-            ItemStack firstItemStack = Inventory.ItemStacks[0];
-            SetSelectedItemName(firstItemStack.item.itemName);
-            SetSelectedItemType(firstItemStack.item.itemType);
-        }
-    }
-
-    public void SelectSlot(InventorySlotUI selectedSlot)
-    {
-        foreach (var inventorySlot in InventorySlots)
-        {
-            inventorySlot.SetSelected(inventorySlot == selectedSlot);
+            Inventory.OnInventoryChanged += RefreshGrid;
+            RefreshGrid();
         }
 
-        SelectedSlot = selectedSlot;
-    }
-
-    private void SetSelectedItemName(string itemName)
-    {
-        if (SelectedSlot != null && SelectedItemNameUI != null)
+        void OnDisable()
         {
-            SelectedItemNameUI.SetItemName(itemName);
-        }
-    }
-
-    private void SetSelectedItemType(ItemType itemType)
-    {
-        if (SelectedSlot != null && SelectedItemTypeUI != null)
-        {
-            SelectedItemTypeUI.SetItemType(itemType.ToString());
-        }
-    }
-
-    /// <summary>
-    /// Update slot visuals based on Inventory data.
-    /// </summary>
-    private void RefreshGrid()
-    {
-        Debug.Log("Refreshing inventory grid UI...");
-
-        if (InventorySlots == null || InventorySlots.Count == 0)
-        {
-            Debug.LogWarning("InventorySlots reference is not set or is empty in InventoryGridUIController.");
-            return;
+            Inventory.OnInventoryChanged -= RefreshGrid;
         }
 
-        if (Inventory.ItemStacks.Count > InventorySlots.Count)
+        void Start()
         {
-            Debug.LogWarning("Not enough InventorySlots for all ItemStacks. Some items will not be displayed.");
-        }
-
-        for (int index = 0; index < InventorySlots.Count; index++)
-        {
-            InventorySlotUI slot = InventorySlots[index];
-            slot.SetIndex(index);
-
-            if (Inventory != null && Inventory.ItemStacks != null && index < Inventory.ItemStacks.Count)
+            if (InventorySlots.Count > 0)
             {
-                ItemStack itemStack = Inventory.ItemStacks[index];
+                SelectSlot(InventorySlots[0]);
+                ItemStack firstItemStack = Inventory.ItemStacks[0];
+                SetSelectedItemName(firstItemStack.item.itemName);
+                SetSelectedItemType(firstItemStack.item.itemType);
+            }
+        }
 
-                // Slot has item
-                slot.SetEmpty(false);
+        public void SelectSlot(InventorySlotUI selectedSlot)
+        {
+            foreach (var inventorySlot in InventorySlots)
+            {
+                inventorySlot.SetSelected(inventorySlot == selectedSlot);
+            }
 
-                // Display icon
-                slot.ItemIcon.SetActive(true);
-                slot.ItemIcon.GetComponent<Image>().sprite = itemStack.item.itemIcon;
+            SelectedSlot = selectedSlot;
+        }
 
-                // Display count if stackable
-                if (itemStack.item.isStackable)
+        private void SetSelectedItemName(string itemName)
+        {
+            if (SelectedSlot != null && SelectedItemNameUI != null)
+            {
+                SelectedItemNameUI.SetItemName(itemName);
+            }
+        }
+
+        private void SetSelectedItemType(ItemType itemType)
+        {
+            if (SelectedSlot != null && SelectedItemTypeUI != null)
+            {
+                SelectedItemTypeUI.SetItemType(itemType.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Update slot visuals based on Inventory data.
+        /// </summary>
+        private void RefreshGrid()
+        {
+            Debug.Log("Refreshing inventory grid UI...");
+
+            if (InventorySlots == null || InventorySlots.Count == 0)
+            {
+                Debug.LogWarning("InventorySlots reference is not set or is empty in InventoryGridUIController.");
+                return;
+            }
+
+            if (Inventory.ItemStacks.Count > InventorySlots.Count)
+            {
+                Debug.LogWarning("Not enough InventorySlots for all ItemStacks. Some items will not be displayed.");
+            }
+
+            for (int index = 0; index < InventorySlots.Count; index++)
+            {
+                InventorySlotUI slot = InventorySlots[index];
+                slot.SetIndex(index);
+
+                if (Inventory != null && Inventory.ItemStacks != null && index < Inventory.ItemStacks.Count)
                 {
-                    slot.ItemCountBackground.SetActive(true);
-                    slot.ItemCount.SetActive(true);
-                    slot.ItemCount.GetComponent<TextMeshProUGUI>().text = itemStack.quantity.ToString();
+                    ItemStack itemStack = Inventory.ItemStacks[index];
+
+                    // Slot has item
+                    slot.SetEmpty(false);
+
+                    // Display icon
+                    slot.ItemIcon.SetActive(true);
+                    slot.ItemIcon.GetComponent<Image>().sprite = itemStack.item.itemIcon;
+
+                    // Display count if stackable
+                    if (itemStack.item.isStackable)
+                    {
+                        slot.ItemCountBackground.SetActive(true);
+                        slot.ItemCount.SetActive(true);
+                        slot.ItemCount.GetComponent<TextMeshProUGUI>().text = itemStack.quantity.ToString();
+                    }
+                    else
+                    {
+                        slot.ItemCountBackground.SetActive(false);
+                        slot.ItemCount.SetActive(false);
+                    }
                 }
                 else
                 {
                     slot.ItemCountBackground.SetActive(false);
+                    slot.ItemIcon.SetActive(false);
                     slot.ItemCount.SetActive(false);
+                    slot.SetEmpty(true);
                 }
             }
-            else
+        }
+
+        public void DropSelectedItem()
+        {
+            if (SelectedSlot == null)
             {
-                slot.ItemCountBackground.SetActive(false);
-                slot.ItemIcon.SetActive(false);
-                slot.ItemCount.SetActive(false);
-                slot.SetEmpty(true);
+                Debug.LogWarning("No slot is selected to drop an item from.");
+                return;
             }
+
+            int selectedIndex = SelectedSlot.GetIndex();
+
+            if (selectedIndex < 0 || selectedIndex >= Inventory.ItemStacks.Count)
+            {
+                Debug.LogWarning("Selected slot index is out of range of the inventory item stacks.");
+                return;
+            }
+
+            ItemStack selectedItemStack = Inventory.ItemStacks[selectedIndex];
+
+            if (selectedItemStack == null)
+            {
+                Debug.LogWarning("Selected slot does not contain a valid item stack to drop.");
+                return;
+            }
+
+            Inventory.DropItemStack(selectedItemStack);
         }
-    }
-
-    public void DropSelectedItem()
-    {
-        if (SelectedSlot == null)
-        {
-            Debug.LogWarning("No slot is selected to drop an item from.");
-            return;
-        }
-
-        int selectedIndex = SelectedSlot.GetIndex();
-
-        if (selectedIndex < 0 || selectedIndex >= Inventory.ItemStacks.Count)
-        {
-            Debug.LogWarning("Selected slot index is out of range of the inventory item stacks.");
-            return;
-        }
-
-        ItemStack selectedItemStack = Inventory.ItemStacks[selectedIndex];
-
-        if (selectedItemStack == null)
-        {
-            Debug.LogWarning("Selected slot does not contain a valid item stack to drop.");
-            return;
-        }
-
-        Inventory.DropItemStack(selectedItemStack);
     }
 }

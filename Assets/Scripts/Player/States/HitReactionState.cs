@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace UndeadSurvivalGame.Player.States
+namespace UndeadSurvivalGame.PlayerSystems
 {
     public class HitReactionState : PlayerState
     {
