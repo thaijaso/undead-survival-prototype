@@ -18,7 +18,6 @@ namespace UndeadSurvivalGame.EnemySystems
         Hand
     }
 
-    [DefaultExecutionOrder(-50)] // Ensure Limb runs before HealthManager but after Enemy
     public class Limb : MonoBehaviour
     {
         [Header("Dismemberment (Only needed if limb is dismemerable)")]

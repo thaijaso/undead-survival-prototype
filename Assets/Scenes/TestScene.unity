@@ -232375,7 +232375,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -82.3125, y: 82.3125}
+  m_AnchoredPosition: {x: -112.3125, y: 112.3125}
   m_SizeDelta: {x: 290.4293, y: 141.266}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1161392514
@@ -309372,7 +309372,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
-  m_ScaleFactor: 0.75
+  m_ScaleFactor: 0.5
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
@@ -343366,7 +343366,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4c0849980f039c479a8206c5e4a07d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentWeaponConfig: {fileID: 11400000, guid: 860cd6df9cfa3034b9fc03836e63ba49, type: 2}
+  currentWeaponItem: {fileID: 0}
 --- !u!114 &1717255711
 MonoBehaviour:
   m_ObjectHideFlags: 0

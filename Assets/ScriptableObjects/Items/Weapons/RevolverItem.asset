@@ -22,3 +22,6 @@ MonoBehaviour:
     .44 Magnum ammo.
   isStackable: 0
   maxStack: 1
+  prefab: {fileID: 1111015175407080, guid: 8618b351238924c48bf83d88c1584605, type: 3}
+  pickupAllSound: {fileID: 0}
+  pickupSomeSound: {fileID: 0}

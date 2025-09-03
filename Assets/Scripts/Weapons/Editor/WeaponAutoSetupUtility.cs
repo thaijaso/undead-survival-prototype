@@ -161,7 +161,7 @@ namespace UndeadSurvivalGame.Editor
 
         private static void TryAssignWeaponData(Weapon weapon, bool overwriteReferences)
         {
-            if (overwriteReferences || weapon.weaponData == null)
+            if (overwriteReferences || weapon.WeaponConfig == null)
             {
                 string prefabName = weapon.gameObject.name;
                 string expectedName = prefabName + "WeaponData";
@@ -172,7 +172,7 @@ namespace UndeadSurvivalGame.Editor
                     var weaponData = AssetDatabase.LoadAssetAtPath<WeaponConfig>(assetPath);
                     if (weaponData != null && weaponData.name == expectedName)
                     {
-                        weapon.weaponData = weaponData;
+                        weapon.WeaponConfig = weaponData;
                         Debug.Log($"[Weapon] Auto-assigned weaponData '{weaponData.name}' from: {assetPath}");
                         return;
                     }

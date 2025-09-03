@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace UndeadSurvivalGame.PlayerSystems
 {
-    [DefaultExecutionOrder(-150)]
     public class PlayerIKController : MonoBehaviour
     {
         [Header("Master IK Weight")]

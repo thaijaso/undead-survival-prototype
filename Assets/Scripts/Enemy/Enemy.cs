@@ -10,7 +10,6 @@ using UnityEngine;
 
 namespace UndeadSurvivalGame.EnemySystems
 {
-    [DefaultExecutionOrder(-100)] // Ensure Enemy runs before other components
     public class Enemy : MonoBehaviour
     {
         private EnemyDebugger _debugger;

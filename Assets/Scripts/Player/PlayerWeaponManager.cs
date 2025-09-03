@@ -6,24 +6,21 @@ namespace UndeadSurvivalGame.PlayerSystems
 {
     public class PlayerWeaponManager : MonoBehaviour
     {
-        private Player player;
-
-        [SerializeField]
-        private WeaponConfig currentWeaponConfig;
-        public WeaponConfig CurrentWeaponConfig => currentWeaponConfig;
-
+        public WeaponConfig CurrentWeaponConfig { get; private set; }
         public GameObject CurrentWeaponGameObject { get; private set; }
         public Weapon CurrentWeaponScript { get; private set; }
-
         public bool IsWeaponHolstered { get; private set; } = false;
-        private GameObject lastSpawnedWeaponPrefab;
-
-        // Fire timer logic
         public float FireTimer { get; private set; } = 0f;
 
         public event Action<Weapon, WeaponConfig> OnWeaponSetup;
         public event Action OnBulletLoaded;
         public event Action OnBulletFired;
+
+        [SerializeField]
+        private Item currentWeaponItem;
+
+        private GameObject lastSpawnedWeaponPrefab;
+        private Player player;
 
         private void Awake()
         {
@@ -97,13 +94,25 @@ namespace UndeadSurvivalGame.PlayerSystems
             player.PlayerIKController.SetGunHoldOffset(CurrentWeaponConfig.aimIKOffsets);
         }
 
-        public GameObject SpawnWeaponInWeaponHand()
+        private GameObject SpawnWeaponInWeaponHand(Item weapon)
         {
-            if (CurrentWeaponConfig == null)
+            Weapon weaponScript = weapon.prefab.GetComponent<Weapon>();
+
+            if (weaponScript == null)
             {
-                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponInWeaponHand(): CurrentWeaponData is not set!");
+                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponInWeaponHand(): The provided weapon prefab does not have a Weapon script attached!");
                 return null;
             }
+
+            if (weaponScript.WeaponConfig == null)
+            {
+                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponInWeaponHand(): The provided weapon prefab does not have a WeaponConfig assigned in its Weapon script!");
+                return null;
+            }
+
+            CurrentWeaponScript = weaponScript;
+            CurrentWeaponConfig = weaponScript.WeaponConfig;
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponInWeaponHand(): Spawned weapon config: {CurrentWeaponConfig.name}");
 
             if (CurrentWeaponGameObject == null || lastSpawnedWeaponPrefab != CurrentWeaponConfig.weaponPrefab)
             {
@@ -374,6 +383,32 @@ namespace UndeadSurvivalGame.PlayerSystems
                     && !IsChamberFull();
             }
             return false;
+        }
+
+        public void EquipFirstWeaponFound()
+        {
+            Item weapon = player.PlayerInventory.GetFirstWeapon();
+            if (weapon != null)
+            {
+                EquipWeaponItem(weapon);
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.EquipFirstWeaponFound(): No weapon found in inventory to equip.");
+            }
+        }
+
+        public void EquipWeaponItem(Item weapon)
+        {
+            if (weapon == null)
+            {
+                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.EquipWeaponItem(): Provided weapon item is null!");
+                return;
+            }
+
+            currentWeaponItem = weapon;
+            SpawnWeaponInWeaponHand(weapon);
+            
         }
     }
 }

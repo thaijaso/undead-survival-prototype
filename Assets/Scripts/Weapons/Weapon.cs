@@ -1,4 +1,3 @@
-using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 
 #if ODIN_INSPECTOR
@@ -10,10 +9,8 @@ using Sirenix.OdinInspector;
 /// It handles firing, effects, and references to visual/audio components.
 /// It references a WeaponConfig ScriptableObject for all static configuration and stats.
 /// </summary>
-
 namespace UndeadSurvivalGame.Gameplay
 {
-
     public class Weapon : MonoBehaviour
     {
     #if ODIN_INSPECTOR
@@ -39,7 +36,7 @@ namespace UndeadSurvivalGame.Gameplay
         public Transform leftHandGripSource;
 
         [BoxGroup("Prefab References", Order = 0)]
-        public WeaponConfig weaponData;
+        public WeaponConfig WeaponConfig;
 
         [BoxGroup("Scene References", Order = 1)]
         public Transform bulletHitTarget;
@@ -61,7 +58,7 @@ namespace UndeadSurvivalGame.Gameplay
         public Transform leftHandGripSource;// LeftHandIKTarget will use this as a world space reference
 
         // Data and targeting
-        public WeaponData weaponData;       // Reference to ScriptableObject with all weapon stats/config
+        public WeaponConfig WeaponConfig;       // Reference to ScriptableObject with all weapon stats/config
         public Transform bulletHitTarget;   // Optional: world target for bullet direction (e.g., aim point)
 
         // Bullet count
@@ -92,7 +89,7 @@ namespace UndeadSurvivalGame.Gameplay
             Rigidbody bulletRb = bullet.GetComponentInChildren<Rigidbody>();
             Bullet bulletScript = bullet.GetComponentInChildren<Bullet>();
 
-            if (bulletRb != null && weaponData != null)
+            if (bulletRb != null && WeaponConfig != null)
             {
                 Vector3 direction = muzzleTransform.forward;
                 // Use camera center for aiming
@@ -115,11 +112,11 @@ namespace UndeadSurvivalGame.Gameplay
                 {
                     direction = (bulletHitTarget.position - muzzleTransform.position).normalized;
                 }
-                bulletRb.linearVelocity = direction * weaponData.bulletSpeed;
-                bulletScript.impactForce = weaponData.impactForce;
-                bulletScript.damage = weaponData.damage;
-                bulletScript.weaponData = weaponData;
-                Debug.Log($"Firing bullet with impact force: {weaponData.impactForce} and damage: {weaponData.damage} toward {direction}");
+                bulletRb.linearVelocity = direction * WeaponConfig.bulletSpeed;
+                bulletScript.impactForce = WeaponConfig.impactForce;
+                bulletScript.damage = WeaponConfig.damage;
+                bulletScript.weaponData = WeaponConfig;
+                Debug.Log($"Firing bullet with impact force: {WeaponConfig.impactForce} and damage: {WeaponConfig.damage} toward {direction}");
             }
             else
             {
@@ -185,7 +182,7 @@ namespace UndeadSurvivalGame.Gameplay
                 Debug.LogWarning($"[Weapon] BulletPrefab is not assigned on {gameObject.name}.");
             if (muzzleTransform == null)
                 Debug.LogWarning($"[Weapon] MuzzleTransform is not assigned on {gameObject.name}.");
-            if (weaponData == null)
+            if (WeaponConfig == null)
                 Debug.LogWarning($"[Weapon] WeaponData is not assigned on {gameObject.name}.");
             if (bulletHitTarget == null)
                 Debug.LogWarning($"[Weapon] BulletHitTarget is not assigned on {gameObject.name}.");

@@ -183,5 +183,25 @@ namespace UndeadSurvivalGame.Gameplay
                 Debug.LogWarning("Attempted to drop an item stack that is not in the inventory.");
             }
         }
+
+        public Item GetFirstWeapon()
+        {
+            if (itemStacks.Count == 0)
+            {
+                Debug.LogWarning("Inventory is empty. No weapon found.");
+                return null;
+            }
+
+            foreach (var itemStack in itemStacks)
+            {
+                if (itemStack.item.itemType == ItemType.Weapon)
+                {
+                    return itemStack.item;
+                }
+            }
+
+            Debug.LogWarning("No weapon found in inventory.");
+            return null;
+        }
     }
 }

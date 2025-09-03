@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace UndeadSurvivalGame.PlayerSystems
 {
-    [DefaultExecutionOrder(-200)] // Ensure Player runs before other components
     public class Player : MonoBehaviour
     {
         public PlayerInput PlayerInput { get; private set; }
@@ -277,7 +276,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             // UI initialization: 
             InitHealthUIController();
 
-            WeaponManager.SpawnWeaponInWeaponHand();
+            WeaponManager.EquipFirstWeaponFound(); // TODO: save system to remember last weapon equipped between scenes
 
             // Initialize PlayerCharacterController with template data
             if (PlayerCharacterController != null && playerTemplate != null)
