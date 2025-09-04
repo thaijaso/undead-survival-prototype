@@ -9,12 +9,13 @@ namespace UndeadSurvivalGame.UI
         private int index;
         public Image BorderBackground;
         public Color BorderBackgroundSelectedColor = Color.white;
-        public Color BorderBackgroundUnselectedColor = new(0.4352941f, 0.4352941f, 0.4352941f, 1f);
+        public Color BorderBackgroundUnselectedColor = new(0.4352941f, 0.4352941f, 0.4352941f, 1f); // TODO: create color util class
         public Color BorderBackgroundEmptyColor = new(0.9607843f, 0.0f, 0.0f, 1f);
         public Image HoverBackground;
         public GameObject ItemIcon;
         public GameObject ItemCount;
-        public GameObject ItemCountBackground;
+        public GameObject EquippedIcon;
+        public GameObject BottomRightCornerBackground;
         public MMF_Player HoverFeedback;
         public MMF_Player ClickFeedback;
 
@@ -66,6 +67,11 @@ namespace UndeadSurvivalGame.UI
             {
                 BorderBackground.color = BorderBackgroundUnselectedColor;
             }
+        }
+
+        public void DisplayEquippedIcon(bool isEquipped)
+        {
+            //EquippedIcon.SetActive(isEquipped);
         }
     }
 }

@@ -30,6 +30,8 @@ namespace UndeadSurvivalGame.UI
 
         public void SetCrosshair(float spread, float bulletSpreadH, float bulletSpreadV, float duration = -1f)
         {
+            Debug.Log($"[{gameObject.name}] CrosshairUIController.SetCrosshair() called: spread={spread}, duration={duration}");
+
             targetSpread = Mathf.Clamp01(spread);
             bulletSpreadHorizontal = bulletSpreadH;
             bulletSpreadVertical = bulletSpreadV;
@@ -61,6 +63,8 @@ namespace UndeadSurvivalGame.UI
         {
             float horizontalOffset = baseDistance + (currentSpread * spreadMultiplier) + (bulletSpreadHorizontal * spreadMultiplier);
             float verticalOffset = baseDistance + (currentSpread * spreadMultiplier) + (bulletSpreadVertical * spreadMultiplier);
+
+            Debug.Log($"[{gameObject.name}] CrosshairUIController().UpdateArms - Crosshair offsets: H={horizontalOffset}, V={verticalOffset}, Spread={currentSpread}");
 
             if (topArm) topArm.anchoredPosition = new Vector2(0, verticalOffset);
             if (bottomArm) bottomArm.anchoredPosition = new Vector2(0, -verticalOffset);
@@ -97,6 +101,8 @@ namespace UndeadSurvivalGame.UI
             float contractDuration = 0.1f
         )
         {
+            Debug.Log($"[{gameObject.name}] CrosshairUIController.ExpandAndContractCrosshair() called: expandSpread={expandSpread}, expandDuration={expandDuration}, holdDuration={holdDuration}, contractDuration={contractDuration}");
+
             if (animationCoroutine != null)
                 StopCoroutine(animationCoroutine);
 

@@ -67,8 +67,8 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         [TabGroup("References")]
         [SerializeField]
-        private WeaponUIController weaponUIController;
-        public WeaponUIController WeaponUIController => weaponUIController;
+        private CurrentWeaponUIController weaponUIController;
+        public CurrentWeaponUIController WeaponUIController => weaponUIController;
 
         [TabGroup("References")]
         [SerializeField]

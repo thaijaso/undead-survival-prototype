@@ -6,6 +6,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 {
     public class PlayerWeaponManager : MonoBehaviour
     {
+        public Item CurrentWeaponItem { get; private set; }
         public WeaponConfig CurrentWeaponConfig { get; private set; }
         public GameObject CurrentWeaponGameObject { get; private set; }
         public Weapon CurrentWeaponScript { get; private set; }
@@ -15,9 +16,6 @@ namespace UndeadSurvivalGame.PlayerSystems
         public event Action<Weapon, WeaponConfig> OnWeaponSetup;
         public event Action OnBulletLoaded;
         public event Action OnBulletFired;
-
-        [SerializeField]
-        private Item currentWeaponItem;
 
         private GameObject lastSpawnedWeaponPrefab;
         private Player player;
@@ -94,52 +92,76 @@ namespace UndeadSurvivalGame.PlayerSystems
             player.PlayerIKController.SetGunHoldOffset(CurrentWeaponConfig.aimIKOffsets);
         }
 
-        private GameObject SpawnWeaponInWeaponHand(Item weapon)
+        private GameObject SpawnWeaponPrefab(Item weapon)
         {
-            Weapon weaponScript = weapon.prefab.GetComponent<Weapon>();
-
-            if (weaponScript == null)
+            if (weapon.prefab == null)
             {
-                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponInWeaponHand(): The provided weapon prefab does not have a Weapon script attached!");
+                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponPrefab(): Weapon prefab is null!");
                 return null;
             }
+
+            return Instantiate(weapon.prefab, player.WeaponHand.transform);
+        }
+
+        private Weapon GetWeaponScript(GameObject weaponObject)
+        {
+            var weaponScript = weaponObject.GetComponent<Weapon>();
+            if (weaponScript == null)
+            {
+                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.GetWeaponScript(): Weapon script not found on prefab!");
+            }
+            return weaponScript;
+        }
+
+        private WeaponConfig GetWeaponConfig(Weapon weaponScript)
+        {
+            if (weaponScript == null)
+                return null;
 
             if (weaponScript.WeaponConfig == null)
             {
-                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponInWeaponHand(): The provided weapon prefab does not have a WeaponConfig assigned in its Weapon script!");
+                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.GetWeaponConfig(): WeaponConfig not assigned in Weapon script!");
                 return null;
             }
-
-            CurrentWeaponScript = weaponScript;
-            CurrentWeaponConfig = weaponScript.WeaponConfig;
-            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponInWeaponHand(): Spawned weapon config: {CurrentWeaponConfig.name}");
-
-            if (CurrentWeaponGameObject == null || lastSpawnedWeaponPrefab != CurrentWeaponConfig.weaponPrefab)
-            {
-                if (CurrentWeaponGameObject != null)
-                {
-                    Destroy(CurrentWeaponGameObject);
-                }
-
-                CurrentWeaponGameObject = Instantiate(
-                    CurrentWeaponConfig.weaponPrefab,
-                    player.WeaponHand.transform
-                );
-
-                lastSpawnedWeaponPrefab = CurrentWeaponConfig.weaponPrefab;
-
-                // Assign the Weapon script reference
-                CurrentWeaponScript = CurrentWeaponGameObject.GetComponent<Weapon>();
-                if (CurrentWeaponScript == null)
-                {
-                    Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager: Spawned weapon prefab does not have a Weapon script attached!");
-                }
-            }
-
-            OnWeaponSetup?.Invoke(CurrentWeaponScript, CurrentWeaponConfig);
-            return CurrentWeaponGameObject;
+            return weaponScript.WeaponConfig;
         }
 
+        private void AssignCurrentWeapon(GameObject weaponObject, Weapon weaponScript, WeaponConfig weaponConfig)
+        {
+            CurrentWeaponGameObject = weaponObject;
+            CurrentWeaponScript = weaponScript;
+            CurrentWeaponConfig = weaponConfig;
+            lastSpawnedWeaponPrefab = weaponConfig.weaponPrefab;
+        }
+
+        private void CleanupPreviousWeapon()
+        {
+            if (CurrentWeaponGameObject != null)
+            {
+                Destroy(CurrentWeaponGameObject);
+                CurrentWeaponGameObject = null;
+                CurrentWeaponScript = null;
+            }
+        }
+
+        private GameObject SpawnWeaponInWeaponHand(Item weapon)
+        {
+            CleanupPreviousWeapon();
+
+            var weaponObject = SpawnWeaponPrefab(weapon);
+            if (weaponObject == null) return null;
+
+            var weaponScript = GetWeaponScript(weaponObject);
+            if (weaponScript == null) return weaponObject;
+
+            var weaponConfig = GetWeaponConfig(weaponScript);
+            if (weaponConfig == null) return weaponObject;
+
+            AssignCurrentWeapon(weaponObject, weaponScript, weaponConfig);
+
+            OnWeaponSetup?.Invoke(CurrentWeaponScript, CurrentWeaponConfig);
+            return weaponObject;
+        }
         public void DespawnWeaponInWeaponHand()
         {
             if (CurrentWeaponConfig == null)
@@ -406,9 +428,15 @@ namespace UndeadSurvivalGame.PlayerSystems
                 return;
             }
 
-            currentWeaponItem = weapon;
+            CurrentWeaponItem = weapon;
             SpawnWeaponInWeaponHand(weapon);
-            
+        }
+        
+        public bool IsItemEquipped(Item item)
+        {
+            bool isEquipped = item != null && CurrentWeaponItem != null && item == CurrentWeaponItem;
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IsItemEquipped(): Checking if item '{item?.itemName}' is equipped. CurrentWeaponItem: '{CurrentWeaponItem?.itemName}' isEquipped: {isEquipped}");
+            return isEquipped;
         }
     }
 }

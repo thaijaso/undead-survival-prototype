@@ -1,4 +1,5 @@
 using UndeadSurvivalGame.PlayerSystems;
+using Unity.AppUI.UI;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.UI
@@ -8,6 +9,12 @@ namespace UndeadSurvivalGame.UI
     {
         [SerializeField]
         private PlayerMenuUIController playerMenuUIController;
+
+        [SerializeField]
+        private CurrentWeaponUIController currentWeaponUIController;
+
+        [SerializeField]
+        private HealthUIController healthUIController;
 
         [SerializeField]
         private ProximityUI[] proximityUIs;
@@ -20,6 +27,8 @@ namespace UndeadSurvivalGame.UI
             SetupProximityUIs();
             SetupInteractionSensor();
             SetupPlayerMenuUIController();
+            SetupCurrentWeaponUIController();
+            SetupHealthUIController();
             SetupTogglePlayerMenuHandler();
         }
 
@@ -38,6 +47,32 @@ namespace UndeadSurvivalGame.UI
             if (playerMenuUIController == null)
             {
                 Debug.LogWarning("HUDManager: No PlayerMenuUIController found in scene.");
+            }
+        }
+
+        private void SetupCurrentWeaponUIController()
+        {
+            if (currentWeaponUIController == null)
+            {
+                currentWeaponUIController = FindFirstObjectByType<CurrentWeaponUIController>(FindObjectsInactive.Include);
+            }
+
+            if (currentWeaponUIController == null)
+            {
+                Debug.LogWarning("HUDManager: No CurrentWeaponUIController found in scene.");
+            }
+        }
+
+        private void SetupHealthUIController()
+        {
+            if (healthUIController == null)
+            {
+                healthUIController = FindFirstObjectByType<HealthUIController>(FindObjectsInactive.Include);
+            }
+
+            if (healthUIController == null)
+            {
+                Debug.LogWarning("HUDManager: No HealthUIController found in scene.");
             }
         }
 
@@ -66,7 +101,13 @@ namespace UndeadSurvivalGame.UI
         private void HandlePlayerMenuToggled(bool isMenuOpen)
         {
             interactionSensor.enabled = !isMenuOpen;
+            HideProximityUIs(isMenuOpen);
+            TogglePlayerHealthUI(isMenuOpen);
+            ToggleCurrentWeaponUI(isMenuOpen);
+        }
 
+        private void HideProximityUIs(bool isMenuOpen)
+        {
             foreach (var proximityUI in proximityUIs)
             {
                 if (isMenuOpen)
@@ -75,5 +116,21 @@ namespace UndeadSurvivalGame.UI
                 }
             }
         }
+
+        private void TogglePlayerHealthUI(bool isMenuOpen)
+        {
+            if (healthUIController != null)
+            {
+                healthUIController.gameObject.SetActive(!isMenuOpen);
+            }
+        }
+
+        private void ToggleCurrentWeaponUI(bool isMenuOpen)
+        {
+            if (currentWeaponUIController != null)
+            {
+                currentWeaponUIController.gameObject.SetActive(!isMenuOpen);
+            }
+        }   
     }
 }

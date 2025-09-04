@@ -1,10 +1,11 @@
 using UndeadSurvivalGame.Gameplay;
+using UndeadSurvivalGame.PlayerSystems;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace UndeadSurvivalGame.UI
 { 
-    public class HoverDetector : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class InventorySlotUIHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         [SerializeField]
         private Inventory Inventory;
@@ -24,9 +25,13 @@ namespace UndeadSurvivalGame.UI
         [SerializeField]
         private InventorySlotUI InventorySlotUI;
 
+        [SerializeField]
+        private PlayerWeaponManager playerWeaponManager;
+
         void Awake()
         {
             SetupInventory();
+            SetupPlayerWeaponManager();
             SetupInventoryGridUIController();
             SetupInventorySelectedItemNameUI();
             SetupSelectedItemTypeUI();
@@ -38,10 +43,22 @@ namespace UndeadSurvivalGame.UI
         {
             if (Inventory == null)
             {
-                Inventory = GetComponentInParent<Inventory>();
+                Inventory = FindFirstObjectByType<Inventory>();
                 if (Inventory == null)
                 {
                     Debug.LogWarning("HoverDetector requires an Inventory in the parent hierarchy.");
+                }
+            }
+        }
+
+        private void SetupPlayerWeaponManager()
+        {
+            if (playerWeaponManager == null)
+            {
+                playerWeaponManager = FindFirstObjectByType<PlayerWeaponManager>();
+                if (playerWeaponManager == null)
+                {
+                    Debug.LogWarning("HoverDetector requires a PlayerWeaponManager in the scene.");
                 }
             }
         }
@@ -144,11 +161,14 @@ namespace UndeadSurvivalGame.UI
                 int selectedIndex = inventorySlot.GetIndex();
                 Debug.Log($"Selected slot index: {selectedIndex}");
 
-                string itemName = Inventory.itemStacks[selectedIndex].item.itemName;
-                string itemType = Inventory.itemStacks[selectedIndex].item.itemType.ToString();
-                string itemDesc = Inventory.itemStacks[selectedIndex].item.description;
+                Item item = Inventory.itemStacks[selectedIndex].item;
+                string itemName = item.itemName;
+                string itemType = item.itemType.ToString();
+                string itemDesc = item.description;
+                bool isItemEquipped = playerWeaponManager.IsItemEquipped(item);
 
                 SelectedItemNameUI.SetItemName(itemName);
+                SelectedItemNameUI.ToggleEquippedText(isItemEquipped);
                 SelectedItemTypeUI.SetItemType(itemType);
                 SelectedItemDescriptionUI.SetItemDescription(itemDesc);
             }

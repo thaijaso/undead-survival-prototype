@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UndeadSurvivalGame.Gameplay;
+using UndeadSurvivalGame.PlayerSystems;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,12 +26,34 @@ namespace UndeadSurvivalGame.UI
         [SerializeField]
         private SelectedItemDescriptionUI SelectedItemDescriptionUI;
 
+        [SerializeField]
+        private PlayerWeaponManager weaponManager;
+
         void Awake()
         {
+            SetupPlayerWeaponManager();
             SetupInventorySlots();
             SetupSelectedItemNameUI();
             SetupSelectedItemTypeUI();
             SetupSelectedItemDescriptionUI();
+        }
+
+        private void SetupPlayerWeaponManager()
+        {
+            if (weaponManager == null)
+            {
+                Player player = FindFirstObjectByType<Player>();
+
+                if (player != null)
+                {
+                    weaponManager = player.GetComponent<PlayerWeaponManager>();
+
+                    if (weaponManager == null)
+                    {
+                        Debug.LogWarning($"[{gameObject.name}] SetupPlayerWeaponManager(): PlayerWeaponManager component not found on Player.");
+                    }
+                }
+            }
         }
 
         private void SetupInventorySlots()
@@ -100,7 +123,9 @@ namespace UndeadSurvivalGame.UI
                 SelectSlot(InventorySlots[0]);
                 ItemStack firstItemStack = Inventory.ItemStacks[0];
                 SetSelectedItemName(firstItemStack.item.itemName);
+                ToggleEquippedText(firstItemStack.item);
                 SetSelectedItemType(firstItemStack.item.itemType);
+                SetSelectedItemDescription(firstItemStack.item.description);
             }
         }
 
@@ -122,11 +147,36 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
+        private void ToggleEquippedText(Item item)
+        {
+            if (SelectedSlot != null && SelectedItemNameUI != null && weaponManager != null)
+            {
+                bool isEquipped = weaponManager.IsItemEquipped(item);
+                SelectedItemNameUI.ToggleEquippedText(isEquipped);
+            }
+        }
+
+        private void DisplayEquippedText(bool isEquipped)
+        {
+            if (SelectedItemNameUI != null && SelectedItemNameUI.equippedText != null)
+            {
+                SelectedItemNameUI.equippedText.SetActive(isEquipped);
+            }
+        }
+
         private void SetSelectedItemType(ItemType itemType)
         {
             if (SelectedSlot != null && SelectedItemTypeUI != null)
             {
                 SelectedItemTypeUI.SetItemType(itemType.ToString());
+            }
+        }
+
+        private void SetSelectedItemDescription(string itemDescription)
+        {
+            if (SelectedSlot != null && SelectedItemDescriptionUI != null)
+            {
+                SelectedItemDescriptionUI.SetItemDescription(itemDescription);
             }
         }
 
@@ -167,19 +217,30 @@ namespace UndeadSurvivalGame.UI
                     // Display count if stackable
                     if (itemStack.item.isStackable)
                     {
-                        slot.ItemCountBackground.SetActive(true);
+                        slot.BottomRightCornerBackground.SetActive(true);
                         slot.ItemCount.SetActive(true);
                         slot.ItemCount.GetComponent<TextMeshProUGUI>().text = itemStack.quantity.ToString();
                     }
                     else
                     {
-                        slot.ItemCountBackground.SetActive(false);
+                        slot.BottomRightCornerBackground.SetActive(false);
                         slot.ItemCount.SetActive(false);
                     }
+
+                    // Show equipped icon if the item is equipped
+                    bool isEquipped = weaponManager != null && weaponManager.CurrentWeaponItem != null && itemStack.item == weaponManager.CurrentWeaponItem;
+                    Debug.Log($"InventoryGridUIController.RefreshGrid() - isEquipped: {isEquipped}");
+                    Debug.Log($"InventoryGridUIController.RefreshGrid() - weaponManager != null: {weaponManager != null}");
+                    Debug.Log($"InventoryGridUIController.RefreshGrid() - weaponManager.CurrentWeaponItem != null: {weaponManager.CurrentWeaponItem != null}");
+                    Debug.Log($"InventoryGridUIController.RefreshGrid() - itemStack.item == weaponManager.CurrentWeaponItem: {itemStack.item == weaponManager.CurrentWeaponItem}");
+                    Debug.Log($"InventoryGridUIController.RefreshGrid() - itemStack.item: {itemStack.item}, weaponManager.CurrentWeaponItem: {weaponManager.CurrentWeaponItem}");
+                    Debug.Log($"InventoryGridUIController.RefreshGrid() - Reference Equals: {ReferenceEquals(itemStack.item, weaponManager.CurrentWeaponItem)}");
+                    Debug.Log($"InventoryGridUIController.RefreshGrid() - itemStack.item.itemID: {itemStack.item.itemID}, weaponManager.CurrentWeaponItem.itemID: {weaponManager.CurrentWeaponItem.itemID}");
+                    slot.DisplayEquippedIcon(isEquipped);
                 }
                 else
                 {
-                    slot.ItemCountBackground.SetActive(false);
+                    slot.BottomRightCornerBackground.SetActive(false);
                     slot.ItemIcon.SetActive(false);
                     slot.ItemCount.SetActive(false);
                     slot.SetEmpty(true);
@@ -212,6 +273,11 @@ namespace UndeadSurvivalGame.UI
             }
 
             Inventory.DropItemStack(selectedItemStack);
+        }
+
+        public bool IsItemEquipped(Item item)
+        {
+            return false;
         }
     }
 }

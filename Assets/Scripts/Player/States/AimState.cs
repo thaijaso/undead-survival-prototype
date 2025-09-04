@@ -47,6 +47,8 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         private void SetupCrosshair()
         {
+            player.CrosshairController.EnableCrosshair();
+            
             float bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
             float bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
 
@@ -196,15 +198,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             base.LateUpdate();
 
             player.PlayerCameraController.MoveAimIKTarget();
-            float bulletSpreadHorizontal = weaponManager.CurrentWeaponConfig.bulletSpreadHorizontal;
-            float bulletSpreadVertical = weaponManager.CurrentWeaponConfig.bulletSpreadVertical;
-            player.CrosshairController.ExpandAndContractCrosshair(
-                1f,
-                bulletSpreadHorizontal,
-                bulletSpreadVertical,
-                0.1f
-            );
-
             player.PlayerCameraController.MoveBulletHitTarget();
 
             Vector3 direction = player.PlayerInput.GetInputDirection();

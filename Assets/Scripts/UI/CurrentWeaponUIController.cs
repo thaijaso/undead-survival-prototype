@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace UndeadSurvivalGame.UI
 { 
-    public class WeaponUIController : MonoBehaviour
+    public class CurrentWeaponUIController : MonoBehaviour
     {
         [SerializeField]
         private Image weaponIcon;
