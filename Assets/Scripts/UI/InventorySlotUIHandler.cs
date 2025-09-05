@@ -46,7 +46,7 @@ namespace UndeadSurvivalGame.UI
                 Inventory = FindFirstObjectByType<Inventory>();
                 if (Inventory == null)
                 {
-                    Debug.LogWarning("HoverDetector requires an Inventory in the parent hierarchy.");
+                    Debug.LogWarning("InventorySlotUIHandler requires an Inventory in the parent hierarchy.");
                 }
             }
         }
@@ -58,7 +58,7 @@ namespace UndeadSurvivalGame.UI
                 playerWeaponManager = FindFirstObjectByType<PlayerWeaponManager>();
                 if (playerWeaponManager == null)
                 {
-                    Debug.LogWarning("HoverDetector requires a PlayerWeaponManager in the scene.");
+                    Debug.LogWarning("InventorySlotUIHandler requires a PlayerWeaponManager in the scene.");
                 }
             }
         }
@@ -70,7 +70,7 @@ namespace UndeadSurvivalGame.UI
                 InventoryGridUIController = GetComponentInParent<InventoryGridUIController>();
                 if (InventoryGridUIController == null)
                 {
-                    Debug.LogWarning("HoverDetector requires an InventoryGridUIController in the parent hierarchy.");
+                    Debug.LogWarning("InventorySlotUIHandler requires an InventoryGridUIController in the parent hierarchy.");
                 }
             }
         }
@@ -82,7 +82,7 @@ namespace UndeadSurvivalGame.UI
                 SelectedItemNameUI = transform.parent.parent.GetComponentInChildren<SelectedItemNameUI>();
                 if (SelectedItemNameUI == null)
                 {
-                    Debug.LogWarning("HoverDetector requires an InventorySelectedItemNameUI in the parent hierarchy.");
+                    Debug.LogWarning("InventorySlotUIHandler requires an InventorySelectedItemNameUI in the parent hierarchy.");
                 }
             }
         }
@@ -94,7 +94,7 @@ namespace UndeadSurvivalGame.UI
                 SelectedItemTypeUI = transform.parent.parent.GetComponentInChildren<SelectedItemTypeUI>();
                 if (SelectedItemTypeUI == null)
                 {
-                    Debug.LogWarning("HoverDetector requires a SelectedItemTypeUI in the parent hierarchy.");
+                    Debug.LogWarning("InventorySlotUIHandler requires a SelectedItemTypeUI in the parent hierarchy.");
                 }
             }
         }
@@ -106,7 +106,7 @@ namespace UndeadSurvivalGame.UI
                 SelectedItemDescriptionUI = transform.parent.parent.GetComponentInChildren<SelectedItemDescriptionUI>();
                 if (SelectedItemDescriptionUI == null)
                 {
-                    Debug.LogWarning("HoverDetector requires a SelectedItemDescriptionUI in the parent hierarchy.");
+                    Debug.LogWarning("InventorySlotUIHandler requires a SelectedItemDescriptionUI in the parent hierarchy.");
                 }
             }
         }
@@ -118,32 +118,52 @@ namespace UndeadSurvivalGame.UI
                 InventorySlotUI = GetComponent<InventorySlotUI>();
                 if (InventorySlotUI == null)
                 {
-                    Debug.LogWarning("HoverDetector requires an InventorySlotUI on the same GameObject.");
+                    Debug.LogWarning("InventorySlotUIHandler requires an InventorySlotUI on the same GameObject.");
                 }
             }
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            Debug.Log($"[{gameObject.name}] HoverDetector.OnPointerEnter(): Pointer entered on {gameObject.name}");
+            Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerEnter(): Pointer entered on {gameObject.name}");
 
             if (!InventorySlotUI.IsEmpty())
             {
                 InventorySlotUI.HoverBackground.enabled = true;
                 InventorySlotUI.HoverFeedback.PlayFeedbacks();
+                FadeHoverBackground();
+            }
+        }
+
+        private void FadeHoverBackground()
+        {
+            AnimateAlpha animateAlpha = InventorySlotUI.HoverBackground.GetComponent<AnimateAlpha>();
+            if (animateAlpha != null)
+            {
+                animateAlpha.StartContinuousFade();
             }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            Debug.Log($"[{gameObject.name}] HoverDetector.OnPointerExit(): Pointer exited from {gameObject.name}");
+            Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerExit(): Pointer exited from {gameObject.name}");
             InventorySlotUI inventorySlot = GetComponent<InventorySlotUI>();
             inventorySlot.HoverBackground.enabled = false;
+            StopFadingHoverBackground();
+        }
+
+        private void StopFadingHoverBackground()
+        {
+            AnimateAlpha animateAlpha = InventorySlotUI.HoverBackground.GetComponent<AnimateAlpha>();
+            if (animateAlpha != null)
+            {
+                animateAlpha.StopContinuousFade();
+            }
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            Debug.Log($"[{gameObject.name}] HoverDetector.OnPointerClick(): Pointer clicked on {gameObject.name}");
+            Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerClick(): Pointer clicked on {gameObject.name}");
 
             if (!InventorySlotUI.IsEmpty())
             {
