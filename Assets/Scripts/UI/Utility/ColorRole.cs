@@ -5,11 +5,12 @@ namespace UndeadSurvivalGame.UI
     public enum ColorRole
     {
         Foreground,
+        ForegroundVariant,
         Background,
         Accent,
         Disabled,
-        Success, // TODO: define in ColorPalette
+        Success,
         Warning, // TODO: define in ColorPalette
-        Error // TODO: define in ColorPalette
+        Error 
     }
 }

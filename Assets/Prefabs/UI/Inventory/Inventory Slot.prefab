@@ -55,14 +55,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dcaac7d58aa3934c9bf9546f4129504, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
+  BorderBackgroundSelectedRole: 0
+  BorderBackgroundUnselectedRole: 4
+  BorderBackgroundEmptyRole: 4
   BorderBackground: {fileID: 4649096568519139812}
-  BorderBackgroundSelectedColor: {r: 1, g: 1, b: 1, a: 1}
-  BorderBackgroundUnselectedColor: {r: 0.4352941, g: 0.4352941, b: 0.4352941, a: 1}
-  BorderBackgroundEmptyColor: {r: 0.4352941, g: 0.4352941, b: 0.4352941, a: 0.039215688}
   HoverBackground: {fileID: 576193595136557487}
   ItemIcon: {fileID: 1898557628640664394}
   ItemCount: {fileID: 4564438223453225373}
-  EquippedIcon: {fileID: 0}
+  EquippedIcon: {fileID: 8238274376040030609}
   BottomRightCornerBackground: {fileID: 1611175400534888008}
   HoverFeedback: {fileID: 3900101053844805447}
   ClickFeedback: {fileID: 5384416102225183427}
@@ -380,7 +381,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.98039216}
+  m_Color: {r: 0.42745098, g: 0.42745098, b: 0.42745098, a: 0.98039216}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -408,6 +409,7 @@ GameObject:
   - component: {fileID: 4859776372639382899}
   - component: {fileID: 8519151226608319698}
   - component: {fileID: 1513906977057301426}
+  - component: {fileID: 549058150297997920}
   m_Layer: 5
   m_Name: BottomRightCornerBackground
   m_TagString: Untagged
@@ -456,7 +458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.69803923}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -473,6 +475,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &549058150297997920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611175400534888008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2b64ceae9515143b8cc24198982d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ApplyPaletteColor
+  Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
+  Role: 2
+  Graphic: {fileID: 1513906977057301426}
+  TMPText: {fileID: 0}
+  ApplyToChildren: 0
 --- !u!1 &1898557628640664394
 GameObject:
   m_ObjectHideFlags: 0
@@ -1108,13 +1127,16 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 752292866424344103}
+  - component: {fileID: 5160587121116283489}
+  - component: {fileID: 3987664061085906109}
+  - component: {fileID: 3711495737678489902}
   m_Layer: 5
   m_Name: EquippedIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &752292866424344103
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1131,6 +1153,61 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -18, y: -18}
+  m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 1, y: 1}
+--- !u!222 &5160587121116283489
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8238274376040030609}
+  m_CullTransparentMesh: 1
+--- !u!114 &3987664061085906109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8238274376040030609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.9056604, g: 0.74847966, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: e56144e0b4271ac48bd9275c5f374e6f, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3711495737678489902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8238274376040030609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2b64ceae9515143b8cc24198982d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ApplyPaletteColor
+  Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
+  Role: 3
+  Graphic: {fileID: 3987664061085906109}
+  TMPText: {fileID: 0}
+  ApplyToChildren: 0

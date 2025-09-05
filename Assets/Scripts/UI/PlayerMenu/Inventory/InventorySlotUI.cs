@@ -6,11 +6,15 @@ namespace UndeadSurvivalGame.UI
 {
     public class InventorySlotUI : MonoBehaviour
     {
+        [Header("Color Palette")]
+        public ColorPalette Palette;
+
+        public ColorRole BorderBackgroundSelectedRole = ColorRole.Foreground;
+        public ColorRole BorderBackgroundUnselectedRole = ColorRole.Disabled;
+        public ColorRole BorderBackgroundEmptyRole = ColorRole.Disabled;
+
         private int index;
         public Image BorderBackground;
-        public Color BorderBackgroundSelectedColor = Color.white;
-        public Color BorderBackgroundUnselectedColor = new(0.4352941f, 0.4352941f, 0.4352941f, 1f); // TODO: create color util class
-        public Color BorderBackgroundEmptyColor = new(0.9607843f, 0.0f, 0.0f, 1f);
         public Image HoverBackground;
         public GameObject ItemIcon;
         public GameObject ItemCount;
@@ -21,6 +25,40 @@ namespace UndeadSurvivalGame.UI
 
         private bool isSelected;
         private bool isEmpty;
+
+        private void Awake()
+        {
+            if (Palette == null)
+            {
+                Palette = Resources.Load<ColorPalette>("ColorPalette");
+            }
+
+            if (Palette == null)
+            {
+                Debug.LogError($"[{gameObject.name}] InventorySlotUI: No ColorPalette assigned or found in Resources!");
+            }
+        }
+
+        private void OnEnable()
+        {
+            if (Palette != null)
+            {
+                Palette.Changed += OnPaletteChanged;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (Palette != null)
+            {
+                Palette.Changed -= OnPaletteChanged;
+            }
+        }
+
+        private void OnPaletteChanged(ColorPalette palette)
+        {
+            UpdateBorderColor();
+        }
 
         public void SetIndex(int index)
         {
@@ -57,21 +95,23 @@ namespace UndeadSurvivalGame.UI
         {
             if (isEmpty)
             {
-                BorderBackground.color = BorderBackgroundEmptyColor;
+                BorderBackground.color = Palette.Get(BorderBackgroundEmptyRole);
             }
             else if (isSelected)
             {
-                BorderBackground.color = BorderBackgroundSelectedColor;
+                BorderBackground.color = Palette.Get(BorderBackgroundSelectedRole);
             }
             else
             {
-                BorderBackground.color = BorderBackgroundUnselectedColor;
+                BorderBackground.color = Palette.Get(BorderBackgroundUnselectedRole);
             }
         }
 
         public void DisplayEquippedIcon(bool isEquipped)
         {
-            //EquippedIcon.SetActive(isEquipped);
+            EquippedIcon.SetActive(isEquipped);
         }
+
+        
     }
 }

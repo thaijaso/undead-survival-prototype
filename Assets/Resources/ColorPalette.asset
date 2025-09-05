@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ColorPalette
   Background: {r: 0, g: 0, b: 0, a: 0.69803923}
   Foreground: {r: 0.7764706, g: 0.7764706, b: 0.7764706, a: 1}
-  Accent: {r: 1, g: 0.8352941, b: 0.050980393, a: 1}
+  Accent: {r: 0.9056604, g: 0.74847966, b: 0, a: 1}
   Disabled: {r: 0.42745098, g: 0.42745098, b: 0.42745098, a: 0.98039216}
+  ForegroundVariant: {r: 0, g: 0, b: 0, a: 1}

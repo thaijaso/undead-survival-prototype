@@ -30,7 +30,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3531630205869275986}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.593, y: 0, z: -13.71421}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -382,6 +382,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 3854828696309807148, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3854828696309807148, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Color.g
+      value: 0.74847966
+      objectReference: {fileID: 0}
+    - target: {fileID: 3854828696309807148, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Color.r
+      value: 0.9056604
+      objectReference: {fileID: 0}
     - target: {fileID: 4244364816121137784, guid: 97ad26ac2afa87947925708700687da3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -406,6 +418,54 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4493947242432016173, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 4493947242432016173, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 4493947242432016173, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 6278207079593618526, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 6278207079593618526, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 6278207079593618526, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 6278207079593618526, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4291217094
+      objectReference: {fileID: 0}
+    - target: {fileID: 6918816898625981378, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 6918816898625981378, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 6918816898625981378, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 6918816898625981378, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4291217094
+      objectReference: {fileID: 0}
+    - target: {fileID: 7164961659880993588, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7686121015576858556, guid: 97ad26ac2afa87947925708700687da3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -429,33 +489,259 @@ PrefabInstance:
     - target: {fileID: 7686121015576858556, guid: 97ad26ac2afa87947925708700687da3, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8431223225799197006, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 8431223225799197006, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 8431223225799197006, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7764706
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 808256804323095252, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3841608805331987218}
+    - targetCorrespondingSourceObject: {fileID: 5365367098352044127, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 663423439001097327}
+    - targetCorrespondingSourceObject: {fileID: 8154808001104453395, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7288700432912340512}
+    - targetCorrespondingSourceObject: {fileID: 8158996773020076704, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2288778732342995162}
+    - targetCorrespondingSourceObject: {fileID: 8878458430434075952, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4530712131361295239}
+    - targetCorrespondingSourceObject: {fileID: 8413690155747478220, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4976893083461601956}
+    - targetCorrespondingSourceObject: {fileID: 6892079481552200238, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4078719374640184014}
   m_SourcePrefab: {fileID: 100100000, guid: 97ad26ac2afa87947925708700687da3, type: 3}
 --- !u!224 &348039827124041051 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2523641164371491358, guid: 97ad26ac2afa87947925708700687da3, type: 3}
   m_PrefabInstance: {fileID: 2869279102760701765}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &828051660099824862 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3219069590322340763, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5986080750695826825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1346189685021996905 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3854828696309807148, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6694359792432491125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1840862914735595624 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4493947242432016173, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6263150775743759845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2571357254580387459 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 323962206052151750, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235338681610452369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &3235338681610452369 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 808256804323095252, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3841608805331987218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235338681610452369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2b64ceae9515143b8cc24198982d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ApplyPaletteColor
+  Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
+  Role: 2
+  Graphic: {fileID: 2571357254580387459}
+  TMPText: {fileID: 0}
+  ApplyToChildren: 0
 --- !u!1 &5065599235514543573 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7033819485623902864, guid: 97ad26ac2afa87947925708700687da3, type: 3}
   m_PrefabInstance: {fileID: 2869279102760701765}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5176088888503075975 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6918816898625981378, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8679615027884174699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5967272796786003467 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8431223225799197006, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7900482349619955482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &5986080750695826825 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8413690155747478220, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4976893083461601956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5986080750695826825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2b64ceae9515143b8cc24198982d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ApplyPaletteColor
+  Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
+  Role: 1
+  Graphic: {fileID: 828051660099824862}
+  TMPText: {fileID: 828051660099824862}
+  ApplyToChildren: 0
 --- !u!1 &6263150775743759845 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8158996773020076704, guid: 97ad26ac2afa87947925708700687da3, type: 3}
   m_PrefabInstance: {fileID: 2869279102760701765}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2288778732342995162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6263150775743759845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2b64ceae9515143b8cc24198982d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ApplyPaletteColor
+  Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
+  Role: 0
+  Graphic: {fileID: 1840862914735595624}
+  TMPText: {fileID: 0}
+  ApplyToChildren: 0
+--- !u!1 &6267331244210049110 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8154808001104453395, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7288700432912340512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6267331244210049110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2b64ceae9515143b8cc24198982d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ApplyPaletteColor
+  Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
+  Role: 0
+  Graphic: {fileID: 8138310427181703963}
+  TMPText: {fileID: 8138310427181703963}
+  ApplyToChildren: 0
+--- !u!1 &6694359792432491125 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8878458430434075952, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4530712131361295239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6694359792432491125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2b64ceae9515143b8cc24198982d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ApplyPaletteColor
+  Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
+  Role: 3
+  Graphic: {fileID: 1346189685021996905}
+  TMPText: {fileID: 0}
+  ApplyToChildren: 0
+--- !u!1 &7900482349619955482 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5365367098352044127, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &663423439001097327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7900482349619955482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2b64ceae9515143b8cc24198982d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ApplyPaletteColor
+  Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
+  Role: 0
+  Graphic: {fileID: 5967272796786003467}
+  TMPText: {fileID: 0}
+  ApplyToChildren: 0
 --- !u!114 &8138310427181703963 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6278207079593618526, guid: 97ad26ac2afa87947925708700687da3, type: 3}
   m_PrefabInstance: {fileID: 2869279102760701765}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 6267331244210049110}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
@@ -466,3 +752,25 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6261259376248792462, guid: 97ad26ac2afa87947925708700687da3, type: 3}
   m_PrefabInstance: {fileID: 2869279102760701765}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8679615027884174699 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6892079481552200238, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+  m_PrefabInstance: {fileID: 2869279102760701765}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4078719374640184014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8679615027884174699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2b64ceae9515143b8cc24198982d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ApplyPaletteColor
+  Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
+  Role: 0
+  Graphic: {fileID: 5176088888503075975}
+  TMPText: {fileID: 5176088888503075975}
+  ApplyToChildren: 0

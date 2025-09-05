@@ -229,13 +229,6 @@ namespace UndeadSurvivalGame.UI
 
                     // Show equipped icon if the item is equipped
                     bool isEquipped = weaponManager != null && weaponManager.CurrentWeaponItem != null && itemStack.item == weaponManager.CurrentWeaponItem;
-                    Debug.Log($"InventoryGridUIController.RefreshGrid() - isEquipped: {isEquipped}");
-                    Debug.Log($"InventoryGridUIController.RefreshGrid() - weaponManager != null: {weaponManager != null}");
-                    Debug.Log($"InventoryGridUIController.RefreshGrid() - weaponManager.CurrentWeaponItem != null: {weaponManager.CurrentWeaponItem != null}");
-                    Debug.Log($"InventoryGridUIController.RefreshGrid() - itemStack.item == weaponManager.CurrentWeaponItem: {itemStack.item == weaponManager.CurrentWeaponItem}");
-                    Debug.Log($"InventoryGridUIController.RefreshGrid() - itemStack.item: {itemStack.item}, weaponManager.CurrentWeaponItem: {weaponManager.CurrentWeaponItem}");
-                    Debug.Log($"InventoryGridUIController.RefreshGrid() - Reference Equals: {ReferenceEquals(itemStack.item, weaponManager.CurrentWeaponItem)}");
-                    Debug.Log($"InventoryGridUIController.RefreshGrid() - itemStack.item.itemID: {itemStack.item.itemID}, weaponManager.CurrentWeaponItem.itemID: {weaponManager.CurrentWeaponItem.itemID}");
                     slot.DisplayEquippedIcon(isEquipped);
                 }
                 else
@@ -244,6 +237,7 @@ namespace UndeadSurvivalGame.UI
                     slot.ItemIcon.SetActive(false);
                     slot.ItemCount.SetActive(false);
                     slot.SetEmpty(true);
+                    slot.DisplayEquippedIcon(false);
                 }
             }
         }
