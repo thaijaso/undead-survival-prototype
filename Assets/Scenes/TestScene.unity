@@ -18555,6 +18555,49 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4594898273543298, guid: 4964aebf09d2cbd4682e9acbe218948b, type: 3}
   m_PrefabInstance: {fileID: 92346725}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &92451931 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8238274376040030609, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+  m_PrefabInstance: {fileID: 476918300}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &92451933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 92451931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: e56144e0b4271ac48bd9275c5f374e6f, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &92451934
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 92451931}
+  m_CullTransparentMesh: 1
 --- !u!1001 &92573205
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -95019,6 +95062,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 752292866424344103, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 752292866424344103, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 752292866424344103, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -18
+      objectReference: {fileID: 0}
+    - target: {fileID: 752292866424344103, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -18
+      objectReference: {fileID: 0}
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: Inventory
       value: 
@@ -95046,7 +95105,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8238274376040030609, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 92451934}
+    - targetCorrespondingSourceObject: {fileID: 8238274376040030609, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 92451933}
   m_SourcePrefab: {fileID: 100100000, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
 --- !u!224 &476918301 stripped
 RectTransform:
@@ -170006,7 +170071,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4339623, g: 0.4339623, b: 0.4339623, a: 0.98039216}
+  m_Color: {r: 0.427451, g: 0.427451, b: 0.427451, a: 0.98039216}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -430363,6 +430428,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1928716640}
     m_Modifications:
+    - target: {fileID: 1840862914735595624, guid: dfa4f26fc3d33d9409501a6d7cf3350e, type: 3}
+      propertyPath: m_Color.b
+      value: 0.77647066
+      objectReference: {fileID: 0}
+    - target: {fileID: 1840862914735595624, guid: dfa4f26fc3d33d9409501a6d7cf3350e, type: 3}
+      propertyPath: m_Color.g
+      value: 0.77647066
+      objectReference: {fileID: 0}
+    - target: {fileID: 1840862914735595624, guid: dfa4f26fc3d33d9409501a6d7cf3350e, type: 3}
+      propertyPath: m_Color.r
+      value: 0.77647066
+      objectReference: {fileID: 0}
     - target: {fileID: 2105073785245910333, guid: dfa4f26fc3d33d9409501a6d7cf3350e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
