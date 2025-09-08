@@ -130,7 +130,7 @@ namespace UndeadSurvivalGame.UI
             if (!InventorySlotUI.IsEmpty())
             {
                 InventorySlotUI.HoverBackground.enabled = true;
-                InventorySlotUI.HoverFeedback.PlayFeedbacks();
+                //InventorySlotUI.HoverFeedback.PlayFeedbacks();
                 FadeHoverBackground();
             }
         }
