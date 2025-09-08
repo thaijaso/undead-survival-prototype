@@ -967,7 +967,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.42745098, g: 0.42745098, b: 0.42745098, a: 1}
+  m_Color: {r: 0.42745098, g: 0.42745098, b: 0.42745098, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -997,7 +997,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.ApplyPaletteColor
   Palette: {fileID: 11400000, guid: c0195afc74ad3344fa1a64e8d000a72d, type: 2}
-  Role: 4
+  Role: 8
   Graphic: {fileID: 576193595136557487}
   TMPText: {fileID: 0}
   ApplyToChildren: 0
@@ -1013,7 +1013,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87c79f838ed6f23439cadb8e9f9bf4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  Image: {fileID: 0}
+  Image: {fileID: 576193595136557487}
   FadeDuration: 2
 --- !u!1 &4564438223453225373
 GameObject:

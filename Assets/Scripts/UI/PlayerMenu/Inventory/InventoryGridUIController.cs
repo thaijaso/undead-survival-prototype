@@ -10,6 +10,7 @@ namespace UndeadSurvivalGame.UI
     public class InventoryGridUIController : MonoBehaviour
     {
         public InventorySlotUI SelectedSlot { get; private set; }
+        public InventorySlotUI FocusedSlot { get; private set; }
 
         [SerializeField]
         private Inventory Inventory;
@@ -109,23 +110,25 @@ namespace UndeadSurvivalGame.UI
         {
             Inventory.OnInventoryChanged += RefreshGrid;
             RefreshGrid();
+            FocusFirstItem();
         }
 
         void OnDisable()
         {
             Inventory.OnInventoryChanged -= RefreshGrid;
+            FocusedSlot = null;
+            SelectedSlot = null;
         }
 
-        void Start()
+        private void FocusFirstItem()
         {
             if (InventorySlots.Count > 0)
             {
-                SelectSlot(InventorySlots[0]);
-                ItemStack firstItemStack = Inventory.ItemStacks[0];
-                SetSelectedItemName(firstItemStack.item.itemName);
-                ToggleEquippedText(firstItemStack.item);
-                SetSelectedItemType(firstItemStack.item.itemType);
-                SetSelectedItemDescription(firstItemStack.item.description);
+                FocusSlot(InventorySlots[0]);
+            }
+            else
+            {
+                Debug.LogWarning("No inventory slots available to display item info.");
             }
         }
 
@@ -139,9 +142,43 @@ namespace UndeadSurvivalGame.UI
             SelectedSlot = selectedSlot;
         }
 
+        public void FocusSlot(InventorySlotUI focusedSlot)
+        {
+            if (FocusedSlot != null && FocusedSlot != focusedSlot)
+            {
+                FocusedSlot.StopFadingAlphaHoverBackground();
+            }
+
+            int index = focusedSlot.GetIndex();
+
+            if (index < Inventory.ItemStacks.Count)
+            {
+                if (FocusedSlot != null && FocusedSlot != focusedSlot)
+                {
+                    FocusedSlot.ClickFeedback.PlayFeedbacks();
+                }
+
+                ItemStack itemStack = Inventory.ItemStacks[index];
+                SetSelectedItemName(itemStack.item.itemName);
+                ToggleEquippedText(itemStack.item);
+                SetSelectedItemType(itemStack.item.itemType.ToString());
+                SetSelectedItemDescription(itemStack.item.description);
+            }
+            else
+            {
+                SetSelectedItemName(string.Empty);
+                DisplayEquippedText(false);
+                SetSelectedItemType(string.Empty);
+                SetSelectedItemDescription(string.Empty);
+            }
+
+            focusedSlot.FadeAlphaHoverBackground();
+            FocusedSlot = focusedSlot;
+        }
+
         private void SetSelectedItemName(string itemName)
         {
-            if (SelectedSlot != null && SelectedItemNameUI != null)
+            if (SelectedItemNameUI != null)
             {
                 SelectedItemNameUI.SetItemName(itemName);
             }
@@ -149,7 +186,7 @@ namespace UndeadSurvivalGame.UI
 
         private void ToggleEquippedText(Item item)
         {
-            if (SelectedSlot != null && SelectedItemNameUI != null && weaponManager != null)
+            if (SelectedItemNameUI != null && weaponManager != null)
             {
                 bool isEquipped = weaponManager.IsItemEquipped(item);
                 SelectedItemNameUI.ToggleEquippedText(isEquipped);
@@ -164,9 +201,9 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
-        private void SetSelectedItemType(ItemType itemType)
+        private void SetSelectedItemType(string itemType)
         {
-            if (SelectedSlot != null && SelectedItemTypeUI != null)
+            if (SelectedItemTypeUI != null)
             {
                 SelectedItemTypeUI.SetItemType(itemType.ToString());
             }
@@ -174,7 +211,7 @@ namespace UndeadSurvivalGame.UI
 
         private void SetSelectedItemDescription(string itemDescription)
         {
-            if (SelectedSlot != null && SelectedItemDescriptionUI != null)
+            if (SelectedItemDescriptionUI != null)
             {
                 SelectedItemDescriptionUI.SetItemDescription(itemDescription);
             }

@@ -10,6 +10,7 @@ namespace UndeadSurvivalGame.UI
         public Color Foreground = new Color32(198, 198, 198, 255); // white
         public Color Accent = new Color32(255, 213, 13, 255); // yellow
         public Color Disabled = new Color32(109, 109, 109, 250); // dark gray
+        public Color DisabledTransparent = new Color32(109, 109, 109, 0); // more transparent dark gray
         public Color ForegroundVariant = new Color32(0, 0, 0, 255); // black
         public Color Success = new Color32(89, 202, 77, 255); // green
         public Color Error = new Color32(235, 102, 107, 255); // red
@@ -23,6 +24,7 @@ namespace UndeadSurvivalGame.UI
             ColorRole.ForegroundVariant => ForegroundVariant,
             ColorRole.Success => Success,
             ColorRole.Error => Error,
+            ColorRole.DisabledTransparent => DisabledTransparent,
             _ => Color.magenta
         };
 

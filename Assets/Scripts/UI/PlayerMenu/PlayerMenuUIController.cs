@@ -44,7 +44,7 @@ namespace UndeadSurvivalGame.UI
             SetupInputActionMaps();
             SetupInputActions();
             SetupInventoryGridUIController();
-            SetupBottomBarActionContainers();
+            //SetupBottomBarActionContainers();
             SubscribeToUIInputEvents();
         }
 

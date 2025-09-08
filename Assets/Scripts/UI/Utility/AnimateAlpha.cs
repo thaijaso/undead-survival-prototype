@@ -33,6 +33,12 @@ namespace UndeadSurvivalGame.UI
 
         public void StartContinuousFade()
         {
+            if (Image == null)
+            {
+                Debug.LogWarning($"[{gameObject.name}] AnimateAlpha.StartContinuousFade(): No Image component assigned!");
+                return;
+            }
+
             if (fadeCoroutine != null)
             {
                 StopCoroutine(fadeCoroutine);
@@ -40,6 +46,23 @@ namespace UndeadSurvivalGame.UI
 
             fadeCoroutine = StartCoroutine(FadeAlphaLoop());
             IsFading = true;
+        }
+
+        private IEnumerator FadeAlphaLoop()
+        {
+            if (Image != null)
+            {
+                Debug.Log($"[{gameObject.name}] AnimateAlpha: FadeAlphaLoop started.");
+                while (true)
+                {
+                    yield return FadeAlpha(0f, 1f, FadeDuration / 2f);
+                    yield return FadeAlpha(1f, 0f, FadeDuration / 2f);
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] AnimateAlpha.FadeAlphaLoop(): No Image component assigned!");
+            }
         }
 
         public void StopContinuousFade()
@@ -71,17 +94,9 @@ namespace UndeadSurvivalGame.UI
                 color.a = to;
                 Image.color = color;
             }
-        }
-
-        private IEnumerator FadeAlphaLoop()
-        {
-            if (Image != null)
+            else
             {
-                while (true)
-                {
-                    yield return FadeAlpha(0f, 1f, FadeDuration / 2f);
-                    yield return FadeAlpha(1f, 0f, FadeDuration / 2f);
-                }
+                Debug.LogWarning($"[{gameObject.name}] AnimateAlpha.FadeAlpha(): No Image component assigned!");
             }
         }
     }

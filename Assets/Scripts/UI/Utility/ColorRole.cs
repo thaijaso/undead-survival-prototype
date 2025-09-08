@@ -11,6 +11,7 @@ namespace UndeadSurvivalGame.UI
         Disabled,
         Success,
         Warning, // TODO: define in ColorPalette
-        Error 
+        Error,
+        DisabledTransparent
     }
 }

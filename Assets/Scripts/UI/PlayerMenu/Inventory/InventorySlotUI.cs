@@ -24,6 +24,7 @@ namespace UndeadSurvivalGame.UI
         public MMF_Player ClickFeedback;
 
         private bool isSelected;
+        private bool isFocused;
         private bool isEmpty;
 
         private void Awake()
@@ -117,6 +118,46 @@ namespace UndeadSurvivalGame.UI
             EquippedIcon.SetActive(isEquipped);
         }
 
-        
+        public void FadeAlphaHoverBackground()
+        {
+            if (HoverBackground == null)
+            {
+                Debug.LogWarning($"[{gameObject.name}] InventorySlotUI.FadeAlphaHoverBackground(): HoverBackground is not assigned.");
+                return;
+            }
+
+            HoverBackground.enabled = true;
+            AnimateAlpha animateAlpha = HoverBackground.GetComponent<AnimateAlpha>();
+
+            if (animateAlpha != null)
+            {
+                animateAlpha.StartContinuousFade();
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] InventorySlotUI.FadeAlphaHoverBackground(): No AnimateAlpha component found on HoverBackground.");
+            }
+        }
+
+        public void StopFadingAlphaHoverBackground()
+        {
+            if (HoverBackground == null)
+            {
+                Debug.LogWarning($"[{gameObject.name}] InventorySlotUI.StopFadingAlphaHoverBackground(): HoverBackground is not assigned.");
+                return;
+            }
+
+            AnimateAlpha animateAlpha = HoverBackground.GetComponent<AnimateAlpha>();
+
+            if (animateAlpha != null)
+            {
+                animateAlpha.StopContinuousFade();
+                HoverBackground.enabled = false;
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] InventorySlotUI.StopFadingAlphaHoverBackground(): No AnimateAlpha component found on HoverBackground.");
+            }
+        }
     }
 }

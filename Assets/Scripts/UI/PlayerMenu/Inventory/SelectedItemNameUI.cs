@@ -56,6 +56,10 @@ namespace UndeadSurvivalGame.UI
             {
                 equippedText.SetActive(isEquipped);
             }
+            else
+            {
+                Debug.LogWarning("SelectedItemNameUI.ToggleEquippedText(): EquippedText GameObject is not assigned.");
+            }
         }
     }
 }

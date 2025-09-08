@@ -133,11 +133,19 @@ namespace UndeadSurvivalGame.UI
         {
             Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerEnter(): Pointer entered on {gameObject.name}");
 
-            if (!InventorySlotUI.IsEmpty())
+            if (InventorySlotUI == null)
             {
-                InventorySlotUI.HoverBackground.enabled = true;
-                FadeHoverBackground();
+                Debug.LogWarning("InventorySlotUIHandler requires an InventorySlotUI on the same GameObject.");
+                return;
             }
+
+            if (InventoryGridUIController == null)
+            {
+                Debug.LogWarning("InventorySlotUIHandler requires an InventoryGridUIController in the parent hierarchy.");
+                return;
+            }
+            
+            InventoryGridUIController.FocusSlot(InventorySlotUI);
         }
 
         private void FadeHoverBackground()
@@ -151,10 +159,10 @@ namespace UndeadSurvivalGame.UI
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerExit(): Pointer exited from {gameObject.name}");
-            InventorySlotUI inventorySlot = GetComponent<InventorySlotUI>();
-            inventorySlot.HoverBackground.enabled = false;
-            StopFadingHoverBackground();
+            // Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerExit(): Pointer exited from {gameObject.name}");
+            // InventorySlotUI inventorySlot = GetComponent<InventorySlotUI>();
+            // inventorySlot.HoverBackground.enabled = false;
+            // StopFadingHoverBackground();
         }
 
         private void StopFadingHoverBackground()
