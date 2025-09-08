@@ -53,6 +53,11 @@ namespace UndeadSurvivalGame.UI
             {
                 Palette.Changed -= OnPaletteChanged;
             }
+
+            if (HoverBackground != null)
+            {
+                HoverBackground.enabled = false;
+            }
         }
 
         private void OnPaletteChanged(ColorPalette palette)

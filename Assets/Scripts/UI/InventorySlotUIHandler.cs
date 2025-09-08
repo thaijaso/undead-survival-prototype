@@ -37,6 +37,7 @@ namespace UndeadSurvivalGame.UI
             SetupSelectedItemTypeUI();
             SetupSelectedItemDescriptionUI();
             SetupInventorySlotUI();
+            SetupTogglePlayerMenuHandler();
         }
 
         private void SetupInventory()
@@ -123,6 +124,11 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
+        private void SetupTogglePlayerMenuHandler()
+        {
+            
+        }
+
         public void OnPointerEnter(PointerEventData eventData)
         {
             Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerEnter(): Pointer entered on {gameObject.name}");
@@ -130,7 +136,6 @@ namespace UndeadSurvivalGame.UI
             if (!InventorySlotUI.IsEmpty())
             {
                 InventorySlotUI.HoverBackground.enabled = true;
-                //InventorySlotUI.HoverFeedback.PlayFeedbacks();
                 FadeHoverBackground();
             }
         }
