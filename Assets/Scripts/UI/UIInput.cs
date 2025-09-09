@@ -10,8 +10,10 @@ namespace UndeadSurvivalGame.UI
         private InputActionAsset inputActions;
         private InputActionMap uiMap;
         private InputAction dropItem;
+        private InputAction rightClick;
 
         public event Action OnDropItem;
+        public event Action OnRightClick;
 
         private void Awake()
         {
@@ -45,7 +47,27 @@ namespace UndeadSurvivalGame.UI
             }
 
             // Setup UI input actions here
-            SetupDropItemAction();
+            //SetupDropItemAction();
+            SetupRightClickAction();
+        }
+
+        private void SetupRightClickAction()
+        {
+            rightClick = uiMap.FindAction("RightClick");
+
+            if (rightClick == null)
+            {
+                Debug.LogWarning("UIInput: No RightClick action found in UI InputActionMap.");
+            }
+
+            if (rightClick != null)
+            {
+                rightClick.performed += ctx =>
+                {
+                    Debug.Log("RightClick action performed.");
+                    OnRightClick?.Invoke();
+                };
+            }
         }
 
         private void SetupDropItemAction()

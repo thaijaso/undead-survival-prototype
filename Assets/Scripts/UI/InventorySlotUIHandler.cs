@@ -150,10 +150,13 @@ namespace UndeadSurvivalGame.UI
         {
             Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerClick(): Pointer clicked on {gameObject.name}");
 
-            if (!InventorySlotUI.IsEmpty())
-            {
-                HandleSlotSelection();
-                PlayClickFeedback();
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {                
+                if (!InventorySlotUI.IsEmpty())
+                {
+                    HandleSlotSelection();
+                    //PlayClickFeedback(); TODO: Play different sound feedback
+                }
             }
         }
 

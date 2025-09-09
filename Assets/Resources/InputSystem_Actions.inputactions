@@ -531,7 +531,7 @@
                     "name": "Submit",
                     "type": "Button",
                     "id": "7607c7b6-cd76-4816-beef-bd0341cfe950",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -540,7 +540,7 @@
                     "name": "Cancel",
                     "type": "Button",
                     "id": "15cef263-9014-4fd5-94d9-4e4a6234a6ef",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -612,15 +612,6 @@
                     "name": "ClosePlayerMenu",
                     "type": "Button",
                     "id": "b9d9e6dd-2dc0-4586-b733-0899d1d10ad5",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "DropItem",
-                    "type": "Button",
-                    "id": "d6366dff-4af9-4f2b-9812-f08be454fb24",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -1054,17 +1045,6 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "ClosePlayerMenu",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "316736b5-6d1a-4513-aae2-b8f0f8acd369",
-                    "path": "<Keyboard>/x",
-                    "interactions": "Hold",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "DropItem",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
