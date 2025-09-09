@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace UndeadSurvivalGame.UI
 { 
-    public class InventorySlotUIHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class InventorySlotUIHandler : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
     {
         [SerializeField]
         private Inventory Inventory;
@@ -37,7 +37,6 @@ namespace UndeadSurvivalGame.UI
             SetupSelectedItemTypeUI();
             SetupSelectedItemDescriptionUI();
             SetupInventorySlotUI();
-            SetupTogglePlayerMenuHandler();
         }
 
         private void SetupInventory()
@@ -124,10 +123,6 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
-        private void SetupTogglePlayerMenuHandler()
-        {
-            
-        }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -144,33 +139,10 @@ namespace UndeadSurvivalGame.UI
                 Debug.LogWarning("InventorySlotUIHandler requires an InventoryGridUIController in the parent hierarchy.");
                 return;
             }
-            
-            InventoryGridUIController.FocusSlot(InventorySlotUI);
-        }
 
-        private void FadeHoverBackground()
-        {
-            AnimateAlpha animateAlpha = InventorySlotUI.HoverBackground.GetComponent<AnimateAlpha>();
-            if (animateAlpha != null)
+            if (InventorySlotUI.GetIndex() < Inventory.ItemStacks.Count)
             {
-                animateAlpha.StartContinuousFade();
-            }
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            // Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerExit(): Pointer exited from {gameObject.name}");
-            // InventorySlotUI inventorySlot = GetComponent<InventorySlotUI>();
-            // inventorySlot.HoverBackground.enabled = false;
-            // StopFadingHoverBackground();
-        }
-
-        private void StopFadingHoverBackground()
-        {
-            AnimateAlpha animateAlpha = InventorySlotUI.HoverBackground.GetComponent<AnimateAlpha>();
-            if (animateAlpha != null)
-            {
-                animateAlpha.StopContinuousFade();
+                InventoryGridUIController.FocusSlot(InventorySlotUI);
             }
         }
 

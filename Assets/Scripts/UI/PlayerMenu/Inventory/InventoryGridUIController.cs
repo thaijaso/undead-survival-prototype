@@ -10,7 +10,7 @@ namespace UndeadSurvivalGame.UI
     public class InventoryGridUIController : MonoBehaviour
     {
         public InventorySlotUI SelectedSlot { get; private set; }
-        public InventorySlotUI FocusedSlot { get; private set; }
+        public InventorySlotUI CurrentFocusedSlot { get; private set; }
 
         [SerializeField]
         private Inventory Inventory;
@@ -116,7 +116,7 @@ namespace UndeadSurvivalGame.UI
         void OnDisable()
         {
             Inventory.OnInventoryChanged -= RefreshGrid;
-            FocusedSlot = null;
+            CurrentFocusedSlot = null;
             SelectedSlot = null;
         }
 
@@ -142,20 +142,20 @@ namespace UndeadSurvivalGame.UI
             SelectedSlot = selectedSlot;
         }
 
-        public void FocusSlot(InventorySlotUI focusedSlot)
+        public void FocusSlot(InventorySlotUI slot)
         {
-            if (FocusedSlot != null && FocusedSlot != focusedSlot)
+            if (CurrentFocusedSlot != null && CurrentFocusedSlot != slot)
             {
-                FocusedSlot.StopFadingAlphaHoverBackground();
+                CurrentFocusedSlot.StopFadingAlphaHoverBackground();
             }
 
-            int index = focusedSlot.GetIndex();
+            int index = slot.GetIndex();
 
             if (index < Inventory.ItemStacks.Count)
             {
-                if (FocusedSlot != null && FocusedSlot != focusedSlot)
+                if (CurrentFocusedSlot != null && CurrentFocusedSlot != slot)
                 {
-                    FocusedSlot.ClickFeedback.PlayFeedbacks();
+                    CurrentFocusedSlot.ClickFeedback.PlayFeedbacks();
                 }
 
                 ItemStack itemStack = Inventory.ItemStacks[index];
@@ -164,16 +164,9 @@ namespace UndeadSurvivalGame.UI
                 SetSelectedItemType(itemStack.item.itemType.ToString());
                 SetSelectedItemDescription(itemStack.item.description);
             }
-            else
-            {
-                SetSelectedItemName(string.Empty);
-                DisplayEquippedText(false);
-                SetSelectedItemType(string.Empty);
-                SetSelectedItemDescription(string.Empty);
-            }
-
-            focusedSlot.FadeAlphaHoverBackground();
-            FocusedSlot = focusedSlot;
+        
+            slot.FadeAlphaHoverBackground();
+            CurrentFocusedSlot = slot;
         }
 
         private void SetSelectedItemName(string itemName)
