@@ -22,6 +22,9 @@ namespace UndeadSurvivalGame.UI
         [SerializeField]
         private InteractionSensor interactionSensor;
 
+        [SerializeField]
+        private MenuOverlayController menuOverlayController;
+
         private void Awake()
         {
             SetupProximityUIs();
@@ -30,6 +33,7 @@ namespace UndeadSurvivalGame.UI
             SetupCurrentWeaponUIController();
             SetupHealthUIController();
             SetupTogglePlayerMenuHandler();
+            SetupMenuOverlayController();
         }
 
         private void SetupProximityUIs()
@@ -104,6 +108,7 @@ namespace UndeadSurvivalGame.UI
             HideProximityUIs(isMenuOpen);
             TogglePlayerHealthUI(isMenuOpen);
             ToggleCurrentWeaponUI(isMenuOpen);
+            ToggleMenuOverlay(isMenuOpen);
         }
 
         private void HideProximityUIs(bool isMenuOpen)
@@ -131,6 +136,27 @@ namespace UndeadSurvivalGame.UI
             {
                 currentWeaponUIController.gameObject.SetActive(!isMenuOpen);
             }
-        }   
+        }
+
+        private void SetupMenuOverlayController()
+        {
+            if (menuOverlayController == null)
+            {
+                menuOverlayController = FindFirstObjectByType<MenuOverlayController>(FindObjectsInactive.Include);
+            }
+
+            if (menuOverlayController == null)
+            {
+                Debug.LogWarning("HUDManager: No MenuOverlayController found in scene.");
+            }
+        }
+
+        private void ToggleMenuOverlay(bool isMenuOpen)
+        {
+            if (menuOverlayController != null && menuOverlayController.OverlayImage != null)
+            {
+                menuOverlayController.OverlayImage.enabled = isMenuOpen;
+            }
+        }
     }
 }
