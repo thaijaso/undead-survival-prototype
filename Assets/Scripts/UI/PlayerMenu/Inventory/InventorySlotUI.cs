@@ -99,18 +99,18 @@ namespace UndeadSurvivalGame.UI
 
         private void UpdateBorderColor()
         {
-            if (isEmpty)
-            {
-                BorderBackground.color = Palette.Get(BorderBackgroundEmptyRole);
-            }
-            else if (isSelected)
-            {
-                BorderBackground.color = Palette.Get(BorderBackgroundSelectedRole);
-            }
-            else
-            {
-                BorderBackground.color = Palette.Get(BorderBackgroundUnselectedRole);
-            }
+            // if (isEmpty)
+            // {
+            //     BorderBackground.color = Palette.Get(BorderBackgroundEmptyRole);
+            // }
+            // else if (isSelected)
+            // {
+            //     BorderBackground.color = Palette.Get(BorderBackgroundSelectedRole);
+            // }
+            // else
+            // {
+            //     BorderBackground.color = Palette.Get(BorderBackgroundUnselectedRole);
+            // }
         }
 
         public void DisplayEquippedIcon(bool isEquipped)
