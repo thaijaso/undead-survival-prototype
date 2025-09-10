@@ -16,6 +16,9 @@ namespace UndeadSurvivalGame.UI
         private InventoryGridUIController inventoryGridUIController;
 
         [SerializeField]
+        private ContextMenuController contextMenuController;
+
+        [SerializeField]
         private GameObject bottomBarPrimaryActionContainer;
 
         [SerializeField]
@@ -44,6 +47,7 @@ namespace UndeadSurvivalGame.UI
             SetupInputActionMaps();
             SetupInputActions();
             SetupInventoryGridUIController();
+            SetupContextMenuController();
             //SetupBottomBarActionContainers();
             SubscribeToUIInputEvents();
         }
@@ -115,6 +119,19 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
+        private void SetupContextMenuController()
+        {
+            if (contextMenuController == null)
+            {
+                contextMenuController = GetComponentInChildren<ContextMenuController>();
+
+                if (contextMenuController == null)
+                {
+                    Debug.LogWarning("PlayerMenuUIController requires a ContextMenuController in the children.");
+                }
+            }
+        }
+
         public void TogglePlayerMenu()
         {
             if (PlayerMenuUI == null)
@@ -178,7 +195,7 @@ namespace UndeadSurvivalGame.UI
 
             if (uiInput != null)
             {
-                uiInput.OnDropItem += HandleDropItem;
+                uiInput.OnRightClick += HandleRightClick;
             }
         }
 
@@ -196,7 +213,34 @@ namespace UndeadSurvivalGame.UI
         {
             if (uiInput != null)
             {
-                uiInput.OnDropItem -= HandleDropItem;
+                uiInput.OnRightClick -= HandleRightClick;
+            }
+        }
+
+        private void HandleRightClick()
+        {
+            Debug.Log($"{gameObject.name} RightClick event received.");
+
+            if (contextMenuController == null)
+            {
+                Debug.LogWarning("ContextMenuController is not assigned.");
+                return;
+            }
+
+            if (inventoryGridUIController == null)
+            {
+                Debug.LogWarning("InventoryGridUIController is not assigned.");
+                return;
+            }
+
+            if (contextMenuController.IsVisible)
+            {
+                contextMenuController.Hide();
+                return;
+            }
+            else
+            {
+                TogglePlayerMenu();
             }
         }
 

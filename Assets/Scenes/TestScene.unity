@@ -36530,6 +36530,7 @@ MonoBehaviour:
   PlayerMenuUI: {fileID: 167462149}
   uiInput: {fileID: 1468555638}
   inventoryGridUIController: {fileID: 0}
+  contextMenuController: {fileID: 0}
   bottomBarPrimaryActionContainer: {fileID: 0}
   bottomBarSecondaryActionContainer: {fileID: 0}
   bottomBarTertiaryActionContainer: {fileID: 0}
@@ -111089,7 +111090,6 @@ MonoBehaviour:
   canvasGroup: {fileID: 557484657}
   menuRoot: {fileID: 557484656}
   grid: {fileID: 1489192892}
-  padding: {x: 6, y: 3}
 --- !u!1001 &557537256
 PrefabInstance:
   m_ObjectHideFlags: 0

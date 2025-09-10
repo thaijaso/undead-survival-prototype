@@ -7,7 +7,8 @@ public class ContextMenuController : MonoBehaviour
     [SerializeField] private CanvasGroup canvasGroup;       // the CanvasGroup on this object
     [SerializeField] private RectTransform menuRoot;        // this ContextMenu RectTransform
     [SerializeField] private GridLayoutGroup grid;          // your Inventory GridLayoutGroup
-    [SerializeField] private Vector2 padding = new Vector2(6f, 6f);
+
+    public bool IsVisible => menuRoot.gameObject.activeSelf;
 
     private RectTransform parentRect;
 

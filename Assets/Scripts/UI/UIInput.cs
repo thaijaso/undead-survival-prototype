@@ -64,7 +64,7 @@ namespace UndeadSurvivalGame.UI
             {
                 rightClick.performed += ctx =>
                 {
-                    Debug.Log("RightClick action performed.");
+                    Debug.Log($"RightClick action performed by {gameObject.name} ({GetInstanceID()})");
                     OnRightClick?.Invoke();
                 };
             }
