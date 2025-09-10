@@ -30,6 +30,12 @@ namespace UndeadSurvivalGame.UI
         [SerializeField]
         private PlayerWeaponManager weaponManager;
 
+        [SerializeField]
+        private ContextMenuController contextMenuController;
+
+        [SerializeField]
+        private GridLayoutGroup InventoryGridLayoutGroup;
+
         void Awake()
         {
             SetupPlayerWeaponManager();
@@ -37,6 +43,8 @@ namespace UndeadSurvivalGame.UI
             SetupSelectedItemNameUI();
             SetupSelectedItemTypeUI();
             SetupSelectedItemDescriptionUI();
+            SetupContextMenuController();
+            SetupInventoryGridLayoutGroup();
         }
 
         private void SetupPlayerWeaponManager()
@@ -106,6 +114,32 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
+        private void SetupContextMenuController()
+        {
+            if (contextMenuController == null)
+            {
+                contextMenuController = transform.Find("ContextMenu").GetComponent<ContextMenuController>();
+
+                if (contextMenuController == null)
+                {
+                    Debug.LogWarning("InventoryGridUIController requires a ContextMenu in the parent.");
+                }
+            }
+        }
+
+        private void SetupInventoryGridLayoutGroup()
+        {
+            if (InventoryGridLayoutGroup == null)
+            {
+                InventoryGridLayoutGroup = GetComponent<GridLayoutGroup>();
+
+                if (InventoryGridLayoutGroup == null)
+                {
+                    Debug.LogWarning("InventoryGridUIController requires a GridLayoutGroup component on the same GameObject.");
+                }
+            }
+        }
+
         void OnEnable()
         {
             Inventory.OnInventoryChanged += RefreshGrid;
@@ -140,6 +174,25 @@ namespace UndeadSurvivalGame.UI
             }
 
             SelectedSlot = selectedSlot;
+
+
+            // if (ContextMenu != null)
+            // {
+            //     PositionContextMenuUtility.ShowAtNextCellRight(
+            //         ContextMenu,
+            //         SelectedSlot.GetComponent<RectTransform>(),
+            //         InventoryGridLayoutGroup,
+            //         padX: 0f, padY: 0f
+            //     );
+            //     ContextMenu.gameObject.SetActive(true);
+            // }
+
+            if (contextMenuController != null && SelectedSlot != null)
+            {
+                int nextIndex = SelectedSlot.GetIndex() + 1;
+                InventorySlotUI nextSlot = InventorySlots[nextIndex];
+                contextMenuController.ShowAtAttachPoint(nextSlot.ContextMenuAttachPoint);
+            }
         }
 
         public void FocusSlot(InventorySlotUI slot)

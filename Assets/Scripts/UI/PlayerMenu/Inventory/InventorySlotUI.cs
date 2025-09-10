@@ -13,6 +13,8 @@ namespace UndeadSurvivalGame.UI
         public ColorRole BorderBackgroundUnselectedRole = ColorRole.Disabled;
         public ColorRole BorderBackgroundEmptyRole = ColorRole.Disabled;
 
+        [SerializeField] private RectTransform contextMenuAttachPoint;
+
         private int index;
         public Image BorderBackground;
         public Image HoverBackground;
@@ -29,6 +31,13 @@ namespace UndeadSurvivalGame.UI
 
         private void Awake()
         {
+            Debug.Log($"InventorySlotUI.Awake() {gameObject.name}");
+            SetupColorPalette();
+            SetupContextMenuAttachPoint();
+        }
+
+        private void SetupColorPalette()
+        {
             if (Palette == null)
             {
                 Palette = Resources.Load<ColorPalette>("ColorPalette");
@@ -37,6 +46,28 @@ namespace UndeadSurvivalGame.UI
             if (Palette == null)
             {
                 Debug.LogError($"[{gameObject.name}] InventorySlotUI: No ColorPalette assigned or found in Resources!");
+            }
+        }
+
+        private void SetupContextMenuAttachPoint()
+        {
+            if (contextMenuAttachPoint == null)
+            {
+                // Try to find by name in all descendants
+                var transforms = transform.GetComponentsInChildren<Transform>(true);
+                foreach (var transform in transforms)
+                {
+                    if (transform.name == "ContextMenuAttachPoint")
+                    {
+                        contextMenuAttachPoint = transform.GetComponent<RectTransform>();
+                        break;
+                    }
+                }
+
+                if (contextMenuAttachPoint == null)
+                {
+                    Debug.LogWarning($"[{gameObject.name}] InventorySlotUI: No ContextMenuAttachPoint found in children or grandchildren.");
+                }
             }
         }
 
@@ -159,5 +190,8 @@ namespace UndeadSurvivalGame.UI
                 Debug.LogWarning($"[{gameObject.name}] InventorySlotUI.StopFadingAlphaHoverBackground(): No AnimateAlpha component found on HoverBackground.");
             }
         }
+
+        public RectTransform ContextMenuAttachPoint => contextMenuAttachPoint;
+        
     }
 }
