@@ -28,7 +28,7 @@ namespace UndeadSurvivalGame.UI
 
         [SerializeField] private GridLayoutGroup InventoryGridLayoutGroup;
 
-        void Awake()
+        void Start()
         {
             SetupPlayerWeaponManager();
             SetupInventorySlots();
@@ -37,6 +37,10 @@ namespace UndeadSurvivalGame.UI
             SetupSelectedItemDescriptionUI();
             SetupContextMenuController();
             SetupInventoryGridLayoutGroup();
+
+            Inventory.OnInventoryChanged += RefreshGrid;
+            RefreshGrid();
+            FocusFirstItem();
         }
 
         private void SetupPlayerWeaponManager()
@@ -130,13 +134,6 @@ namespace UndeadSurvivalGame.UI
                     Debug.LogWarning("InventoryGridUIController requires a GridLayoutGroup component on the same GameObject.");
                 }
             }
-        }
-
-        void OnEnable()
-        {
-            Inventory.OnInventoryChanged += RefreshGrid;
-            RefreshGrid();
-            FocusFirstItem();
         }
 
         void OnDisable()

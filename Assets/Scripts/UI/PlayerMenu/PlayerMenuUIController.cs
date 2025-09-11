@@ -27,7 +27,7 @@ namespace UndeadSurvivalGame.UI
 
         private InputAction togglePlayerMenuAction;
 
-        private void OnEnable()
+        private void Start()
         {
             if (PlayerMenuUI == null)
             {

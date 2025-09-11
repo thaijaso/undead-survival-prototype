@@ -15,7 +15,7 @@ namespace UndeadSurvivalGame.UI
         public event Action OnDropItem;
         public event Action OnRightClick;
 
-        private void Awake()
+        private void Start()
         {
             SetupInputActions();
             SetupUIMap();
