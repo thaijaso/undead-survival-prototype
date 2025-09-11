@@ -197022,6 +197022,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2383244230488942016, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+      propertyPath: inventorySlotUIHandler
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 4564438223453225373, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
       value: 0

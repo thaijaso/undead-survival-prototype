@@ -39,14 +39,6 @@ namespace UndeadSurvivalGame.UI
             SetupInventory();
             SetupInventoryGridUIController();
             SetupContextMenuController();
-            SubscribeToUIInputEvents();
-            SubscribeToInventorySlotUIHandlerEvents();
-        }
-
-        private void OnDisable()
-        {
-            UnsubscribeFromUIInputEvents();
-            UnsubscribeToInventorySlotUIHandlerEvents();
         }
 
         private void SetupPlayerMenuUI()
@@ -150,6 +142,17 @@ namespace UndeadSurvivalGame.UI
             ToggleCursor(isMenuActive);
             ToggleActionMap(isMenuActive);
             ToggleUIInput(isMenuActive);
+
+            if (isMenuActive)
+            {
+                SubscribeToUIInputEvents();
+                SubscribeToInventorySlotUIHandlerEvents();
+            }
+            else
+            {
+                UnsubscribeFromUIInputEvents();
+                UnsubscribeToInventorySlotUIHandlerEvents();
+            }
 
             OnPlayerMenuToggled?.Invoke(isMenuActive);
         }
