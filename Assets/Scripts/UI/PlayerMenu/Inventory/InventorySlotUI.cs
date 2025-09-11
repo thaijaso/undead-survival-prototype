@@ -1,6 +1,5 @@
 using MoreMountains.Feedbacks;
 using TMPro;
-using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +11,7 @@ namespace UndeadSurvivalGame.UI
         private RectTransform contextMenuAttachPoint;
 
         [SerializeField]
-        private InventorySlotUIHandler inventorySlotUIHandler;
+        private InventorySlotEventHandler inventorySlotEventHandler;
 
         [SerializeField]
         private Image selectedBackgroundImage;
@@ -39,7 +38,7 @@ namespace UndeadSurvivalGame.UI
         private MMF_Player clickFeedback;
 
         public RectTransform ContextMenuAttachPoint => contextMenuAttachPoint;
-        public InventorySlotUIHandler InventorySlotUIHandler => inventorySlotUIHandler;
+        public InventorySlotEventHandler InventorySlotUIHandler => inventorySlotEventHandler;
         public Image SelectedBackgroundImage => selectedBackgroundImage;
         public Image BackgroundImage => backgroundImage;
         public Image HoverBackgroundImage => hoverBackgroundImage;
@@ -89,11 +88,11 @@ namespace UndeadSurvivalGame.UI
 
         private void SetupInventorySlotUIHandler()
         {
-            if (inventorySlotUIHandler == null)
+            if (inventorySlotEventHandler == null)
             {
-                inventorySlotUIHandler = GetComponent<InventorySlotUIHandler>();
+                inventorySlotEventHandler = GetComponent<InventorySlotEventHandler>();
 
-                if (inventorySlotUIHandler == null)
+                if (inventorySlotEventHandler == null)
                 {
                     Debug.LogWarning($"[{gameObject.name}] InventorySlotUI requires an InventorySlotUIHandler on the same GameObject.");
                 }

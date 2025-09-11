@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 namespace UndeadSurvivalGame.UI
 { 
-    public class InventorySlotUIHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class InventorySlotEventHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         [SerializeField]
         private Inventory Inventory;

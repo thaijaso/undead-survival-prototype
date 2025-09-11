@@ -56,7 +56,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   contextMenuAttachPoint: {fileID: 4309874564926575174}
-  inventorySlotUIHandler: {fileID: 1768316427935037820}
+  inventorySlotEventHandler: {fileID: 1768316427935037820}
   selectedBackgroundImage: {fileID: 6065268520777436253}
   backgroundImage: {fileID: 4649096568519139812}
   hoverBackgroundImage: {fileID: 576193595136557487}
