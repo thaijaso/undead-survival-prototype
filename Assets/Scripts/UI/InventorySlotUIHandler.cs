@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 namespace UndeadSurvivalGame.UI
 { 
-    public class InventorySlotUIHandler : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
+    public class InventorySlotUIHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         [SerializeField]
         private Inventory Inventory;
@@ -30,6 +30,8 @@ namespace UndeadSurvivalGame.UI
         private PlayerWeaponManager playerWeaponManager;
 
         public Action<InventorySlotUI> OnPointerEnteredSlot; 
+
+        public bool IsPointerOver { get; private set; }
 
         void Awake()
         {
@@ -137,17 +139,14 @@ namespace UndeadSurvivalGame.UI
                 return;
             }
 
-            // if (InventoryGridUIController == null)
-            // {
-            //     Debug.LogWarning("InventorySlotUIHandler requires an InventoryGridUIController in the parent hierarchy.");
-            //     return;
-            // }
-
-            // if (InventorySlotUI.GetIndex() < Inventory.ItemStacks.Count)
-            // {
-            //     InventoryGridUIController.FocusSlot(InventorySlotUI);
-            // }
+            IsPointerOver = true;
             OnPointerEnteredSlot?.Invoke(InventorySlotUI);
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerExit(): Pointer exited on {gameObject.name}");
+            IsPointerOver = false;
         }
 
         public void OnPointerClick(PointerEventData eventData)
@@ -155,7 +154,7 @@ namespace UndeadSurvivalGame.UI
             Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerClick(): Pointer clicked on {gameObject.name}");
 
             if (eventData.button == PointerEventData.InputButton.Left)
-            {                
+            {
                 if (!InventorySlotUI.IsEmpty())
                 {
                     HandleSlotSelection();

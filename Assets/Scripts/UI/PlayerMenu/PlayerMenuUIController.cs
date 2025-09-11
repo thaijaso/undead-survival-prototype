@@ -276,7 +276,7 @@ namespace UndeadSurvivalGame.UI
             if (contextMenuController.IsVisible)
             {
                 contextMenuController.Hide();
-                return;
+                inventoryGridUIController.ClearSelection();
             }
             else
             {

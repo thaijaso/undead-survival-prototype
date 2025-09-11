@@ -157,24 +157,17 @@ namespace UndeadSurvivalGame.UI
 
         public void SelectSlot(InventorySlotUI selectedSlot)
         {
+            if (CurrentFocusedSlot != null)
+            {
+                CurrentFocusedSlot.StopFadingAlphaHoverBackground();
+            }
+
             foreach (var inventorySlot in InventorySlots)
             {
                 inventorySlot.SetSelected(inventorySlot == selectedSlot);
             }
 
             SelectedSlot = selectedSlot;
-
-
-            // if (ContextMenu != null)
-            // {
-            //     PositionContextMenuUtility.ShowAtNextCellRight(
-            //         ContextMenu,
-            //         SelectedSlot.GetComponent<RectTransform>(),
-            //         InventoryGridLayoutGroup,
-            //         padX: 0f, padY: 0f
-            //     );
-            //     ContextMenu.gameObject.SetActive(true);
-            // }
 
             if (contextMenuController != null && SelectedSlot != null)
             {
@@ -209,6 +202,21 @@ namespace UndeadSurvivalGame.UI
 
             slot.FadeAlphaHoverBackground();
             CurrentFocusedSlot = slot;
+        }
+
+        public void ClearSelection()
+        {
+            if (SelectedSlot != null)
+            {
+                SelectedSlot.SetSelected(false);
+                SelectedSlot = null;
+            }
+
+            // Only resume fading if pointer is still over the focused slot
+            if (CurrentFocusedSlot != null && CurrentFocusedSlot.InventorySlotUIHandler.IsPointerOver)
+            {
+                CurrentFocusedSlot.FadeAlphaHoverBackground();
+            }
         }
 
         private void SetSelectedItemName(string itemName)

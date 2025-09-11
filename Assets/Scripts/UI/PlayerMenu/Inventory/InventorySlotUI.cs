@@ -115,6 +115,7 @@ namespace UndeadSurvivalGame.UI
             Debug.Log($"InventorySlotUI.SetSelected() {gameObject.name} isSelected: {isSelected}");
 
             this.isSelected = isSelected;
+            selectedBackgroundImage.enabled = isSelected;
         }
 
         public void SetEmpty(bool isEmpty)
