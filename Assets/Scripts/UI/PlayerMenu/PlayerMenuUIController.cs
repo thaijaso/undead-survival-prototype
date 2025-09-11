@@ -1,34 +1,24 @@
 using System;
+using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace UndeadSurvivalGame.UI
-{ 
+{
     public class PlayerMenuUIController : MonoBehaviour
     {
         public GameObject PlayerMenuUI;
         public event Action<bool> OnPlayerMenuToggled; // true = open, false = closed
 
-        [SerializeField]
-        private UIInput uiInput;
+        [SerializeField] private UIInput uiInput;
 
-        [SerializeField]
-        private InventoryGridUIController inventoryGridUIController;
+        [SerializeField] private Inventory inventory;
 
-        [SerializeField]
-        private ContextMenuController contextMenuController;
+        [SerializeField] private InventoryGridUIController inventoryGridUIController;
 
-        [SerializeField]
-        private GameObject bottomBarPrimaryActionContainer;
+        [SerializeField] private ContextMenuController contextMenuController;
 
-        [SerializeField]
-        private GameObject bottomBarSecondaryActionContainer;
-
-        [SerializeField]
-        private GameObject bottomBarTertiaryActionContainer;
-
-        [SerializeField]
-        private InputActionAsset inputActions;
+        [SerializeField] private InputActionAsset inputActions;
 
         private InputActionMap playerMap;
         private InputActionMap uiMap;
@@ -46,15 +36,17 @@ namespace UndeadSurvivalGame.UI
             SetupInputActionsAsset();
             SetupInputActionMaps();
             SetupInputActions();
+            SetupInventory();
             SetupInventoryGridUIController();
             SetupContextMenuController();
-            //SetupBottomBarActionContainers();
             SubscribeToUIInputEvents();
+            SubscribeToInventorySlotUIHandlerEvents();
         }
 
         private void OnDisable()
         {
             UnsubscribeFromUIInputEvents();
+            UnsubscribeToInventorySlotUIHandlerEvents();
         }
 
         private void SetupPlayerMenuUI()
@@ -103,6 +95,18 @@ namespace UndeadSurvivalGame.UI
             if (closePlayerMenuAction != null)
             {
                 closePlayerMenuAction.performed += ctx => TogglePlayerMenu();
+            }
+        }
+
+        private void SetupInventory()
+        { 
+            if (inventory == null)
+            {
+                inventory = FindFirstObjectByType<Inventory>();
+                if (inventory == null)
+                {
+                    Debug.LogWarning("PlayerMenuUIController requires an Inventory in the scene.");
+                }
             }
         }
 
@@ -254,48 +258,72 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
-        private void SetupBottomBarActionContainers()
+        private void SubscribeToInventorySlotUIHandlerEvents()
         {
-            SetupPrimaryActionContainer();
-            SetupSecondaryActionContainer();
-            SetupTertiaryActionContainer();
-        }
-
-        private void SetupPrimaryActionContainer()
-        {
-            if (bottomBarPrimaryActionContainer == null)
+            if (inventoryGridUIController == null)
             {
-                bottomBarPrimaryActionContainer = PlayerMenuUI.transform.Find("Container/BottomBarContainer/PrimaryActionContainer").gameObject;
+                Debug.LogWarning("InventoryGridUIController is not assigned.");
+                return;
             }
 
-            if (bottomBarPrimaryActionContainer == null)
+            foreach (var slot in inventoryGridUIController.GetInventorySlots())
             {
-                Debug.LogWarning("PlayerMenuUIController requires a PrimaryActionContainer in the BottomBarContainer.");
-            }
-        }
-        private void SetupSecondaryActionContainer()
-        {
-            if (bottomBarSecondaryActionContainer == null)
-            {
-                bottomBarSecondaryActionContainer = PlayerMenuUI.transform.Find("Container/BottomBarContainer/SecondaryActionContainer").gameObject;
-            }
+                if (slot == null || slot.InventorySlotUIHandler == null)
+                {
+                    Debug.LogWarning("One of the inventory slots or its handler is not assigned.");
+                }
 
-            if (bottomBarSecondaryActionContainer == null)
-            {
-                Debug.LogWarning("PlayerMenuUIController requires a SecondaryActionContainer in the BottomBarContainer.");
+                slot.InventorySlotUIHandler.OnPointerEnteredSlot += HandlePointerEnteredInventorySlot;
             }
         }
 
-        private void SetupTertiaryActionContainer()
+        private void UnsubscribeToInventorySlotUIHandlerEvents()
         {
-            if (bottomBarTertiaryActionContainer == null)
+            if (inventoryGridUIController == null)
             {
-                bottomBarTertiaryActionContainer = PlayerMenuUI.transform.Find("Container/BottomBarContainer/TertiaryActionContainer").gameObject;
+                return;
             }
 
-            if (bottomBarTertiaryActionContainer == null)
+            foreach (var slot in inventoryGridUIController.GetInventorySlots())
             {
-                Debug.LogWarning("PlayerMenuUIController requires a TertiaryActionContainer in the BottomBarContainer.");
+                slot.InventorySlotUIHandler.OnPointerEnteredSlot -= HandlePointerEnteredInventorySlot;
+            }
+        }
+
+        private void HandlePointerEnteredInventorySlot(InventorySlotUI slot)
+        {
+            if (slot == null)
+            {
+                Debug.LogWarning("HandlePointerEnteredInventorySlot received a null slot.");
+                return;
+            }
+
+            if (inventory == null)
+            {
+                Debug.LogWarning("Inventory is not assigned.");
+                return;
+            }
+
+            if (contextMenuController == null)
+            {
+                Debug.LogWarning("ContextMenuController is not assigned.");
+                return;
+            }
+
+            if (inventoryGridUIController == null)
+            {
+                Debug.LogWarning("InventoryGridUIController is not assigned.");
+                return;
+            }
+
+            if (contextMenuController.IsVisible)
+            {
+                return;
+            }
+
+            if (slot.GetIndex() < inventory.ItemStacks.Count)
+            {
+                inventoryGridUIController.FocusSlot(slot);
             }
         }
     }

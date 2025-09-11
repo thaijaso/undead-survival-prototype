@@ -12,29 +12,21 @@ namespace UndeadSurvivalGame.UI
         public InventorySlotUI SelectedSlot { get; private set; }
         public InventorySlotUI CurrentFocusedSlot { get; private set; }
 
-        [SerializeField]
-        private Inventory Inventory;
+        [SerializeField] private Inventory Inventory;
 
-        [SerializeField]
-        private List<InventorySlotUI> InventorySlots;
+        [SerializeField] private List<InventorySlotUI> InventorySlots;
 
-        [SerializeField]
-        private SelectedItemNameUI SelectedItemNameUI;
+        [SerializeField] private SelectedItemNameUI SelectedItemNameUI;
 
-        [SerializeField]
-        private SelectedItemTypeUI SelectedItemTypeUI;
+        [SerializeField] private SelectedItemTypeUI SelectedItemTypeUI;
 
-        [SerializeField]
-        private SelectedItemDescriptionUI SelectedItemDescriptionUI;
+        [SerializeField] private SelectedItemDescriptionUI SelectedItemDescriptionUI;
 
-        [SerializeField]
-        private PlayerWeaponManager weaponManager;
+        [SerializeField] private PlayerWeaponManager weaponManager;
 
-        [SerializeField]
-        private ContextMenuController contextMenuController;
+        [SerializeField] private ContextMenuController contextMenuController;
 
-        [SerializeField]
-        private GridLayoutGroup InventoryGridLayoutGroup;
+        [SerializeField] private GridLayoutGroup InventoryGridLayoutGroup;
 
         void Awake()
         {
@@ -217,7 +209,7 @@ namespace UndeadSurvivalGame.UI
                 SetSelectedItemType(itemStack.item.itemType.ToString());
                 SetSelectedItemDescription(itemStack.item.description);
             }
-        
+
             slot.FadeAlphaHoverBackground();
             CurrentFocusedSlot = slot;
         }
@@ -355,6 +347,11 @@ namespace UndeadSurvivalGame.UI
         public bool IsItemEquipped(Item item)
         {
             return false;
+        }
+        
+        public List<InventorySlotUI> GetInventorySlots()
+        {
+            return InventorySlots;
         }
     }
 }

@@ -1,4 +1,5 @@
 using MoreMountains.Feedbacks;
+using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,7 @@ namespace UndeadSurvivalGame.UI
         public ColorRole BorderBackgroundEmptyRole = ColorRole.Disabled;
 
         [SerializeField] private RectTransform contextMenuAttachPoint;
+        [SerializeField] private InventorySlotUIHandler inventorySlotUIHandler;
 
         private int index;
         public Image BorderBackground;
@@ -34,6 +36,7 @@ namespace UndeadSurvivalGame.UI
             Debug.Log($"InventorySlotUI.Awake() {gameObject.name}");
             SetupColorPalette();
             SetupContextMenuAttachPoint();
+            SetupInventorySlotUIHandler();
         }
 
         private void SetupColorPalette()
@@ -95,6 +98,19 @@ namespace UndeadSurvivalGame.UI
         private void OnPaletteChanged(ColorPalette palette)
         {
             UpdateBorderColor();
+        }
+
+        private void SetupInventorySlotUIHandler()
+        {
+            if (inventorySlotUIHandler == null)
+            {
+                inventorySlotUIHandler = GetComponent<InventorySlotUIHandler>();
+
+                if (inventorySlotUIHandler == null)
+                {
+                    Debug.LogWarning($"[{gameObject.name}] InventorySlotUI requires an InventorySlotUIHandler on the same GameObject.");
+                }
+            }
         }
 
         public void SetIndex(int index)
@@ -192,6 +208,6 @@ namespace UndeadSurvivalGame.UI
         }
 
         public RectTransform ContextMenuAttachPoint => contextMenuAttachPoint;
-        
+        public InventorySlotUIHandler InventorySlotUIHandler => inventorySlotUIHandler;
     }
 }

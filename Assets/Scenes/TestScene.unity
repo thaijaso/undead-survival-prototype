@@ -36529,11 +36529,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerMenuUI: {fileID: 167462149}
   uiInput: {fileID: 1468555638}
+  inventory: {fileID: 0}
   inventoryGridUIController: {fileID: 0}
   contextMenuController: {fileID: 0}
-  bottomBarPrimaryActionContainer: {fileID: 0}
-  bottomBarSecondaryActionContainer: {fileID: 0}
-  bottomBarTertiaryActionContainer: {fileID: 0}
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!222 &167462152
 CanvasRenderer:
@@ -427605,6 +427603,7 @@ MonoBehaviour:
   BorderBackgroundUnselectedRole: 4
   BorderBackgroundEmptyRole: 4
   contextMenuAttachPoint: {fileID: 0}
+  inventorySlotUIHandler: {fileID: 0}
   BorderBackground: {fileID: 0}
   HoverBackground: {fileID: 0}
   ItemIcon: {fileID: 0}

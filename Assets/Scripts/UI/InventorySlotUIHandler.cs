@@ -1,3 +1,4 @@
+using System;
 using UndeadSurvivalGame.Gameplay;
 using UndeadSurvivalGame.PlayerSystems;
 using UnityEngine;
@@ -27,6 +28,8 @@ namespace UndeadSurvivalGame.UI
 
         [SerializeField]
         private PlayerWeaponManager playerWeaponManager;
+
+        public Action<InventorySlotUI> OnPointerEnteredSlot; 
 
         void Awake()
         {
@@ -134,16 +137,17 @@ namespace UndeadSurvivalGame.UI
                 return;
             }
 
-            if (InventoryGridUIController == null)
-            {
-                Debug.LogWarning("InventorySlotUIHandler requires an InventoryGridUIController in the parent hierarchy.");
-                return;
-            }
+            // if (InventoryGridUIController == null)
+            // {
+            //     Debug.LogWarning("InventorySlotUIHandler requires an InventoryGridUIController in the parent hierarchy.");
+            //     return;
+            // }
 
-            if (InventorySlotUI.GetIndex() < Inventory.ItemStacks.Count)
-            {
-                InventoryGridUIController.FocusSlot(InventorySlotUI);
-            }
+            // if (InventorySlotUI.GetIndex() < Inventory.ItemStacks.Count)
+            // {
+            //     InventoryGridUIController.FocusSlot(InventorySlotUI);
+            // }
+            OnPointerEnteredSlot?.Invoke(InventorySlotUI);
         }
 
         public void OnPointerClick(PointerEventData eventData)

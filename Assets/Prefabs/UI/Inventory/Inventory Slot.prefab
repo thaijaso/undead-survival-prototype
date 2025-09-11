@@ -59,7 +59,8 @@ MonoBehaviour:
   BorderBackgroundSelectedRole: 0
   BorderBackgroundUnselectedRole: 4
   BorderBackgroundEmptyRole: 4
-  contextMenuAttachPoint: {fileID: 0}
+  contextMenuAttachPoint: {fileID: 4309874564926575174}
+  inventorySlotUIHandler: {fileID: 1768316427935037820}
   BorderBackground: {fileID: 4649096568519139812}
   HoverBackground: {fileID: 576193595136557487}
   ItemIcon: {fileID: 1898557628640664394}
