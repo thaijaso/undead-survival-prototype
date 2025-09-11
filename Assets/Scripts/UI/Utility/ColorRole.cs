@@ -12,6 +12,7 @@ namespace UndeadSurvivalGame.UI
         Success,
         Warning, // TODO: define in ColorPalette
         Error,
-        DisabledTransparent
+        DisabledTransparent,
+        AccentTransparent
     }
 }

@@ -8,7 +8,8 @@ namespace UndeadSurvivalGame.UI
     {
         public Color Background = new Color32(0, 0, 0, 178); // semi-transparent black
         public Color Foreground = new Color32(198, 198, 198, 255); // white
-        public Color Accent = new Color32(255, 213, 13, 255); // yellow
+        public Color Accent = new Color32(209, 186, 74, 255); // yellow
+        public Color AccentTransparent = new Color32(209, 186, 74, 80); // more transparent yellow
         public Color Disabled = new Color32(109, 109, 109, 250); // dark gray
         public Color DisabledTransparent = new Color32(109, 109, 109, 0); // more transparent dark gray
         public Color ForegroundVariant = new Color32(0, 0, 0, 255); // black
@@ -25,6 +26,7 @@ namespace UndeadSurvivalGame.UI
             ColorRole.Success => Success,
             ColorRole.Error => Error,
             ColorRole.DisabledTransparent => DisabledTransparent,
+            ColorRole.AccentTransparent => AccentTransparent,
             _ => Color.magenta
         };
 

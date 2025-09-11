@@ -296,20 +296,18 @@ namespace UndeadSurvivalGame.UI
                         slot.SetEmpty(false);
 
                         // Display icon
-                        slot.ItemIcon.SetActive(true);
-                        slot.ItemIcon.GetComponent<Image>().sprite = itemStack.item.itemIcon;
+                        slot.ItemIconImage.enabled = true;
+                        slot.ItemIconImage.sprite = itemStack.item.itemIcon;
 
                         // Display count if stackable
                         if (itemStack.item.isStackable)
                         {
-                            slot.BottomRightCornerBackground.SetActive(true);
-                            slot.ItemCount.SetActive(true);
-                            slot.ItemCount.GetComponent<TextMeshProUGUI>().text = itemStack.quantity.ToString();
+                            slot.ItemCountText.gameObject.SetActive(true);
+                            slot.ItemCountText.text = itemStack.quantity.ToString();
                         }
                         else
                         {
-                            slot.BottomRightCornerBackground.SetActive(false);
-                            slot.ItemCount.SetActive(false);
+                            slot.ItemCountText.gameObject.SetActive(false);
                         }
 
                         // Show equipped icon if the item is equipped
@@ -318,9 +316,8 @@ namespace UndeadSurvivalGame.UI
                     }
                     else
                     {
-                        slot.BottomRightCornerBackground.SetActive(false);
-                        slot.ItemIcon.SetActive(false);
-                        slot.ItemCount.SetActive(false);
+                        slot.ItemIconImage.enabled = false;
+                        slot.ItemCountText.gameObject.SetActive(false);
                         slot.SetEmpty(true);
                         slot.DisplayEquippedIcon(false);
                     }

@@ -1,4 +1,5 @@
 using MoreMountains.Feedbacks;
+using TMPro;
 using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,49 +8,53 @@ namespace UndeadSurvivalGame.UI
 {
     public class InventorySlotUI : MonoBehaviour
     {
-        [Header("Color Palette")]
-        public ColorPalette Palette;
+        [SerializeField]
+        private RectTransform contextMenuAttachPoint;
 
-        public ColorRole BorderBackgroundSelectedRole = ColorRole.Foreground;
-        public ColorRole BorderBackgroundUnselectedRole = ColorRole.Disabled;
-        public ColorRole BorderBackgroundEmptyRole = ColorRole.Disabled;
+        [SerializeField]
+        private InventorySlotUIHandler inventorySlotUIHandler;
 
-        [SerializeField] private RectTransform contextMenuAttachPoint;
-        [SerializeField] private InventorySlotUIHandler inventorySlotUIHandler;
+        [SerializeField]
+        private Image selectedBackgroundImage;
+
+        [SerializeField]
+        private Image backgroundImage;
+
+        [SerializeField]
+        private Image hoverBackgroundImage;
+
+        [SerializeField]
+        private Image itemIconImage;
+
+        [SerializeField]
+        private TextMeshProUGUI itemCountText;
+
+        [SerializeField]
+        private Image equippedIconImage;
+
+        [SerializeField]
+        private MMF_Player hoverFeedback;
+
+        [SerializeField]
+        private MMF_Player clickFeedback;
+
+        public RectTransform ContextMenuAttachPoint => contextMenuAttachPoint;
+        public InventorySlotUIHandler InventorySlotUIHandler => inventorySlotUIHandler;
+        public Image SelectedBackgroundImage => selectedBackgroundImage;
+        public Image BackgroundImage => backgroundImage;
+        public Image HoverBackgroundImage => hoverBackgroundImage;
+        public Image ItemIconImage => itemIconImage;
+        public TextMeshProUGUI ItemCountText => itemCountText;
+        public MMF_Player ClickFeedback => clickFeedback;
 
         private int index;
-        public Image BorderBackground;
-        public Image HoverBackground;
-        public GameObject ItemIcon;
-        public GameObject ItemCount;
-        public GameObject EquippedIcon;
-        public GameObject BottomRightCornerBackground;
-        public MMF_Player HoverFeedback;
-        public MMF_Player ClickFeedback;
-
         private bool isSelected;
         private bool isFocused;
         private bool isEmpty;
-
         private void Awake()
         {
-            Debug.Log($"InventorySlotUI.Awake() {gameObject.name}");
-            SetupColorPalette();
             SetupContextMenuAttachPoint();
             SetupInventorySlotUIHandler();
-        }
-
-        private void SetupColorPalette()
-        {
-            if (Palette == null)
-            {
-                Palette = Resources.Load<ColorPalette>("ColorPalette");
-            }
-
-            if (Palette == null)
-            {
-                Debug.LogError($"[{gameObject.name}] InventorySlotUI: No ColorPalette assigned or found in Resources!");
-            }
         }
 
         private void SetupContextMenuAttachPoint()
@@ -74,30 +79,12 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
-        private void OnEnable()
-        {
-            if (Palette != null)
-            {
-                Palette.Changed += OnPaletteChanged;
-            }
-        }
-
         private void OnDisable()
         {
-            if (Palette != null)
+            if (HoverBackgroundImage != null)
             {
-                Palette.Changed -= OnPaletteChanged;
+                HoverBackgroundImage.enabled = false;
             }
-
-            if (HoverBackground != null)
-            {
-                HoverBackground.enabled = false;
-            }
-        }
-
-        private void OnPaletteChanged(ColorPalette palette)
-        {
-            UpdateBorderColor();
         }
 
         private void SetupInventorySlotUIHandler()
@@ -128,7 +115,6 @@ namespace UndeadSurvivalGame.UI
             Debug.Log($"InventorySlotUI.SetSelected() {gameObject.name} isSelected: {isSelected}");
 
             this.isSelected = isSelected;
-            UpdateBorderColor();
         }
 
         public void SetEmpty(bool isEmpty)
@@ -136,7 +122,6 @@ namespace UndeadSurvivalGame.UI
             Debug.Log($"InventorySlotUI.SetEmpty(): {gameObject.name} isEmpty: " + isEmpty);
 
             this.isEmpty = isEmpty;
-            UpdateBorderColor();
         }
 
         public bool IsEmpty()
@@ -144,37 +129,21 @@ namespace UndeadSurvivalGame.UI
             return isEmpty;
         }
 
-        private void UpdateBorderColor()
-        {
-            // if (isEmpty)
-            // {
-            //     BorderBackground.color = Palette.Get(BorderBackgroundEmptyRole);
-            // }
-            // else if (isSelected)
-            // {
-            //     BorderBackground.color = Palette.Get(BorderBackgroundSelectedRole);
-            // }
-            // else
-            // {
-            //     BorderBackground.color = Palette.Get(BorderBackgroundUnselectedRole);
-            // }
-        }
-
         public void DisplayEquippedIcon(bool isEquipped)
         {
-            EquippedIcon.SetActive(isEquipped);
+            equippedIconImage.enabled = isEquipped;
         }
 
         public void FadeAlphaHoverBackground()
         {
-            if (HoverBackground == null)
+            if (hoverBackgroundImage == null)
             {
                 Debug.LogWarning($"[{gameObject.name}] InventorySlotUI.FadeAlphaHoverBackground(): HoverBackground is not assigned.");
                 return;
             }
 
-            HoverBackground.enabled = true;
-            AnimateAlpha animateAlpha = HoverBackground.GetComponent<AnimateAlpha>();
+            hoverBackgroundImage.enabled = true;
+            AnimateAlpha animateAlpha = hoverBackgroundImage.GetComponent<AnimateAlpha>();
 
             if (animateAlpha != null)
             {
@@ -188,18 +157,18 @@ namespace UndeadSurvivalGame.UI
 
         public void StopFadingAlphaHoverBackground()
         {
-            if (HoverBackground == null)
+            if (hoverBackgroundImage == null)
             {
                 Debug.LogWarning($"[{gameObject.name}] InventorySlotUI.StopFadingAlphaHoverBackground(): HoverBackground is not assigned.");
                 return;
             }
 
-            AnimateAlpha animateAlpha = HoverBackground.GetComponent<AnimateAlpha>();
+            AnimateAlpha animateAlpha = hoverBackgroundImage.GetComponent<AnimateAlpha>();
 
             if (animateAlpha != null)
             {
                 animateAlpha.StopContinuousFade();
-                HoverBackground.enabled = false;
+                hoverBackgroundImage.enabled = false;
             }
             else
             {
@@ -207,7 +176,5 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
-        public RectTransform ContextMenuAttachPoint => contextMenuAttachPoint;
-        public InventorySlotUIHandler InventorySlotUIHandler => inventorySlotUIHandler;
     }
 }
