@@ -195,6 +195,7 @@ namespace UndeadSurvivalGame.UI
             {
                 SubscribeToUIInputEvents();
                 SubscribeToInventorySlotUIHandlerEvents();
+                inventoryGridUIController.RefreshGrid();
             }
             else
             {

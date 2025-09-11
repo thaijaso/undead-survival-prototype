@@ -258,7 +258,7 @@ namespace UndeadSurvivalGame.UI
         /// <summary>
         /// Update slot visuals based on Inventory data.
         /// </summary>
-        private void RefreshGrid()
+        public void RefreshGrid()
         {
             Debug.Log("Refreshing inventory grid UI...");
 
