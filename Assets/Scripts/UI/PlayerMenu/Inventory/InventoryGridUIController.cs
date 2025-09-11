@@ -259,6 +259,18 @@ namespace UndeadSurvivalGame.UI
         {
             Debug.Log("Refreshing inventory grid UI...");
 
+            if (weaponManager == null)
+            {
+                Debug.LogWarning("InventoryGridUIController.RefreshGrid(): PlayerWeaponManager reference is not set.");
+                return;
+            }
+
+            if (Inventory == null)
+            {
+                Debug.LogWarning("InventoryGridUIController.RefreshGrid(): Inventory reference is not set.");
+                return;
+            }
+
             if (InventorySlots == null || InventorySlots.Count == 0)
             {
                 Debug.LogWarning("InventorySlots reference is not set or is empty in InventoryGridUIController.");
@@ -268,50 +280,51 @@ namespace UndeadSurvivalGame.UI
             if (Inventory.ItemStacks.Count > InventorySlots.Count)
             {
                 Debug.LogWarning("Not enough InventorySlots for all ItemStacks. Some items will not be displayed.");
+                return;
             }
 
             for (int index = 0; index < InventorySlots.Count; index++)
-            {
-                InventorySlotUI slot = InventorySlots[index];
-                slot.SetIndex(index);
-
-                if (Inventory != null && Inventory.ItemStacks != null && index < Inventory.ItemStacks.Count)
                 {
-                    ItemStack itemStack = Inventory.ItemStacks[index];
+                    InventorySlotUI slot = InventorySlots[index];
+                    slot.SetIndex(index);
 
-                    // Slot has item
-                    slot.SetEmpty(false);
-
-                    // Display icon
-                    slot.ItemIcon.SetActive(true);
-                    slot.ItemIcon.GetComponent<Image>().sprite = itemStack.item.itemIcon;
-
-                    // Display count if stackable
-                    if (itemStack.item.isStackable)
+                    if (Inventory != null && Inventory.ItemStacks != null && index < Inventory.ItemStacks.Count)
                     {
-                        slot.BottomRightCornerBackground.SetActive(true);
-                        slot.ItemCount.SetActive(true);
-                        slot.ItemCount.GetComponent<TextMeshProUGUI>().text = itemStack.quantity.ToString();
+                        ItemStack itemStack = Inventory.ItemStacks[index];
+
+                        // Slot has item
+                        slot.SetEmpty(false);
+
+                        // Display icon
+                        slot.ItemIcon.SetActive(true);
+                        slot.ItemIcon.GetComponent<Image>().sprite = itemStack.item.itemIcon;
+
+                        // Display count if stackable
+                        if (itemStack.item.isStackable)
+                        {
+                            slot.BottomRightCornerBackground.SetActive(true);
+                            slot.ItemCount.SetActive(true);
+                            slot.ItemCount.GetComponent<TextMeshProUGUI>().text = itemStack.quantity.ToString();
+                        }
+                        else
+                        {
+                            slot.BottomRightCornerBackground.SetActive(false);
+                            slot.ItemCount.SetActive(false);
+                        }
+
+                        // Show equipped icon if the item is equipped
+                        bool isEquipped = weaponManager != null && weaponManager.CurrentWeaponItem != null && itemStack.item == weaponManager.CurrentWeaponItem;
+                        slot.DisplayEquippedIcon(isEquipped);
                     }
                     else
                     {
                         slot.BottomRightCornerBackground.SetActive(false);
+                        slot.ItemIcon.SetActive(false);
                         slot.ItemCount.SetActive(false);
+                        slot.SetEmpty(true);
+                        slot.DisplayEquippedIcon(false);
                     }
-
-                    // Show equipped icon if the item is equipped
-                    bool isEquipped = weaponManager != null && weaponManager.CurrentWeaponItem != null && itemStack.item == weaponManager.CurrentWeaponItem;
-                    slot.DisplayEquippedIcon(isEquipped);
                 }
-                else
-                {
-                    slot.BottomRightCornerBackground.SetActive(false);
-                    slot.ItemIcon.SetActive(false);
-                    slot.ItemCount.SetActive(false);
-                    slot.SetEmpty(true);
-                    slot.DisplayEquippedIcon(false);
-                }
-            }
         }
 
         public void DropSelectedItem()
