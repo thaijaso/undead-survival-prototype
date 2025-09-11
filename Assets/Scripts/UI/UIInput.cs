@@ -89,15 +89,5 @@ namespace UndeadSurvivalGame.UI
                 };
             }
         }
-
-        public void EnableUIInput()
-        {
-            uiMap.Enable();
-        }
-
-        public void DisableUIInput()
-        {
-            uiMap.Disable();
-        }
     }
 }

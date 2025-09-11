@@ -240,7 +240,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 Debug.Log($"[{gameObject.name}] Player.SetupPlayerMenuUIController(): PlayerMenuUIController already assigned.");
             }
-            playerMenuUIController.gameObject.SetActive(false);
         }
 
         private void SetupPlayerInventory()

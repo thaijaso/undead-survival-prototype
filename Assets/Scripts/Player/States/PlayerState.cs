@@ -1,4 +1,6 @@
-﻿namespace UndeadSurvivalGame.PlayerSystems
+﻿using UnityEngine;
+
+namespace UndeadSurvivalGame.PlayerSystems
 {
     public class PlayerState : IState<PlayerState>
     {
@@ -47,6 +49,7 @@
 
             if (player.PlayerInput.IsPlayerMenuPressed)
             {
+                Debug.Log("PlayerState.LogicUpdate(): Player menu button pressed.");
                 player.PlayerMenuUIController.TogglePlayerMenu();
             }
 

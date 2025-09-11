@@ -36488,6 +36488,7 @@ GameObject:
   - component: {fileID: 167462150}
   - component: {fileID: 167462151}
   - component: {fileID: 167462152}
+  - component: {fileID: 167462153}
   m_Layer: 5
   m_Name: PlayerMenuUI
   m_TagString: Untagged
@@ -36526,12 +36527,13 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2210a29cd3235314ba05a226e05446ed, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.UI.PlayerMenuUIController
   PlayerMenuUI: {fileID: 167462149}
+  menuCanvasGroup: {fileID: 167462153}
   uiInput: {fileID: 1468555638}
-  inventory: {fileID: 0}
-  inventoryGridUIController: {fileID: 0}
-  contextMenuController: {fileID: 0}
+  inventory: {fileID: 1717255719}
+  inventoryGridUIController: {fileID: 1489192893}
+  contextMenuController: {fileID: 557484662}
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!222 &167462152
 CanvasRenderer:
@@ -36541,6 +36543,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 167462149}
   m_CullTransparentMesh: 1
+--- !u!225 &167462153
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167462149}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &167842851
 PrefabInstance:
   m_ObjectHideFlags: 0

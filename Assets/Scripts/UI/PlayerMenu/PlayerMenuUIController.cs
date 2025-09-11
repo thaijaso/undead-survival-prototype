@@ -10,6 +10,8 @@ namespace UndeadSurvivalGame.UI
         public GameObject PlayerMenuUI;
         public event Action<bool> OnPlayerMenuToggled; // true = open, false = closed
 
+        [SerializeField] private CanvasGroup menuCanvasGroup;
+
         [SerializeField] private UIInput uiInput;
 
         [SerializeField] private Inventory inventory;
@@ -23,7 +25,7 @@ namespace UndeadSurvivalGame.UI
         private InputActionMap playerMap;
         private InputActionMap uiMap;
 
-        private InputAction closePlayerMenuAction;
+        private InputAction togglePlayerMenuAction;
 
         private void OnEnable()
         {
@@ -33,6 +35,7 @@ namespace UndeadSurvivalGame.UI
             }
 
             SetupPlayerMenuUI();
+            SetupCanvasGroup();
             SetupInputActionsAsset();
             SetupInputActionMaps();
             SetupInputActions();
@@ -52,6 +55,34 @@ namespace UndeadSurvivalGame.UI
             {
                 Debug.LogWarning("PlayerMenuUIController requires a PlayerMenuUI GameObject in the scene.");
             }
+
+            SetMenuVisible(false);
+        }
+
+        private void SetupCanvasGroup()
+        {
+            if (menuCanvasGroup == null)
+            {
+                menuCanvasGroup = PlayerMenuUI.GetComponent<CanvasGroup>();
+            }
+
+            if (menuCanvasGroup == null)
+            {
+                Debug.LogWarning("PlayerMenuUIController requires a CanvasGroup component on the PlayerMenuUI GameObject.");
+            }
+        }
+
+        private void SetMenuVisible(bool isVisible)
+        {
+            if (menuCanvasGroup == null)
+            {
+                Debug.LogWarning("CanvasGroup is not assigned.");
+                return;
+            }
+
+            menuCanvasGroup.alpha = isVisible ? 1 : 0;
+            menuCanvasGroup.interactable = isVisible;
+            menuCanvasGroup.blocksRaycasts = isVisible;
         }
 
         private void SetupInputActionsAsset()
@@ -77,16 +108,32 @@ namespace UndeadSurvivalGame.UI
             }
 
             playerMap = inputActions.FindActionMap("Player");
+
+            if (playerMap == null)
+            {
+                Debug.LogWarning("Player action map not found in InputActionAsset.");
+                return;
+            }
+
             uiMap = inputActions.FindActionMap("UI");
+
+            if (uiMap == null)
+            {
+                Debug.LogWarning("UI action map not found in InputActionAsset.");
+                return;
+            }
         }
 
         private void SetupInputActions()
         {
-            closePlayerMenuAction = uiMap.FindAction("ClosePlayerMenu");
+            togglePlayerMenuAction = uiMap.FindAction("TogglePlayerMenu");
 
-            if (closePlayerMenuAction != null)
+            if (togglePlayerMenuAction != null)
             {
-                closePlayerMenuAction.performed += ctx => TogglePlayerMenu();
+                togglePlayerMenuAction.performed += ctx => {
+                    Debug.Log($"{gameObject.name} TogglePlayerMenu action performed. Phase: {ctx.phase}");
+                    TogglePlayerMenu();
+                };
             }
         }
 
@@ -130,20 +177,21 @@ namespace UndeadSurvivalGame.UI
 
         public void TogglePlayerMenu()
         {
+            Debug.Log($"{gameObject.name} PlayerMenuUIController.TogglePlayerMenu() called.");
+
             if (PlayerMenuUI == null)
             {
                 Debug.LogWarning("PlayerMenuUI is not assigned in the PlayerMenuController.");
                 return;
             }
 
-            bool isMenuActive = !PlayerMenuUI.activeSelf;
-            PlayerMenuUI.SetActive(isMenuActive);
+            bool isMenuVisible = menuCanvasGroup.alpha < 0.5f;
+            SetMenuVisible(isMenuVisible);
 
-            ToggleCursor(isMenuActive);
-            ToggleActionMap(isMenuActive);
-            ToggleUIInput(isMenuActive);
+            ToggleCursor(isMenuVisible);
+            TogglePlayerActionMap(isMenuVisible);
 
-            if (isMenuActive)
+            if (isMenuVisible)
             {
                 SubscribeToUIInputEvents();
                 SubscribeToInventorySlotUIHandlerEvents();
@@ -154,43 +202,27 @@ namespace UndeadSurvivalGame.UI
                 UnsubscribeToInventorySlotUIHandlerEvents();
             }
 
-            OnPlayerMenuToggled?.Invoke(isMenuActive);
+            OnPlayerMenuToggled?.Invoke(isMenuVisible);
         }
 
-        private void ToggleCursor(bool isMenuActive)
+        private void ToggleCursor(bool isMenuVisible)
         {
-            if (isMenuActive)
+            if (isMenuVisible)
                 CursorUtils.ShowCursor();
             else
                 CursorUtils.HideCursor();
         }
 
-        private void ToggleActionMap(bool isMenuActive)
+        private void TogglePlayerActionMap(bool isMenuVisible)
         {
-            if (isMenuActive)
+            if (isMenuVisible)
             {
                 playerMap.Disable();
-                uiMap.Enable();
             }
             else
             {
-                uiMap.Disable();
                 playerMap.Enable();
             }
-        }
-
-        private void ToggleUIInput(bool isMenuActive)
-        {
-            if (uiInput == null)
-            {
-                Debug.LogWarning("UIInput component is not assigned.");
-                return;
-            }
-
-            if (isMenuActive)
-                uiInput.EnableUIInput();
-            else
-                uiInput.DisableUIInput();
         }
 
         private void SubscribeToUIInputEvents()

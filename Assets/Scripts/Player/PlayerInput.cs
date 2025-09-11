@@ -69,7 +69,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             aimAction = InputSystem.actions.FindAction("Aim");
             attackAction = InputSystem.actions.FindAction("Attack");
             reloadAction = InputSystem.actions.FindAction("Reload");
-            playerMenuAction = InputSystem.actions.FindAction("OpenPlayerMenu");
+            //playerMenuAction = InputSystem.actions.FindAction("OpenPlayerMenu");
             interactAction = InputSystem.actions.FindAction("Interact");
 
             // Event-based input buffering
@@ -103,7 +103,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             IsAiming = aimAction.ReadValue<float>() > 0.0f;
             IsAttacking = attackAction.ReadValue<float>() > 0.0f;
             IsReloading = reloadAction.ReadValue<float>() > 0.0f;
-            IsPlayerMenuPressed = playerMenuAction.triggered;
+            //IsPlayerMenuPressed = playerMenuAction.triggered;
             IsInteracting = interactAction.triggered;
 
             HandleMoveCommitedGracePeriod();

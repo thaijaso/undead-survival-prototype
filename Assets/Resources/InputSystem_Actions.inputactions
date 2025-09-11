@@ -609,7 +609,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ClosePlayerMenu",
+                    "name": "TogglePlayerMenu",
                     "type": "Button",
                     "id": "b9d9e6dd-2dc0-4586-b733-0899d1d10ad5",
                     "expectedControlType": "",
@@ -1044,7 +1044,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "ClosePlayerMenu",
+                    "action": "TogglePlayerMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
