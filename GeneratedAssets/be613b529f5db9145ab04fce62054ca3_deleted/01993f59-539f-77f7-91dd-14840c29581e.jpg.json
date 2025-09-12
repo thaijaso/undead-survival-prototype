@@ -1,0 +1,20 @@
+{
+    "asset": "be613b529f5db9145ab04fce62054ca3",
+    "fileName": "01993f59-539f-77f7-91dd-14840c29581e.jpg",
+    "prompt": "a white icon representing a 'use' action for an item with a transparent background.",
+    "negativePrompt": "",
+    "model": "03d5ab0c-51c5-44a0-ba07-822e93561aca",
+    "modelName": "Game Icons",
+    "customSeed": -1,
+    "w3CTraceId": "d975d59ef5c2e357a8fc7c1d7cb1ee29",
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0
+}

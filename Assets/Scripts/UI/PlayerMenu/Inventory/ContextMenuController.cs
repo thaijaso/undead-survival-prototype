@@ -4,9 +4,29 @@ using UnityEngine.UI;
 public class ContextMenuController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private CanvasGroup canvasGroup;       // the CanvasGroup on this object
-    [SerializeField] private RectTransform menuRoot;        // this ContextMenu RectTransform
-    [SerializeField] private GridLayoutGroup grid;          // your Inventory GridLayoutGroup
+    [SerializeField]
+    private CanvasGroup canvasGroup;       // the CanvasGroup on this object
+
+    [SerializeField]
+    private RectTransform menuRoot;        // this ContextMenu RectTransform
+
+    [SerializeField]
+    private GridLayoutGroup grid;          // your Inventory GridLayoutGroup
+
+    [SerializeField]
+    private GameObject equipButton;
+
+    [SerializeField]
+    private GameObject useButton;
+
+    [SerializeField]
+    private GameObject combineButton;
+
+    [SerializeField]
+    private GameObject shortcutButton;
+
+    [SerializeField]
+    private GameObject dropButton;
 
     public bool IsVisible => menuRoot.gameObject.activeSelf;
 
