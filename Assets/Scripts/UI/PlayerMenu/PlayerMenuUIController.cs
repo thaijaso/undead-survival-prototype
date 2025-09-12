@@ -1,3 +1,4 @@
+using MoreMountains.Feedbacks;
 using System;
 using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
@@ -10,17 +11,32 @@ namespace UndeadSurvivalGame.UI
         public GameObject PlayerMenuUI;
         public event Action<bool> OnPlayerMenuToggled; // true = open, false = closed
 
-        [SerializeField] private CanvasGroup menuCanvasGroup;
+        [SerializeField]
+        private CanvasGroup menuCanvasGroup;
 
-        [SerializeField] private UIInput uiInput;
+        [SerializeField]
+        private UIInput uiInput;
 
-        [SerializeField] private Inventory inventory;
+        [SerializeField]
+        private Inventory inventory;
 
-        [SerializeField] private InventoryGridUIController inventoryGridUIController;
+        [SerializeField]
+        private InventoryGridUIController inventoryGridUIController;
 
-        [SerializeField] private ContextMenuController contextMenuController;
+        [SerializeField]
+        private ContextMenuController contextMenuController;
 
-        [SerializeField] private InputActionAsset inputActions;
+        [SerializeField]
+        private InputActionAsset inputActions;
+
+        [SerializeField]
+        private MMF_Player openInventoryFeedback;
+
+        [SerializeField]
+        private MMF_Player closeInventoryFeedback;
+
+        [SerializeField]
+        private MMF_Player closeContextMenuFeedback;
 
         private InputActionMap playerMap;
         private InputActionMap uiMap;
@@ -193,17 +209,46 @@ namespace UndeadSurvivalGame.UI
 
             if (isMenuVisible)
             {
+                PlayOpenInventoryFeedback();
                 SubscribeToUIInputEvents();
                 SubscribeToInventorySlotUIHandlerEvents();
                 inventoryGridUIController.RefreshGrid();
             }
             else
             {
+                PlayCloseInventoryFeedback();
+                contextMenuController.Hide();
+                inventoryGridUIController.ClearSelection();
+                inventoryGridUIController.FocusFirstItem();
                 UnsubscribeFromUIInputEvents();
                 UnsubscribeToInventorySlotUIHandlerEvents();
             }
 
             OnPlayerMenuToggled?.Invoke(isMenuVisible);
+        }
+
+        private void PlayOpenInventoryFeedback()
+        {
+            if (openInventoryFeedback != null)
+            {
+                openInventoryFeedback.PlayFeedbacks();
+            }
+            else
+            {
+                Debug.LogWarning("OpenInventoryFeedback is not assigned.");
+            }
+        }
+
+        private void PlayCloseInventoryFeedback()
+        {
+            if (closeInventoryFeedback != null)
+            {
+                closeInventoryFeedback.PlayFeedbacks();
+            }
+            else
+            {
+                Debug.LogWarning("CloseInventoryFeedback is not assigned.");
+            }
         }
 
         private void ToggleCursor(bool isMenuVisible)
@@ -277,10 +322,23 @@ namespace UndeadSurvivalGame.UI
             {
                 contextMenuController.Hide();
                 inventoryGridUIController.ClearSelection();
+                PlayCloseContextMenuSound();
             }
             else
             {
                 TogglePlayerMenu();
+            }
+        }
+
+        private void PlayCloseContextMenuSound()
+        {
+            if (closeContextMenuFeedback != null)
+            {
+                closeContextMenuFeedback.PlayFeedbacks();
+            }
+            else
+            {
+                Debug.LogWarning("CloseContextMenuFeedback is not assigned.");
             }
         }
 
@@ -304,12 +362,12 @@ namespace UndeadSurvivalGame.UI
 
             foreach (var slot in inventoryGridUIController.GetInventorySlots())
             {
-                if (slot == null || slot.InventorySlotUIHandler == null)
+                if (slot == null || slot.InventorySlotEventHandler == null)
                 {
                     Debug.LogWarning("One of the inventory slots or its handler is not assigned.");
                 }
 
-                slot.InventorySlotUIHandler.OnPointerEnteredSlot += HandlePointerEnteredInventorySlot;
+                slot.InventorySlotEventHandler.OnPointerEnteredSlot += HandlePointerEnteredInventorySlot;
             }
         }
 
@@ -322,7 +380,7 @@ namespace UndeadSurvivalGame.UI
 
             foreach (var slot in inventoryGridUIController.GetInventorySlots())
             {
-                slot.InventorySlotUIHandler.OnPointerEnteredSlot -= HandlePointerEnteredInventorySlot;
+                slot.InventorySlotEventHandler.OnPointerEnteredSlot -= HandlePointerEnteredInventorySlot;
             }
         }
 

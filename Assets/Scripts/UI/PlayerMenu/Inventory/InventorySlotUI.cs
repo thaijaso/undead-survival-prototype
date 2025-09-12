@@ -1,4 +1,3 @@
-using MoreMountains.Feedbacks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,20 +30,13 @@ namespace UndeadSurvivalGame.UI
         [SerializeField]
         private Image equippedIconImage;
 
-        [SerializeField]
-        private MMF_Player hoverFeedback;
-
-        [SerializeField]
-        private MMF_Player clickFeedback;
-
         public RectTransform ContextMenuAttachPoint => contextMenuAttachPoint;
-        public InventorySlotEventHandler InventorySlotUIHandler => inventorySlotEventHandler;
+        public InventorySlotEventHandler InventorySlotEventHandler => inventorySlotEventHandler;
         public Image SelectedBackgroundImage => selectedBackgroundImage;
         public Image BackgroundImage => backgroundImage;
         public Image HoverBackgroundImage => hoverBackgroundImage;
         public Image ItemIconImage => itemIconImage;
         public TextMeshProUGUI ItemCountText => itemCountText;
-        public MMF_Player ClickFeedback => clickFeedback;
 
         private int index;
         private bool isSelected;

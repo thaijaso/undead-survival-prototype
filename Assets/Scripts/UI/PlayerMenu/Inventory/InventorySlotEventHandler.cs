@@ -29,7 +29,8 @@ namespace UndeadSurvivalGame.UI
         [SerializeField]
         private PlayerWeaponManager playerWeaponManager;
 
-        public Action<InventorySlotUI> OnPointerEnteredSlot; 
+        public event Action<InventorySlotUI> OnPointerEnteredSlot;
+        public event Action<InventorySlotUI, PointerEventData.InputButton> OnPointerClickedSlot;
 
         public bool IsPointerOver { get; private set; }
 
@@ -153,51 +154,13 @@ namespace UndeadSurvivalGame.UI
         {
             Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerClick(): Pointer clicked on {gameObject.name}");
 
-            if (eventData.button == PointerEventData.InputButton.Left)
-            {
-                if (!InventorySlotUI.IsEmpty())
-                {
-                    HandleSlotSelection();
-                    //PlayClickFeedback(); TODO: Play different sound feedback
-                }
-            }
-        }
 
-        private void HandleSlotSelection()
-        {
-            InventorySlotUI inventorySlot = GetComponent<InventorySlotUI>();
-            if (InventoryGridUIController != null && inventorySlot != null)
-            {
-                InventoryGridUIController.SelectSlot(inventorySlot);
-                int selectedIndex = inventorySlot.GetIndex();
-                Debug.Log($"Selected slot index: {selectedIndex}");
+            //HandleSlotSelection();
+            //PlayClickFeedback(); TODO: Play different sound feedback
 
-                Item item = Inventory.itemStacks[selectedIndex].item;
-                string itemName = item.itemName;
-                string itemType = item.itemType.ToString();
-                string itemDesc = item.description;
-                bool isItemEquipped = playerWeaponManager.IsItemEquipped(item);
-
-                SelectedItemNameUI.SetItemName(itemName);
-                SelectedItemNameUI.ToggleEquippedText(isItemEquipped);
-                SelectedItemTypeUI.SetItemType(itemType);
-                SelectedItemDescriptionUI.SetItemDescription(itemDesc);
-            }
-            else
+            if (!InventorySlotUI.IsEmpty())
             {
-                Debug.LogWarning("InventoryGridUIController or InventorySlotUI is not set.");
-            }
-        }
-
-        private void PlayClickFeedback()
-        {
-            if (InventorySlotUI.ClickFeedback != null)
-            {
-                InventorySlotUI.ClickFeedback.PlayFeedbacks();
-            }
-            else
-            {
-                Debug.LogWarning("ClickPlayerFeedback is not set in InventorySlotUI.");
+                OnPointerClickedSlot?.Invoke(InventorySlotUI, eventData.button);
             }
         }
     }
