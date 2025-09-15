@@ -146,7 +146,8 @@ namespace UndeadSurvivalGame.UI
 
             if (togglePlayerMenuAction != null)
             {
-                togglePlayerMenuAction.performed += ctx => {
+                togglePlayerMenuAction.performed += ctx =>
+                {
                     Debug.Log($"{gameObject.name} TogglePlayerMenu action performed. Phase: {ctx.phase}");
                     TogglePlayerMenu();
                 };
@@ -154,7 +155,7 @@ namespace UndeadSurvivalGame.UI
         }
 
         private void SetupInventory()
-        { 
+        {
             if (inventory == null)
             {
                 inventory = FindFirstObjectByType<Inventory>();

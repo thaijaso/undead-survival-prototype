@@ -1,3 +1,5 @@
+using MoreMountains.Feedbacks;
+using System;
 using UndeadSurvivalGame.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,6 +12,9 @@ public class ContextMenuButtonEventHandler : MonoBehaviour, IPointerEnterHandler
 
     [SerializeField]
     private AnimateAlpha animateAlpha;
+
+    [SerializeField]
+    private MMF_Player hoverSoundFeedback;
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -27,6 +32,13 @@ public class ContextMenuButtonEventHandler : MonoBehaviour, IPointerEnterHandler
             return;
         }
 
+        if (hoverSoundFeedback == null)
+        {
+            Debug.LogWarning("Hover sound feedback is not assigned.");
+            return;
+        }
+
+        hoverSoundFeedback.PlayFeedbacks();
         hoverBackgroundImage.enabled = true;
         animateAlpha.StartContinuousFade();
     }

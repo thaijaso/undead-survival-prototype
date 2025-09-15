@@ -14,19 +14,19 @@ public class ContextMenuController : MonoBehaviour
     private GridLayoutGroup grid;          // your Inventory GridLayoutGroup
 
     [SerializeField]
-    private GameObject equipButton;
+    private ContextMenuButtonUI equipButton;
 
     [SerializeField]
-    private GameObject useButton;
+    private ContextMenuButtonUI useButton;
 
     [SerializeField]
-    private GameObject combineButton;
+    private ContextMenuButtonUI combineButton;
 
     [SerializeField]
-    private GameObject shortcutButton;
+    private ContextMenuButtonUI shortcutButton;
 
     [SerializeField]
-    private GameObject dropButton;
+    private ContextMenuButtonUI dropButton;
 
     public bool IsVisible => menuRoot.gameObject.activeSelf;
 
@@ -40,6 +40,8 @@ public class ContextMenuController : MonoBehaviour
 
         Hide();
     }
+
+    public ContextMenuButtonUI EquipButton => equipButton;
 
     public void ShowAtAttachPoint(RectTransform attachPoint)
     {
@@ -56,7 +58,7 @@ public class ContextMenuController : MonoBehaviour
         canvasGroup.interactable = true;
         menuRoot.gameObject.SetActive(true);
     }
-    
+
     public void Hide()
     {
         canvasGroup.alpha = 0f;
