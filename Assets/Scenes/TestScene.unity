@@ -10753,6 +10753,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ShortcutButton
       objectReference: {fileID: 0}
+    - target: {fileID: 8289861547544312151, guid: 70dc8c9063dc4334aacd6620073e02a7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -111323,6 +111327,7 @@ GameObject:
   - component: {fileID: 557484658}
   - component: {fileID: 557484657}
   - component: {fileID: 557484662}
+  - component: {fileID: 557484663}
   m_Layer: 5
   m_Name: ContextMenu
   m_TagString: Untagged
@@ -111352,7 +111357,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 414.9, y: -62.760025}
-  m_SizeDelta: {x: 250, y: 250}
+  m_SizeDelta: {x: 195, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!225 &557484657
 CanvasGroup:
@@ -111386,7 +111391,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
+  m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
@@ -111440,6 +111445,20 @@ MonoBehaviour:
   combineButton: {fileID: 826554080}
   shortcutButton: {fileID: 618855441}
   dropButton: {fileID: 342693747}
+--- !u!114 &557484663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 557484655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1001 &557537256
 PrefabInstance:
   m_ObjectHideFlags: 0

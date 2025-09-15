@@ -38,13 +38,73 @@ public class ContextMenuController : MonoBehaviour
         if (!menuRoot) menuRoot = GetComponent<RectTransform>();
         parentRect = menuRoot.parent as RectTransform;
 
+        SetupButtons();
         Hide();
+    }
+
+    private void SetupButtons()
+    {
+        if (equipButton == null)
+        {
+            equipButton = transform.Find("EquipButton").GetComponent<ContextMenuButtonUI>();
+        }
+
+        if (equipButton == null)
+        {
+            Debug.LogError("ContextMenuController: EquipButton reference is missing and could not be found in children.");
+        }
+
+        if (useButton == null)
+        {
+            useButton = transform.Find("UseButton").GetComponent<ContextMenuButtonUI>();
+        }
+
+        if (useButton == null)
+        {
+            Debug.LogError("ContextMenuController: UseButton reference is missing and could not be found in children.");
+        }
+
+        if (combineButton == null)
+        {
+            combineButton = transform.Find("CombineButton").GetComponent<ContextMenuButtonUI>();
+        }
+
+        if (combineButton == null)
+        {
+            Debug.LogError("ContextMenuController: CombineButton reference is missing and could not be found in children.");
+        }
+
+        if (shortcutButton == null)
+        {
+            shortcutButton = transform.Find("ShortcutButton").GetComponent<ContextMenuButtonUI>();
+        }
+
+        if (shortcutButton == null)
+        {
+            Debug.LogError("ContextMenuController: ShortcutButton reference is missing and could not be found in children.");
+        }
+
+        if (dropButton == null)
+        {
+            dropButton = transform.Find("DropButton").GetComponent<ContextMenuButtonUI>();
+        }
+
+        if (dropButton == null)
+        {
+            Debug.LogError("ContextMenuController: DropButton reference is missing and could not be found in children.");
+        }
     }
 
     public ContextMenuButtonUI EquipButton => equipButton;
 
-    public void ShowAtAttachPoint(RectTransform attachPoint)
+    public void ShowAtAttachPoint(RectTransform attachPoint, ItemType itemType)
     {
+        // Configure buttons
+        equipButton.gameObject.SetActive(itemType == ItemType.Weapon || itemType == ItemType.Clothing);
+        useButton.gameObject.SetActive(itemType == ItemType.Consumable);
+        combineButton.gameObject.SetActive(itemType == ItemType.Consumable);
+        shortcutButton.gameObject.SetActive(itemType == ItemType.Weapon);
+
         // World → Screen → Parent local
         Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, attachPoint.position);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, screen, null, out var local);
