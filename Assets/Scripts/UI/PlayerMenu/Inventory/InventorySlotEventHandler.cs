@@ -129,7 +129,6 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
-
         public void OnPointerEnter(PointerEventData eventData)
         {
             Debug.Log($"[{gameObject.name}] InventorySlotUIHandler.OnPointerEnter(): Pointer entered on {gameObject.name}");

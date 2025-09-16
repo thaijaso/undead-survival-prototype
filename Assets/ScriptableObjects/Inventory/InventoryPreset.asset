@@ -15,5 +15,3 @@ MonoBehaviour:
   startingItems:
   - item: {fileID: 11400000, guid: 484bf2dfcc312b0499c03735af6b8340, type: 2}
     quantity: 1
-  - item: {fileID: 11400000, guid: 9749548458ca05e49ad95aeaf92786af, type: 2}
-    quantity: 1

@@ -1,5 +1,4 @@
 using MoreMountains.Feedbacks;
-using Sirenix.Config;
 using System.Collections.Generic;
 using UndeadSurvivalGame.Gameplay;
 using UndeadSurvivalGame.PlayerSystems;
@@ -182,7 +181,7 @@ namespace UndeadSurvivalGame.UI
         private void UpdateSelectedItemUI(InventorySlotUI slotToSelect)
         {
             int selectedIndex = slotToSelect.GetIndex();
-            if (selectedIndex >= 0 && selectedIndex < inventory.ItemStacks.Count)
+            if (selectedIndex >= 0 && selectedIndex < inventory.ItemStacks.Count && inventory.ItemStacks[selectedIndex] != null)
             {
                 Item item = inventory.ItemStacks[selectedIndex].item;
                 selectedItemNameUI.SetItemName(item.itemName);
@@ -445,9 +444,10 @@ namespace UndeadSurvivalGame.UI
 
         private void UpdateInventorySlotUI(InventorySlotUI slot, ItemStack itemStack, int index)
         {
+            Debug.Log($"InventoryGridUIController.UpdateInventorySlotUI() - Updating slot at index {index}...");
             slot.SetIndex(index);
 
-            if (itemStack != null)
+            if (itemStack != null && itemStack.item != null)
             {
                 // Slot has item
                 slot.SetEmpty(false);

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.Gameplay
@@ -8,9 +8,12 @@ namespace UndeadSurvivalGame.Gameplay
     public class Inventory : MonoBehaviour
     {
         [SerializeField]
-        int capacity = 15;
+        private Transform playerTransform;
 
         [SerializeField]
+        int capacity = 8;
+
+        [SerializeReference]
         public ItemStack[] itemStacks;
 
         public event Action OnInventoryChanged;
@@ -19,8 +22,42 @@ namespace UndeadSurvivalGame.Gameplay
 
         void Start()
         {
-            itemStacks = new ItemStack[capacity];
+            SetupPlayerTransform();
+            SetupItemStacks();
             OnInventoryChanged?.Invoke(); // Fire event so UI updates
+        }
+        
+        private void SetupPlayerTransform()
+        {
+            if (playerTransform == null)
+            {
+                var player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null)
+                {
+                    playerTransform = player.transform;
+                }
+                else
+                {
+                    Debug.LogWarning("Player GameObject with tag 'Player' not found in the scene.");
+                }
+            }
+        }
+
+        private void SetupItemStacks()
+        {
+            if (itemStacks == null || itemStacks.Length != capacity)
+            {
+                itemStacks = new ItemStack[capacity];
+            }
+
+            // Clean up any Itemstacks with a null item (from inspector serialization)
+            for (int index = 0; index < itemStacks.Length; index++)
+            {
+                if (itemStacks[index] != null && itemStacks[index].item == null)
+                {
+                    itemStacks[index] = null;
+                }
+            }
         }
 
         public bool IsEmpty()
@@ -32,7 +69,7 @@ namespace UndeadSurvivalGame.Gameplay
             }
 
             bool allEmpty = true;
-            
+
             foreach (var itemStack in itemStacks)
             {
                 if (itemStack != null)
@@ -238,8 +275,22 @@ namespace UndeadSurvivalGame.Gameplay
                 return;
             }
 
+            ItemStack itemStackToDrop = itemStacks[index];
+            SpawnDroppedItem(itemStackToDrop);
             itemStacks[index] = null;
             OnInventoryChanged?.Invoke();
+        }
+
+        private void SpawnDroppedItem(ItemStack itemStack)
+        {
+            if (itemStack == null || itemStack.item == null || playerTransform == null)
+            {
+                Debug.LogWarning("Cannot spawn dropped item. ItemStack, Item, or PlayerTransform is null.");
+                return;
+            }
+
+            GameObject droppedItemObj = Instantiate(itemStack.item.prefab, playerTransform.position, Quaternion.identity);
+
         }
 
         public Item GetFirstWeapon()

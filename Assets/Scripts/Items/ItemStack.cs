@@ -13,6 +13,12 @@ namespace UndeadSurvivalGame.Gameplay
         
         public ItemStack(Item item, int quantity = 1)
         {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+
+            if (quantity < 1)
+                throw new ArgumentOutOfRangeException(nameof(quantity), "Quantity must be at least 1.");
+
             this.item = item;
             this.quantity = quantity;
         }

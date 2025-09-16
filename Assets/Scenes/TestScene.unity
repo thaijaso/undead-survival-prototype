@@ -23949,7 +23949,7 @@ MonoBehaviour:
   - {fileID: 6592542019524116212}
   - {fileID: 6592542020101765229}
   ammoTotal: {fileID: 1954016659}
-  playerInventory: {fileID: 1717255719}
+  playerInventory: {fileID: 0}
   playerWeaponManager: {fileID: 1717255710}
 --- !u!1001 &115087842
 PrefabInstance:
@@ -36882,7 +36882,7 @@ MonoBehaviour:
   PlayerMenuUI: {fileID: 167462149}
   menuCanvasGroup: {fileID: 167462153}
   uiInput: {fileID: 1468555638}
-  inventory: {fileID: 1717255719}
+  inventory: {fileID: 0}
   inventoryGridUIController: {fileID: 1489192893}
   contextMenuController: {fileID: 557484662}
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
@@ -71168,7 +71168,7 @@ PrefabInstance:
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: Inventory
       value: 
-      objectReference: {fileID: 1717255719}
+      objectReference: {fileID: 0}
     - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -93506,7 +93506,7 @@ PrefabInstance:
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: Inventory
       value: 
-      objectReference: {fileID: 1717255719}
+      objectReference: {fileID: 0}
     - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -95419,7 +95419,7 @@ PrefabInstance:
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: Inventory
       value: 
-      objectReference: {fileID: 1717255719}
+      objectReference: {fileID: 0}
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: SelectedItemNameUI
       value: 
@@ -95440,14 +95440,8 @@ PrefabInstance:
       propertyPath: SelectedItemDescriptionUI
       value: 
       objectReference: {fileID: 514695805}
-    - target: {fileID: 4649096568519139812, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 7234685253801549476, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-    - {fileID: 3903700242103065268, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
@@ -192792,7 +192786,7 @@ PrefabInstance:
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: Inventory
       value: 
-      objectReference: {fileID: 1717255719}
+      objectReference: {fileID: 0}
     - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -197523,7 +197517,7 @@ PrefabInstance:
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: Inventory
       value: 
-      objectReference: {fileID: 1717255719}
+      objectReference: {fileID: 0}
     - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -228509,7 +228503,7 @@ PrefabInstance:
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: Inventory
       value: 
-      objectReference: {fileID: 1717255719}
+      objectReference: {fileID: 0}
     - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -343615,8 +343609,8 @@ GameObject:
   - component: {fileID: 1717255703}
   - component: {fileID: 1717255702}
   - component: {fileID: 1717255701}
-  - component: {fileID: 1717255719}
   - component: {fileID: 1717255718}
+  - component: {fileID: 1717255719}
   m_Layer: 3
   m_Name: Cowboy
   m_TagString: Player
@@ -344488,9 +344482,13 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4adddc78228213c49a9fb571b2755efc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.Gameplay.Inventory
+  playerTransform: {fileID: 0}
   capacity: 8
   itemStacks: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!1001 &1717560231
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -361783,7 +361781,7 @@ PrefabInstance:
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: Inventory
       value: 
-      objectReference: {fileID: 1717255719}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -380192,8 +380190,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractionSensor
   arrowColliderRadius: 10
-  buttonLineOfSightDistance: 4
-  lineofSightRadius: 0.2
+  buttonLineOfSightDistance: 2
+  lineofSightRadius: 1
 --- !u!1001 &1914703697
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -391403,7 +391401,7 @@ PrefabInstance:
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: Inventory
       value: 
-      objectReference: {fileID: 1717255719}
+      objectReference: {fileID: 0}
     - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -429506,7 +429504,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a72751af99b465e4c82bdf17f3c097fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Inventory: {fileID: 1717255719}
+  Inventory: {fileID: 0}
   InventoryGridUIController: {fileID: 0}
   SelectedItemNameUI: {fileID: 0}
   SelectedItemTypeUI: {fileID: 0}
