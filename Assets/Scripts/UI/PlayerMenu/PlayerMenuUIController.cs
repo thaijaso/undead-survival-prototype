@@ -30,13 +30,16 @@ namespace UndeadSurvivalGame.UI
         private InputActionAsset inputActions;
 
         [SerializeField]
-        private MMF_Player openInventoryFeedback;
+        private MMF_Player openInventorySound;
 
         [SerializeField]
-        private MMF_Player closeInventoryFeedback;
+        private MMF_Player closeInventorySound;
 
         [SerializeField]
-        private MMF_Player closeContextMenuFeedback;
+        private MMF_Player closeContextMenuSound;
+
+        [SerializeField]
+        private MMF_Player dropItemSound;
 
         private InputActionMap playerMap;
         private InputActionMap uiMap;
@@ -235,9 +238,9 @@ namespace UndeadSurvivalGame.UI
 
         private void PlayOpenInventoryFeedback()
         {
-            if (openInventoryFeedback != null)
+            if (openInventorySound != null)
             {
-                openInventoryFeedback.PlayFeedbacks();
+                openInventorySound.PlayFeedbacks();
             }
             else
             {
@@ -247,9 +250,9 @@ namespace UndeadSurvivalGame.UI
 
         private void PlayCloseInventoryFeedback()
         {
-            if (closeInventoryFeedback != null)
+            if (closeInventorySound != null)
             {
-                closeInventoryFeedback.PlayFeedbacks();
+                closeInventorySound.PlayFeedbacks();
             }
             else
             {
@@ -338,9 +341,9 @@ namespace UndeadSurvivalGame.UI
 
         private void PlayCloseContextMenuSound()
         {
-            if (closeContextMenuFeedback != null)
+            if (closeContextMenuSound != null)
             {
-                closeContextMenuFeedback.PlayFeedbacks();
+                closeContextMenuSound.PlayFeedbacks();
             }
             else
             {
@@ -473,6 +476,37 @@ namespace UndeadSurvivalGame.UI
             if (inventoryGridUIController != null)
             {
                 inventoryGridUIController.DropSelectedItem();
+            }
+            else
+            {
+                Debug.LogWarning("InventoryGridUIController is not assigned.");
+            }
+
+            if (contextMenuController != null)
+            {
+                contextMenuController.Hide();
+            }
+            else
+            {
+                Debug.LogWarning("ContextMenuController is not assigned.");
+            }
+
+            if (inventoryGridUIController != null)
+            {
+                inventoryGridUIController.ClearSelection();
+            }
+            else
+            {
+                Debug.LogWarning("InventoryGridUIController is not assigned.");
+            }
+
+            if (dropItemSound != null)
+            {
+                dropItemSound.PlayFeedbacks();
+            }
+            else
+            {
+                Debug.LogWarning("DropItemSound is not assigned.");
             }
         }
     }
