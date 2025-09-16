@@ -213,6 +213,7 @@ namespace UndeadSurvivalGame.UI
                 PlayOpenInventoryFeedback();
                 SubscribeToUIInputEvents();
                 SubscribeToInventorySlotUIHandlerEvents();
+                SubscribeToContextMenuButtonEvents();
                 inventoryGridUIController.RefreshGrid();
             }
             else
@@ -220,9 +221,13 @@ namespace UndeadSurvivalGame.UI
                 PlayCloseInventoryFeedback();
                 contextMenuController.Hide();
                 inventoryGridUIController.ClearSelection();
-                inventoryGridUIController.FocusFirstItem();
+                if (!inventory.IsEmpty())
+                {
+                    inventoryGridUIController.FocusFirstAvailableItem();
+                }
                 UnsubscribeFromUIInputEvents();
                 UnsubscribeToInventorySlotUIHandlerEvents();
+                UnsubscribeFromContextMenuButtonEvents();
             }
 
             OnPlayerMenuToggled?.Invoke(isMenuVisible);
@@ -343,16 +348,6 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
-        private void HandleDropItem()
-        {
-            Debug.Log("DropItem event received.");
-
-            if (inventoryGridUIController != null)
-            {
-                inventoryGridUIController.DropSelectedItem();
-            }
-        }
-
         private void SubscribeToInventorySlotUIHandlerEvents()
         {
             if (inventoryGridUIController == null)
@@ -419,6 +414,65 @@ namespace UndeadSurvivalGame.UI
             if (slot.GetIndex() < inventory.ItemStacks.Count)
             {
                 inventoryGridUIController.FocusSlot(slot);
+            }
+        }
+
+        private void SubscribeToContextMenuButtonEvents()
+        {
+            if (contextMenuController == null)
+            {
+                Debug.LogWarning("ContextMenuController is not assigned.");
+                return;
+            }
+
+            contextMenuController.EquipButton.EventHandler.OnButtonClicked += HandleEquipItem;
+            contextMenuController.UseButton.EventHandler.OnButtonClicked += HandleUseItem;
+            contextMenuController.CombineButton.EventHandler.OnButtonClicked += HandleCombineItem;
+            contextMenuController.ShortcutButton.EventHandler.OnButtonClicked += HandleShortcutItem;
+            contextMenuController.DropButton.EventHandler.OnButtonClicked += HandleDropItem;
+        }
+
+        private void UnsubscribeFromContextMenuButtonEvents()
+        {
+            if (contextMenuController == null)
+            {
+                return;
+            }
+
+            contextMenuController.EquipButton.EventHandler.OnButtonClicked -= HandleEquipItem;
+            contextMenuController.UseButton.EventHandler.OnButtonClicked -= HandleUseItem;
+            contextMenuController.CombineButton.EventHandler.OnButtonClicked -= HandleCombineItem;
+            contextMenuController.ShortcutButton.EventHandler.OnButtonClicked -= HandleShortcutItem;
+            contextMenuController.DropButton.EventHandler.OnButtonClicked -= HandleDropItem;
+        }
+
+        private void HandleEquipItem()
+        {
+            Debug.Log("EquipItem event received.");
+        }
+
+        private void HandleUseItem()
+        {
+            Debug.Log("UseItem event received.");
+        }
+
+        private void HandleCombineItem()
+        {
+            Debug.Log("CombineItem event received.");
+        }
+
+        private void HandleShortcutItem()
+        {
+            Debug.Log("ShortcutItem event received.");
+        }
+
+        private void HandleDropItem()
+        {
+            Debug.Log("DropItem event received.");
+
+            if (inventoryGridUIController != null)
+            {
+                inventoryGridUIController.DropSelectedItem();
             }
         }
     }

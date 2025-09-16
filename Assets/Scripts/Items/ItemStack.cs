@@ -7,9 +7,10 @@ namespace UndeadSurvivalGame.Gameplay
     public class ItemStack
     {
         public Item item;
+
+        [Min(1)]
         public int quantity = 1;
         
-
         public ItemStack(Item item, int quantity = 1)
         {
             this.item = item;

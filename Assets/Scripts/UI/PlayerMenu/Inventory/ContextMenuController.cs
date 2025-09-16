@@ -96,6 +96,10 @@ public class ContextMenuController : MonoBehaviour
     }
 
     public ContextMenuButtonUI EquipButton => equipButton;
+    public ContextMenuButtonUI UseButton => useButton;
+    public ContextMenuButtonUI CombineButton => combineButton;
+    public ContextMenuButtonUI ShortcutButton => shortcutButton;
+    public ContextMenuButtonUI DropButton => dropButton;
 
     public void ShowAtAttachPoint(RectTransform attachPoint, ItemType itemType)
     {

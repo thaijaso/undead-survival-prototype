@@ -5,5 +5,5 @@ public class ContextMenuButtonUI : MonoBehaviour
     [SerializeField]
     private ContextMenuButtonEventHandler contextMenuButtonEventHandler;
 
-    public ContextMenuButtonEventHandler ContextMenuButtonEventHandler => contextMenuButtonEventHandler;
+    public ContextMenuButtonEventHandler EventHandler => contextMenuButtonEventHandler;
 }

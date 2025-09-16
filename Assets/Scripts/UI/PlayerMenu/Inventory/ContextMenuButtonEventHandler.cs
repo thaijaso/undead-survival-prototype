@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ContextMenuButtonEventHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class ContextMenuButtonEventHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [SerializeField]
     private Image hoverBackgroundImage;
@@ -15,6 +15,8 @@ public class ContextMenuButtonEventHandler : MonoBehaviour, IPointerEnterHandler
 
     [SerializeField]
     private MMF_Player hoverSoundFeedback;
+
+    public event Action OnButtonClicked;
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -61,5 +63,11 @@ public class ContextMenuButtonEventHandler : MonoBehaviour, IPointerEnterHandler
 
         hoverBackgroundImage.enabled = false;
         animateAlpha.StopContinuousFade();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Debug.Log($"ContextMenuButtonEventHandler.OnPointerClick() - Pointer clicked on {gameObject.name}");
+        OnButtonClicked?.Invoke();
     }
 }

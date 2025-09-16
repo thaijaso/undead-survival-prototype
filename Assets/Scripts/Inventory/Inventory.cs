@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.Gameplay
@@ -10,7 +11,7 @@ namespace UndeadSurvivalGame.Gameplay
         int capacity = 15;
 
         [SerializeField]
-        public List<ItemStack> itemStacks = new();
+        public ItemStack[] itemStacks;
 
         public event Action OnInventoryChanged;
 
@@ -18,9 +19,30 @@ namespace UndeadSurvivalGame.Gameplay
 
         void Start()
         {
-            // Initialize inventory with preset data if needed
-            // This could be loaded from a file or set up in the editor
+            itemStacks = new ItemStack[capacity];
             OnInventoryChanged?.Invoke(); // Fire event so UI updates
+        }
+
+        public bool IsEmpty()
+        {
+            if (itemStacks == null)
+            {
+                Debug.LogWarning("itemStacks is not initialized!");
+                return true; // or false, depending on how you want to handle this case
+            }
+
+            bool allEmpty = true;
+            
+            foreach (var itemStack in itemStacks)
+            {
+                if (itemStack != null)
+                {
+                    allEmpty = false;
+                    break;
+                }
+            }
+
+            return allEmpty;
         }
 
         /// <summary>
@@ -38,6 +60,7 @@ namespace UndeadSurvivalGame.Gameplay
         /// </summary>
         public int TryAdd(Item item, int quantity = 1)
         {
+            Debug.Log($"[{gameObject.name}] Inventory.TryAdd(): Attempting to add {quantity} of item '{item.name}'.");
             if (item == null || quantity <= 0)
             {
                 Debug.LogWarning("Invalid item or quantity.");
@@ -63,9 +86,11 @@ namespace UndeadSurvivalGame.Gameplay
         private int AddStackableItem(Item item, int quantity)
         {
             // Add to existing stacks
-            foreach (var itemStack in itemStacks)
+            for (int index = 0; index < itemStacks.Length; index++)
             {
-                if (itemStack.item.itemID == item.itemID)
+                var itemStack = itemStacks[index];
+
+                if (itemStack != null && itemStack.item.itemID == item.itemID)
                 {
                     int spaceLeft = item.maxStack - itemStack.quantity;
                     if (spaceLeft > 0)
@@ -80,12 +105,17 @@ namespace UndeadSurvivalGame.Gameplay
             }
 
             // Add new stacks if there is still quantity left and there is capacity
-            while (quantity > 0 && itemStacks.Count < capacity)
+            while (quantity > 0)
             {
-                int amountToAdd = Math.Min(quantity, item.maxStack);
-                itemStacks.Add(new ItemStack(item, amountToAdd));
-                quantity -= amountToAdd;
-                OnInventoryChanged?.Invoke();
+                int indexToAdd = Array.FindIndex(itemStacks, stack => stack == null);
+
+                if (indexToAdd != -1)
+                {
+                    int amountToAdd = Math.Min(quantity, item.maxStack);
+                    itemStacks[indexToAdd] = new ItemStack(item, amountToAdd);
+                    quantity -= amountToAdd;
+                    OnInventoryChanged?.Invoke();
+                }
             }
 
             if (quantity > 0)
@@ -102,13 +132,24 @@ namespace UndeadSurvivalGame.Gameplay
         /// </summary>
         private int AddNonStackableItem(Item item, int quantity)
         {
-            while (quantity > 0 && itemStacks.Count < capacity)
+            if (itemStacks == null)
             {
-                itemStacks.Add(new ItemStack(item, 1));
-                quantity--;
-                OnInventoryChanged?.Invoke();
+                Debug.LogWarning("itemStacks is not initialized!");
+                return quantity;
             }
 
+            while (quantity > 0)
+            {
+                int indexToAdd = Array.FindIndex(itemStacks, stack => stack == null);
+
+                if (indexToAdd != -1)
+                {
+                    itemStacks[indexToAdd] = new ItemStack(item, 1);
+                    quantity--;
+                    OnInventoryChanged?.Invoke();
+                }
+            }
+           
             if (quantity > 0)
             {
                 Debug.Log("Inventory is full. Some items could not be added.");
@@ -119,11 +160,17 @@ namespace UndeadSurvivalGame.Gameplay
 
         public int GetItemQuantity(string itemID)
         {
+            if (itemStacks == null)
+            {
+                Debug.LogWarning("itemStacks is not initialized!");
+                return 0;
+            }
+
             int total = 0;
 
             foreach (var itemStack in itemStacks)
             {
-                if (itemStack.item.itemID == itemID)
+                if (itemStack != null && itemStack.item.itemID == itemID)
                 {
                     total += itemStack.quantity;
                 }
@@ -134,11 +181,17 @@ namespace UndeadSurvivalGame.Gameplay
 
         public int GetAmmoTypeQuantity(AmmoType ammoType)
         {
+            if (itemStacks == null)
+            {
+                Debug.LogWarning("itemStacks is not initialized!");
+                return 0;
+            }
+
             int total = 0;
 
             foreach (var itemStack in itemStacks)
             {
-                if (itemStack.item.itemType == ItemType.Ammo && itemStack.item.ammoType == ammoType)
+                if (itemStack != null && itemStack.item.itemType == ItemType.Ammo && itemStack.item.ammoType == ammoType)
                 {
                     total += itemStack.quantity;
                 }
@@ -151,15 +204,16 @@ namespace UndeadSurvivalGame.Gameplay
         {
             if (ammoType == AmmoType.None) return;
 
-            foreach (var itemStack in itemStacks)
+            for (int index = 0; index < itemStacks.Length; index++)
             {
-                if (itemStack.item.itemType == ItemType.Ammo && itemStack.item.ammoType == ammoType)
+                var itemStack = itemStacks[index];
+                if (itemStack != null && itemStack.item.itemType == ItemType.Ammo && itemStack.item.ammoType == ammoType)
                 {
                     itemStack.DecrementQuantity();
 
                     if (itemStack.IsEmpty)
                     {
-                        itemStacks.Remove(itemStack);
+                        itemStacks[index] = null;
                     }
 
                     OnInventoryChanged?.Invoke();
@@ -170,25 +224,29 @@ namespace UndeadSurvivalGame.Gameplay
             Debug.LogWarning($"[{gameObject.name}] Inventory.DecrementAmmo(): No ammo of type {ammoType} found.");
         }
 
-        public void DropItemStack(ItemStack itemStack)
+        public void DropItemStack(int index)
         {
-            if (itemStacks.Contains(itemStack))
+            if (index < 0 || index >= itemStacks.Length)
             {
-                itemStacks.Remove(itemStack);
-                // TODO: spawn item in the world
-                OnInventoryChanged?.Invoke();
+                Debug.LogWarning("Invalid index to drop item stack.");
+                return;
             }
-            else
+
+            if (itemStacks == null)
             {
-                Debug.LogWarning("Attempted to drop an item stack that is not in the inventory.");
+                Debug.LogWarning("itemStacks is not initialized!");
+                return;
             }
+
+            itemStacks[index] = null;
+            OnInventoryChanged?.Invoke();
         }
 
         public Item GetFirstWeapon()
         {
-            if (itemStacks.Count == 0)
+            if (IsEmpty())
             {
-                Debug.LogWarning("Inventory is empty. No weapon found.");
+                Debug.LogWarning("Inventory.GetFirstWeapon() - Inventory is empty.");
                 return null;
             }
 

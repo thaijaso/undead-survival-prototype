@@ -1,4 +1,5 @@
 using MoreMountains.Feedbacks;
+using Sirenix.Config;
 using System.Collections.Generic;
 using UndeadSurvivalGame.Gameplay;
 using UndeadSurvivalGame.PlayerSystems;
@@ -55,7 +56,6 @@ namespace UndeadSurvivalGame.UI
 
             inventory.OnInventoryChanged += RefreshGrid;
             RefreshGrid();
-            FocusFirstItem();
         }
 
         private void SetupPlayerWeaponManager()
@@ -258,43 +258,73 @@ namespace UndeadSurvivalGame.UI
             SelectedSlot = null;
         }
 
-        public void FocusFirstItem()
+        public void FocusFirstAvailableItem()
         {
-            if (inventorySlots.Count > 0)
+            if (!inventory.IsEmpty())
             {
                 FocusSlot(inventorySlots[0]);
             }
             else
             {
-                Debug.LogWarning("No inventory slots available to display item info.");
+                Debug.Log("No inventory items available to display item info.");
+                selectedItemNameUI.SetItemName(string.Empty);
+                selectedItemNameUI.ToggleEquippedText(false);
+                selectedItemTypeUI.SetItemType(string.Empty);
+                selectedItemDescriptionUI.SetItemDescription(string.Empty);
             }
         }
 
         public void FocusSlot(InventorySlotUI slot)
         {
-            if (CurrentFocusedSlot != null && CurrentFocusedSlot != slot)
+            if (slot == null)
             {
-                CurrentFocusedSlot.StopFadingAlphaHoverBackground();
+                Debug.LogWarning("InventoryGridUIController.FocusSlot() - slot is null.");
+                return;
+            }
+
+            if (inventory.ItemStacks == null)
+            {
+                Debug.LogWarning("InventoryGridUIController.FocusSlot() - Inventory's ItemStacks is null.");
+                return;
             }
 
             int index = slot.GetIndex();
 
-            if (index < inventory.ItemStacks.Count)
+            if (inventory.ItemStacks[index] == null)
             {
-                if (CurrentFocusedSlot != null && CurrentFocusedSlot != slot)
-                {
-                    PlayHoverSound();
-                }
-
-                ItemStack itemStack = inventory.ItemStacks[index];
-                SetSelectedItemName(itemStack.item.itemName);
-                ToggleEquippedText(itemStack.item);
-                SetSelectedItemType(itemStack.item.itemType.ToString());
-                SetSelectedItemDescription(itemStack.item.description);
+                Debug.Log("InventoryGridUIController.FocusSlot() - Focused slot has no item.");
+                return;
             }
 
-            slot.FadeAlphaHoverBackground();
-            CurrentFocusedSlot = slot;
+            if (index < inventory.ItemStacks.Count)
+            {
+
+                ItemStack itemStack = inventory.ItemStacks[index];
+
+                if (itemStack != null)
+                {
+                    if (CurrentFocusedSlot == null)
+                    {
+                        slot.FadeAlphaHoverBackground();
+                    }
+                    else if (CurrentFocusedSlot != null && CurrentFocusedSlot != slot)
+                    {
+                        CurrentFocusedSlot.StopFadingAlphaHoverBackground();
+                        PlayHoverSound();
+                        slot.FadeAlphaHoverBackground();
+                    }
+                    
+                    SetSelectedItemName(itemStack.item.itemName);
+                    ToggleEquippedText(itemStack.item);
+                    SetSelectedItemType(itemStack.item.itemType.ToString());
+                    SetSelectedItemDescription(itemStack.item.description);
+                    CurrentFocusedSlot = slot;
+                }
+                else
+                {
+                    Debug.Log("InventoryGridUIController.FocusSlot() - Focused slot has no item.");
+                }
+            }
         }
 
         private void PlayHoverSound()
@@ -386,6 +416,12 @@ namespace UndeadSurvivalGame.UI
                 return;
             }
 
+            if (inventory.ItemStacks == null)
+            {
+                Debug.LogWarning("InventoryGridUIController.RefreshGrid(): Inventory's ItemStacks is null.");
+                return;
+            }
+
             if (inventorySlots == null || inventorySlots.Count == 0)
             {
                 Debug.LogWarning("InventorySlots reference is not set or is empty in InventoryGridUIController.");
@@ -400,42 +436,47 @@ namespace UndeadSurvivalGame.UI
 
             for (int index = 0; index < inventorySlots.Count; index++)
             {
-                InventorySlotUI slot = inventorySlots[index];
-                slot.SetIndex(index);
+                ItemStack itemStack = inventory.ItemStacks[index];
+                UpdateInventorySlotUI(inventorySlots[index], itemStack, index);
+            }
 
-                if (inventory != null && inventory.ItemStacks != null && index < inventory.ItemStacks.Count)
+            FocusFirstAvailableItem();
+        }
+
+        private void UpdateInventorySlotUI(InventorySlotUI slot, ItemStack itemStack, int index)
+        {
+            slot.SetIndex(index);
+
+            if (itemStack != null)
+            {
+                // Slot has item
+                slot.SetEmpty(false);
+
+                // Display icon
+                slot.ItemIconImage.enabled = true;
+                slot.ItemIconImage.sprite = itemStack.item.itemIcon;
+
+                // Display count if stackable
+                if (itemStack.item.isStackable)
                 {
-                    ItemStack itemStack = inventory.ItemStacks[index];
-
-                    // Slot has item
-                    slot.SetEmpty(false);
-
-                    // Display icon
-                    slot.ItemIconImage.enabled = true;
-                    slot.ItemIconImage.sprite = itemStack.item.itemIcon;
-
-                    // Display count if stackable
-                    if (itemStack.item.isStackable)
-                    {
-                        slot.ItemCountText.gameObject.SetActive(true);
-                        slot.ItemCountText.text = itemStack.quantity.ToString();
-                    }
-                    else
-                    {
-                        slot.ItemCountText.gameObject.SetActive(false);
-                    }
-
-                    // Show equipped icon if the item is equipped
-                    bool isEquipped = weaponManager != null && weaponManager.CurrentWeaponItem != null && itemStack.item == weaponManager.CurrentWeaponItem;
-                    slot.DisplayEquippedIcon(isEquipped);
+                    slot.ItemCountText.gameObject.SetActive(true);
+                    slot.ItemCountText.text = itemStack.quantity.ToString();
                 }
                 else
                 {
-                    slot.ItemIconImage.enabled = false;
                     slot.ItemCountText.gameObject.SetActive(false);
-                    slot.SetEmpty(true);
-                    slot.DisplayEquippedIcon(false);
                 }
+
+                // Show equipped icon if the item is equipped
+                bool isEquipped = weaponManager != null && weaponManager.CurrentWeaponItem != null && itemStack.item == weaponManager.CurrentWeaponItem;
+                slot.DisplayEquippedIcon(isEquipped);
+            }
+            else
+            {
+                slot.ItemIconImage.enabled = false;
+                slot.ItemCountText.gameObject.SetActive(false);
+                slot.SetEmpty(true);
+                slot.DisplayEquippedIcon(false);
             }
         }
 
@@ -463,7 +504,7 @@ namespace UndeadSurvivalGame.UI
                 return;
             }
 
-            inventory.DropItemStack(selectedItemStack);
+            inventory.DropItemStack(selectedIndex);
         }
 
         public List<InventorySlotUI> GetInventorySlots()
