@@ -1,6 +1,5 @@
 using System;
 using UndeadSurvivalGame.Gameplay;
-using UndeadSurvivalGame.UI;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.PlayerSystems
@@ -203,10 +202,11 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (weaponCollider != null)
             {
                 weaponCollider.enabled = false;
+                Debug.Log($"[{gameObject.name}] Disabled collider on weapon instance: {weaponInstance.name}");
             }
             else
             {
-                Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DisableCollider(): MeshCollider not found on weapon prefab!");
+                Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DisableCollider(): Collider not found on weapon prefab!");
             }
         }
 

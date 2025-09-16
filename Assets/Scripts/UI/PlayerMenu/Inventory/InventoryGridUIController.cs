@@ -505,6 +505,10 @@ namespace UndeadSurvivalGame.UI
             }
 
             inventory.DropItemStack(selectedIndex);
+            if (weaponManager.IsItemEquipped(selectedItemStack.item))
+            {
+                weaponManager.DespawnWeaponInWeaponHand();
+            }
         }
 
         public List<InventorySlotUI> GetInventorySlots()

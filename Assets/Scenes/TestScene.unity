@@ -344486,6 +344486,7 @@ MonoBehaviour:
   playerTransform: {fileID: 0}
   capacity: 8
   itemStacks: []
+  playerWeaponManager: {fileID: 1717255710}
   references:
     version: 2
     RefIds: []

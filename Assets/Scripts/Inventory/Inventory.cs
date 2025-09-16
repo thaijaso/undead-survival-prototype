@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UndeadSurvivalGame.PlayerSystems;
 using UndeadSurvivalGame.UI;
 using UnityEngine;
 
@@ -15,6 +16,9 @@ namespace UndeadSurvivalGame.Gameplay
 
         [SerializeReference]
         public ItemStack[] itemStacks;
+
+        [SerializeField]
+        private PlayerWeaponManager playerWeaponManager;
 
         public event Action OnInventoryChanged;
 
@@ -274,7 +278,7 @@ namespace UndeadSurvivalGame.Gameplay
                 Debug.LogWarning("itemStacks is not initialized!");
                 return;
             }
-
+            
             ItemStack itemStackToDrop = itemStacks[index];
             SpawnDroppedItem(itemStackToDrop);
             itemStacks[index] = null;
