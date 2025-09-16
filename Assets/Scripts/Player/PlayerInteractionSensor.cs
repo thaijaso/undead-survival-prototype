@@ -90,7 +90,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (focusedProximityUI != null && focusedProximityUI != curProximityUI)
             {
                 focusedProximityUI.HidePickupButton();
-                focusedProximityUI.HideTextBackground();
+                focusedProximityUI.HideContent();
                 ResetItemPickupText(focusedProximityUI);
             }
 

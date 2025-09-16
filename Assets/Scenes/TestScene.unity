@@ -380190,7 +380190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractionSensor
   arrowColliderRadius: 10
-  buttonLineOfSightDistance: 2
+  buttonLineOfSightDistance: 4
   lineofSightRadius: 1
 --- !u!1001 &1914703697
 PrefabInstance:

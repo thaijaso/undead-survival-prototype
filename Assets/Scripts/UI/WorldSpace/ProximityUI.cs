@@ -17,10 +17,10 @@ namespace UndeadSurvivalGame.UI
         private GameObject button;
 
         [SerializeField]
-        private GameObject textBackground;
+        private GameObject content;
 
         [SerializeField]
-        private TextMeshProUGUI textMeshPro;
+        private TextMeshProUGUI itemNameText;
 
         [SerializeField]
         private MMF_Player InventoryFullFeedback;
@@ -31,7 +31,8 @@ namespace UndeadSurvivalGame.UI
         {
             SetupArrow();
             SetupButton();
-            SetupTextBackground();
+            SetupContent();
+            SetupItemNameText();
             SetupItemPickupInteractable();
             SetupInventoryFullFeedback();
         }
@@ -40,7 +41,13 @@ namespace UndeadSurvivalGame.UI
         {
             if (arrow == null)
             {
-                arrow = transform.Find("Arrow").gameObject;
+                arrow = transform.Find("PickupUI/Arrow").gameObject;
+            }
+
+            if (arrow == null)
+            {
+                Debug.LogWarning($"ProximityUI.SetupArrow(): {name} has no Arrow assigned or found in children.");
+                return;
             }
 
             arrow.SetActive(false);
@@ -50,20 +57,39 @@ namespace UndeadSurvivalGame.UI
         {
             if (button == null)
             {
-                button = transform.Find("PCButtonWhite").gameObject;
+                button = transform.Find("PickupUI/HUDItemPickupInfo/Content/Info/InputActionTop/InputButtonContainer/PCButtonWhite").gameObject;
+            }
+
+            if (button == null)
+            {
+                Debug.LogWarning($"ProximityUI.SetupButton(): {name} has no Button assigned or found in children.");
+                return;
             }
 
             button.SetActive(false);
         }
 
-        private void SetupTextBackground()
+        private void SetupContent()
         {
-            if (textBackground == null)
+            if (content == null)
             {
-                textBackground = transform.Find("TextBackground").gameObject;
+                content = transform.Find("PickupUI/HUDItemPickupInfo/Content").gameObject;
             }
 
-            textBackground.SetActive(false);
+            content.SetActive(false);
+        }
+
+        private void SetupItemNameText()
+        {
+            if (itemNameText == null)
+            {
+                itemNameText = transform.Find("PickupUI/HUDItemPickupInfo/Content/Info/LabelItemName")?.GetComponent<TextMeshProUGUI>();
+            }
+
+            if (itemNameText == null)
+            {
+                Debug.LogWarning($"ProximityUI.SetupItemNameText(): {name} has no ItemNameText assigned or found in children.");
+            }
         }
 
         private void SetupItemPickupInteractable()
@@ -124,17 +150,17 @@ namespace UndeadSurvivalGame.UI
 
         public void ShowTextBackground()
         {
-            if (textBackground != null)
+            if (content != null)
             {
-                textBackground.SetActive(true);
+                content.SetActive(true);
             }
         }
 
-        public void HideTextBackground()
+        public void HideContent()
         {
-            if (textBackground != null)
+            if (content != null)
             {
-                textBackground.SetActive(false);
+                content.SetActive(false);
             }
         }
 
@@ -148,9 +174,9 @@ namespace UndeadSurvivalGame.UI
 
         private void DisplayPromptText(string text)
         {
-            if (textMeshPro != null)
+            if (itemNameText != null)
             {
-                textMeshPro.text = text;
+                itemNameText.text = text;
             }
         }
 
@@ -177,7 +203,7 @@ namespace UndeadSurvivalGame.UI
         {
             HideArrowIndicator();
             HidePickupButton();
-            HideTextBackground();
+            HideContent();
         }
     }
 }

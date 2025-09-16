@@ -125,8 +125,8 @@ MonoBehaviour:
   inventoryFullTemplate: Inventory Full
   arrow: {fileID: 8157650733406382795}
   button: {fileID: 6263150775743759845}
-  textBackground: {fileID: 5065599235514543573}
-  textMeshPro: {fileID: 8138310427181703963}
+  content: {fileID: 0}
+  itemNameText: {fileID: 0}
   InventoryFullFeedback: {fileID: 0}
 --- !u!65 &8090563960413102818
 BoxCollider:
@@ -254,6 +254,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8516175572524739356}
     m_Modifications:
+    - target: {fileID: 323962206052151750, guid: 97ad26ac2afa87947925708700687da3, type: 3}
+      propertyPath: m_Color.a
+      value: 0.8627451
+      objectReference: {fileID: 0}
     - target: {fileID: 1797607649039963431, guid: 97ad26ac2afa87947925708700687da3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -380,19 +384,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3546898307303699833, guid: 97ad26ac2afa87947925708700687da3, type: 3}
       propertyPath: m_Name
-      value: Canvas
+      value: PickupUI
       objectReference: {fileID: 0}
     - target: {fileID: 3854828696309807148, guid: 97ad26ac2afa87947925708700687da3, type: 3}
       propertyPath: m_Color.b
-      value: 0
+      value: 0.011764707
       objectReference: {fileID: 0}
     - target: {fileID: 3854828696309807148, guid: 97ad26ac2afa87947925708700687da3, type: 3}
       propertyPath: m_Color.g
-      value: 0.74847966
+      value: 0.77647066
       objectReference: {fileID: 0}
     - target: {fileID: 3854828696309807148, guid: 97ad26ac2afa87947925708700687da3, type: 3}
       propertyPath: m_Color.r
-      value: 0.9056604
+      value: 0.8862746
       objectReference: {fileID: 0}
     - target: {fileID: 4244364816121137784, guid: 97ad26ac2afa87947925708700687da3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -599,11 +603,6 @@ MonoBehaviour:
   Graphic: {fileID: 2571357254580387459}
   TMPText: {fileID: 0}
   ApplyToChildren: 0
---- !u!1 &5065599235514543573 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7033819485623902864, guid: 97ad26ac2afa87947925708700687da3, type: 3}
-  m_PrefabInstance: {fileID: 2869279102760701765}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &5176088888503075975 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6918816898625981378, guid: 97ad26ac2afa87947925708700687da3, type: 3}

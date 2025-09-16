@@ -1,4 +1,5 @@
 using UndeadSurvivalGame.Gameplay;
+using UndeadSurvivalGame.UI;
 using UnityEngine;
 using UnityEditor;
 
@@ -15,6 +16,9 @@ namespace UndeadSurvivalGame.Editor
             TryAssignGunshotAudioClip(weapon, overwriteReferences);
             TryAssignBulletPrefab(weapon, overwriteReferences);
             TryAssignWeaponData(weapon, overwriteReferences);
+            TryAssignItemPickupInteractable(weapon, overwriteReferences);
+            TryAssignProximityUI(weapon, overwriteReferences);
+            TryAssignCollider(weapon, overwriteReferences);
         }
 
         public static void AutoSetupSceneReferences(Weapon weapon, bool overwriteReferences)
@@ -178,6 +182,53 @@ namespace UndeadSurvivalGame.Editor
                     }
                 }
                 Debug.LogWarning($"[Weapon] Could not auto-assign weaponData: No WeaponData asset found matching expected name '{expectedName}'.");
+            }
+        }
+
+        private static void TryAssignItemPickupInteractable(Weapon weapon, bool overwriteReferences)
+        {
+            if (overwriteReferences || weapon.itemPickupInteractable == null)
+            {
+                var itemPickup = weapon.GetComponent<ItemPickupInteractable>();
+                if (itemPickup == null)
+                {
+                    itemPickup = weapon.gameObject.AddComponent<ItemPickupInteractable>();
+                    Debug.Log("[Weapon] ItemPickupInteractable component was missing and has been added to the GameObject.");
+                }
+                weapon.itemPickupInteractable = itemPickup;
+                Debug.Log("[Weapon] Auto-assigned ItemPickupInteractable component.");
+            }
+        }
+
+        private static void TryAssignProximityUI(Weapon weapon, bool overwriteReferences)
+        {
+            if (overwriteReferences || weapon.proximityUI == null)
+            {
+                var proximityUI = weapon.GetComponent<ProximityUI>();
+                if (proximityUI == null)
+                {
+                    proximityUI = weapon.gameObject.AddComponent<ProximityUI>();
+                    Debug.Log("[Weapon] ProximityUI component was missing and has been added to the GameObject.");
+                }
+                weapon.proximityUI = proximityUI;
+                Debug.Log("[Weapon] Auto-assigned ProximityUI component.");
+            }
+        }
+
+        private static void TryAssignCollider(Weapon weapon, bool overwriteReferences)
+        {
+            if (overwriteReferences || weapon.weaponCollider == null)
+            {
+                var collider = weapon.GetComponent<Collider>();
+                if (collider == null)
+                {
+                    Debug.LogWarning("[Weapon] Could not auto-assign Collider: No Collider component found on the GameObject.");
+                }
+                else
+                {
+                    weapon.weaponCollider = collider;
+                    Debug.Log("[Weapon] Auto-assigned Collider component.");
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using UndeadSurvivalGame.Gameplay;
+using UndeadSurvivalGame.UI;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.PlayerSystems
@@ -158,10 +159,57 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (weaponConfig == null) return weaponObject;
 
             AssignCurrentWeapon(weaponObject, weaponScript, weaponConfig);
+            DisableInteractionScripts(weaponScript);
+            DisableCollider(weaponObject);
 
             OnWeaponSetup?.Invoke(CurrentWeaponScript, CurrentWeaponConfig);
             return weaponObject;
         }
+
+        private void DisableInteractionScripts(Weapon weaponScript)
+        {
+            DisableProximityUI(weaponScript);
+            DisableItemPickupInteractable(weaponScript);
+        }
+
+        private void DisableProximityUI(Weapon weaponScript)
+        {
+            if (weaponScript.proximityUI != null)
+            {
+                weaponScript.proximityUI.enabled = false;
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DisableProximityUI(): ProximityUI component not found on weapon prefab!");
+            }
+        }
+
+        private void DisableItemPickupInteractable(Weapon weaponScript)
+        {
+            if (weaponScript.itemPickupInteractable != null)
+            {
+                weaponScript.itemPickupInteractable.enabled = false;
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DisableItemPickupInteractable(): ItemPickupInteractable component not found on weapon prefab!");
+            }
+        }
+
+        private void DisableCollider(GameObject weaponInstance)
+        {
+            Collider weaponCollider = weaponInstance.GetComponent<Collider>();
+
+            if (weaponCollider != null)
+            {
+                weaponCollider.enabled = false;
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DisableCollider(): MeshCollider not found on weapon prefab!");
+            }
+        }
+
         public void DespawnWeaponInWeaponHand()
         {
             if (CurrentWeaponConfig == null)

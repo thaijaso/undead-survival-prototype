@@ -1,3 +1,4 @@
+using UndeadSurvivalGame.UI;
 using UnityEngine;
 
 #if ODIN_INSPECTOR
@@ -44,6 +45,15 @@ namespace UndeadSurvivalGame.Gameplay
         [BoxGroup("Ammo", Order = 2)]
         public int currentLoadedAmmo = 0;
 
+        [BoxGroup("Interaction Scripts", Order = 2)]
+        public ItemPickupInteractable itemPickupInteractable;
+
+        [BoxGroup("Interaction Scripts", Order = 2)]
+        public ProximityUI proximityUI;
+
+        [BoxGroup("Component References", Order = 3)]
+        public Collider weaponCollider;
+
     #else
         // Visual and audio effects
         public ParticleSystem muzzleEffect; // Muzzle flash effect
@@ -63,7 +73,7 @@ namespace UndeadSurvivalGame.Gameplay
 
         // Bullet count
         public int currentAmmo = 0;
-    #endif
+#endif
 
         private void Awake()
         {

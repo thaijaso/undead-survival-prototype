@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
+using UndeadSurvivalGame.UI;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.Gameplay
@@ -290,7 +290,9 @@ namespace UndeadSurvivalGame.Gameplay
             }
 
             GameObject droppedItemObj = Instantiate(itemStack.item.prefab, playerTransform.position, Quaternion.identity);
-
+            droppedItemObj.GetComponent<Collider>().enabled = true;
+            droppedItemObj.GetComponent<ItemPickupInteractable>().enabled = true;
+            droppedItemObj.GetComponent<ProximityUI>().enabled = true;
         }
 
         public Item GetFirstWeapon()
