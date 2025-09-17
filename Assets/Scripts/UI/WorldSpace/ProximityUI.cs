@@ -119,49 +119,103 @@ namespace UndeadSurvivalGame.UI
 
         public void ShowArrowIndicator()
         {
+            if (arrow == null)
+            {
+                SetupArrow();
+            }
+
             if (arrow != null)
             {
                 arrow.SetActive(true);
+            }
+            else
+            {
+                Debug.LogWarning($"ProximityUI.ShowArrowIndicator(): {name} has no Arrow assigned or found in children.");
             }
         }
 
         public void HideArrowIndicator()
         {
+            if (arrow == null)
+            {
+                SetupArrow();
+            }
+
             if (arrow != null)
             {
                 arrow.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning($"ProximityUI.HideArrowIndicator(): {name} has no Arrow assigned or found in children.");
             }
         }
 
         public void ShowPickupButton()
         {
+            if (button == null)
+            {
+                SetupButton();
+            }
+
             if (button != null)
             {
                 button.SetActive(true);
+            }
+            else
+            {
+                Debug.LogWarning($"ProximityUI.ShowPickupButton(): {name} has no Button assigned or found in children.");
             }
         }
 
         public void HidePickupButton()
         {
+            if (button == null)
+            {
+                SetupButton();
+            }
+
             if (button != null)
             {
                 button.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning($"ProximityUI.HidePickupButton(): {name} has no Button assigned or found in children.");
             }
         }
 
         public void ShowTextBackground()
         {
+            if (content == null)
+            {
+                SetupContent();
+            }
+
             if (content != null)
             {
                 content.SetActive(true);
+            }
+            else
+            {
+                Debug.LogWarning($"ProximityUI.ShowTextBackground(): {name} has no Content assigned or found in children.");
             }
         }
 
         public void HideContent()
         {
+            if (content == null)
+            {
+                SetupContent();
+            }
+
             if (content != null)
             {
                 content.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning($"ProximityUI.HideContent(): {name} has no Content assigned or found in children.");
             }
         }
 
