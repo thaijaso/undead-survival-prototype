@@ -94,13 +94,13 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         private GameObject SpawnWeaponPrefab(Item weapon)
         {
-            if (weapon.prefab == null)
+            if (weapon.WorldPrefab == null)
             {
                 Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.SpawnWeaponPrefab(): Weapon prefab is null!");
                 return null;
             }
 
-            return Instantiate(weapon.prefab, player.WeaponHand.transform);
+            return Instantiate(weapon.HandPrefab, player.WeaponHand.transform);
         }
 
         private Weapon GetWeaponScript(GameObject weaponObject)
@@ -158,56 +158,9 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (weaponConfig == null) return weaponObject;
 
             AssignCurrentWeapon(weaponObject, weaponScript, weaponConfig);
-            DisableInteractionScripts(weaponScript);
-            DisableCollider(weaponObject);
 
             OnWeaponSetup?.Invoke(CurrentWeaponScript, CurrentWeaponConfig);
             return weaponObject;
-        }
-
-        private void DisableInteractionScripts(Weapon weaponScript)
-        {
-            DisableProximityUI(weaponScript);
-            DisableItemPickupInteractable(weaponScript);
-        }
-
-        private void DisableProximityUI(Weapon weaponScript)
-        {
-            if (weaponScript.proximityUI != null)
-            {
-                weaponScript.proximityUI.enabled = false;
-            }
-            else
-            {
-                Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DisableProximityUI(): ProximityUI component not found on weapon prefab!");
-            }
-        }
-
-        private void DisableItemPickupInteractable(Weapon weaponScript)
-        {
-            if (weaponScript.itemPickupInteractable != null)
-            {
-                weaponScript.itemPickupInteractable.enabled = false;
-            }
-            else
-            {
-                Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DisableItemPickupInteractable(): ItemPickupInteractable component not found on weapon prefab!");
-            }
-        }
-
-        private void DisableCollider(GameObject weaponInstance)
-        {
-            Collider weaponCollider = weaponInstance.GetComponent<Collider>();
-
-            if (weaponCollider != null)
-            {
-                weaponCollider.enabled = false;
-                Debug.Log($"[{gameObject.name}] Disabled collider on weapon instance: {weaponInstance.name}");
-            }
-            else
-            {
-                Debug.LogWarning($"[{gameObject.name}] PlayerWeaponManager.DisableCollider(): Collider not found on weapon prefab!");
-            }
         }
 
         public void DespawnWeaponInWeaponHand()
@@ -483,7 +436,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         public bool IsItemEquipped(Item item)
         {
             bool isEquipped = item != null && CurrentWeaponItem != null && item == CurrentWeaponItem;
-            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IsItemEquipped(): Checking if item '{item?.itemName}' is equipped. CurrentWeaponItem: '{CurrentWeaponItem?.itemName}' isEquipped: {isEquipped}");
+            Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IsItemEquipped(): Checking if item '{item?.ItemName}' is equipped. CurrentWeaponItem: '{CurrentWeaponItem?.ItemName}' isEquipped: {isEquipped}");
             return isEquipped;
         }
     }

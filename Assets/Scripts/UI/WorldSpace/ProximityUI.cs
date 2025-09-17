@@ -259,6 +259,12 @@ namespace UndeadSurvivalGame.UI
 
         public void HideAllPrompts()
         {
+            if (this == null)
+            {
+                Debug.LogWarning("ProximityUI.HideAllPrompts(): this is null.");
+                return;
+            }
+
             HideArrowIndicator();
             HidePickupButton();
             HideContent();

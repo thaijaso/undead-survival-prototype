@@ -1,5 +1,4 @@
 using UndeadSurvivalGame.PlayerSystems;
-using Unity.AppUI.UI;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.UI
@@ -17,9 +16,6 @@ namespace UndeadSurvivalGame.UI
         private HealthUIController healthUIController;
 
         [SerializeField]
-        private ProximityUI[] proximityUIs;
-
-        [SerializeField]
         private InteractionSensor interactionSensor;
 
         [SerializeField]
@@ -27,18 +23,12 @@ namespace UndeadSurvivalGame.UI
 
         private void Awake()
         {
-            SetupProximityUIs();
             SetupInteractionSensor();
             SetupPlayerMenuUIController();
             SetupCurrentWeaponUIController();
             SetupHealthUIController();
             SetupTogglePlayerMenuHandler();
             SetupMenuOverlayController();
-        }
-
-        private void SetupProximityUIs()
-        {
-            proximityUIs = FindObjectsByType<ProximityUI>(FindObjectsSortMode.None);
         }
 
         private void SetupPlayerMenuUIController()
@@ -113,9 +103,9 @@ namespace UndeadSurvivalGame.UI
 
         private void HideProximityUIs(bool isMenuOpen)
         {
-            foreach (var proximityUI in proximityUIs)
+            foreach (var proximityUI in interactionSensor.ProximityUIs)
             {
-                if (isMenuOpen)
+                if (isMenuOpen && proximityUI != null)
                 {
                     proximityUI.HideAllPrompts();
                 }

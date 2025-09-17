@@ -12,16 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d7f46b871e76544fa3620c2c3ea6194, type: 3}
   m_Name: 44MagnumItem
   m_EditorClassIdentifier: 
-  itemID: ammo.magnum44
-  itemName: .44 Magnum
-  itemIcon: {fileID: 21300000, guid: efb713db2c7047b4189f815c3b1d8e68, type: 3}
-  itemType: 4
-  weaponType: 0
-  ammoType: 1
-  description: Despite being eclipsed by newer calibers, its thunderous roar and
+  ItemID: 44magnum.item
+  ItemName: .44 Magnum
+  ItemIcon: {fileID: 21300000, guid: efb713db2c7047b4189f815c3b1d8e68, type: 3}
+  ItemType: 4
+  WeaponType: 0
+  AmmoType: 1
+  Description: Despite being eclipsed by newer calibers, its thunderous roar and
     brute stopping power endure in the hands of hunters and marksmen.
-  isStackable: 1
-  maxStack: 24
-  prefab: {fileID: 3531630205869275986, guid: dfa4f26fc3d33d9409501a6d7cf3350e, type: 3}
-  pickupAllSound: {fileID: 8300000, guid: d363d5d283a9c0849a78c3bac5d23665, type: 3}
-  pickupSomeSound: {fileID: 8300000, guid: dfc2db4241c8fff4686d820d596743fe, type: 3}
+  IsStackable: 1
+  MaxStack: 24
+  WorldPrefab: {fileID: 3531630205869275986, guid: dfa4f26fc3d33d9409501a6d7cf3350e, type: 3}
+  HandPrefab: {fileID: 0}
+  PickupAllSound: {fileID: 8300000, guid: d363d5d283a9c0849a78c3bac5d23665, type: 3}
+  PickupSomeSound: {fileID: 8300000, guid: d7682013619e4c841be35670466c960e, type: 3}

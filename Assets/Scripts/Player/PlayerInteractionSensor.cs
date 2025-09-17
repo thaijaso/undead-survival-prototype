@@ -8,14 +8,14 @@ namespace UndeadSurvivalGame.PlayerSystems
     public class InteractionSensor : MonoBehaviour
     {
         public IInteractable CurrentInteractable { get; private set; } = null;
-        public float arrowColliderRadius = 10f;
-        public float buttonLineOfSightDistance = 5f;
-        public float lineofSightRadius = 0.5f;
-        private HashSet<ProximityUI> activeArrowsUI = new();
+        public float ArrowDetectionRadius = 10f;
+        public float PickupButtonDistance = 5f;
+        public float LineOfSightSphereRadius = 0.5f;
+        private HashSet<ProximityUI> NearbyProximityUIs = new();
         private ProximityUI focusedProximityUI = null;
+        public HashSet<ProximityUI> ProximityUIs => NearbyProximityUIs;
 
-        // Update is called once per frame
-        void Update()
+        private void Update()
         {
             ToggleArrowsForNearbyInteractables();
             ToggleButtonAndTextByLineOfSight();
@@ -24,7 +24,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         // Show arrow UI for nearby interactables
         private void ToggleArrowsForNearbyInteractables()
         {
-            Collider[] hits = Physics.OverlapSphere(transform.position, arrowColliderRadius, LayerMask.GetMask("Interactable"));
+            Collider[] hits = Physics.OverlapSphere(transform.position, ArrowDetectionRadius, LayerMask.GetMask("Interactable"));
             HashSet<ProximityUI> curNearbyInteractables = new();
 
             // Enable arrows for interactables that are in range
@@ -41,7 +41,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             // Hide arrows for all except the focused one if there is a focused interactable 
             if (focusedProximityUI != null)
             {
-                foreach (ProximityUI activeArrowUI in activeArrowsUI)
+                foreach (ProximityUI activeArrowUI in NearbyProximityUIs)
                 {
                     if (activeArrowUI != focusedProximityUI && activeArrowUI != null)
                     {
@@ -52,7 +52,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
 
             // Disable arrows for interactables that are no longer in range
-            foreach (ProximityUI activeArrowUI in activeArrowsUI)
+            foreach (ProximityUI activeArrowUI in NearbyProximityUIs)
             {
                 if (activeArrowUI == null)
                     continue; // Skip destroyed objects
@@ -66,8 +66,8 @@ namespace UndeadSurvivalGame.PlayerSystems
                 }
             }
 
-            activeArrowsUI = curNearbyInteractables;
-            activeArrowsUI.RemoveWhere(ui => ui == null); // Clean up any null references
+            NearbyProximityUIs = curNearbyInteractables;
+            NearbyProximityUIs.RemoveWhere(ui => ui == null); // Clean up any null references
         }
 
         private void ToggleButtonAndTextByLineOfSight()
@@ -77,11 +77,11 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             ProximityUI curProximityUI = null;
 
-            if (Physics.SphereCast(ray, lineofSightRadius, out RaycastHit hit, buttonLineOfSightDistance, LayerMask.GetMask("Interactable")))
+            if (Physics.SphereCast(ray, LineOfSightSphereRadius, out RaycastHit hit, PickupButtonDistance, LayerMask.GetMask("Interactable")))
             {
                 ProximityUI proximityUI = hit.collider.GetComponent<ProximityUI>();
 
-                if (proximityUI != null && activeArrowsUI.Contains(proximityUI))
+                if (proximityUI != null && NearbyProximityUIs.Contains(proximityUI))
                 {
                     curProximityUI = proximityUI;
                 }
@@ -106,7 +106,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (itemPickup != null && itemPickup.itemStack != null)
             {
-                proximityUI.SetPickupPrompt(itemPickup.itemStack.item.itemName, itemPickup.itemStack.quantity);
+                proximityUI.SetPickupPrompt(itemPickup.itemStack.item.ItemName, itemPickup.itemStack.quantity);
             }
             else
             {
@@ -116,9 +116,9 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         public void RemoveProximityUIRefs(ProximityUI proximityUI)
         {
-            if (activeArrowsUI.Contains(proximityUI))
+            if (NearbyProximityUIs.Contains(proximityUI))
             {
-                activeArrowsUI.Remove(proximityUI);
+                NearbyProximityUIs.Remove(proximityUI);
             }
 
             if (focusedProximityUI == proximityUI)
@@ -135,15 +135,15 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
                 Vector3 start = ray.origin;
-                Vector3 end = ray.origin + ray.direction * buttonLineOfSightDistance;
+                Vector3 end = ray.origin + ray.direction * PickupButtonDistance;
 
                 // Draw the start sphere
                 Gizmos.color = Color.yellow;
-                Gizmos.DrawWireSphere(start, lineofSightRadius);
+                Gizmos.DrawWireSphere(start, LineOfSightSphereRadius);
 
                 // Draw the end sphere
                 Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(end, lineofSightRadius);
+                Gizmos.DrawWireSphere(end, LineOfSightSphereRadius);
 
                 // Draw the line between start and end
                 Gizmos.color = Color.red;

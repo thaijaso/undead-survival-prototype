@@ -184,10 +184,10 @@ namespace UndeadSurvivalGame.UI
             if (selectedIndex >= 0 && selectedIndex < inventory.ItemStacks.Count && inventory.ItemStacks[selectedIndex] != null)
             {
                 Item item = inventory.ItemStacks[selectedIndex].item;
-                selectedItemNameUI.SetItemName(item.itemName);
+                selectedItemNameUI.SetItemName(item.ItemName);
                 selectedItemNameUI.ToggleEquippedText(weaponManager.IsItemEquipped(item));
-                selectedItemTypeUI.SetItemType(item.itemType.ToString());
-                selectedItemDescriptionUI.SetItemDescription(item.description);
+                selectedItemTypeUI.SetItemType(item.ItemType.ToString());
+                selectedItemDescriptionUI.SetItemDescription(item.Description);
             }
             else
             {
@@ -203,7 +203,7 @@ namespace UndeadSurvivalGame.UI
             if (contextMenuController != null)
             {
                 int currentIndex = slotToSelect.GetIndex();
-                ItemType itemType = inventory.ItemStacks[currentIndex].item.itemType;
+                ItemType itemType = inventory.ItemStacks[currentIndex].item.ItemType;
 
                 int nextIndex = slotToSelect.GetIndex() + 1;
                 InventorySlotUI nextSlot = inventorySlots[nextIndex];
@@ -313,10 +313,10 @@ namespace UndeadSurvivalGame.UI
                         slot.FadeAlphaHoverBackground();
                     }
                     
-                    SetSelectedItemName(itemStack.item.itemName);
+                    SetSelectedItemName(itemStack.item.ItemName);
                     ToggleEquippedText(itemStack.item);
-                    SetSelectedItemType(itemStack.item.itemType.ToString());
-                    SetSelectedItemDescription(itemStack.item.description);
+                    SetSelectedItemType(itemStack.item.ItemType.ToString());
+                    SetSelectedItemDescription(itemStack.item.Description);
                     CurrentFocusedSlot = slot;
                 }
                 else
@@ -454,10 +454,10 @@ namespace UndeadSurvivalGame.UI
 
                 // Display icon
                 slot.ItemIconImage.enabled = true;
-                slot.ItemIconImage.sprite = itemStack.item.itemIcon;
+                slot.ItemIconImage.sprite = itemStack.item.ItemIcon;
 
                 // Display count if stackable
-                if (itemStack.item.isStackable)
+                if (itemStack.item.IsStackable)
                 {
                     slot.ItemCountText.gameObject.SetActive(true);
                     slot.ItemCountText.text = itemStack.quantity.ToString();

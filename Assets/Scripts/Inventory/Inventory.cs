@@ -108,7 +108,7 @@ namespace UndeadSurvivalGame.Gameplay
                 return quantity;
             }
 
-            if (item.isStackable)
+            if (item.IsStackable)
             {
                 quantity = AddStackableItem(item, quantity);
             }
@@ -131,9 +131,9 @@ namespace UndeadSurvivalGame.Gameplay
             {
                 var itemStack = itemStacks[index];
 
-                if (itemStack != null && itemStack.item.itemID == item.itemID)
+                if (itemStack != null && itemStack.item.ItemID == item.ItemID)
                 {
-                    int spaceLeft = item.maxStack - itemStack.quantity;
+                    int spaceLeft = item.MaxStack - itemStack.quantity;
                     if (spaceLeft > 0)
                     {
                         int amountToAdd = Math.Min(spaceLeft, quantity);
@@ -152,7 +152,7 @@ namespace UndeadSurvivalGame.Gameplay
 
                 if (indexToAdd != -1)
                 {
-                    int amountToAdd = Math.Min(quantity, item.maxStack);
+                    int amountToAdd = Math.Min(quantity, item.MaxStack);
                     itemStacks[indexToAdd] = new ItemStack(item, amountToAdd);
                     quantity -= amountToAdd;
                     OnInventoryChanged?.Invoke();
@@ -211,7 +211,7 @@ namespace UndeadSurvivalGame.Gameplay
 
             foreach (var itemStack in itemStacks)
             {
-                if (itemStack != null && itemStack.item.itemID == itemID)
+                if (itemStack != null && itemStack.item.ItemID == itemID)
                 {
                     total += itemStack.quantity;
                 }
@@ -232,7 +232,7 @@ namespace UndeadSurvivalGame.Gameplay
 
             foreach (var itemStack in itemStacks)
             {
-                if (itemStack != null && itemStack.item.itemType == ItemType.Ammo && itemStack.item.ammoType == ammoType)
+                if (itemStack != null && itemStack.item.ItemType == ItemType.Ammo && itemStack.item.AmmoType == ammoType)
                 {
                     total += itemStack.quantity;
                 }
@@ -248,7 +248,7 @@ namespace UndeadSurvivalGame.Gameplay
             for (int index = 0; index < itemStacks.Length; index++)
             {
                 var itemStack = itemStacks[index];
-                if (itemStack != null && itemStack.item.itemType == ItemType.Ammo && itemStack.item.ammoType == ammoType)
+                if (itemStack != null && itemStack.item.ItemType == ItemType.Ammo && itemStack.item.AmmoType == ammoType)
                 {
                     itemStack.DecrementQuantity();
 
@@ -293,10 +293,31 @@ namespace UndeadSurvivalGame.Gameplay
                 return;
             }
 
-            GameObject droppedItemObj = Instantiate(itemStack.item.prefab, playerTransform.position, Quaternion.identity);
+            var itemsGameObject = GameObject.Find("Items");
+            Quaternion prefabRotation = itemStack.item.WorldPrefab.transform.rotation;
+            GameObject droppedItemObj;
+
+            if (itemsGameObject == null)
+            {
+                Debug.LogWarning("No 'Items' GameObject found in the scene. Dropped item will be instantiated at root level.");
+                droppedItemObj = Instantiate(itemStack.item.WorldPrefab, playerTransform.position, prefabRotation);
+            }
+            else
+            {
+                droppedItemObj = Instantiate(
+                    itemStack.item.WorldPrefab,
+                    playerTransform.position,
+                    prefabRotation,
+                    itemsGameObject.transform
+                );
+            }
+
             droppedItemObj.GetComponent<Collider>().enabled = true;
-            droppedItemObj.GetComponent<ItemPickupInteractable>().enabled = true;
             droppedItemObj.GetComponent<ProximityUI>().enabled = true;
+
+            ItemPickupInteractable itemPickup = droppedItemObj.GetComponent<ItemPickupInteractable>();
+            itemPickup.Initialize(itemStack.item, itemStack.quantity);
+            itemPickup.enabled = true;
         }
 
         public Item GetFirstWeapon()
@@ -309,7 +330,7 @@ namespace UndeadSurvivalGame.Gameplay
 
             foreach (var itemStack in itemStacks)
             {
-                if (itemStack.item.itemType == ItemType.Weapon)
+                if (itemStack.item.ItemType == ItemType.Weapon)
                 {
                     return itemStack.item;
                 }

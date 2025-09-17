@@ -14,6 +14,11 @@ namespace UndeadSurvivalGame.Gameplay
         public event Action<string, int> OnPickupAllFailed;
         public event Action OnInventoryFull;
 
+        public void Initialize(Item item, int quantity)
+        {
+            itemStack = new ItemStack(item, quantity);
+        }
+
         private void Start()
         {
             if (itemStack == null || itemStack.item == null)
@@ -30,7 +35,7 @@ namespace UndeadSurvivalGame.Gameplay
                 return;
             }
 
-            proximityUI.SetPickupPrompt(itemStack.item.itemName, itemStack.quantity);
+            proximityUI.SetPickupPrompt(itemStack.item.ItemName, itemStack.quantity);
         }
 
         public void Interact(Player player)
@@ -41,10 +46,10 @@ namespace UndeadSurvivalGame.Gameplay
 
                 if (remaining == 0)
                 {
-                    Debug.Log($"ItemPickupInteractable.Interact(): picked up {itemStack.item.itemName}");
+                    Debug.Log($"ItemPickupInteractable.Interact(): picked up {itemStack.item.ItemName}");
 
                     MMSoundManager.Instance.PlaySound(
-                        itemStack.item.pickupAllSound,
+                        itemStack.item.PickupAllSound,
                         MMSoundManager.MMSoundManagerTracks.Sfx,
                         transform.position
                     );
@@ -55,19 +60,19 @@ namespace UndeadSurvivalGame.Gameplay
                 }
                 else if (remaining < itemStack.quantity)
                 {
-                    Debug.Log($"ItemPickupInteractable.Interact(): {name} could not pick up entire {itemStack.item.itemName}. Inventory full.");
+                    Debug.Log($"ItemPickupInteractable.Interact(): {name} could not pick up entire {itemStack.item.ItemName}. Inventory full.");
 
                     MMSoundManager.Instance.PlaySound(
-                        itemStack.item.pickupSomeSound,
+                        itemStack.item.PickupSomeSound,
                         MMSoundManager.MMSoundManagerTracks.Sfx,
                         transform.position
                     );
                     itemStack.quantity = remaining;
-                    OnPickupAllFailed?.Invoke(itemStack.item.itemName, itemStack.quantity);
+                    OnPickupAllFailed?.Invoke(itemStack.item.ItemName, itemStack.quantity);
                 }
                 else if (remaining == itemStack.quantity)
                 {
-                    Debug.Log($"ItemPickupInteractable.Interact(): {name} could not pickup any of {itemStack.item.itemName}.");
+                    Debug.Log($"ItemPickupInteractable.Interact(): {name} could not pickup any of {itemStack.item.ItemName}.");
 
                     // Play error sound?
                     OnInventoryFull?.Invoke();
