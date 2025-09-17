@@ -222,7 +222,7 @@ namespace UndeadSurvivalGame.UI
             else
             {
                 PlayCloseInventoryFeedback();
-                contextMenuController.Hide();
+                contextMenuController.HideMenu();
                 inventoryGridUIController.ClearSelection();
                 if (!inventory.IsEmpty())
                 {
@@ -329,7 +329,7 @@ namespace UndeadSurvivalGame.UI
 
             if (contextMenuController.IsVisible)
             {
-                contextMenuController.Hide();
+                contextMenuController.HideMenu();
                 inventoryGridUIController.ClearSelection();
                 PlayCloseContextMenuSound();
             }
@@ -484,7 +484,7 @@ namespace UndeadSurvivalGame.UI
 
             if (contextMenuController != null)
             {
-                contextMenuController.Hide();
+                contextMenuController.HideMenu();
             }
             else
             {

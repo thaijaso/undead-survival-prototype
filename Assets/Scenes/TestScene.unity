@@ -93804,7 +93804,6 @@ MonoBehaviour:
   playerMenuUIController: {fileID: 167462151}
   currentWeaponUIController: {fileID: 114884577}
   healthUIController: {fileID: 1648740736}
-  proximityUIs: []
   interactionSensor: {fileID: 0}
   menuOverlayController: {fileID: 0}
 --- !u!1001 &469141736
@@ -380190,9 +380189,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7de40c70d3393a34bbff565ae6084c81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractionSensor
-  arrowColliderRadius: 10
-  buttonLineOfSightDistance: 4
-  lineofSightRadius: 1
+  ArrowDetectionRadius: 10
+  PickupButtonDistance: 5
+  LineOfSightSphereRadius: 0.5
 --- !u!1001 &1914703697
 PrefabInstance:
   m_ObjectHideFlags: 0

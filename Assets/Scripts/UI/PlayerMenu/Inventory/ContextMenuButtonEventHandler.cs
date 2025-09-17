@@ -5,69 +5,40 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ContextMenuButtonEventHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+namespace UndeadSurvivalGame.UI
 {
-    [SerializeField]
-    private Image hoverBackgroundImage;
 
-    [SerializeField]
-    private AnimateAlpha animateAlpha;
-
-    [SerializeField]
-    private MMF_Player hoverSoundFeedback;
-
-    public event Action OnButtonClicked;
-
-    public void OnPointerEnter(PointerEventData eventData)
+    public class ContextMenuButtonEventHandler : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
     {
-        Debug.Log($"ContextMenuButtonEventHandler.OnPointerEnter() - Pointer entered on {gameObject.name}");
+        [SerializeField]
+        private ContextMenuButtonUI buttonUI;
 
-        if (animateAlpha == null)
+        public event Action<ContextMenuButtonUI> OnButtonEnter;
+        public event Action OnButtonClicked;
+
+        private void Awake()
         {
-            Debug.LogWarning("AnimateAlpha component is not assigned.");
-            return;
+            if (buttonUI == null)
+            {
+                buttonUI = GetComponent<ContextMenuButtonUI>();
+            }
+
+            if (buttonUI == null)
+            {
+                Debug.LogError($"ContextMenuButtonEventHandler.Awake() - No ContextMenuButtonUI found on {gameObject.name} or assigned in the inspector.");
+            }
         }
 
-        if (hoverBackgroundImage == null)
+        public void OnPointerEnter(PointerEventData eventData)
         {
-            Debug.LogWarning("Hover background Image is not assigned.");
-            return;
+            Debug.Log($"ContextMenuButtonEventHandler.OnPointerEnter() - Pointer entered on {gameObject.name}");
+            OnButtonEnter?.Invoke(buttonUI);
         }
 
-        if (hoverSoundFeedback == null)
+        public void OnPointerClick(PointerEventData eventData)
         {
-            Debug.LogWarning("Hover sound feedback is not assigned.");
-            return;
+            Debug.Log($"ContextMenuButtonEventHandler.OnPointerClick() - Pointer clicked on {gameObject.name}");
+            OnButtonClicked?.Invoke();
         }
-
-        hoverSoundFeedback.PlayFeedbacks();
-        hoverBackgroundImage.enabled = true;
-        animateAlpha.StartContinuousFade();
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        Debug.Log($"ContextMenuButtonEventHandler.OnPointerExit() - Pointer exited from {gameObject.name}");
-
-        if (animateAlpha == null)
-        {
-            Debug.LogWarning("AnimateAlpha component is not assigned.");
-            return;
-        }
-
-        if (hoverBackgroundImage == null)
-        {
-            Debug.LogWarning("Hover background Image is not assigned.");
-            return;
-        }
-
-        hoverBackgroundImage.enabled = false;
-        animateAlpha.StopContinuousFade();
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        Debug.Log($"ContextMenuButtonEventHandler.OnPointerClick() - Pointer clicked on {gameObject.name}");
-        OnButtonClicked?.Invoke();
     }
 }

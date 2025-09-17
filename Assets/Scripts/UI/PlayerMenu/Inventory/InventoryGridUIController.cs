@@ -352,7 +352,7 @@ namespace UndeadSurvivalGame.UI
                 CurrentFocusedSlot.FadeAlphaHoverBackground();
             }
 
-            contextMenuController.Hide();
+            contextMenuController.HideMenu();
         }
 
         private void SetSelectedItemName(string itemName)
