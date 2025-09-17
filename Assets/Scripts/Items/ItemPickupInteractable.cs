@@ -14,11 +14,11 @@ namespace UndeadSurvivalGame.Gameplay
         public event Action<string, int> OnPickupAllFailed;
         public event Action OnInventoryFull;
 
-        private void Awake()
+        private void Start()
         {
             if (itemStack == null || itemStack.item == null)
             {
-                Debug.LogError($"ItemPickupInteractable.Awake(): {name} has no ItemStack or Item assigned.");
+                Debug.LogError($"ItemPickupInteractable.Start(): {name} has no ItemStack or Item assigned.");
                 return;
             }
 
@@ -26,11 +26,11 @@ namespace UndeadSurvivalGame.Gameplay
 
             if (proximityUI == null)
             {
-                Debug.LogError($"ItemPickupInteractable.Awake(): {name} has no ProximityUI component.");
+                Debug.LogError($"ItemPickupInteractable.Start(): {name} has no ProximityUI component.");
                 return;
             }
 
-            proximityUI.DisplayPickupPrompt(itemStack.item.itemName, itemStack.quantity);
+            proximityUI.SetPickupPrompt(itemStack.item.itemName, itemStack.quantity);
         }
 
         public void Interact(Player player)

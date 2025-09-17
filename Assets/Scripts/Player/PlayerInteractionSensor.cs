@@ -106,7 +106,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (itemPickup != null && itemPickup.itemStack != null)
             {
-                proximityUI.DisplayPickupPrompt(itemPickup.itemStack.item.itemName, itemPickup.itemStack.quantity);
+                proximityUI.SetPickupPrompt(itemPickup.itemStack.item.itemName, itemPickup.itemStack.quantity);
             }
             else
             {

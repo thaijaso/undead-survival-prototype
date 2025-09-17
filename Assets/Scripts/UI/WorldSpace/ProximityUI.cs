@@ -29,6 +29,7 @@ namespace UndeadSurvivalGame.UI
 
         void Awake()
         {
+            Debug.Log($"ProximityUI.Awake() called on {name}, instanceID: {GetInstanceID()}");
             SetupArrow();
             SetupButton();
             SetupContent();
@@ -98,7 +99,7 @@ namespace UndeadSurvivalGame.UI
 
             if (itemPickupInteractable != null)
             {
-                itemPickupInteractable.OnPickupAllFailed += DisplayPickupPrompt;
+                itemPickupInteractable.OnPickupAllFailed += SetPickupPrompt;
                 itemPickupInteractable.OnInventoryFull += ShowInventoryFullFeedback;
             }
         }
@@ -164,20 +165,23 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
-        public void DisplayPickupPrompt(string itemName, int quantity)
+        public void SetPickupPrompt(string itemName, int quantity)
         {
             string text = itemPickupTemplate
                 .Replace("{itemName}", itemName)
                 .Replace("{quantity}", quantity.ToString());
-            DisplayPromptText(text);
+            SetPromptText(text);
         }
 
-        private void DisplayPromptText(string text)
+        private void SetPromptText(string text)
         {
-            if (itemNameText != null)
+            if (itemNameText == null)
             {
-                itemNameText.text = text;
+                Debug.LogWarning($"ProximityUI.DisplayPromptText(): {name} has no ItemNameText assigned.");
+                return;
             }
+
+            itemNameText.text = text;
         }
 
         private void ShowInventoryFullFeedback()
@@ -196,7 +200,7 @@ namespace UndeadSurvivalGame.UI
 
         private void DisplayInventoryFullText()
         {
-            DisplayPromptText(inventoryFullTemplate);
+            SetPromptText(inventoryFullTemplate);
         }
 
         public void HideAllPrompts()
