@@ -13,6 +13,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         public PlayerCharacterController PlayerCharacterController { get; private set; }
         public PlayerCameraController PlayerCameraController { get; private set; }
         public PlayerIKController PlayerIKController { get; private set; }
+        public ArmsLayerWeightController ArmsLayerWeightController { get; private set; }
         public PlayerAnimatorEvents PlayerAnimatorEvents { get; private set; }
         public AnimationManager AnimationManager { get; private set; }
 
@@ -98,8 +99,17 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupPlayerInventory();
             SetupPlayerMenuUIController();
             SetupPlayerInteractionSensor();
+            SetupArmsLayerWeightController();
 
             stateMachine = new StateMachine<PlayerState>(gameObject.name);
+        }
+
+        private void SetupArmsLayerWeightController()
+        {
+            ArmsLayerWeightController = GetComponent<ArmsLayerWeightController>();
+
+            if (ArmsLayerWeightController == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupArmsLayerWeightController(): ArmsLayerWeightController component is missing!");
         }
 
         private void SetupPlayerInput()

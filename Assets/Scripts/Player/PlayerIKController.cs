@@ -45,25 +45,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         public bool debugOverridePerComponentIKWeight = false;
 
         [Header("Per-Component IK Blend Settings")]
-        [SerializeField, Range(0f, 1f)]
-        // private float aimIKTargetWeight = 1f;
-
-        // [SerializeField, Range(0f, 20f)]
-        // private float aimIKBlendSpeed = 5f;
         private float aimIKCurrentWeight = 1f;
-
-        // [SerializeField, Range(0f, 1f)]
-        // private float fbbIKTargetWeight = 1f;
-
-        // [SerializeField, Range(0f, 20f)]
-        // private float fbbIKBlendSpeed = 5f;
-        // private float fbbIKCurrentWeight = 1f;
-
-        // [SerializeField, Range(0f, 1f)]
-        // private float lookAtIKTargetWeight = 1f;
-        // [SerializeField, Range(0f, 20f)]
-        // private float lookAtIKBlendSpeed = 5f;
-        // private float lookAtIKCurrentWeight = 1f;
 
         public Vector3 gunHoldOffset;
         public Vector3 leftHandOffset;

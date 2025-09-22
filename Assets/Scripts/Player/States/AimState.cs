@@ -31,6 +31,8 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupCrosshair();
             SetupCamera();
             SetupWeapon();
+
+            player.ArmsLayerWeightController.SetWeight(0f);
         }
 
         private void SetupIK()
