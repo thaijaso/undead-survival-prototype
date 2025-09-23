@@ -62,8 +62,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             // Only setup FBBIK if it exists
             if (fullBodyBipedIK != null)
             {
-                fullBodyBipedIK.solver.OnPreRead += OnPreRead;
-
                 // Assign left hand effector target if available
                 if (leftHandIKTarget != null)
                 {
@@ -168,43 +166,11 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (recoil != null)
             {
                 fullBodyBipedIK.references.rightHand.rotation = recoil.rotationOffset * rightHandRotation;
-                //fullBodyBipedIK.references.leftHand.rotation = recoil.rotationOffset * rightHandRotation * leftHandRotRelToRightHand;
             }
             else
             {
                 fullBodyBipedIK.references.rightHand.rotation = rightHandRotation;
-                //fullBodyBipedIK.references.leftHand.rotation = rightHandRotation * leftHandRotRelToRightHand;
             }
-        }
-
-        // Final calculations before FBBIK solves. Recoil has already solved by, so we can use its calculated offsets. 
-        // Here we set the left hand position relative to the position and rotation of the right hand.
-        private void OnPreRead()
-        {
-            if (fullBodyBipedIK == null || fullBodyBipedIK.references.rightHand == null || fullBodyBipedIK.references.leftHand == null)
-                return;
-
-            // Always set left hand effector weights to 1 in case FinalIK resets them
-            if (fullBodyBipedIK.solver.leftHandEffector != null)
-            {
-                //fullBodyBipedIK.solver.leftHandEffector.positionWeight = 1f;
-                //fullBodyBipedIK.solver.leftHandEffector.rotationWeight = 1f;
-            }
-
-            // Only apply manual offset if NOT using a grip target
-            // if (fullBodyBipedIK.solver.leftHandEffector.target == null)
-            // {
-            //     Quaternion r = recoil != null ? recoil.rotationOffset * rightHandRotation : rightHandRotation;
-            //     Vector3 leftHandTarget = fullBodyBipedIK.references.rightHand.position +
-            //                             fullBodyBipedIK.solver.rightHandEffector.positionOffset +
-            //                             r * leftHandPosRelToRightHand;
-
-            //     fullBodyBipedIK.solver.leftHandEffector.positionOffset +=
-            //         leftHandTarget -
-            //         fullBodyBipedIK.references.leftHand.position -
-            //         fullBodyBipedIK.solver.leftHandEffector.positionOffset +
-            //         r * leftHandOffset;
-            // }
         }
 
         // Rotating the head to look at the target
@@ -216,12 +182,6 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             Quaternion headRotationTarget = Quaternion.FromToRotation(fullBodyBipedIK.references.head.rotation * headLookAxis, lookAtTarget - fullBodyBipedIK.references.head.position);
             fullBodyBipedIK.references.head.rotation = Quaternion.Lerp(Quaternion.identity, headRotationTarget, headLookWeight) * fullBodyBipedIK.references.head.rotation;
-        }
-
-        // Cleaning up the delegates
-        void OnDestroy()
-        {
-            if (fullBodyBipedIK != null) fullBodyBipedIK.solver.OnPreRead -= OnPreRead;
         }
 
         public void SetAllIKWeights(float weight)
