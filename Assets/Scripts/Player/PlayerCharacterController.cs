@@ -8,7 +8,8 @@ namespace UndeadSurvivalGame.PlayerSystems
     public class PlayerCharacterController : MonoBehaviour
     {
         // Set this to true to enable debug logs
-        [SerializeField] private bool debugLogs = false;
+        [SerializeField]
+        private bool debugLogs = false;
 
         private const float EPSILON = 0.01f; // For velocity clamping
         public CharacterController CharacterController { get; private set; }

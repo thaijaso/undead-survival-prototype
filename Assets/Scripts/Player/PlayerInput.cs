@@ -18,6 +18,8 @@ namespace UndeadSurvivalGame.PlayerSystems
         // Used in the animator to determine if Player should enter walk cycle
         public bool MoveCommited { get; internal set; }
 
+        public bool SprintStopGracePeriodFinished { get; internal set; }
+
         private float moveGraceTimer = 0f;
         private float graceDuration = 0.1f;
 
@@ -48,6 +50,12 @@ namespace UndeadSurvivalGame.PlayerSystems
         [SerializeField]
         private float maxInputThreshold = 0.6f;
 
+    
+        [SerializeField]
+        private float sprintStopThreshold = .15f; // gate transition to sprint stop until aimThreshold has passed
+        
+        private float sprintStopGraceTimer = 0f;
+
         Vector3 currentAnimationBlendVector;
         Vector3 animationVelocity;
 
@@ -55,6 +63,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         public Vector3 stopDirection { get; private set; } = Vector3.forward;
         // Encoded as: 0 = forward, 1 = right, 2 = down, 3 = left
         public int stopDirectionIndex { get; private set; } = 0;
+
 
         private void Awake()
         {
@@ -103,10 +112,10 @@ namespace UndeadSurvivalGame.PlayerSystems
             IsAiming = aimAction.ReadValue<float>() > 0.0f;
             IsAttacking = attackAction.ReadValue<float>() > 0.0f;
             IsReloading = reloadAction.ReadValue<float>() > 0.0f;
-            //IsPlayerMenuPressed = playerMenuAction.triggered;
             IsInteracting = interactAction.triggered;
 
             HandleMoveCommitedGracePeriod();
+            HandleSprintStopGracePeriod();
         }
 
         private void HandleMoveCommitedGracePeriod()
@@ -124,6 +133,26 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 moveGraceTimer = 0f; // Reset grace timer when not moving
                 MoveCommited = false; // Reset move committed state when not moving
+            }
+        }
+
+        private void HandleSprintStopGracePeriod()
+        {
+            Debug.Log($"SprintStopGraceTimer: {sprintStopGraceTimer}, SprintStopGracePeriodFinished: {SprintStopGracePeriodFinished}");
+            // queue buffer when sprint is released
+            if (!IsSprinting && !IsMoving) 
+            {
+                sprintStopGraceTimer += Time.deltaTime;
+
+                if (sprintStopGraceTimer > sprintStopThreshold)
+                {
+                    SprintStopGracePeriodFinished = true;
+                }
+            }
+            else
+            {
+                sprintStopGraceTimer = 0f;
+                SprintStopGracePeriodFinished = false;
             }
         }
 

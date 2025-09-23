@@ -57,6 +57,8 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 player.InteractionSensor.CurrentInteractable.Interact(player);
             }
+
+            animationManager.SetSprintStopGracePeriodFinished(player.PlayerInput.SprintStopGracePeriodFinished);
         }
 
         public virtual void PhysicsUpdate()

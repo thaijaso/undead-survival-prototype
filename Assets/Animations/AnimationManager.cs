@@ -232,4 +232,9 @@ public class AnimationManager
     {
         animator.SetBool("IsReloading", isReloading);
     }
+
+    public void SetSprintStopGracePeriodFinished(bool finished)
+    {
+        animator.SetBool("SprintStopGracePeriodFinished", finished);
+    }
 }
