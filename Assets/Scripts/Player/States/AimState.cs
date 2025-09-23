@@ -116,6 +116,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 animationManager.SetIsAiming(false);
                 player.PlayerIKController.SetIKTargetWeight(0f);
+                player.ArmsLayerWeightController.SetWeight(1f);
                 player.PlayerCameraController.DisableCameraSway();
                 player.PlayerCameraController.ResetCameraOffset();
                 player.CrosshairController.DisableCrosshair();

@@ -21,31 +21,10 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         // Debug flag to allow inspector override of IK weights
         [SerializeField]
-        public bool debugOverrideIKWeight = false;
+        private bool debugOverrideIKWeight = false;
 
-        [Header("IK Blend Phase Threshold")]
-        [Range(0f, 1f)]
         [SerializeField]
-        private float ikBlendPhaseThreshold = 0.25f;
-
-        [Header("IK Blend Phase Speeds")]
-        [SerializeField]
-        private float phase1BlendSpeed = 1f;
-        [SerializeField]
-        private float phase2BlendSpeed = 3f;
-
-        [Header("Per-Component IK Weights")]
-        [SerializeField, Range(0f, 1f)]
-        private float aimIKWeight = 1f;
-        [SerializeField, Range(0f, 1f)]
-        private float fbbIKWeight = 1f;
-        [SerializeField, Range(0f, 1f)]
-        private float lookAtIKWeight = 1f;
-        [SerializeField]
-        public bool debugOverridePerComponentIKWeight = false;
-
-        [Header("Per-Component IK Blend Settings")]
-        private float aimIKCurrentWeight = 1f;
+        private float blendSpeed = 12f;
 
         public Vector3 gunHoldOffset;
         public Vector3 leftHandOffset;
@@ -247,25 +226,13 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         public void SetAllIKWeights(float weight)
         {
-            if (debugOverridePerComponentIKWeight)
-            {
-                if (aimIK != null)
-                    aimIK.solver.IKPositionWeight = aimIKWeight;
-                if (fullBodyBipedIK != null)
-                    fullBodyBipedIK.solver.IKPositionWeight = fbbIKWeight;
-                if (lookAtIK != null)
-                    lookAtIK.solver.IKPositionWeight = lookAtIKWeight;
-            }
-            else
-            {
-                currentIKWeight = weight;
-                if (aimIK != null)
-                    aimIK.solver.IKPositionWeight = currentIKWeight;
-                if (fullBodyBipedIK != null)
-                    fullBodyBipedIK.solver.IKPositionWeight = currentIKWeight;
-                if (lookAtIK != null)
-                    lookAtIK.solver.IKPositionWeight = currentIKWeight;
-            }
+            currentIKWeight = weight;
+            if (aimIK != null)
+                aimIK.solver.IKPositionWeight = currentIKWeight;
+            if (fullBodyBipedIK != null)
+                fullBodyBipedIK.solver.IKPositionWeight = currentIKWeight;
+            if (lookAtIK != null)
+                lookAtIK.solver.IKPositionWeight = currentIKWeight;
         }
 
         public void SetIKTargetWeight(float target)
@@ -277,9 +244,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         public void BlendAllIKWeights()
         {
-            // 2 phase ik blend to preserve the weighty feel and hide the left hand lag   
-            float blend = (currentIKWeight < ikBlendPhaseThreshold) ? phase1BlendSpeed : phase2BlendSpeed;
-            currentIKWeight = Mathf.MoveTowards(currentIKWeight, targetIKWeight, Time.deltaTime * blend);
+            currentIKWeight = Mathf.MoveTowards(currentIKWeight, targetIKWeight, Time.deltaTime * blendSpeed);
             SetAllIKWeights(currentIKWeight);
         }
 
@@ -350,11 +315,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 SetAllIKWeights(0f);
                 return;
             }
-            if (debugOverridePerComponentIKWeight)
-            {
-                SetAllIKWeights(0f); // Value ignored, per-component weights used
-                return;
-            }
+          
             if (debugOverrideIKWeight)
             {
                 SetAllIKWeights(masterIKWeight); // Directly set from inspector
@@ -399,63 +360,6 @@ namespace UndeadSurvivalGame.PlayerSystems
                     fullBodyBipedIK.references.rightHand.rotation
                 );
             }
-        }
-
-        // Coroutine to blend AimIK out and in
-        private Coroutine aimIKBlendCoroutine;
-
-        /// <summary>
-        /// Blends AimIK weight out to minWeight, then back in to maxWeight, over the given durations.
-        /// </summary>
-        /// <param name="minWeight">The weight to blend out to (e.g., 0f).</param>
-        /// <param name="maxWeight">The weight to blend back in to (e.g., 1f).</param>
-        /// <param name="blendOutDuration">Time to blend out (seconds).</param>
-        /// <param name="blendInDuration">Time to blend in (seconds).</param>
-        public void BlendAimIKOutAndIn(float minWeight, float maxWeight, float blendOutDuration, float blendInDuration)
-        {
-            if (aimIKBlendCoroutine != null)
-                StopCoroutine(aimIKBlendCoroutine);
-            aimIKBlendCoroutine = StartCoroutine(BlendAimIKOutAndInCoroutine(minWeight, maxWeight, blendOutDuration, blendInDuration));
-        }
-
-        private IEnumerator BlendAimIKOutAndInCoroutine(float minWeight, float maxWeight, float blendOutDuration, float blendInDuration)
-        {
-            // Blend out
-            float blendOutElapsed = 0f;
-            float blendOutStartWeight = aimIKCurrentWeight;
-            while (blendOutElapsed < blendOutDuration)
-            {
-                blendOutElapsed += Time.deltaTime;
-                float currentWeight = Mathf.Lerp(blendOutStartWeight, minWeight, blendOutElapsed / blendOutDuration);
-                if (aimIK != null)
-                    aimIK.solver.IKPositionWeight = currentWeight;
-                aimIKCurrentWeight = currentWeight;
-                yield return null;
-            }
-
-            if (aimIK != null)
-                aimIK.solver.IKPositionWeight = minWeight;
-
-            aimIKCurrentWeight = minWeight;
-
-            // Blend in
-            float blendInElapsed = 0f;
-            float blendInStartWeight = minWeight;
-            while (blendInElapsed < blendInDuration)
-            {
-                blendInElapsed += Time.deltaTime;
-                float currentWeight = Mathf.Lerp(blendInStartWeight, maxWeight, blendInElapsed / blendInDuration);
-                if (aimIK != null)
-                    aimIK.solver.IKPositionWeight = currentWeight;
-                aimIKCurrentWeight = currentWeight;
-                yield return null;
-            }
-
-            if (aimIK != null)
-                aimIK.solver.IKPositionWeight = maxWeight;
-
-            aimIKCurrentWeight = maxWeight;
-            aimIKBlendCoroutine = null;
         }
     }
 }
