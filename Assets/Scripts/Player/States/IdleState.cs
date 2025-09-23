@@ -27,7 +27,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetIsStrafing(false);
             animationManager.SetMoveParams(0f, 0f);
 
-            player.PlayerIKController.SetIKTargetWeight(0f);
+            player.PlayerIKController.EnableIK();
             player.ArmsLayerWeightController.SetWeight(1f);
         }
 
@@ -71,12 +71,6 @@ namespace UndeadSurvivalGame.PlayerSystems
         public override void PhysicsUpdate()
         {
             base.PhysicsUpdate();
-        }
-
-        public override void LateUpdate()
-        {
-            base.LateUpdate();
-            player.PlayerIKController.BlendAllIKWeights();
         }
     }
 }

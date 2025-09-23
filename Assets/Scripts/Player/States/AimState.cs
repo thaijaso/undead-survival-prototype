@@ -26,18 +26,12 @@ namespace UndeadSurvivalGame.PlayerSystems
             base.Enter();
 
             animationManager.SetIsAiming(true);
-
-            SetupIK();
+            player.PlayerIKController.EnableIK();
             SetupCrosshair();
             SetupCamera();
             SetupWeapon();
 
             player.ArmsLayerWeightController.SetWeight(0f);
-        }
-
-        private void SetupIK()
-        {
-            player.PlayerIKController.SetIKTargetWeight(1f);
         }
 
         private void SetupCamera()
@@ -115,7 +109,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (ShouldResetAimState(nextState))
             {
                 animationManager.SetIsAiming(false);
-                player.PlayerIKController.SetIKTargetWeight(0f);
+                player.PlayerIKController.DisableIK();
                 player.ArmsLayerWeightController.SetWeight(1f);
                 player.PlayerCameraController.DisableCameraSway();
                 player.PlayerCameraController.ResetCameraOffset();
@@ -154,7 +148,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             // Prevent automatic transitions if debug mode is active
             if (PlayerDebugger.ForceAimDebugMode)
             {
-                player.PlayerIKController.SetIKTargetWeight(1f); // Ensure IK weight is set every frame in debug mode
+                player.PlayerIKController.EnableIK(); // Ensure IK weight is set every frame in debug mode
                 if (player.PlayerInput.IsMoving)
                 {
                     player.CrosshairController.ExpandAndContractCrosshair(

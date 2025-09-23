@@ -7,6 +7,9 @@ namespace UndeadSurvivalGame.PlayerSystems
 {
     public class PlayerIKController : MonoBehaviour
     {
+        [Header("IK System")]
+        public bool IKEnabled = false;
+        
         [Header("Master IK Weight")]
         [Range(0f, 1f)]
         [SerializeField]
@@ -16,15 +19,45 @@ namespace UndeadSurvivalGame.PlayerSystems
         public float headLookWeight = 1f;
 
         // IK master weight blending
-        private float currentIKWeight = 0f;
-        private float targetIKWeight = 1f;
+        private float currentAimIKWeight = 0f;
+        private float currentFBBIKWeight = 0f;
 
         // Debug flag to allow inspector override of IK weights
         [SerializeField]
         private bool debugOverrideIKWeight = false;
 
         [SerializeField]
-        private float blendSpeed = 12f;
+        private float maxAimIKWeight = 1f;
+
+        [SerializeField]
+        private float maxFBBIKWeight = .3f;
+
+        [SerializeField]
+        private float maxHeadLookWeight = 1f;
+
+        private float targetAimIKWeight = 1f;
+
+        [SerializeField]
+        private float aimIKBlendInSpeed = 3f;
+
+        [SerializeField]
+        private float aimIKBlendOutSpeed = 3f;
+
+        [SerializeField]
+        private float fbbikBlendInSpeed = 3f;
+
+        [SerializeField]
+        private float fbbikBlendOutSpeed = 3f;
+
+        [SerializeField]
+        private float headLookBlendInSpeed = 3f;
+
+        [SerializeField]
+        private float headLookBlendOutSpeed = 3f;
+
+        private float targetFBBIKWeight = .3f;
+
+        private float targetHeadLookWeight = 1f;
 
         public Vector3 gunHoldOffset;
         public Vector3 leftHandOffset;
@@ -89,9 +122,52 @@ namespace UndeadSurvivalGame.PlayerSystems
             Debug.Log($"[PlayerIKController] Components found - AimIK: {aimIK != null}, FBBIK: {fullBodyBipedIK != null}, LookAtIK: {lookAtIK != null}");
         }
 
+        public void EnableIK()
+        {
+            // restore targets
+            targetAimIKWeight = maxAimIKWeight;
+            targetFBBIKWeight = maxFBBIKWeight;
+            targetHeadLookWeight = maxHeadLookWeight;   
+        }
+
+        public void DisableIK()
+        {
+            // zero targets
+            targetAimIKWeight = 0f;
+            targetFBBIKWeight = 0f;
+            targetHeadLookWeight = 0f;
+        }
+
         public void SetLeftHandGripSource(Transform gripSource)
         {
             leftHandGripSource = gripSource;
+        }
+
+        public void UpdateAllIKWeights()
+        {
+            if (aimIK != null)
+                aimIK.solver.IKPositionWeight = currentAimIKWeight * masterIKWeight;
+            if (fullBodyBipedIK != null)
+                fullBodyBipedIK.solver.IKPositionWeight = currentFBBIKWeight * masterIKWeight;
+            if (lookAtIK != null)
+                lookAtIK.solver.IKPositionWeight = headLookWeight * masterIKWeight;
+        }
+
+        private void BlendAllIKWeights()
+        {
+            // AimIK blending
+            float aimBlendSpeed = currentAimIKWeight < targetAimIKWeight ? aimIKBlendInSpeed : aimIKBlendOutSpeed;
+            currentAimIKWeight = Mathf.MoveTowards(currentAimIKWeight, targetAimIKWeight, Time.deltaTime * aimBlendSpeed);
+
+            // FBBIK blending
+            float fbbikBlendSpeed = currentFBBIKWeight < targetFBBIKWeight ? fbbikBlendInSpeed : fbbikBlendOutSpeed;
+            currentFBBIKWeight = Mathf.MoveTowards(currentFBBIKWeight, targetFBBIKWeight, Time.deltaTime * fbbikBlendSpeed);
+
+            // HeadLook blending
+            float headLookBlendSpeed = headLookWeight < targetHeadLookWeight ? headLookBlendInSpeed : headLookBlendOutSpeed;
+            headLookWeight = Mathf.MoveTowards(headLookWeight, targetHeadLookWeight, Time.deltaTime * headLookBlendSpeed);
+
+            UpdateAllIKWeights();
         }
 
         public void UpdateIKs(Vector3 faceDirection, Vector3 aimTarget)
@@ -184,30 +260,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             fullBodyBipedIK.references.head.rotation = Quaternion.Lerp(Quaternion.identity, headRotationTarget, headLookWeight) * fullBodyBipedIK.references.head.rotation;
         }
 
-        public void SetAllIKWeights(float weight)
-        {
-            currentIKWeight = weight;
-            if (aimIK != null)
-                aimIK.solver.IKPositionWeight = currentIKWeight;
-            if (fullBodyBipedIK != null)
-                fullBodyBipedIK.solver.IKPositionWeight = currentIKWeight;
-            if (lookAtIK != null)
-                lookAtIK.solver.IKPositionWeight = currentIKWeight;
-        }
-
-        public void SetIKTargetWeight(float target)
-        {
-            if (debugOverrideIKWeight) return; // Prevent state machine from overriding in debug mode
-            targetIKWeight = Mathf.Clamp01(target);
-            // Do not call SetIKWeights here for smooth blending
-        }
-
-        public void BlendAllIKWeights()
-        {
-            currentIKWeight = Mathf.MoveTowards(currentIKWeight, targetIKWeight, Time.deltaTime * blendSpeed);
-            SetAllIKWeights(currentIKWeight);
-        }
-
         public void SetAimTransform(Transform aimTransform)
         {
             if (aimIK != null)
@@ -228,13 +280,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             var aimIK = GetComponent<AimIK>();
             if (aimIK != null)
                 aimIK.enabled = false;
-        }
-
-        [Button("Apply IK Weights"), EnableIf("@UnityEngine.Application.isPlaying")]
-        public void ApplyIKWeights()
-        {
-            SetIKTargetWeight(masterIKWeight);
-            SetAllIKWeights(masterIKWeight);
         }
 
         [Button("Freeze Animator (Set Speed 0)")]
@@ -267,26 +312,10 @@ namespace UndeadSurvivalGame.PlayerSystems
             }
         }
 
-        void Update()
-        {
-            // Skip all IK blending and updates if debug mode disables IK
-            if (PlayerDebugger.DebugDisableIK)
-            {
-                SetAllIKWeights(0f);
-                return;
-            }
-          
-            if (debugOverrideIKWeight)
-            {
-                SetAllIKWeights(masterIKWeight); // Directly set from inspector
-                return;
-            }
-
-            BlendAllIKWeights(); // Ensure smooth blending every frame
-        }
-
         void LateUpdate()
         {
+            BlendAllIKWeights(); // Ensure smooth blending every frame
+
             if (aimIK != null && aimIK.enabled)
             {
                 Debug.DrawLine(aimIK.solver.transform.position, aimIK.solver.target.position, Color.green);

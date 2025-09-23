@@ -43,8 +43,6 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             animationManager.SetStopDirection(player.PlayerInput.stopDirectionIndex);
             animationManager.SetMoveCommited(player.PlayerInput.MoveCommited);
-
-            player.PlayerIKController.BlendAllIKWeights();
         }
 
 
@@ -136,12 +134,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             Debug.DrawLine(player.transform.position, player.transform.position + cameraForward * 2f, Color.blue);
             Debug.DrawLine(player.transform.position, player.transform.position + cameraRight * 2f, Color.red);
             Debug.DrawLine(player.transform.position, player.transform.position + moveDirection * 2f, Color.green);
-        }
-
-        public override void LateUpdate()
-        {
-            base.LateUpdate();
-            player.PlayerIKController.BlendAllIKWeights();
         }
     }
 }
