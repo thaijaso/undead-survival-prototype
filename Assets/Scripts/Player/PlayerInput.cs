@@ -138,7 +138,6 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         private void HandleSprintStopGracePeriod()
         {
-            Debug.Log($"SprintStopGraceTimer: {sprintStopGraceTimer}, SprintStopGracePeriodFinished: {SprintStopGracePeriodFinished}");
             // queue buffer when sprint is released
             if ((!IsSprinting && !IsMoving) || !IsMoving) 
             {

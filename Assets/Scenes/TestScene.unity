@@ -343609,8 +343609,8 @@ GameObject:
   - component: {fileID: 1717255701}
   - component: {fileID: 1717255718}
   - component: {fileID: 1717255719}
-  - component: {fileID: 1717255720}
   - component: {fileID: 1717255721}
+  - component: {fileID: 1717255722}
   m_Layer: 3
   m_Name: Cowboy
   m_TagString: Player
@@ -343874,6 +343874,7 @@ MonoBehaviour:
   movementThreshold: 0.2
   animationSmoothTime: 0.05
   maxInputThreshold: 0.6
+  sprintStopThreshold: 0.15
 --- !u!114 &1717255712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -343930,8 +343931,8 @@ MonoBehaviour:
   maxAimIKWeight: 1
   maxFBBIKWeight: 1
   maxHeadLookWeight: 1
-  aimIKBlendInSpeed: 2
-  aimIKBlendOutSpeed: 3
+  aimIKBlendInSpeed: 10
+  aimIKBlendOutSpeed: 12
   fbbikBlendInSpeed: 3
   fbbikBlendOutSpeed: 3
   headLookBlendInSpeed: 3
@@ -344040,19 +344041,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
---- !u!114 &1717255720
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1717255699}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28535f1849723e743a042e1f4489b0f4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  blendSpeed: 10
 --- !u!114 &1717255721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -344514,6 +344502,19 @@ MonoBehaviour:
     spineStiffness: 0.5
     pullBodyVertical: 0.5
     pullBodyHorizontal: 0
+--- !u!114 &1717255722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1717255699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0104209852b5e524fbc12d2eb3b89a23, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArmsLayerWeightController
+  blendSpeed: 12
 --- !u!1001 &1717560231
 PrefabInstance:
   m_ObjectHideFlags: 0

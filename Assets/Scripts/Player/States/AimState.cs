@@ -148,7 +148,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             // Prevent automatic transitions if debug mode is active
             if (PlayerDebugger.ForceAimDebugMode)
             {
-                player.PlayerIKController.EnableIK(); // Ensure IK weight is set every frame in debug mode
+                player.PlayerIKController.EnableIK();
                 if (player.PlayerInput.IsMoving)
                 {
                     player.CrosshairController.ExpandAndContractCrosshair(

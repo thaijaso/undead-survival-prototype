@@ -30,7 +30,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         private float maxAimIKWeight = 1f;
 
         [SerializeField]
-        private float maxFBBIKWeight = .3f;
+        private float maxFBBIKWeight = 1f;
 
         [SerializeField]
         private float maxHeadLookWeight = 1f;
@@ -266,20 +266,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 aimIK.solver.transform = aimTransform;
             }
-        }
-
-        public void EnableAimIK()
-        {
-            var aimIK = GetComponent<AimIK>();
-            if (aimIK != null)
-                aimIK.enabled = true;
-        }
-
-        public void DisableAimIK()
-        {
-            var aimIK = GetComponent<AimIK>();
-            if (aimIK != null)
-                aimIK.enabled = false;
         }
 
         [Button("Freeze Animator (Set Speed 0)")]
