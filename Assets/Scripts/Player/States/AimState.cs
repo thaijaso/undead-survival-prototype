@@ -23,8 +23,6 @@ namespace UndeadSurvivalGame.PlayerSystems
         public override void Enter()
         {
             Debug.Log($"[{player.name}] AimState.Enter(): Entering Aim state");
-            base.Enter();
-
             animationManager.SetIsAiming(true);
             player.PlayerIKController.EnableIK();
             SetupCrosshair();
@@ -187,6 +185,16 @@ namespace UndeadSurvivalGame.PlayerSystems
                     weaponManager.CurrentWeaponConfig.bulletSpreadVertical,
                     0.1f
                 );
+            }
+
+            if (player.PlayerInput.IsMoving)
+            {
+                animationManager.SetIsStrafing(true);
+            }
+            else
+            {
+                animationManager.SetIsStrafing(false);
+                animationManager.SetIsIdle(true);
             }
         }
 

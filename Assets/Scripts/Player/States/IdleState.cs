@@ -34,7 +34,6 @@ namespace UndeadSurvivalGame.PlayerSystems
         public override void Exit(PlayerState nextState)
         {
             Debug.Log($"[{player.name}] IdleState.Exit(): Exiting to {nextState.GetType().Name}.");
-            animationManager.SetIsIdle(false);
         }
 
         public override void LogicUpdate()

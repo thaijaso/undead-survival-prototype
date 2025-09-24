@@ -28,7 +28,8 @@ namespace UndeadSurvivalGame.PlayerSystems
         {
             base.Enter();
             Debug.Log($"[{player.name}] StrafeState.Enter(): Entering Strafe state");
-            animationManager.SetIsStrafing(true);
+            //animationManager.SetIsStrafing(true);
+            animationManager.SetIsIdle(false);
         }
 
         public override void Exit(PlayerState nextState)
@@ -74,6 +75,15 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 stateMachine.SetState(player.aim);
                 return;
+            }
+
+            if (player.PlayerInput.IsMoving)
+            {
+                animationManager.SetIsStrafing(true);
+            }
+            else
+            {
+                animationManager.SetIsStrafing(false);
             }
         }
     }

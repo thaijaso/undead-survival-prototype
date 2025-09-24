@@ -22,10 +22,6 @@ namespace UndeadSurvivalGame.PlayerSystems
         private float currentAimIKWeight = 0f;
         private float currentFBBIKWeight = 0f;
 
-        // Debug flag to allow inspector override of IK weights
-        [SerializeField]
-        private bool debugOverrideIKWeight = false;
-
         [SerializeField]
         private float maxAimIKWeight = 1f;
 
