@@ -140,7 +140,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         {
             Debug.Log($"SprintStopGraceTimer: {sprintStopGraceTimer}, SprintStopGracePeriodFinished: {SprintStopGracePeriodFinished}");
             // queue buffer when sprint is released
-            if (!IsSprinting && !IsMoving) 
+            if ((!IsSprinting && !IsMoving) || !IsMoving) 
             {
                 sprintStopGraceTimer += Time.deltaTime;
 
