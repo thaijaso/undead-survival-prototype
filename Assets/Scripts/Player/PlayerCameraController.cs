@@ -398,5 +398,13 @@ namespace UndeadSurvivalGame.PlayerSystems
                 Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.ResetCameraOffset(): CinemachineCameraOffset component not found on the player camera.");
             }
         }
+
+        public float GetCameraPitch()
+        {
+            float pitch = playerCamera.transform.eulerAngles.x;
+            if (pitch > 180f)
+                pitch -= 360f;
+            return -pitch; // Invert so aiming up is positive
+        }
     }
 }

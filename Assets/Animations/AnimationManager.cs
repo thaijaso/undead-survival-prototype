@@ -237,4 +237,9 @@ public class AnimationManager
     {
         animator.SetBool("SprintStopGracePeriodFinished", finished);
     }
+
+    public void SetAimPitch(float pitch)
+    {
+        animator.SetFloat("AimPitch", pitch);
+    }
 }

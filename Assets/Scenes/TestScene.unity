@@ -162129,8 +162129,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 802328401}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.15212329, y: 0.00000023575879, z: -0.000000036286725, w: 0.98836154}
-  m_LocalPosition: {x: -0.22369999, y: 1.9660587, z: -26.546955}
+  m_LocalRotation: {x: -0.0000000018390669, y: -0.00000002980596, z: -4.8912533e-17, w: 1}
+  m_LocalPosition: {x: -0.22369999, y: 1.515, z: -26.616379}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -162209,9 +162209,9 @@ MonoBehaviour:
       Time: 2
     Restrictions: 0
   VerticalAxis:
-    Value: 17.5
-    Center: 17.5
-    Range: {x: -80, y: 80}
+    Value: 0
+    Center: 0
+    Range: {x: -85, y: 85}
     Wrap: 0
     Recentering:
       Enabled: 0
@@ -292891,8 +292891,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1457217316}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.15212329, y: 0.00000023575879, z: -0.00000003628673, w: 0.98836154}
-  m_LocalPosition: {x: -0.22369999, y: 1.9660587, z: -26.546955}
+  m_LocalRotation: {x: -0.0000000018390669, y: -0.00000002980596, z: -5.4815155e-17, w: 1}
+  m_LocalPosition: {x: -0.22369999, y: 1.515, z: -26.616379}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -343927,7 +343927,6 @@ MonoBehaviour:
   IKEnabled: 0
   masterIKWeight: 1
   headLookWeight: 1
-  debugOverrideIKWeight: 0
   maxAimIKWeight: 1
   maxFBBIKWeight: 1
   maxHeadLookWeight: 1

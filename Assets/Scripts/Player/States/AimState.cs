@@ -130,20 +130,33 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         public override void LogicUpdate()
         {
-            // Guard: Only update if this is the current state
             if (stateMachine.currentState != this)
-            {
                 return;
-            }
 
             base.LogicUpdate();
 
             player.PlayerCameraController.ZoomIn();
-
-            // Always update IK offsets, even in debug mode
             weaponManager.SetAimIKOffsets();
 
-            // Prevent automatic transitions if debug mode is active
+            if (HandleDebugMode())
+                return;
+
+            if (HandleStateTransitions())
+                return;
+
+            UpdateCrosshair();
+            UpdateStrafeAndIdle();
+            SetAimPitch();
+        }
+
+        private void SetAimPitch()
+        {
+            float aimPitch = player.PlayerCameraController.GetCameraPitch();
+            animationManager.SetAimPitch(aimPitch);
+        }  
+
+        private bool HandleDebugMode()
+        {
             if (PlayerDebugger.ForceAimDebugMode)
             {
                 player.PlayerIKController.EnableIK();
@@ -156,27 +169,44 @@ namespace UndeadSurvivalGame.PlayerSystems
                         0.1f
                     );
                 }
-                return;
+                return true;
             }
+            return false;
+        }
 
+        private bool HandleStateTransitions()
+        {
             if (player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming)
             {
                 stateMachine.SetState(player.strafe);
-                return;
+                return true;
             }
 
-            if (player.PlayerInput.IsAiming && player.PlayerInput.IsAttacking && stateMachine.currentState != player.shoot)
+            if (CanShoot())
             {
                 stateMachine.SetState(player.shoot);
-                return;
+                return true;
             }
 
             if (player.PlayerInput.IsReloading && weaponManager.CanReload())
             {
                 stateMachine.SetState(player.reload);
-                return;
+                return true;
             }
 
+            return false;
+        }
+
+        private bool CanShoot()
+        {
+            return player.PlayerInput.IsAiming &&
+            player.PlayerInput.IsAttacking &&
+            stateMachine.currentState != player.shoot &&
+            !animationManager.animator.GetCurrentAnimatorStateInfo(2).IsTag("Shoot");
+        }
+
+        private void UpdateCrosshair()
+        {
             if (player.PlayerInput.IsMoving)
             {
                 player.CrosshairController.ExpandAndContractCrosshair(
@@ -186,17 +216,20 @@ namespace UndeadSurvivalGame.PlayerSystems
                     0.1f
                 );
             }
-
-            if (player.PlayerInput.IsMoving)
-            {
-                animationManager.SetIsStrafing(true);
-            }
-            else
-            {
-                animationManager.SetIsStrafing(false);
-                animationManager.SetIsIdle(true);
-            }
         }
+
+    private void UpdateStrafeAndIdle()
+    {
+        if (player.PlayerInput.IsMoving)
+        {
+            animationManager.SetIsStrafing(true);
+        }
+        else
+        {
+            animationManager.SetIsStrafing(false);
+            animationManager.SetIsIdle(true);
+        }
+    }
 
         public override void LateUpdate()
         {

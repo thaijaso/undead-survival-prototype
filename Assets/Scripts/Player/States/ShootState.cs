@@ -60,6 +60,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupShootState();
             SetupWeaponDataForShooting();
             SetupWeaponDataForCameraRecoil();
+            player.PlayerIKController.DisableIK();
         }
 
         private void SetupShootState()
