@@ -28,7 +28,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetMoveParams(0f, 0f);
 
             player.PlayerIKController.DisableIK();
-            player.ArmsLayerWeightController.SetWeight(1f);
+            player.AimPoseLayerWeightController.SetWeight(1f);
         }
 
         public override void Exit(PlayerState nextState)

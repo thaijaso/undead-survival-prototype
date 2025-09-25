@@ -1,10 +1,11 @@
-using NUnit.Framework;
 using UnityEngine;
 
 public class AnimationManager
 {
     public Animator animator { get; private set; }
+    public int UpperBodyLayerIndex { get; } = 2; 
     private const float blendSpeed = 10f;
+    
 
     public AnimationManager(Animator animator)
     {

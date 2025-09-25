@@ -13,7 +13,8 @@ namespace UndeadSurvivalGame.PlayerSystems
         public PlayerCharacterController PlayerCharacterController { get; private set; }
         public PlayerCameraController PlayerCameraController { get; private set; }
         public PlayerIKController PlayerIKController { get; private set; }
-        public AimPoseLayerWeightController ArmsLayerWeightController { get; private set; }
+        public AimPoseLayerWeightController AimPoseLayerWeightController { get; private set; }
+        public AimPitchLayerWeightController AimPitchLayerWeightController { get; private set; }
         public PlayerAnimatorEvents PlayerAnimatorEvents { get; private set; }
         public AnimationManager AnimationManager { get; private set; }
 
@@ -91,7 +92,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupPlayerIKController();
             SetupWeaponManager();
             SetupHealthManager();
-            SetupRecoil();
+            //SetupRecoil();
             SetupBulletHitscan();
             SetupBulletDecalManager();
             SetupPuppetMaster();
@@ -99,17 +100,26 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupPlayerInventory();
             SetupPlayerMenuUIController();
             SetupPlayerInteractionSensor();
-            SetupArmsLayerWeightController();
+            SetupAimPoseLayerWeightController();
+            SetupAimPitchLayerWeightController();
 
             stateMachine = new StateMachine<PlayerState>(gameObject.name);
         }
 
-        private void SetupArmsLayerWeightController()
+        private void SetupAimPoseLayerWeightController()
         {
-            ArmsLayerWeightController = GetComponent<AimPoseLayerWeightController>();
+            AimPoseLayerWeightController = GetComponent<AimPoseLayerWeightController>();
 
-            if (ArmsLayerWeightController == null)
+            if (AimPoseLayerWeightController == null)
                 Debug.LogError($"[{gameObject.name}] Player.SetupArmsLayerWeightController(): ArmsLayerWeightController component is missing!");
+        }
+
+        private void SetupAimPitchLayerWeightController()
+        {
+            AimPitchLayerWeightController = GetComponent<AimPitchLayerWeightController>();
+
+            if (AimPitchLayerWeightController == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupAimPitchLayerWeightController(): AimPitchLayerWeightController component is missing!");
         }
 
         private void SetupPlayerInput()

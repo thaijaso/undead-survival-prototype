@@ -177,7 +177,10 @@ namespace UndeadSurvivalGame.PlayerSystems
         // Apply visual recoil to weapon and animation:
         private void ApplyAnimationRecoil()
         {
-            recoilIK.Fire(animationRecoilMagnitude);
+            if (recoilIK != null)
+            {
+                recoilIK.Fire(animationRecoilMagnitude);
+            }
         }
 
         private void ApplyCameraRecoil()

@@ -18,7 +18,9 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationName,
             weaponManager
         )
-        {}
+        {
+
+        }
 
         public override void Enter()
         {
@@ -29,7 +31,8 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupCamera();
             SetupWeapon();
 
-            player.ArmsLayerWeightController.SetWeight(0f);
+            player.AimPoseLayerWeightController.SetWeight(0f);
+            player.AimPitchLayerWeightController.SetWeight(1f);
         }
 
         private void SetupCamera()
@@ -65,7 +68,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             SetupWeaponScriptIKAndGrip(weaponManager.CurrentWeaponScript);
             weaponManager.SetAimIKOffsets();
-            weaponManager.SetRecoilIKSettings();
+            //weaponManager.SetRecoilIKSettings();
         }
 
         private void SetupWeaponScriptIKAndGrip(Weapon weaponScript)
@@ -108,7 +111,8 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 animationManager.SetIsAiming(false);
                 player.PlayerIKController.DisableIK();
-                player.ArmsLayerWeightController.SetWeight(1f);
+                player.AimPoseLayerWeightController.SetWeight(1f);
+                player.AimPitchLayerWeightController.SetWeight(0f);
                 player.PlayerCameraController.DisableCameraSway();
                 player.PlayerCameraController.ResetCameraOffset();
                 player.CrosshairController.DisableCrosshair();
@@ -202,7 +206,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             return player.PlayerInput.IsAiming &&
             player.PlayerInput.IsAttacking &&
             stateMachine.currentState != player.shoot &&
-            !animationManager.animator.GetCurrentAnimatorStateInfo(2).IsTag("Shoot");
+            !animationManager.animator.GetCurrentAnimatorStateInfo(animationManager.UpperBodyLayerIndex).IsTag("Shoot");
         }
 
         private void UpdateCrosshair()
