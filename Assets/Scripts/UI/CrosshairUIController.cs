@@ -64,7 +64,7 @@ namespace UndeadSurvivalGame.UI
             float horizontalOffset = baseDistance + (currentSpread * spreadMultiplier) + (bulletSpreadHorizontal * spreadMultiplier);
             float verticalOffset = baseDistance + (currentSpread * spreadMultiplier) + (bulletSpreadVertical * spreadMultiplier);
 
-            Debug.Log($"[{gameObject.name}] CrosshairUIController().UpdateArms - Crosshair offsets: H={horizontalOffset}, V={verticalOffset}, Spread={currentSpread}");
+            //Debug.Log($"[{gameObject.name}] CrosshairUIController().UpdateArms - Crosshair offsets: H={horizontalOffset}, V={verticalOffset}, Spread={currentSpread}");
 
             if (topArm) topArm.anchoredPosition = new Vector2(0, verticalOffset);
             if (bottomArm) bottomArm.anchoredPosition = new Vector2(0, -verticalOffset);

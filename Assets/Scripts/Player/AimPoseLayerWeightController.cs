@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class ArmsLayerWeightController : MonoBehaviour
+public class AimPoseLayerWeightController : MonoBehaviour
 {
     [SerializeField]
     private float blendSpeed = 12f;
     private Animator animator;
-    private string layerName = "Arms Layer";
+    private string layerName = "Aim Pose Layer";
     private int layerIndex = -1;
 
     private float currentWeight = 0f;
