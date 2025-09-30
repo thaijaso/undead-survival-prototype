@@ -452,6 +452,7 @@ namespace UndeadSurvivalGame.UI
         private void HandleEquipItem()
         {
             Debug.Log("EquipItem event received.");
+            inventoryGridUIController.EquipSelectedItem();
         }
 
         private void HandleUseItem()

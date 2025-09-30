@@ -278,8 +278,15 @@ namespace UndeadSurvivalGame.Gameplay
                 Debug.LogWarning("itemStacks is not initialized!");
                 return;
             }
-            
+
             ItemStack itemStackToDrop = itemStacks[index];
+
+            // If the dropped item was the currently equipped weapon, clear it from the weapon manager
+            if (playerWeaponManager != null && playerWeaponManager.IsItemEquipped(itemStackToDrop.item))
+            {
+                playerWeaponManager.UnequipCurrentWeapon();
+            }
+
             SpawnDroppedItem(itemStackToDrop);
             itemStacks[index] = null;
             OnInventoryChanged?.Invoke();

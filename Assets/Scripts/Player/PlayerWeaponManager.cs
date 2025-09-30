@@ -12,7 +12,8 @@ namespace UndeadSurvivalGame.PlayerSystems
         public Weapon CurrentWeaponScript { get; private set; }
         public bool IsWeaponHolstered { get; private set; } = false;
         public float FireTimer { get; private set; } = 0f;
-
+        public bool IsUnarmed => CurrentWeaponItem == null;
+        public bool IsPistolEquipped => CurrentWeaponConfig != null && CurrentWeaponConfig.weaponType == WeaponConfig.WeaponType.Pistol;
         public event Action<Weapon, WeaponConfig> OnWeaponSetup;
         public event Action OnBulletLoaded;
         public event Action OnBulletFired;
@@ -432,12 +433,21 @@ namespace UndeadSurvivalGame.PlayerSystems
             CurrentWeaponItem = weapon;
             SpawnWeaponInWeaponHand(weapon);
         }
-        
+
         public bool IsItemEquipped(Item item)
         {
             bool isEquipped = item != null && CurrentWeaponItem != null && item == CurrentWeaponItem;
             Debug.Log($"[{gameObject.name}] PlayerWeaponManager.IsItemEquipped(): Checking if item '{item?.ItemName}' is equipped. CurrentWeaponItem: '{CurrentWeaponItem?.ItemName}' isEquipped: {isEquipped}");
             return isEquipped;
+        }
+
+        public void UnequipCurrentWeapon()
+        {
+            DespawnWeaponInWeaponHand();
+            CurrentWeaponItem = null;
+            CurrentWeaponConfig = null;
+            CurrentWeaponScript = null;
+            CurrentWeaponGameObject = null;
         }
     }
 }

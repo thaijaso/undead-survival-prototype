@@ -3,9 +3,9 @@ using UnityEngine;
 public class AnimationManager
 {
     public Animator animator { get; private set; }
-    public int UpperBodyLayerIndex { get; } = 2; 
+    public int UpperBodyLayerIndex { get; } = 2;
     private const float blendSpeed = 10f;
-    
+
 
     public AnimationManager(Animator animator)
     {
@@ -242,5 +242,15 @@ public class AnimationManager
     public void SetAimPitch(float pitch)
     {
         animator.SetFloat("AimPitch", pitch);
+    }
+
+    public void SetIsUnarmed(bool isUnarmed)
+    {
+        animator.SetBool("IsUnarmed", isUnarmed);
+    }
+
+    public void SetIsPistolEquipped(bool isPistolEquipped)
+    {
+        animator.SetBool("IsPistolEquipped", isPistolEquipped);
     }
 }

@@ -207,7 +207,7 @@ namespace UndeadSurvivalGame.UI
 
                 int nextIndex = slotToSelect.GetIndex() + 1;
                 InventorySlotUI nextSlot = inventorySlots[nextIndex];
-                
+
                 contextMenuController.ShowAtAttachPoint(nextSlot.ContextMenuAttachPoint, itemType);
             }
         }
@@ -261,7 +261,8 @@ namespace UndeadSurvivalGame.UI
         {
             if (!inventory.IsEmpty())
             {
-                FocusSlot(inventorySlots[0]);
+                InventorySlotUI slot = GetFirstNonEmptySlot();
+                FocusSlot(slot);
             }
             else
             {
@@ -271,6 +272,19 @@ namespace UndeadSurvivalGame.UI
                 selectedItemTypeUI.SetItemType(string.Empty);
                 selectedItemDescriptionUI.SetItemDescription(string.Empty);
             }
+        }
+
+        private InventorySlotUI GetFirstNonEmptySlot()
+        {
+            foreach (var slot in inventorySlots)
+            {
+                int index = slot.GetIndex();
+                if (index >= 0 && index < inventory.ItemStacks.Count && inventory.ItemStacks[index] != null)
+                {
+                    return slot;
+                }
+            }
+            return null;
         }
 
         public void FocusSlot(InventorySlotUI slot)
@@ -312,7 +326,7 @@ namespace UndeadSurvivalGame.UI
                         PlayHoverSound();
                         slot.FadeAlphaHoverBackground();
                     }
-                    
+
                     SetSelectedItemName(itemStack.item.ItemName);
                     ToggleEquippedText(itemStack.item);
                     SetSelectedItemType(itemStack.item.ItemType.ToString());
@@ -505,15 +519,52 @@ namespace UndeadSurvivalGame.UI
             }
 
             inventory.DropItemStack(selectedIndex);
+
             if (weaponManager.IsItemEquipped(selectedItemStack.item))
             {
-                weaponManager.DespawnWeaponInWeaponHand();
+                weaponManager.UnequipCurrentWeapon();
             }
         }
 
         public List<InventorySlotUI> GetInventorySlots()
         {
             return inventorySlots;
+        }
+
+        public void EquipSelectedItem()
+        {
+            if (SelectedSlot == null)
+            {
+                Debug.LogWarning("No slot is selected to equip an item from.");
+                return;
+            }
+
+            int selectedIndex = SelectedSlot.GetIndex();
+
+            if (selectedIndex < 0 || selectedIndex >= inventory.ItemStacks.Count)
+            {
+                Debug.LogWarning("Selected slot index is out of range of the inventory item stacks.");
+                return;
+            }
+
+            ItemStack selectedItemStack = inventory.ItemStacks[selectedIndex];
+
+            if (selectedItemStack == null)
+            {
+                Debug.LogWarning("Selected slot does not contain a valid item stack to equip.");
+                return;
+            }
+
+            Item itemToEquip = selectedItemStack.item;
+
+            if (itemToEquip.ItemType != ItemType.Weapon)
+            {
+                Debug.LogWarning("Selected item is not a weapon and cannot be equipped.");
+                return;
+            }
+
+            weaponManager.EquipWeaponItem(itemToEquip);
+            RefreshGrid();
         }
     }
 }
