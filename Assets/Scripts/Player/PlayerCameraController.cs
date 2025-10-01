@@ -165,7 +165,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         void LateUpdate()
         {
             UpdateRotationSpeed();
-            UpdateCameraOffsetLerp();
+            //how do i UpdateCameraOffsetLerp();
         }
 
         private void HandleCursorLock()

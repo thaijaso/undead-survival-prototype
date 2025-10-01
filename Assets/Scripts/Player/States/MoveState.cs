@@ -30,6 +30,14 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetMoveParams(direction.x, direction.z);
             animationManager.SetIsMoving(direction.magnitude > 0.1f);
 
+            SetFootPlantAnimatorParams();
+
+            animationManager.SetStopDirection(player.PlayerInput.stopDirectionIndex);
+            animationManager.SetMoveCommited(player.PlayerInput.MoveCommited);
+        }
+
+        public void SetFootPlantAnimatorParams()
+        {
             if (player.PlayerAnimatorEvents.lastPlantedFoot == PlayerAnimatorEvents.Foot.Left)
             {
                 animationManager.SetIsLeftFootPlanted(true);
@@ -40,11 +48,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 animationManager.SetIsLeftFootPlanted(false);
                 animationManager.SetIsRightFootPlanted(true);
             }
-
-            animationManager.SetStopDirection(player.PlayerInput.stopDirectionIndex);
-            animationManager.SetMoveCommited(player.PlayerInput.MoveCommited);
         }
-
 
         protected void HandleMovement(float speed, bool faceMoveDirection)
         {

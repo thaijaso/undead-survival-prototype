@@ -27,13 +27,14 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetIsStrafing(false);
             animationManager.SetMoveParams(0f, 0f);
 
-            player.PlayerIKController.DisableIK();
-            player.AimPoseLayerWeightController.SetWeight(1f);
+            // player.PlayerIKController.DisableIK();
+            // player.AimPoseLayerWeightController.SetWeight(1f);
         }
 
         public override void Exit(PlayerState nextState)
         {
             Debug.Log($"[{player.name}] IdleState.Exit(): Exiting to {nextState.GetType().Name}.");
+            animationManager.SetIsIdle(false);
         }
 
         public override void LogicUpdate()
@@ -42,7 +43,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             player.PlayerCharacterController.Move(Vector3.zero, 0f);
 
-            if (!player.PlayerInput.IsSprinting && player.PlayerInput.IsMoving)
+            if (!player.PlayerInput.IsSprinting && player.PlayerInput.IsMoving && !player.WeaponManager.IsUnarmed)
             {
                 stateMachine.SetState(player.strafe);
                 return;
@@ -64,12 +65,13 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 stateMachine.SetState(player.reload);
                 return;
-            }     
-        }
+            }
 
-        public override void PhysicsUpdate()
-        {
-            base.PhysicsUpdate();
+            if (player.PlayerInput.IsMoving && weaponManager.IsUnarmed)
+            {
+                stateMachine.SetState(player.walk);
+                return;
+            }     
         }
     }
 }

@@ -432,6 +432,8 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             CurrentWeaponItem = weapon;
             SpawnWeaponInWeaponHand(weapon);
+            player.AimPoseLayerWeightController.SetWeight(1f);
+            player.AimPitchLayerWeightController.SetWeight(1f);
         }
 
         public bool IsItemEquipped(Item item)
@@ -448,6 +450,9 @@ namespace UndeadSurvivalGame.PlayerSystems
             CurrentWeaponConfig = null;
             CurrentWeaponScript = null;
             CurrentWeaponGameObject = null;
+            player.AimPoseLayerWeightController.SetWeight(0f);
+            player.PlayerIKController.SetAimIkWeight(0f);
+            player.PlayerIKController.SetFBBIKWeight(0f);
         }
     }
 }

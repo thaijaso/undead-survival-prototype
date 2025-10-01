@@ -44,6 +44,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         internal PlayerState hitReaction;
         internal PlayerState death;
         internal PlayerState reload;
+        internal PlayerState walk;
 
         [TabGroup("Configuration")]
         [Required]
@@ -326,6 +327,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 "Aim",
                 WeaponManager
             );
+
             Debug.Log($"[{gameObject.name}] ✓ Aim state initialized.");
 
             shoot = new ShootState(
@@ -338,6 +340,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 BulletHitscan,
                 BulletDecalManager
             );
+
             Debug.Log($"[{gameObject.name}] ✓ Shoot state initialized");
 
             hitReaction = new HitReactionState(
@@ -347,6 +350,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 "HitReaction",
                 WeaponManager
             );
+
             Debug.Log($"[{gameObject.name}] ✓ HitReaction state initialized");
 
             death = new DeathState(
@@ -356,6 +360,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 "Death",
                 WeaponManager
             );
+
             Debug.Log($"[{gameObject.name}] ✓ Death state initialized.");
 
             reload = new ReloadState(
@@ -365,8 +370,18 @@ namespace UndeadSurvivalGame.PlayerSystems
                 "Reload",
                 WeaponManager
             );
+
             Debug.Log($"[{gameObject.name}] ✓ Reload state initialized.");
 
+            walk = new WalkState(
+                this,
+                stateMachine,
+                AnimationManager,
+                "Walk",
+                WeaponManager
+            );
+
+            Debug.Log($"[{gameObject.name}] ✓ Walk state initialized.");
             Debug.Log($"[{gameObject.name}] All player states initialized. Setting initial state to Idle...");
 
             // Set initial state

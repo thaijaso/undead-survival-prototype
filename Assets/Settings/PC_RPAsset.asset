@@ -54,14 +54,14 @@ MonoBehaviour:
   m_ReflectionProbeBlending: 1
   m_ReflectionProbeBoxProjection: 1
   m_ReflectionProbeAtlas: 1
-  m_ShadowDistance: 50
-  m_ShadowCascadeCount: 2
-  m_Cascade2Split: 0.121350154
+  m_ShadowDistance: 80
+  m_ShadowCascadeCount: 4
+  m_Cascade2Split: 0.24793245
   m_Cascade3Split: {x: 0.033177238, y: 0.73670864}
-  m_Cascade4Split: {x: 0.001, y: 0.003, z: 0.006}
-  m_CascadeBorder: 0.12374039
-  m_ShadowDepthBias: 0.1
-  m_ShadowNormalBias: 0.1
+  m_Cascade4Split: {x: 0.0875, y: 0.2, z: 0.45000002}
+  m_CascadeBorder: 0.47679323
+  m_ShadowDepthBias: 0.01
+  m_ShadowNormalBias: 0.4
   m_AnyShadowsSupported: 1
   m_SoftShadowsSupported: 1
   m_ConservativeEnclosingSphere: 1
@@ -92,7 +92,7 @@ MonoBehaviour:
   m_MaxPixelLights: 0
   m_ShadowAtlasResolution: 256
   m_VolumeFrameworkUpdateMode: 0
-  m_VolumeProfile: {fileID: 11400000, guid: 10fc4df2da32a41aaa32d77bc913491c, type: 2}
+  m_VolumeProfile: {fileID: 0}
   apvScenesData:
     obsoleteSceneBounds:
       m_Keys: []

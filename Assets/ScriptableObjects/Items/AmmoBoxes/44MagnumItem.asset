@@ -21,7 +21,7 @@ MonoBehaviour:
   Description: Despite being eclipsed by newer calibers, its thunderous roar and
     brute stopping power endure in the hands of hunters and marksmen.
   IsStackable: 1
-  MaxStack: 1000
+  MaxStack: 100
   WorldPrefab: {fileID: 3531630205869275986, guid: dfa4f26fc3d33d9409501a6d7cf3350e, type: 3}
   HandPrefab: {fileID: 0}
   PickupAllSound: {fileID: 8300000, guid: d363d5d283a9c0849a78c3bac5d23665, type: 3}

@@ -26,7 +26,11 @@ namespace UndeadSurvivalGame.PlayerSystems
         {
             Debug.Log($"[{player.name}] AimState.Enter(): Entering Aim state");
             animationManager.SetIsAiming(true);
-            player.PlayerIKController.EnableIK();
+            //player.PlayerIKController.EnableIK();
+            player.PlayerIKController.SetAimIkWeight(1f);
+            player.PlayerIKController.SetFBBIKWeight(1f);
+            player.PlayerIKController.SetHeadLookAtWeight(1f);
+            player.AimPoseLayerWeightController.SetWeight(0f);
             SetupCrosshair();
             SetupCamera();
             SetupWeapon();
@@ -163,7 +167,9 @@ namespace UndeadSurvivalGame.PlayerSystems
         {
             if (PlayerDebugger.ForceAimDebugMode)
             {
-                player.PlayerIKController.EnableIK();
+                player.PlayerIKController.SetAimIkWeight(1f);
+                player.PlayerIKController.SetFBBIKWeight(1f);
+                player.PlayerIKController.SetHeadLookAtWeight(1f);
                 if (player.PlayerInput.IsMoving)
                 {
                     player.CrosshairController.ExpandAndContractCrosshair(
@@ -206,7 +212,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             return player.PlayerInput.IsAiming &&
             player.PlayerInput.IsAttacking &&
             stateMachine.currentState != player.shoot &&
-            !animationManager.animator.GetCurrentAnimatorStateInfo(animationManager.UpperBodyLayerIndex).IsTag("Shoot");
+            !animationManager.Animator.GetCurrentAnimatorStateInfo(animationManager.UpperBodyLayerIndex).IsTag("Shoot");
         }
 
         private void UpdateCrosshair()

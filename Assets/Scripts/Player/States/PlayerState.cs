@@ -61,15 +61,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetSprintStopGracePeriodFinished(player.PlayerInput.SprintStopGracePeriodFinished);
             animationManager.SetIsUnarmed(weaponManager.IsUnarmed);
             animationManager.SetIsPistolEquipped(weaponManager.IsPistolEquipped);
-
-            if (weaponManager.IsUnarmed)
-            {
-                player.AimPoseLayerWeightController.SetWeight(0f);
-            }
-            else
-            {
-                player.AimPoseLayerWeightController.SetWeight(1f);
-            }
         }
 
         public virtual void PhysicsUpdate()

@@ -9,29 +9,23 @@ namespace UndeadSurvivalGame.PlayerSystems
     {
         [Header("IK System")]
         public bool IKEnabled = false;
-        
-        [Header("Master IK Weight")]
-        [Range(0f, 1f)]
+
         [SerializeField]
-        private float masterIKWeight = 1f;
-
         [Range(0f, 1f)]
-        public float headLookWeight = 1f;
+        private float targetAimIKWeight = 1f;
 
-        // IK master weight blending
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float targetFBBIKWeight = 1f;
+
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float targetHeadLookWeight = 1f;
+
+        private float currentHeadLookWeight = 1f;
+
         private float currentAimIKWeight = 0f;
         private float currentFBBIKWeight = 0f;
-
-        [SerializeField]
-        private float maxAimIKWeight = 1f;
-
-        [SerializeField]
-        private float maxFBBIKWeight = 1f;
-
-        [SerializeField]
-        private float maxHeadLookWeight = 1f;
-
-        private float targetAimIKWeight = 1f;
 
         [SerializeField]
         private float aimIKBlendInSpeed = 3f;
@@ -51,9 +45,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         [SerializeField]
         private float headLookBlendOutSpeed = 3f;
 
-        private float targetFBBIKWeight = .3f;
 
-        private float targetHeadLookWeight = 1f;
 
         public Vector3 gunHoldOffset;
         public Vector3 leftHandOffset;
@@ -118,12 +110,19 @@ namespace UndeadSurvivalGame.PlayerSystems
             Debug.Log($"[PlayerIKController] Components found - AimIK: {aimIK != null}, FBBIK: {fullBodyBipedIK != null}, LookAtIK: {lookAtIK != null}");
         }
 
-        public void EnableIK()
+        public void SetAimIkWeight(float weight)
         {
-            // restore targets
-            targetAimIKWeight = maxAimIKWeight;
-            targetFBBIKWeight = maxFBBIKWeight;
-            targetHeadLookWeight = maxHeadLookWeight;   
+            targetAimIKWeight = weight;
+        }
+
+        public void SetFBBIKWeight(float weight)
+        {
+            targetFBBIKWeight = weight;
+        }
+
+        public void SetHeadLookAtWeight(float weight)
+        {
+            targetHeadLookWeight = weight;
         }
 
         public void DisableIK()
@@ -139,14 +138,40 @@ namespace UndeadSurvivalGame.PlayerSystems
             leftHandGripSource = gripSource;
         }
 
+        void Update()
+        {
+            BlendAllIKWeights();
+        }
+
+        void LateUpdate()
+        {
+            //BlendAllIKWeights(); // Ensure smooth blending every frame
+            UpdateAllIKWeights();
+
+            if (aimIK != null && aimIK.enabled)
+            {
+                Debug.DrawLine(aimIK.solver.transform.position, aimIK.solver.target.position, Color.green);
+                Debug.DrawRay(aimIK.solver.transform.position, aimIK.solver.transform.forward * 2f, Color.red);
+            }
+
+            if (leftHandIKTarget != null && fullBodyBipedIK != null && fullBodyBipedIK.references.leftHand != null)
+            {
+                Debug.DrawLine(
+                    fullBodyBipedIK.references.leftHand.position,
+                    leftHandIKTarget.position,
+                    Color.magenta
+                );
+            }
+        }
+
         public void UpdateAllIKWeights()
         {
             if (aimIK != null)
-                aimIK.solver.IKPositionWeight = currentAimIKWeight * masterIKWeight;
+                aimIK.solver.IKPositionWeight = currentAimIKWeight;
             if (fullBodyBipedIK != null)
-                fullBodyBipedIK.solver.IKPositionWeight = currentFBBIKWeight * masterIKWeight;
+                fullBodyBipedIK.solver.IKPositionWeight = currentFBBIKWeight;
             if (lookAtIK != null)
-                lookAtIK.solver.IKPositionWeight = headLookWeight * masterIKWeight;
+                lookAtIK.solver.IKPositionWeight = currentHeadLookWeight;
         }
 
         private void BlendAllIKWeights()
@@ -160,8 +185,8 @@ namespace UndeadSurvivalGame.PlayerSystems
             currentFBBIKWeight = Mathf.MoveTowards(currentFBBIKWeight, targetFBBIKWeight, Time.deltaTime * fbbikBlendSpeed);
 
             // HeadLook blending
-            float headLookBlendSpeed = headLookWeight < targetHeadLookWeight ? headLookBlendInSpeed : headLookBlendOutSpeed;
-            headLookWeight = Mathf.MoveTowards(headLookWeight, targetHeadLookWeight, Time.deltaTime * headLookBlendSpeed);
+            float headLookBlendSpeed = currentHeadLookWeight < targetHeadLookWeight ? headLookBlendInSpeed : headLookBlendOutSpeed;
+            currentHeadLookWeight = Mathf.MoveTowards(currentHeadLookWeight, targetHeadLookWeight, Time.deltaTime * headLookBlendSpeed);
 
             UpdateAllIKWeights();
         }
@@ -253,7 +278,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 return;
 
             Quaternion headRotationTarget = Quaternion.FromToRotation(fullBodyBipedIK.references.head.rotation * headLookAxis, lookAtTarget - fullBodyBipedIK.references.head.position);
-            fullBodyBipedIK.references.head.rotation = Quaternion.Lerp(Quaternion.identity, headRotationTarget, headLookWeight) * fullBodyBipedIK.references.head.rotation;
+            fullBodyBipedIK.references.head.rotation = Quaternion.Lerp(Quaternion.identity, headRotationTarget, currentHeadLookWeight) * fullBodyBipedIK.references.head.rotation;
         }
 
         public void SetAimTransform(Transform aimTransform)
@@ -294,25 +319,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             }
         }
 
-        void LateUpdate()
-        {
-            BlendAllIKWeights(); // Ensure smooth blending every frame
-
-            if (aimIK != null && aimIK.enabled)
-            {
-                Debug.DrawLine(aimIK.solver.transform.position, aimIK.solver.target.position, Color.green);
-                Debug.DrawRay(aimIK.solver.transform.position, aimIK.solver.transform.forward * 2f, Color.red);
-            }
-
-            if (leftHandIKTarget != null && fullBodyBipedIK != null && fullBodyBipedIK.references.leftHand != null)
-            {
-                Debug.DrawLine(
-                    fullBodyBipedIK.references.leftHand.position,
-                    leftHandIKTarget.position,
-                    Color.magenta
-                );
-            }
-        }
 
         public void UpdateLeftHandIKTarget()
         {

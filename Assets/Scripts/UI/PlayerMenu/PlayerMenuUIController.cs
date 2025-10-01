@@ -453,6 +453,23 @@ namespace UndeadSurvivalGame.UI
         {
             Debug.Log("EquipItem event received.");
             inventoryGridUIController.EquipSelectedItem();
+            if (contextMenuController != null)
+            {
+                contextMenuController.HideMenu();
+            }
+            else
+            {
+                Debug.LogWarning("ContextMenuController is not assigned.");
+            }
+
+            if (inventoryGridUIController != null)
+            {
+                inventoryGridUIController.ClearSelection();
+            }
+            else
+            {
+                Debug.LogWarning("InventoryGridUIController is not assigned.");
+            }
         }
 
         private void HandleUseItem()
