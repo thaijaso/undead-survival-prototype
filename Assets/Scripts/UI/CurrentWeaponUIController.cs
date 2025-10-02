@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UndeadSurvivalGame.UI
-{ 
+{
     public class CurrentWeaponUIController : MonoBehaviour
     {
         [SerializeField]
@@ -26,7 +26,10 @@ namespace UndeadSurvivalGame.UI
         [SerializeField]
         private PlayerWeaponManager playerWeaponManager;
 
-        void Awake()
+        [SerializeField]
+        private CanvasGroup canvasGroup;
+
+        void Start()
         {
             if (playerInventory == null)
             {
@@ -47,10 +50,17 @@ namespace UndeadSurvivalGame.UI
                     Debug.LogError($"[{gameObject.name}] WeaponUIController: No PlayerWeaponManager found in scene!");
                 }
             }
-        }
 
-        void OnEnable()
-        {
+            if (canvasGroup == null)
+            {
+                canvasGroup = GetComponent<CanvasGroup>();
+            }
+
+            if (canvasGroup == null)
+            {
+                Debug.LogWarning($"[{gameObject.name}] WeaponUIController: No CanvasGroup component found on this GameObject.");
+            }
+
             if (playerInventory != null)
             {
                 playerInventory.OnInventoryChanged += UpdateCurrentWeaponTotalAmmoUI;
@@ -62,6 +72,21 @@ namespace UndeadSurvivalGame.UI
                 playerWeaponManager.OnBulletLoaded += AddBulletInBulletList;
                 playerWeaponManager.OnBulletFired += RemoveBulletInBulletList;
             }
+        }
+
+        void OnEnable()
+        {
+            // if (playerInventory != null)
+            // {
+            //     playerInventory.OnInventoryChanged += UpdateCurrentWeaponTotalAmmoUI;
+            // }
+
+            // if (playerWeaponManager != null)
+            // {
+            //     playerWeaponManager.OnWeaponSetup += UpdateCurrentWeaponUI;
+            //     playerWeaponManager.OnBulletLoaded += AddBulletInBulletList;
+            //     playerWeaponManager.OnBulletFired += RemoveBulletInBulletList;
+            // }
         }
 
         void OnDisable()
@@ -246,6 +271,20 @@ namespace UndeadSurvivalGame.UI
             // Update total ammo text field
             ammoTotal.text = $"{totalAmmo}";
             Debug.Log($"[{gameObject.name}] WeaponUIController.UpdateTotalAmmoUI(): Updating total ammo UI. Current total ammo: {totalAmmo}");
+        }
+        
+        public void SetVisibility(bool isVisible)
+        {
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = isVisible ? 1f : 0f;
+                canvasGroup.interactable = isVisible;
+                canvasGroup.blocksRaycasts = isVisible;
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] WeaponUIController.SetVisibility(): CanvasGroup component is not set.");
+            }
         }
     }
 }

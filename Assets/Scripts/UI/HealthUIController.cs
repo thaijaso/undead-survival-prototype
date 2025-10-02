@@ -3,11 +3,14 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.UI
-{ 
+{
     public class HealthUIController : MonoBehaviour
     {
         // Reference to the health bar UI element
         public MMProgressBar healthBar;
+
+        [SerializeField]
+        private CanvasGroup canvasGroup;
 
         // a value between 0 and 100, maybe in our game that'd be our main character's health value
         [Title("Debug Controls")]
@@ -23,6 +26,19 @@ namespace UndeadSurvivalGame.UI
         void ChangeBarValue()
         {
             healthBar.UpdateBar(Value, 0f, 100f);
+        }
+
+        private void Awake()
+        {
+            if (canvasGroup == null)
+            {
+                canvasGroup = GetComponent<CanvasGroup>();
+            }
+
+            if (canvasGroup == null)
+            {
+                Debug.LogError("HealthUIController: CanvasGroup component is not assigned and could not be found!", this);
+            }
         }
 
         public void Initialize(float initialHealthPercentage)
@@ -41,6 +57,19 @@ namespace UndeadSurvivalGame.UI
         {
             Value = value;
             healthBar.UpdateBar(value, 0f, 100f);
+        }
+        
+        public void SetVisibility(bool isVisible)
+        {
+            if (canvasGroup == null)
+            {
+                Debug.LogError("HealthUIController: CanvasGroup is not assigned!");
+                return;
+            }
+
+            canvasGroup.alpha = isVisible ? 1f : 0f;
+            canvasGroup.interactable = isVisible;
+            canvasGroup.blocksRaycasts = isVisible;
         }
     }
 }

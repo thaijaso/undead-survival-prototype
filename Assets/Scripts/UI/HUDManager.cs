@@ -116,7 +116,8 @@ namespace UndeadSurvivalGame.UI
         {
             if (healthUIController != null)
             {
-                healthUIController.gameObject.SetActive(!isMenuOpen);
+                //healthUIController.gameObject.SetActive(!isMenuOpen);
+                healthUIController.SetVisibility(!isMenuOpen);
             }
         }
 
@@ -124,7 +125,8 @@ namespace UndeadSurvivalGame.UI
         {
             if (currentWeaponUIController != null)
             {
-                currentWeaponUIController.gameObject.SetActive(!isMenuOpen);
+                //currentWeaponUIController.gameObject.SetActive(!isMenuOpen);
+                currentWeaponUIController.SetVisibility(!isMenuOpen);
             }
         }
 

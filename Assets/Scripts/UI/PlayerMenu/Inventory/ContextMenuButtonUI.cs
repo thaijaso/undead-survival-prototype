@@ -53,7 +53,7 @@ namespace UndeadSurvivalGame.UI
         {
             if (hoverSoundFeedback == null)
             {
-                hoverSoundFeedback = GameObject.Find("PlayerMenu/SoundFeedbacks/HoverSound").GetComponent<MMF_Player>();
+                hoverSoundFeedback = GameObject.Find("HUDPlayerMenu/SoundFeedbacks/HoverSound").GetComponent<MMF_Player>();
             }
 
             if (hoverSoundFeedback == null)
