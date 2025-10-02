@@ -208,7 +208,7 @@ MonoBehaviour:
   leftHandGripSource: {fileID: 3404967232257848906}
   WeaponConfig: {fileID: 11400000, guid: 860cd6df9cfa3034b9fc03836e63ba49, type: 2}
   bulletHitTarget: {fileID: 0}
-  currentLoadedAmmo: 1000
+  currentLoadedAmmo: 6
   itemPickupInteractable: {fileID: 0}
   proximityUI: {fileID: 0}
   weaponCollider: {fileID: 0}

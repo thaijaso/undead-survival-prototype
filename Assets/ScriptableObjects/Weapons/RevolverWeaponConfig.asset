@@ -30,7 +30,7 @@ MonoBehaviour:
   weaponSway: 0
   impactForce: 50
   bulletSpeed: 200
-  maxAmmo: 1000
+  maxAmmo: 6
   ammoType: 1
   currentWeaponIconPath: Assets/Resources/WeaponIcons/ICON_SM_Wep_Pistol_Revolver_01_Clean.png
   isAutomatic: 0

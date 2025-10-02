@@ -211,6 +211,10 @@ namespace UndeadSurvivalGame.UI
                 {
                     toggle.isOn = false;
                 }
+                else
+                {
+                    Debug.LogWarning($"[{gameObject.name}] WeaponUIController.RemoveBulletInBulletList(): Toggle component not found on ammo UI at index {currentLoadedAmmo}.");
+                }
             }
             else
             {
