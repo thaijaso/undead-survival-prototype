@@ -429,6 +429,7 @@ namespace UndeadSurvivalGame.UI
             }
 
             contextMenuController.EquipButton.EventHandler.OnButtonClicked += HandleEquipItem;
+            contextMenuController.UnequipButton.EventHandler.OnButtonClicked += HandleUnequipItem;
             contextMenuController.UseButton.EventHandler.OnButtonClicked += HandleUseItem;
             contextMenuController.CombineButton.EventHandler.OnButtonClicked += HandleCombineItem;
             contextMenuController.ShortcutButton.EventHandler.OnButtonClicked += HandleShortcutItem;
@@ -470,6 +471,11 @@ namespace UndeadSurvivalGame.UI
             {
                 Debug.LogWarning("InventoryGridUIController is not assigned.");
             }
+        }
+
+        private void HandleUnequipItem()
+        {
+            Debug.Log("UnequipItem event received.");
         }
 
         private void HandleUseItem()

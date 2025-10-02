@@ -16,6 +16,7 @@ namespace UndeadSurvivalGame.UI
     public class ContextMenuController : MonoBehaviour
     {
         public ContextMenuButtonUI EquipButton => equipButton;
+        public ContextMenuButtonUI UnequipButton => unequipButton;
         public ContextMenuButtonUI UseButton => useButton;
         public ContextMenuButtonUI CombineButton => combineButton;
         public ContextMenuButtonUI ShortcutButton => shortcutButton;
@@ -33,6 +34,9 @@ namespace UndeadSurvivalGame.UI
 
         [SerializeField]
         private ContextMenuButtonUI equipButton;
+
+        [SerializeField]
+        private ContextMenuButtonUI unequipButton;
 
         [SerializeField]
         private ContextMenuButtonUI useButton;
@@ -67,6 +71,7 @@ namespace UndeadSurvivalGame.UI
         private void SetupButtons()
         {
             SetupEquipButton();
+            SetupUnequipButton();
             SetupUseButton();
             SetupCombineButton();
             SetupShortcutButton();
@@ -82,6 +87,18 @@ namespace UndeadSurvivalGame.UI
             if (equipButton == null)
             {
                 Debug.LogError("ContextMenuController: EquipButton reference is missing and could not be found in children.");
+            }
+        }
+
+        private void SetupUnequipButton()
+        {
+            if (unequipButton == null)
+            {
+                unequipButton = transform.Find("UnequipButton")?.GetComponent<ContextMenuButtonUI>();
+            }
+            if (unequipButton == null)
+            {
+                Debug.LogError("ContextMenuController: UnequipButton reference is missing and could not be found in children.");
             }
         }
 
@@ -146,6 +163,7 @@ namespace UndeadSurvivalGame.UI
         private void SubscribeToButtonEvents()
         {
             if (equipButton != null) equipButton.EventHandler.OnButtonEnter += OnButtonEntered;
+            if (unequipButton != null) unequipButton.EventHandler.OnButtonEnter += OnButtonEntered;
             if (useButton != null) useButton.EventHandler.OnButtonEnter += OnButtonEntered;
             if (combineButton != null) combineButton.EventHandler.OnButtonEnter += OnButtonEntered;
             if (shortcutButton != null) shortcutButton.EventHandler.OnButtonEnter += OnButtonEntered;
@@ -155,6 +173,7 @@ namespace UndeadSurvivalGame.UI
         private void UnsubscribeFromButtonEvents()
         {
             if (equipButton != null) equipButton.EventHandler.OnButtonEnter -= OnButtonEntered;
+            if (unequipButton != null) unequipButton.EventHandler.OnButtonEnter -= OnButtonEntered;
             if (useButton != null) useButton.EventHandler.OnButtonEnter -= OnButtonEntered;
             if (combineButton != null) combineButton.EventHandler.OnButtonEnter -= OnButtonEntered;
             if (shortcutButton != null) shortcutButton.EventHandler.OnButtonEnter -= OnButtonEntered;
@@ -206,6 +225,7 @@ namespace UndeadSurvivalGame.UI
         private void ConfigureButtons(ItemType itemType)
         {
             equipButton.gameObject.SetActive(itemType == ItemType.Weapon || itemType == ItemType.Clothing);
+            unequipButton.gameObject.SetActive(itemType == ItemType.Weapon || itemType == ItemType.Clothing);
             useButton.gameObject.SetActive(itemType == ItemType.Consumable);
             combineButton.gameObject.SetActive(itemType == ItemType.Consumable);
             shortcutButton.gameObject.SetActive(itemType == ItemType.Weapon);

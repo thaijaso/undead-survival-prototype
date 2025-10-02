@@ -40,5 +40,11 @@ public class WalkState : MoveState
             stateMachine.SetState(player.idle);
             return;
         }
+
+        if (player.PlayerInput.IsSprinting)
+        {
+            stateMachine.SetState(player.sprint);
+            return;
+        }
     }
 }
