@@ -3,7 +3,6 @@ using UndeadSurvivalGame.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 namespace UndeadSurvivalGame.UI
 {
     /// <summary>
@@ -192,9 +191,9 @@ namespace UndeadSurvivalGame.UI
         }
 
 
-        public void ShowAtAttachPoint(RectTransform attachPoint, ItemType itemType)
+        public void ShowAtAttachPoint(RectTransform attachPoint, ItemType itemType, bool IsItemEquipped)
         {
-            ConfigureButtons(itemType);
+            ConfigureButtons(itemType, IsItemEquipped);
             AddEnabledButtonsToList();
             PositionMenuAtAttachPoint(attachPoint);
             LayoutRebuilder.ForceRebuildLayoutImmediate(menuRoot);
@@ -222,10 +221,10 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
-        private void ConfigureButtons(ItemType itemType)
+        private void ConfigureButtons(ItemType itemType, bool isItemEquipped)
         {
-            equipButton.gameObject.SetActive(itemType == ItemType.Weapon || itemType == ItemType.Clothing);
-            unequipButton.gameObject.SetActive(itemType == ItemType.Weapon || itemType == ItemType.Clothing);
+            equipButton.gameObject.SetActive((itemType == ItemType.Weapon || itemType == ItemType.Clothing) && !isItemEquipped);
+            unequipButton.gameObject.SetActive((itemType == ItemType.Weapon || itemType == ItemType.Clothing) && isItemEquipped);
             useButton.gameObject.SetActive(itemType == ItemType.Consumable);
             combineButton.gameObject.SetActive(itemType == ItemType.Consumable);
             shortcutButton.gameObject.SetActive(itemType == ItemType.Weapon);

@@ -208,7 +208,8 @@ namespace UndeadSurvivalGame.UI
                 int nextIndex = slotToSelect.GetIndex() + 1;
                 InventorySlotUI nextSlot = inventorySlots[nextIndex];
 
-                contextMenuController.ShowAtAttachPoint(nextSlot.ContextMenuAttachPoint, itemType);
+                bool isItemEquipped = weaponManager.IsItemEquipped(inventory.ItemStacks[currentIndex].item);
+                contextMenuController.ShowAtAttachPoint(nextSlot.ContextMenuAttachPoint, itemType, isItemEquipped);
             }
         }
 
