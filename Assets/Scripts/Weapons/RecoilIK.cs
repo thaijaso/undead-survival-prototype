@@ -117,6 +117,18 @@ public class RecoilIK : OffsetModifier
     private bool handRotationsSet;
     private Vector3 aimIKAxis;
 
+    private void Awake()
+    {
+        if (ik == null) ik = GetComponent<FullBodyBipedIK>();
+        if (ik == null) Debug.LogWarning($"[RecoilIK] No FullBodyBipedIK component found on {gameObject.name}. RecoilIK will not work.");
+
+        if (aimIK == null) aimIK = GetComponent<AimIK>();
+        if (aimIK == null) Debug.LogWarning($"[RecoilIK] No AimIK component found on {gameObject.name}. Recoil direction will be based on character forward.");
+
+        if (headIK == null) headIK = GetComponent<AimIK>();
+        if (headIK == null) Debug.LogWarning($"[RecoilIK] No head AimIK component found on {gameObject.name}. Head will not be disabled during recoil.");
+    }
+
     /// <summary>
     /// Returns true if recoil has finished or has not been called at all.
     /// </summary>

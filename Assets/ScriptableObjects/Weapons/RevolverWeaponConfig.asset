@@ -34,7 +34,7 @@ MonoBehaviour:
   ammoType: 1
   currentWeaponIconPath: Assets/Resources/WeaponIcons/ICON_SM_Wep_Pistol_Revolver_01_Clean.png
   isAutomatic: 0
-  ikRecoilWeight: 0.412
+  ikRecoilWeight: 0.5
   aimIKSolvedLast: 0
   handedness: 0
   twoHanded: 0
@@ -62,12 +62,12 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  magnitudeRandom: 0.1
-  rotationRandom: {x: 0, y: 0, z: 0}
-  handRotationOffset: {x: 0, y: 0, z: -50}
+  magnitudeRandom: 0.3
+  rotationRandom: {x: 0.5, y: 0.5, z: 0.5}
+  handRotationOffset: {x: 0, y: 0, z: 0}
   blendTime: 0.05
   offsets:
-  - offset: {x: 0, y: 0.1, z: -0.1}
+  - offset: {x: 0.1, y: 0.6, z: 0.1}
     additivity: 1
     maxAdditiveOffsetMag: 0.2
     effectorLinks:

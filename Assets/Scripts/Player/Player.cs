@@ -93,7 +93,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupPlayerIKController();
             SetupWeaponManager();
             SetupHealthManager();
-            //SetupRecoil();
+            SetupRecoil();
             SetupBulletHitscan();
             SetupBulletDecalManager();
             SetupPuppetMaster();

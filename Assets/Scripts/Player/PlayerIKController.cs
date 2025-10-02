@@ -1,6 +1,5 @@
 using RootMotion.FinalIK;
 using Sirenix.OdinInspector;
-using System.Collections;
 using UnityEngine;
 
 namespace UndeadSurvivalGame.PlayerSystems
@@ -44,8 +43,6 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         [SerializeField]
         private float headLookBlendOutSpeed = 3f;
-
-
 
         public Vector3 gunHoldOffset;
         public Vector3 leftHandOffset;

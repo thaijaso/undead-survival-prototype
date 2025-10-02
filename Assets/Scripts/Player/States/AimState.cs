@@ -72,7 +72,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             SetupWeaponScriptIKAndGrip(weaponManager.CurrentWeaponScript);
             weaponManager.SetAimIKOffsets();
-            //weaponManager.SetRecoilIKSettings();
+            weaponManager.SetRecoilIKSettings();
         }
 
         private void SetupWeaponScriptIKAndGrip(Weapon weaponScript)

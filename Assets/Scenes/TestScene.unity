@@ -348920,6 +348920,7 @@ GameObject:
   - component: {fileID: 1717255714}
   - component: {fileID: 1717255709}
   - component: {fileID: 1717255721}
+  - component: {fileID: 1717255724}
   - component: {fileID: 1717255711}
   - component: {fileID: 1717255710}
   - component: {fileID: 1717255715}
@@ -349802,6 +349803,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   blendSpeed: 12
+--- !u!114 &1717255724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1717255699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa3b6a8a7851cf348a2a001b52a46727, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RecoilIK
+  weight: 1
+  ik: {fileID: 0}
+  aimIK: {fileID: 0}
+  headIK: {fileID: 0}
+  aimIKSolvedLast: 0
+  handedness: 0
+  twoHanded: 1
+  recoilWeight:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  magnitudeRandom: 0.1
+  rotationRandom: {x: 0, y: 0, z: 0}
+  handRotationOffset: {x: 0, y: 0, z: 0}
+  blendTime: 0
+  ikRecoilWeight: 1
+  offsetSettings:
+    offset: {x: 0.02, y: 0, z: -0.1}
+    additivity: 0.5
+    maxAdditiveOffsetMag: 0.2
+  offsets: []
+  rotationOffset: {x: 0, y: 0, z: 0, w: 1}
 --- !u!1001 &1717560231
 PrefabInstance:
   m_ObjectHideFlags: 0
