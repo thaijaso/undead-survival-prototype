@@ -53,7 +53,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 return;
             }
 
-            if (player.PlayerInput.IsAiming)
+            if (player.PlayerInput.IsAiming && !player.WeaponManager.IsUnarmed)
             {
                 animationManager.SetIsSprinting(false);
                 stateMachine.SetState(player.aim);

@@ -26,9 +26,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetIsIdle(true);
             animationManager.SetIsStrafing(false);
             animationManager.SetMoveParams(0f, 0f);
-
-            // player.PlayerIKController.DisableIK();
-            // player.AimPoseLayerWeightController.SetWeight(1f);
         }
 
         public override void Exit(PlayerState nextState)
@@ -55,7 +52,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 return;
             }
 
-            if (player.PlayerInput.IsAiming)
+            if (player.PlayerInput.IsAiming && !player.WeaponManager.IsUnarmed)
             {
                 stateMachine.SetState(player.aim);
                 return;
