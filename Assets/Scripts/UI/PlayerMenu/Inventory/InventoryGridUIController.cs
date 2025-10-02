@@ -566,5 +566,47 @@ namespace UndeadSurvivalGame.UI
             weaponManager.EquipWeaponItem(itemToEquip);
             RefreshGrid();
         }
+
+        public void UnequipSelectedItem()
+        {
+            if (SelectedSlot == null)
+            {
+                Debug.LogWarning("No slot is selected to unequip an item from.");
+                return;
+            }
+
+            int selectedIndex = SelectedSlot.GetIndex();
+
+            if (selectedIndex < 0 || selectedIndex >= inventory.ItemStacks.Count)
+            {
+                Debug.LogWarning("Selected slot index is out of range of the inventory item stacks.");
+                return;
+            }
+
+            ItemStack selectedItemStack = inventory.ItemStacks[selectedIndex];
+
+            if (selectedItemStack == null)
+            {
+                Debug.LogWarning("Selected slot does not contain a valid item stack to unequip.");
+                return;
+            }
+
+            Item itemToUnequip = selectedItemStack.item;
+
+            if (itemToUnequip.ItemType != ItemType.Weapon && itemToUnequip.ItemType != ItemType.Clothing)
+            {
+                Debug.LogWarning("Selected item is not equippable and cannot be unequipped.");
+                return;
+            }
+
+            if (!weaponManager.IsItemEquipped(itemToUnequip))
+            {
+                Debug.LogWarning("Selected item is not currently equipped.");
+                return;
+            }
+
+            weaponManager.UnequipCurrentWeapon();
+            RefreshGrid();
+        }
     }
 }

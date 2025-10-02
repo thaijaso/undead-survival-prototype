@@ -476,6 +476,7 @@ namespace UndeadSurvivalGame.UI
         private void HandleUnequipItem()
         {
             Debug.Log("UnequipItem event received.");
+            inventoryGridUIController.UnequipSelectedItem();
         }
 
         private void HandleUseItem()
