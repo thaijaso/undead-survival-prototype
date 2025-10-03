@@ -78,7 +78,7 @@ namespace UndeadSurvivalGame.UI
             }
         }
 
-        private void SetupInventorySlotUIHandler()
+        protected virtual void SetupInventorySlotUIHandler()
         {
             if (inventorySlotEventHandler == null)
             {

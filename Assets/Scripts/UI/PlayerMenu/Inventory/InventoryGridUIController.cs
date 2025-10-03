@@ -19,6 +19,8 @@ namespace UndeadSurvivalGame.UI
         [SerializeField]
         private List<InventorySlotUI> inventorySlots;
 
+        private List<InventorySlotUI> realSlots;
+
         [SerializeField]
         private SelectedItemNameUI selectedItemNameUI;
 
@@ -47,6 +49,7 @@ namespace UndeadSurvivalGame.UI
         {
             SetupPlayerWeaponManager();
             SetupInventorySlots();
+            SetupRealInventorySlots();
             SetupSelectedItemNameUI();
             SetupSelectedItemTypeUI();
             SetupSelectedItemDescriptionUI();
@@ -90,8 +93,16 @@ namespace UndeadSurvivalGame.UI
             // Subscribe to slot click events
             foreach (var slot in inventorySlots)
             {
-                slot.InventorySlotEventHandler.OnPointerClickedSlot += HandleSlotSelection;
+                if (slot is not DummyInventorySlotUI)
+                {
+                    slot.InventorySlotEventHandler.OnPointerClickedSlot += HandleSlotSelection;
+                }
             }
+        }
+
+        private void SetupRealInventorySlots()
+        {
+            realSlots = inventorySlots.FindAll(slot => slot is not DummyInventorySlotUI);
         }
 
         private void HandleSlotSelection(InventorySlotUI clickedSlot, PointerEventData.InputButton button)
@@ -144,7 +155,7 @@ namespace UndeadSurvivalGame.UI
 
         private void DeselectPreviousSlot(InventorySlotUI slotToSelect)
         {
-            foreach (var slot in inventorySlots)
+            foreach (var slot in realSlots)
                 slot.SetSelected(slot == slotToSelect);
         }
 
@@ -436,22 +447,23 @@ namespace UndeadSurvivalGame.UI
                 return;
             }
 
-            if (inventorySlots == null || inventorySlots.Count == 0)
+            if (realSlots == null || realSlots.Count == 0)
             {
-                Debug.LogWarning("InventorySlots reference is not set or is empty in InventoryGridUIController.");
+                Debug.LogWarning("realSlots is not set or is empty in InventoryGridUIController.");
                 return;
             }
 
-            if (inventory.ItemStacks.Count > inventorySlots.Count)
+            if (inventory.ItemStacks.Count > realSlots.Count)
             {
                 Debug.LogWarning("Not enough InventorySlots for all ItemStacks. Some items will not be displayed.");
                 return;
             }
 
-            for (int index = 0; index < inventorySlots.Count; index++)
+            for (int index = 0; index < realSlots.Count; index++)
             {
                 ItemStack itemStack = inventory.ItemStacks[index];
-                UpdateInventorySlotUI(inventorySlots[index], itemStack, index);
+                InventorySlotUI slot = realSlots[index];
+                UpdateInventorySlotUI(slot, itemStack, index);
             }
 
             FocusFirstAvailableItem();
@@ -459,6 +471,12 @@ namespace UndeadSurvivalGame.UI
 
         private void UpdateInventorySlotUI(InventorySlotUI slot, ItemStack itemStack, int index)
         {
+            if (slot is DummyInventorySlotUI)
+            {
+                // Skip updating dummy slots
+                return;
+            }
+
             Debug.Log($"InventoryGridUIController.UpdateInventorySlotUI() - Updating slot at index {index}...");
             slot.SetIndex(index);
 
@@ -529,7 +547,7 @@ namespace UndeadSurvivalGame.UI
 
         public List<InventorySlotUI> GetInventorySlots()
         {
-            return inventorySlots;
+            return realSlots;
         }
 
         public void EquipSelectedItem()
