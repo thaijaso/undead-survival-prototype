@@ -29,7 +29,7 @@ namespace UndeadSurvivalGame.UI
         [SerializeField]
         private CanvasGroup canvasGroup;
 
-        void Start()
+        void Awake()
         {
             if (playerInventory == null)
             {
@@ -73,22 +73,6 @@ namespace UndeadSurvivalGame.UI
                 playerWeaponManager.OnBulletFired += RemoveBulletInBulletList;
             }
         }
-
-        void OnEnable()
-        {
-            // if (playerInventory != null)
-            // {
-            //     playerInventory.OnInventoryChanged += UpdateCurrentWeaponTotalAmmoUI;
-            // }
-
-            // if (playerWeaponManager != null)
-            // {
-            //     playerWeaponManager.OnWeaponSetup += UpdateCurrentWeaponUI;
-            //     playerWeaponManager.OnBulletLoaded += AddBulletInBulletList;
-            //     playerWeaponManager.OnBulletFired += RemoveBulletInBulletList;
-            // }
-        }
-
         void OnDisable()
         {
             if (playerInventory != null)
