@@ -72369,7 +72369,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4564438223453225373, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
@@ -95411,17 +95411,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1489192891}
     m_Modifications:
-    - target: {fileID: 116109420394789178, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 269745757949992452, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_Name
       value: Inventory Slot (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 269745757949992452, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 724794102463869540, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_Pivot.x
@@ -95502,26 +95494,6 @@ PrefabInstance:
     - target: {fileID: 724794102463869540, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: Inventory
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3720642566718995436, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 9a76caa469a6b724a91c5e4c1f931eb3, type: 3}
-    - target: {fileID: 4564438223453225373, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4649096568519139812, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_Enabled
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -97414,10 +97386,6 @@ PrefabInstance:
     - target: {fileID: 724794102463869540, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: Inventory
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: SelectedItemNameUI
@@ -195178,10 +195146,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Inventory Slot (3)
       objectReference: {fileID: 0}
-    - target: {fileID: 269745757949992452, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 724794102463869540, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -195261,22 +195225,6 @@ PrefabInstance:
     - target: {fileID: 724794102463869540, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: Inventory
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4564438223453225373, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6674987010820023793, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -15.600037
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -200106,7 +200054,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2383244230488942016, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: inventorySlotUIHandler
@@ -230892,7 +230840,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4564438223453225373, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
@@ -370147,10 +370095,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Inventory Slot (1)
       objectReference: {fileID: 0}
-    - target: {fileID: 269745757949992452, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 724794102463869540, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -370230,10 +370174,6 @@ PrefabInstance:
     - target: {fileID: 724794102463869540, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1768316427935037820, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
-      propertyPath: Inventory
-      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -401379,7 +401319,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1898557628640664394, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4564438223453225373, guid: 67d4a4d55e950b645bf47eaccc6b6cc0, type: 3}
       propertyPath: m_IsActive
