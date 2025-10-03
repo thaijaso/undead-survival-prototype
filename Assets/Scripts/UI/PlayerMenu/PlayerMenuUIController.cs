@@ -444,6 +444,7 @@ namespace UndeadSurvivalGame.UI
             }
 
             contextMenuController.EquipButton.EventHandler.OnButtonClicked -= HandleEquipItem;
+            contextMenuController.UnequipButton.EventHandler.OnButtonClicked -= HandleUnequipItem;
             contextMenuController.UseButton.EventHandler.OnButtonClicked -= HandleUseItem;
             contextMenuController.CombineButton.EventHandler.OnButtonClicked -= HandleCombineItem;
             contextMenuController.ShortcutButton.EventHandler.OnButtonClicked -= HandleShortcutItem;
