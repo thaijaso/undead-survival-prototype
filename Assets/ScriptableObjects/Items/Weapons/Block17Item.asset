@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d7f46b871e76544fa3620c2c3ea6194, type: 3}
+  m_Name: Block17Item
+  m_EditorClassIdentifier: Assembly-CSharp::UndeadSurvivalGame.Gameplay.Item
+  ItemID: block17.item
+  ItemName: Block 17
+  ItemIcon: {fileID: 21300000, guid: dcff5f8cef26f914e884f4ddb528d976, type: 3}
+  ItemType: 1
+  WeaponType: 1
+  AmmoType: 2
+  Description: "The Block 17 \u2014 reliable, compact, and chambered in 9mm."
+  IsStackable: 0
+  MaxStack: 1
+  WorldPrefab: {fileID: 7173815278906741782, guid: e7461e3cb4dfd384ea54841be167ca84, type: 3}
+  HandPrefab: {fileID: 7173815278906741782, guid: cafa66bbfaa1c2e43b812d9f316565fd, type: 3}
+  PickupAllSound: {fileID: 0}
+  PickupSomeSound: {fileID: 0}

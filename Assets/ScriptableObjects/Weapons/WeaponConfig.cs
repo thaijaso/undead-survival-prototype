@@ -2,6 +2,7 @@
 using UnityEditor;
 #endif
 
+using RootMotion.FinalIK;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using UnityEngine;
 
 namespace UndeadSurvivalGame.Gameplay
 {
-    
+
     // WeaponData.cs
     // This ScriptableObject holds all static configuration, stats, and IK/recoil settings for a weapon type.
     // It is referenced by Weapon MonoBehaviours and can be reused across multiple weapon prefabs/instances.
@@ -17,7 +18,7 @@ namespace UndeadSurvivalGame.Gameplay
     [CreateAssetMenu(fileName = "WeaponData", menuName = "ScriptableObjects/Weapons/Weapon Data", order = 0)]
     public class WeaponConfig : ScriptableObject
     {
-        public enum WeaponType { Pistol, Rifle }
+        public enum WeaponType { Pistol, Rifle, Melee }
         [Header("Weapon Type")]
         public WeaponType weaponType = WeaponType.Pistol;
         public string weaponName; // Display name for the weapon
@@ -111,5 +112,26 @@ namespace UndeadSurvivalGame.Gameplay
 
         [TabGroup("IK Recoil")]
         public RecoilIK.RecoilOffset[] offsets; // Array of offsets for IK recoil (per effector)
+
+        private void OnValidate()
+        {
+            if (offsets == null || offsets.Length == 0)
+            {
+                var defaultEffectorLinks = new RecoilIK.RecoilOffset.EffectorLink[]
+                {
+                    new() { effector = FullBodyBipedEffector.RightHand, weight = 1f },
+                    new() { effector = FullBodyBipedEffector.RightShoulder, weight = 0.5f },
+                    new() { effector = FullBodyBipedEffector.Body, weight = 0.1f }
+                };
+                var defaultOffset = new RecoilIK.RecoilOffset
+                {
+                    offset = new Vector3(0.1f, 0.6f, 0.1f),
+                    additivity = 1f,
+                    maxAdditiveOffsetMag = 0.2f,
+                    effectorLinks = defaultEffectorLinks
+                };
+                offsets = new RecoilIK.RecoilOffset[] { defaultOffset };
+            }
+        }
     }
 }

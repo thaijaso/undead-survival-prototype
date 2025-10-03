@@ -12,12 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d7f46b871e76544fa3620c2c3ea6194, type: 3}
   m_Name: 9mmItem
   m_EditorClassIdentifier: 
-  itemID: ammo.9mm
-  itemName: 9mm
-  itemIcon: {fileID: 21300000, guid: d6ad0d3d913381c4bb9fc515848e43e7, type: 3}
-  itemType: 4
-  weaponType: 0
-  ammoType: 2
-  description: "Light recoil, heavy results. The world\u2019s most borrowed caliber."
-  isStackable: 1
-  maxStack: 24
+  ItemID: 9mm.item
+  ItemName: 9mm
+  ItemIcon: {fileID: 21300000, guid: 0d1d7555434a81249b9517a5dd637053, type: 3}
+  ItemType: 4
+  WeaponType: 0
+  AmmoType: 2
+  Description: "9mm rounds \u2014 the most common caliber left on the island. Light,
+    reliable, and just powerful enough to keep the dead at bay."
+  IsStackable: 1
+  MaxStack: 24
+  WorldPrefab: {fileID: 1259867841671588, guid: 7a5dc0c73dd33934e8c72bd06458e20f, type: 3}
+  HandPrefab: {fileID: 0}
+  PickupAllSound: {fileID: 8300000, guid: 10d6eae69f62b924a9349a0b7819a773, type: 3}
+  PickupSomeSound: {fileID: 8300000, guid: dfc2db4241c8fff4686d820d596743fe, type: 3}

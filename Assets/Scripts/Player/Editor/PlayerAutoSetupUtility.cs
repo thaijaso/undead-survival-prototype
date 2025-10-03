@@ -1121,11 +1121,11 @@ namespace UndeadSurvivalGame.Editor
                 if (weaponData == null)
                 {
                     // Try to auto-assign a WeaponData asset if one exists
-                    string[] guids = UnityEditor.AssetDatabase.FindAssets("t:WeaponData");
+                    string[] guids = AssetDatabase.FindAssets("t:WeaponData");
                     if (guids != null && guids.Length > 0)
                     {
-                        string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
-                        var defaultWeaponData = UnityEditor.AssetDatabase.LoadAssetAtPath<WeaponConfig>(path);
+                        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                        var defaultWeaponData = AssetDatabase.LoadAssetAtPath<WeaponConfig>(path);
                         if (defaultWeaponData != null)
                         {
                             var currentWeaponDataField = pwm.GetType().GetField("currentWeaponData", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -1172,7 +1172,7 @@ namespace UndeadSurvivalGame.Editor
                     else
                     {
                         recoilIK.offsets = null;
-                        UnityEngine.Debug.LogWarning($"[AutoSetup] No offsets found in WeaponData for {player.gameObject.name}.");
+                        Debug.LogWarning($"[AutoSetup] No offsets found in WeaponData for {player.gameObject.name}.");
                     }
                 }
             }

@@ -134,11 +134,11 @@ namespace UndeadSurvivalGame.UI
             }
 
             // Set toggle state 
-            for (int index = 0; index < currentLoadedAmmo; index++)
+            for (int index = 0; index < maxAmmo; index++)
             {
-                if (index < ammoListUI.Count)
+                Toggle toggle = ammoListUI[index].GetComponent<Toggle>();
+                if (index < currentLoadedAmmo)
                 {
-                    Toggle toggle = ammoListUI[index].GetComponent<Toggle>();
                     if (toggle != null)
                     {
                         toggle.isOn = true;
@@ -146,7 +146,11 @@ namespace UndeadSurvivalGame.UI
                 }
                 else
                 {
-                    Debug.LogWarning($"[{gameObject.name}] WeaponUIController.UpdateBulletListUI(): Ammo index {index} exceeds ammo list UI count.");
+                    //Debug.LogWarning($"[{gameObject.name}] WeaponUIController.UpdateBulletListUI(): Ammo index {index} exceeds ammo list UI count.");
+                    if (toggle != null)
+                    {
+                        toggle.isOn = false;
+                    }
                 }
             }
         }
@@ -248,6 +252,12 @@ namespace UndeadSurvivalGame.UI
             if (playerWeaponManager.CurrentWeaponConfig == null)
             {
                 Debug.Log($"[{gameObject.name}] WeaponUIController.UpdateTotalAmmoUI(): CurrentWeaponConfig is not set.");
+                return;
+            }
+
+            if (playerWeaponManager.CurrentWeaponConfig.weaponType != WeaponConfig.WeaponType.Melee && playerWeaponManager.CurrentWeaponConfig.ammoType == AmmoType.None)
+            {
+                Debug.LogWarning($"[{gameObject.name}] WeaponUIController.UpdateTotalAmmoUI(): Current weapon has ammo type None. Did you set the Ammo type in the WeaponConfig?");
                 return;
             }
 
