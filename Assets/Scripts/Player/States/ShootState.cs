@@ -127,27 +127,23 @@ namespace UndeadSurvivalGame.PlayerSystems
             else
             {
                 // Semi-auto: fire only if timer is ready, ignore rapid clicks
-                if (player.PlayerInput.AttackBuffered)
+                if (weaponManager.IsFireCooldownComplete())
                 {
-                    if (weaponManager.IsFireCooldownComplete())
+                    if (weaponManager.IsChamberEmpty())
                     {
-                        if (weaponManager.IsChamberEmpty())
-                        {
-                            Debug.Log("[ShootState] Cannot fire: chamber is empty");
-                            weaponManager.PlayEmptyGunClick();
-                        }
-                        else
-                        {
-                            Debug.Log("[ShootState] Semi-auto fire triggered (buffered)");
-                            Shoot();
-                        }
+                        Debug.Log("[ShootState] Cannot fire: chamber is empty");
+                        weaponManager.PlayEmptyGunClick();
                     }
-                    // Always consume buffer, even if timer not ready
-                    player.PlayerInput.ConsumeAttackBuffer();
-                    // After firing or consuming buffer, return to aim state
-                    stateMachine.SetState(player.aim);
-                    return;
+                    else
+                    {
+                        Debug.Log("[ShootState] Semi-auto fire triggered (buffered)");
+                        Shoot();
+                    }
                 }
+    
+                // After firing or consuming buffer, return to aim state
+                stateMachine.SetState(player.aim);
+                return;
             }
         }
 
@@ -159,7 +155,6 @@ namespace UndeadSurvivalGame.PlayerSystems
         private void Shoot()
         {
             Debug.Log($"[{player.name}] ShootState.Shoot(): Firing weapon");
-            //animationManager.TriggerPistolShootPowerful();
             weaponManager.TriggerShootAnimation();
             ApplyAnimationRecoil();
             ApplyCameraRecoil();

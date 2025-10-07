@@ -194,6 +194,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (CanShoot())
             {
+                player.PlayerInput.ConsumeAttackBuffer();
                 stateMachine.SetState(player.shoot);
                 return true;
             }
@@ -210,7 +211,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         private bool CanShoot()
         {
             return player.PlayerInput.IsAiming &&
-            player.PlayerInput.IsAttacking &&
+            player.PlayerInput.AttackBuffered &&
             stateMachine.currentState != player.shoot &&
             !animationManager.Animator.GetCurrentAnimatorStateInfo(animationManager.UpperBodyLayerIndex).IsTag("Shoot");
         }
