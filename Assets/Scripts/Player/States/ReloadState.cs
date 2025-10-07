@@ -24,7 +24,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             base.Enter();
             Debug.Log($"[{player.name}] ReloadState.Enter(): Entering Reload state");
             animationManager.SetIsReloading(true);
-            //animationManager.TriggerRevolverReloadAnimation();
             weaponManager.TriggerReloadAnimation();
             player.PlayerInput.ConsumeAimBuffer(); // Consume any buffered aim input on entering reload
         }
@@ -62,7 +61,15 @@ namespace UndeadSurvivalGame.PlayerSystems
                 {
                     animationManager.SetIsReloading(false);
                     Debug.Log($"[{player.name}] Reload complete, switching to idle state.");
-                    stateMachine.SetState(player.idle);
+
+                    if (player.PlayerInput.IsMoving)
+                    {
+                        stateMachine.SetState(player.strafe);
+                    }
+                    else
+                    {
+                        stateMachine.SetState(player.idle);
+                    }
                 }
             }
             else
@@ -78,6 +85,16 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (weaponManager.CurrentWeaponScript != null)
             {
                 weaponManager.LoadAmmo();
+                animationManager.SetIsReloading(false);
+                
+                if (player.PlayerInput.IsMoving)
+                {
+                    stateMachine.SetState(player.strafe);
+                }
+                else
+                {
+                    stateMachine.SetState(player.idle);
+                }
             }
         }
     }

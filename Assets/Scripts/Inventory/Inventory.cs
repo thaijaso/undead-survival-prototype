@@ -274,8 +274,10 @@ namespace UndeadSurvivalGame.Gameplay
                 var itemStack = itemStacks[index];
                 if (itemStack != null && itemStack.item.ItemType == ItemType.Ammo && itemStack.item.AmmoType == ammoType)
                 {
-                    int remaining = itemStack.RemoveQuantity(amount);
-                    amount = remaining;
+                    int quantityBeforeRemoval = itemStack.quantity;
+                    itemStack.RemoveQuantity(amount);
+                    int quantityAfterRemoval = itemStack.quantity;
+                    amount -= quantityBeforeRemoval - quantityAfterRemoval;
 
                     if (itemStack.IsEmpty)
                     {
@@ -283,8 +285,6 @@ namespace UndeadSurvivalGame.Gameplay
                     }
 
                     OnInventoryChanged?.Invoke();
-
-                    if (amount <= 0) break;
                 }
             }
 

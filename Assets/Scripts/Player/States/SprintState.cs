@@ -40,6 +40,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             // Reset the sprinting animation
             animationManager.SetIsSprinting(false);
             animationManager.SetMoveParams(0f, 0f);
+
         }
 
         public override void LogicUpdate()
@@ -58,6 +59,13 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 animationManager.SetIsSprinting(false);
                 stateMachine.SetState(player.aim);
+                return;
+            }
+
+            if (player.PlayerInput.IsReloading && player.WeaponManager.CanReload())
+            {
+                animationManager.SetIsSprinting(false);
+                stateMachine.SetState(player.reload);
                 return;
             }
         }

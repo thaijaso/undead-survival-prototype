@@ -28,16 +28,12 @@ namespace UndeadSurvivalGame.PlayerSystems
         public bool IsJumping { get; internal set; }
         public bool IsAiming { get; internal set; }
         public bool IsAttacking { get; internal set; }
-
         public bool IsReloading { get; internal set; }
-
-        // True only on the frame the attack button is pressed
-        public bool IsAttackPressed { get; private set; }
 
         // Buffered attack input: stays true until consumed
         public bool AttackBuffered { get; private set; }
-
         public bool AimBuffered { get; private set; }
+        public bool ReloadBuffered { get; private set; }
 
         public bool IsPlayerMenuPressed { get; private set; }
 
@@ -78,7 +74,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             aimAction = InputSystem.actions.FindAction("Aim");
             attackAction = InputSystem.actions.FindAction("Attack");
             reloadAction = InputSystem.actions.FindAction("Reload");
-            //playerMenuAction = InputSystem.actions.FindAction("OpenPlayerMenu");
             interactAction = InputSystem.actions.FindAction("Interact");
 
             // Event-based input buffering
@@ -91,6 +86,11 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 aimAction.performed += ctx => AimBuffered = true;
             }
+
+            if (reloadAction != null)
+            {
+                reloadAction.performed += ctx => ReloadBuffered = true;
+            }
         }
 
         // Call this after consuming the buffered attack input
@@ -102,6 +102,11 @@ namespace UndeadSurvivalGame.PlayerSystems
         public void ConsumeAimBuffer()
         {
             AimBuffered = false;
+        }
+
+        public void ConsumeReloadBuffer()
+        {
+            ReloadBuffered = false;
         }
 
         // Update is called once per frame

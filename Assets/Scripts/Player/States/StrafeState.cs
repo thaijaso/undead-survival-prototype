@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace UndeadSurvivalGame.PlayerSystems
-{ 
+{
 
     public class StrafeState : MoveState
     {
@@ -28,7 +28,6 @@ namespace UndeadSurvivalGame.PlayerSystems
         {
             base.Enter();
             Debug.Log($"[{player.name}] StrafeState.Enter(): Entering Strafe state");
-            //animationManager.SetIsStrafing(true);
             animationManager.SetIsIdle(false);
         }
 
@@ -62,7 +61,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 return;
             }
 
-            if (player.PlayerInput.IsSprinting && player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming)
+            if (player.PlayerInput.IsSprinting && player.PlayerInput.IsMoving && !player.PlayerInput.IsAiming && stateMachine.currentState != player.reload) 
             {
                 stateMachine.SetState(player.sprint);
                 return;
@@ -77,8 +76,9 @@ namespace UndeadSurvivalGame.PlayerSystems
                 return;
             }
 
-            if (player.PlayerInput.IsReloading && player.WeaponManager.CanReload())
+            if (player.PlayerInput.ReloadBuffered && player.WeaponManager.CanReload())
             {
+                player.PlayerInput.ConsumeReloadBuffer();
                 stateMachine.SetState(player.reload);
                 return;
             }

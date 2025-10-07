@@ -28,14 +28,13 @@ namespace UndeadSurvivalGame.Gameplay
             quantity += amount;
         }
 
-        public int RemoveQuantity(int amount)
+        public void RemoveQuantity(int amount)
         {
             quantity = Math.Max(0, quantity - amount);
             if (quantity == 0)
             {
                 item = null; // Clear item if quantity is zero or less
             }
-            return quantity;
         }
 
         public bool IsEmpty => quantity == 0;

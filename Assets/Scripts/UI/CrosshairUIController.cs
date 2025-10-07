@@ -101,8 +101,6 @@ namespace UndeadSurvivalGame.UI
             float contractDuration = 0.1f
         )
         {
-            Debug.Log($"[{gameObject.name}] CrosshairUIController.ExpandAndContractCrosshair() called: expandSpread={expandSpread}, expandDuration={expandDuration}, holdDuration={holdDuration}, contractDuration={contractDuration}");
-
             if (animationCoroutine != null)
                 StopCoroutine(animationCoroutine);
 
