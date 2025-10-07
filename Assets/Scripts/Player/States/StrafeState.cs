@@ -77,6 +77,12 @@ namespace UndeadSurvivalGame.PlayerSystems
                 return;
             }
 
+            if (player.PlayerInput.IsReloading && player.WeaponManager.CanReload())
+            {
+                stateMachine.SetState(player.reload);
+                return;
+            }
+
             if (player.PlayerInput.IsMoving)
             {
                 animationManager.SetIsStrafing(true);

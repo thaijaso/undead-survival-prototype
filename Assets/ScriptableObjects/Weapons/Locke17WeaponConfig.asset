@@ -27,7 +27,7 @@ MonoBehaviour:
   cameraRecoilReturnSpeed: 0
   bulletSpreadHorizontal: 0.5
   bulletSpreadVertical: 0.5
-  fireRate: 0.2
+  fireRate: 0.3
   range: 100
   damage: 20
   weaponSway: 0
@@ -37,7 +37,7 @@ MonoBehaviour:
   ammoType: 2
   currentWeaponIconPath: Assets/Resources/WeaponIcons/ICON_SM_Wep_Pistol_01_Clean.png
   isAutomatic: 0
-  ikRecoilWeight: 0
+  ikRecoilWeight: 1
   aimIKSolvedLast: 0
   handedness: 0
   twoHanded: 0
@@ -47,20 +47,20 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: -4.2892065
+      outSlope: -4.2892065
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.33333334
     - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
+      time: 0.22619629
+      value: 0.029797364
+      inSlope: -4.2892065
+      outSlope: -4.2892065
       tangentMode: 34
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -70,7 +70,7 @@ MonoBehaviour:
   handRotationOffset: {x: 0, y: 0, z: 0}
   blendTime: 0.1
   offsets:
-  - offset: {x: 0, y: 0, z: 0}
+  - offset: {x: 0, y: 0, z: -0.1}
     additivity: 0
     maxAdditiveOffsetMag: 0
     effectorLinks:

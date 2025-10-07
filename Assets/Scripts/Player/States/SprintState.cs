@@ -30,6 +30,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             // Set the sprinting animation
             animationManager.SetIsSprinting(true);
             animationManager.SetIsIdle(false);
+            animationManager.SetIsStrafing(false);
         }
 
         public override void Exit(PlayerState nextState)
