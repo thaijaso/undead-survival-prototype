@@ -265,6 +265,35 @@ namespace UndeadSurvivalGame.Gameplay
             Debug.LogWarning($"[{gameObject.name}] Inventory.DecrementAmmo(): No ammo of type {ammoType} found.");
         }
 
+        public void RemoveAmmo(AmmoType ammoType, int amount)
+        {
+            if (ammoType == AmmoType.None || amount <= 0) return;
+
+            for (int index = 0; index < itemStacks.Length; index++)
+            {
+                var itemStack = itemStacks[index];
+                if (itemStack != null && itemStack.item.ItemType == ItemType.Ammo && itemStack.item.AmmoType == ammoType)
+                {
+                    int remaining = itemStack.RemoveQuantity(amount);
+                    amount = remaining;
+
+                    if (itemStack.IsEmpty)
+                    {
+                        itemStacks[index] = null;
+                    }
+
+                    OnInventoryChanged?.Invoke();
+
+                    if (amount <= 0) break;
+                }
+            }
+
+            if (amount > 0)
+            {
+                Debug.LogWarning($"[{gameObject.name}] Inventory.RemoveAmmo(): Not enough ammo of type {ammoType} to remove the requested amount.");
+            }
+        }
+
         public void DropItemStack(int index)
         {
             if (index < 0 || index >= itemStacks.Length)

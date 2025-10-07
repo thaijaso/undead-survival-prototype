@@ -20,4 +20,4 @@ MonoBehaviour:
   - item: {fileID: 11400000, guid: 6278f713007dba047809667ef610a838, type: 2}
     quantity: 1
   - item: {fileID: 11400000, guid: 9749548458ca05e49ad95aeaf92786af, type: 2}
-    quantity: 24
+    quantity: 1000

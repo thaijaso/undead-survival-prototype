@@ -346647,6 +346647,7 @@ GameObject:
   - component: {fileID: 1717255719}
   - component: {fileID: 1717255722}
   - component: {fileID: 1717255723}
+  - component: {fileID: 1717255725}
   m_Layer: 3
   m_Name: Cowboy
   m_TagString: Player
@@ -347546,11 +347547,25 @@ MonoBehaviour:
   blendTime: 0
   ikRecoilWeight: 1
   offsetSettings:
-    offset: {x: 0.02, y: 0, z: -0.1}
-    additivity: 0.5
-    maxAdditiveOffsetMag: 0.2
+    offset: {x: 0, y: 0, z: 0}
+    additivity: 0
+    maxAdditiveOffsetMag: 0
   offsets: []
   rotationOffset: {x: 0, y: 0, z: 0, w: 1}
+--- !u!114 &1717255725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1717255699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 273bcd2597d9b7145977261f28b47846, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpperBodyLayerWeightController
+  blendSpeedValue: 12
+  layerNameValue: Upperbody Layer
 --- !u!1001 &1717560231
 PrefabInstance:
   m_ObjectHideFlags: 0

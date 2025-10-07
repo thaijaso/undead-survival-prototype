@@ -15,6 +15,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         public PlayerIKController PlayerIKController { get; private set; }
         public AimPoseLayerWeightController AimPoseLayerWeightController { get; private set; }
         public AimPitchLayerWeightController AimPitchLayerWeightController { get; private set; }
+        public UpperBodyLayerWeightController UpperBodyLayerWeightController { get; private set; }
         public PlayerAnimatorEvents PlayerAnimatorEvents { get; private set; }
         public AnimationManager AnimationManager { get; private set; }
 
@@ -103,24 +104,9 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupPlayerInteractionSensor();
             SetupAimPoseLayerWeightController();
             SetupAimPitchLayerWeightController();
+            SetupUpperBodyLayerWeightController();
 
             stateMachine = new StateMachine<PlayerState>(gameObject.name);
-        }
-
-        private void SetupAimPoseLayerWeightController()
-        {
-            AimPoseLayerWeightController = GetComponent<AimPoseLayerWeightController>();
-
-            if (AimPoseLayerWeightController == null)
-                Debug.LogError($"[{gameObject.name}] Player.SetupArmsLayerWeightController(): ArmsLayerWeightController component is missing!");
-        }
-
-        private void SetupAimPitchLayerWeightController()
-        {
-            AimPitchLayerWeightController = GetComponent<AimPitchLayerWeightController>();
-
-            if (AimPitchLayerWeightController == null)
-                Debug.LogError($"[{gameObject.name}] Player.SetupAimPitchLayerWeightController(): AimPitchLayerWeightController component is missing!");
         }
 
         private void SetupPlayerInput()
@@ -277,6 +263,30 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (InteractionSensor == null)
                 Debug.LogError($"[{gameObject.name}] Player.SetupPlayerInteractionSensor(): PlayerInteractionSensor component is missing!");
+        }
+
+        private void SetupAimPoseLayerWeightController()
+        {
+            AimPoseLayerWeightController = GetComponent<AimPoseLayerWeightController>();
+
+            if (AimPoseLayerWeightController == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupAimPoseLayerWeightController(): AimPoseLayerWeightController component is missing!");
+        }
+
+        private void SetupAimPitchLayerWeightController()
+        {
+            AimPitchLayerWeightController = GetComponent<AimPitchLayerWeightController>();
+
+            if (AimPitchLayerWeightController == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupAimPitchLayerWeightController(): AimPitchLayerWeightController component is missing!");
+        }
+
+        private void SetupUpperBodyLayerWeightController()
+        {
+            UpperBodyLayerWeightController = GetComponent<UpperBodyLayerWeightController>();
+
+            if (UpperBodyLayerWeightController == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupUpperBodyLayerWeightController(): UpperBodyLayerWeightController component is missing!");
         }
 
         void Start()

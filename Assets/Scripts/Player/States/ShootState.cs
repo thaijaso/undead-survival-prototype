@@ -36,7 +36,6 @@ namespace UndeadSurvivalGame.PlayerSystems
         )
         {
             SetupCamera();
-
             this.recoilIK = recoilIK;
             this.bulletHitscan = bulletHitscan;
             this.bulletDecalManager = bulletDecalManager;
@@ -60,7 +59,11 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupShootState();
             SetupWeaponDataForShooting();
             SetupWeaponDataForCameraRecoil();
-            player.PlayerIKController.DisableIK();
+
+            if (!weaponManager.IsChamberEmpty())
+            {
+                player.PlayerIKController.DisableIK();
+            }
         }
 
         private void SetupShootState()
@@ -156,7 +159,8 @@ namespace UndeadSurvivalGame.PlayerSystems
         private void Shoot()
         {
             Debug.Log($"[{player.name}] ShootState.Shoot(): Firing weapon");
-            animationManager.TriggerPistolShootPowerful();
+            //animationManager.TriggerPistolShootPowerful();
+            weaponManager.TriggerShootAnimation();
             ApplyAnimationRecoil();
             ApplyCameraRecoil();
             FireRigidbodyBullet();
@@ -171,7 +175,6 @@ namespace UndeadSurvivalGame.PlayerSystems
             PlayWeaponEffects();
             weaponManager.ResetFireTimer();
             weaponManager.DecrementLoadedAmmoCount();
-            //weaponManager.UpdateCurrentLoadedAmmoUI();
         }
 
         // Apply visual recoil to weapon and animation:

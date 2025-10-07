@@ -10,18 +10,29 @@ using UnityEngine;
 
 namespace UndeadSurvivalGame.Gameplay
 {
+    public enum WeaponId
+    {
+        None,
+        Revolver,
+        Locke17
+    }
 
-    // WeaponData.cs
+    // WeaponConfig.cs
     // This ScriptableObject holds all static configuration, stats, and IK/recoil settings for a weapon type.
     // It is referenced by Weapon MonoBehaviours and can be reused across multiple weapon prefabs/instances.
 
-    [CreateAssetMenu(fileName = "WeaponData", menuName = "ScriptableObjects/Weapons/Weapon Data", order = 0)]
+    [CreateAssetMenu(fileName = "WeaponConfig", menuName = "ScriptableObjects/Weapons/WeaponConfig", order = 0)]
     public class WeaponConfig : ScriptableObject
     {
         public enum WeaponType { Pistol, Rifle, Melee }
         [Header("Weapon Type")]
         public WeaponType weaponType = WeaponType.Pistol;
         public string weaponName; // Display name for the weapon
+
+        public WeaponId weaponId = WeaponId.None; // Unique identifier for the weapon
+
+        public string ShootAnimationTriggerName;
+        public string ReloadAnimationTriggerName;
 
         public GameObject weaponPrefab; // Prefab to instantiate for this weapon
         public WeaponIKOffsets aimIKOffsets; // IK offsets for aiming pose

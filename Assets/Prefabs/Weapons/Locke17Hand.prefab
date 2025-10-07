@@ -311,7 +311,7 @@ GameObject:
   - component: {fileID: -7695811402602582320}
   - component: {fileID: 3087407325872977664}
   m_Layer: 0
-  m_Name: Block17Hand
+  m_Name: Locke17Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

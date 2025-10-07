@@ -21,7 +21,7 @@ MonoBehaviour:
   Description: "9mm rounds \u2014 the most common caliber left on the island. Light,
     reliable, and just powerful enough to keep the dead at bay."
   IsStackable: 1
-  MaxStack: 24
+  MaxStack: 1000
   WorldPrefab: {fileID: 1259867841671588, guid: 7a5dc0c73dd33934e8c72bd06458e20f, type: 3}
   HandPrefab: {fileID: 0}
   PickupAllSound: {fileID: 8300000, guid: 10d6eae69f62b924a9349a0b7819a773, type: 3}

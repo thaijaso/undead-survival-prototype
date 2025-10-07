@@ -49,7 +49,6 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (player.PlayerInput.IsPlayerMenuPressed)
             {
-                Debug.Log("PlayerState.LogicUpdate(): Player menu button pressed.");
                 player.PlayerMenuUIController.TogglePlayerMenu();
             }
 
@@ -58,9 +57,25 @@ namespace UndeadSurvivalGame.PlayerSystems
                 player.InteractionSensor.CurrentInteractable.Interact(player);
             }
 
+            if (player.WeaponManager.IsUnarmed)
+            {
+                player.UpperBodyLayerWeightController.SetWeight(0f);
+            }
+            else
+            {
+                player.UpperBodyLayerWeightController.SetWeight(1f);
+            }
+
+            HandleAnimatorParams();
+        }
+
+        private void HandleAnimatorParams()
+        {
             animationManager.SetSprintStopGracePeriodFinished(player.PlayerInput.SprintStopGracePeriodFinished);
             animationManager.SetIsUnarmed(weaponManager.IsUnarmed);
             animationManager.SetIsPistolEquipped(weaponManager.IsPistolEquipped);
+            animationManager.SetIsRevolverEquipped(weaponManager.IsRevolverEquipped);
+            animationManager.SetIsLocke17Equipped(weaponManager.IsLocke17Equipped);
         }
 
         public virtual void PhysicsUpdate()

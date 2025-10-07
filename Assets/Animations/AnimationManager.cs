@@ -257,4 +257,24 @@ public class AnimationManager
     {
         Animator.SetBool("IsWalking", isWalking);
     }
+
+    public void SetIsRevolverEquipped(bool isRevolverEquipped)
+    {
+        Animator.SetBool("IsRevolverEquipped", isRevolverEquipped);
+    }
+
+    public void SetIsLocke17Equipped(bool isLocke17Equipped)
+    {
+        Animator.SetBool("IsLocke17Equipped", isLocke17Equipped);
+    }
+
+    public void TriggerShootAnimation(string shootTriggerName)
+    {
+        Animator.SetTrigger(shootTriggerName);
+    }
+
+    public void TriggerReloadAnimation(string reloadTriggerName)
+    {
+        Animator.SetTrigger(reloadTriggerName);
+    }
 }

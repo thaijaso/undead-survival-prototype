@@ -23,8 +23,9 @@ namespace UndeadSurvivalGame.PlayerSystems
         {
             base.Enter();
             Debug.Log($"[{player.name}] ReloadState.Enter(): Entering Reload state");
-            animationManager.TriggerRevolverReloadAnimation();
             animationManager.SetIsReloading(true);
+            //animationManager.TriggerRevolverReloadAnimation();
+            weaponManager.TriggerReloadAnimation();
             player.PlayerInput.ConsumeAimBuffer(); // Consume any buffered aim input on entering reload
         }
 
@@ -46,7 +47,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         public void OnChamberLoaded()
         {
-             // Logic to handle when the chamber is loaded, e.g. increment ammo
+            // Logic to handle when the chamber is loaded, e.g. increment ammo
             Debug.Log($"[{player.name}] ReloadState.OnChamberLoaded(): Chamber loaded");
 
             if (weaponManager.CurrentWeaponScript != null)
@@ -67,6 +68,16 @@ namespace UndeadSurvivalGame.PlayerSystems
             else
             {
                 Debug.LogWarning($"[{player.name}] No current weapon script found during reload.");
+            }
+        }
+
+        public void OnReloadAnimationComplete()
+        {
+            Debug.Log($"[{player.name}] ReloadState.OnReloadAnimationComplete(): Reload animation complete");
+
+            if (weaponManager.CurrentWeaponScript != null)
+            {
+                weaponManager.LoadAmmo();
             }
         }
     }

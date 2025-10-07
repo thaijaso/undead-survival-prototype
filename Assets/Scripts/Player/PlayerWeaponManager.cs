@@ -14,9 +14,13 @@ namespace UndeadSurvivalGame.PlayerSystems
         public float FireTimer { get; private set; } = 0f;
         public bool IsUnarmed => CurrentWeaponItem == null;
         public bool IsPistolEquipped => CurrentWeaponConfig != null && CurrentWeaponConfig.weaponType == WeaponConfig.WeaponType.Pistol;
+        public bool IsRevolverEquipped => CurrentWeaponConfig != null && CurrentWeaponConfig.weaponId == WeaponId.Revolver;
+        public bool IsLocke17Equipped => CurrentWeaponConfig != null && CurrentWeaponConfig.weaponId == WeaponId.Locke17;
+
         public event Action<Weapon, WeaponConfig> OnWeaponSetup;
         public event Action OnBulletLoaded;
         public event Action OnBulletFired;
+        public event Action OnMagazineLoaded;
 
         private GameObject lastSpawnedWeaponPrefab;
         private Player player;
@@ -397,6 +401,19 @@ namespace UndeadSurvivalGame.PlayerSystems
             }
         }
 
+        public void LoadAmmo()
+        {
+            if (CurrentWeaponScript != null)
+            {
+                int totalAmmo = player.PlayerInventory.GetAmmoTypeQuantity(CurrentWeaponConfig.ammoType);
+                int ammoNeeded = CurrentWeaponConfig.maxAmmo - CurrentWeaponScript.currentLoadedAmmo;
+                int ammoToLoad = Mathf.Min(ammoNeeded, totalAmmo);
+                CurrentWeaponScript.currentLoadedAmmo += ammoToLoad;
+                player.PlayerInventory.RemoveAmmo(CurrentWeaponConfig.ammoType, ammoToLoad);     
+                OnMagazineLoaded?.Invoke();   
+            }
+        }
+
         public bool CanReload()
         {
             if (CurrentWeaponScript != null)
@@ -452,7 +469,41 @@ namespace UndeadSurvivalGame.PlayerSystems
             CurrentWeaponGameObject = null;
             player.AimPoseLayerWeightController.SetWeight(0f);
             player.PlayerIKController.SetAimIkWeight(0f);
-            player.PlayerIKController.SetFBBIKWeight(0f);
+            //player.PlayerIKController.SetFBBIKWeight(0f);
+        }
+
+        public void TriggerShootAnimation()
+        {
+            if (CurrentWeaponScript == null)
+            {
+                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.TriggerShootAnimation(): CurrentWeaponScript is null! Cannot trigger shoot animation.");
+                return;
+            }
+
+            if (CurrentWeaponConfig == null)
+            {
+                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.TriggerShootAnimation(): CurrentWeaponConfig is null! Cannot trigger shoot animation.");
+                return;
+            }
+
+            player.AnimationManager.TriggerShootAnimation(CurrentWeaponConfig.ShootAnimationTriggerName);
+        }
+
+        public void TriggerReloadAnimation()
+        {
+            if (CurrentWeaponScript == null)
+            {
+                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.TriggerReloadAnimation(): CurrentWeaponScript is null! Cannot trigger reload animation.");
+                return;
+            }
+
+            if (CurrentWeaponConfig == null)
+            {
+                Debug.LogError($"[{gameObject.name}] PlayerWeaponManager.TriggerReloadAnimation(): CurrentWeaponConfig is null! Cannot trigger reload animation.");
+                return;
+            }
+
+            player.AnimationManager.TriggerReloadAnimation(CurrentWeaponConfig.ReloadAnimationTriggerName);
         }
     }
 }

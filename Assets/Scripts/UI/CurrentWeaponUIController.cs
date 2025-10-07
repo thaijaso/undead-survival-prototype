@@ -69,8 +69,9 @@ namespace UndeadSurvivalGame.UI
             if (playerWeaponManager != null)
             {
                 playerWeaponManager.OnWeaponSetup += UpdateCurrentWeaponUI;
-                playerWeaponManager.OnBulletLoaded += AddBulletInBulletList;
+                playerWeaponManager.OnBulletLoaded += ToggleBulletInBulletList;
                 playerWeaponManager.OnBulletFired += RemoveBulletInBulletList;
+                playerWeaponManager.OnMagazineLoaded += ToggleBulletsInBulletList;
             }
         }
         void OnDisable()
@@ -83,7 +84,7 @@ namespace UndeadSurvivalGame.UI
             if (playerWeaponManager != null)
             {
                 playerWeaponManager.OnWeaponSetup -= UpdateCurrentWeaponUI;
-                playerWeaponManager.OnBulletLoaded -= AddBulletInBulletList;
+                playerWeaponManager.OnBulletLoaded -= ToggleBulletInBulletList;
                 playerWeaponManager.OnBulletFired -= RemoveBulletInBulletList;
             }
         }
@@ -174,7 +175,7 @@ namespace UndeadSurvivalGame.UI
             return assetPath;
         }
 
-        private void AddBulletInBulletList()
+        private void ToggleBulletInBulletList()
         {
             if (playerWeaponManager == null)
             {
@@ -199,6 +200,28 @@ namespace UndeadSurvivalGame.UI
                 Debug.LogWarning($"[{gameObject.name}] WeaponUIController.AddBulletInBulletList(): Invalid current loaded ammo: {currentLoadedAmmo}");
             }
         }
+
+        private void ToggleBulletsInBulletList()
+        {
+            if (playerWeaponManager == null)
+            {
+                Debug.LogWarning($"[{gameObject.name}] WeaponUIController.ToggleBulletsInBulletList(): PlayerWeaponManager is not set.");
+                return;
+            }
+
+            int currentLoadedAmmo = playerWeaponManager.CurrentWeaponScript.currentLoadedAmmo;
+            Debug.Log($"[{gameObject.name}] WeaponUIController.ToggleBulletsInBulletList(): Current loaded ammo: {currentLoadedAmmo}");
+
+            for (int index = 0; index < ammoListUI.Count; index++)
+            {
+                Toggle toggle = ammoListUI[index].GetComponent<Toggle>();
+                if (toggle != null)
+                {
+                    toggle.isOn = index < currentLoadedAmmo;
+                }
+            }
+        }
+
 
         private void DecrementTotalAmmo()
         {

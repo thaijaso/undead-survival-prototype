@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponType: 0
   weaponName: Revolver
+  weaponId: 1
+  ShootAnimationTriggerName: ShootRevolver
+  ReloadAnimationTriggerName: ReloadRevolver
   weaponPrefab: {fileID: 1111015175407080, guid: 8618b351238924c48bf83d88c1584605, type: 3}
   aimIKOffsets: {fileID: 11400000, guid: 49e7c97ed590d154eb704e0befb36162, type: 2}
   animationRecoilMagnitude: 0.5

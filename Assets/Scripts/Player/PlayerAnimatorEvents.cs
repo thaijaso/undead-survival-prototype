@@ -60,5 +60,20 @@ namespace UndeadSurvivalGame.PlayerSystems
                 Debug.LogWarning("[PlayerAnimatorEvents] OnChamberLoaded called but not in ReloadState.");
             }
         }
+
+        public void OnReloadAnimationComplete()
+        {
+            Debug.Log("[PlayerAnimatorEvents] OnReloadAnimationComplete() called.");
+
+            if (player.stateMachine.currentState is ReloadState reloadState)
+            {
+                Debug.Log("[PlayerAnimatorEvents] Delegating to ReloadState.OnReloadAnimationComplete()");
+                reloadState.OnReloadAnimationComplete();
+            }
+            else
+            {
+                Debug.LogWarning("[PlayerAnimatorEvents] OnReloadAnimationComplete called but not in ReloadState.");
+            }
+        }
     }
 }
