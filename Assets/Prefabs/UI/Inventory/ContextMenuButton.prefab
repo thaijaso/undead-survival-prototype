@@ -571,9 +571,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77f349d29fd51ff46b972c9bbb81a1de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  hoverBackgroundImage: {fileID: 8717715075408063665}
-  animateAlpha: {fileID: 3571931387311348471}
-  hoverSoundFeedback: {fileID: 0}
+  buttonUI: {fileID: 0}
 --- !u!114 &5754200619564515916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -587,3 +585,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   contextMenuButtonEventHandler: {fileID: 2232234610982040057}
+  hoverBackgroundImage: {fileID: 0}
+  animateAlpha: {fileID: 0}
+  hoverSoundFeedback: {fileID: 0}

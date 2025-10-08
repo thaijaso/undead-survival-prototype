@@ -55,6 +55,7 @@ namespace UndeadSurvivalGame.UI
             SetupSelectedItemDescriptionUI();
             SetupContextMenuController();
             SetupInventoryGridLayoutGroup();
+            SetupInventoryReference();
 
             inventory.OnInventoryChanged += RefreshGrid;
             RefreshGrid();
@@ -103,6 +104,24 @@ namespace UndeadSurvivalGame.UI
         private void SetupRealInventorySlots()
         {
             realSlots = inventorySlots.FindAll(slot => slot is not DummyInventorySlotUI);
+        }
+
+        private void SetupInventoryReference()
+        {
+            if (inventory == null)
+            {
+                Player player = FindFirstObjectByType<Player>();
+
+                if (player != null)
+                {
+                    inventory = player.GetComponent<Inventory>();
+
+                    if (inventory == null)
+                    {
+                        Debug.LogWarning($"[{gameObject.name}] SetupInventoryReference(): Inventory component not found on Player.");
+                    }
+                }
+            }
         }
 
         private void HandleSlotSelection(InventorySlotUI clickedSlot, PointerEventData.InputButton button)

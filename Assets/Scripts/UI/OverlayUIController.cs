@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UndeadSurvivalGame.UI
 { 
-    public class OverlayController : MonoBehaviour
+    public class OverlayUIController : MonoBehaviour
     {
         [SerializeField]
         private ParticleSystem bloodParticleSystem;

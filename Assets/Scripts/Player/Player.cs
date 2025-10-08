@@ -66,13 +66,13 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         [TabGroup("References")]
         [SerializeField]
-        private OverlayController overlayController;
-        public OverlayController OverlayController => overlayController;
+        private OverlayUIController overlayUIController;
+        public OverlayUIController OverlayUIController => overlayUIController;
 
         [TabGroup("References")]
         [SerializeField]
-        private CurrentWeaponUIController weaponUIController;
-        public CurrentWeaponUIController WeaponUIController => weaponUIController;
+        private CurrentWeaponUIController currentWeaponUIController;
+        public CurrentWeaponUIController CurrentWeaponUIController => currentWeaponUIController;
 
         [TabGroup("References")]
         [SerializeField]
@@ -403,10 +403,17 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (healthUIController != null && HealthManager != null)
             {
                 healthUIController.Initialize(HealthManager.healthPercentage);
+                return;
             }
-            else
+            
+            if (healthUIController == null)
             {
-                Debug.LogError($"[{gameObject.name}] Player.SetupHealthBar(): HealthUIController or HealthManager is not assigned.");
+                Debug.LogError($"[{gameObject.name}] Player.SetupHealthBar(): HealthUIController is not assigned.");
+            }
+
+            if (HealthManager == null)
+            {
+                Debug.LogError($"[{gameObject.name}] Player.SetupHealthBar(): HealthManager is not assigned.");
             }
         }
 

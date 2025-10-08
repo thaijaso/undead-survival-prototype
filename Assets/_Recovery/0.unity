@@ -17913,7 +17913,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -22143,7 +22143,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -22769,7 +22770,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -23951,6 +23953,7 @@ MonoBehaviour:
   ammoTotal: {fileID: 1954016659}
   playerInventory: {fileID: 1717255719}
   playerWeaponManager: {fileID: 1717255710}
+  canvasGroup: {fileID: 0}
 --- !u!1001 &115087842
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35340,7 +35343,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 18cad136db3aec84580cd0f6bfaebc01, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 2100000, guid: 18cad136db3aec84580cd0f6bfaebc01, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -36887,9 +36891,10 @@ MonoBehaviour:
   inventoryGridUIController: {fileID: 1489192893}
   contextMenuController: {fileID: 557484662}
   inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  openInventoryFeedback: {fileID: 1932150239}
-  closeInventoryFeedback: {fileID: 1018236065}
-  closeContextMenuFeedback: {fileID: 1302125522}
+  openInventorySound: {fileID: 0}
+  closeInventorySound: {fileID: 0}
+  closeContextMenuSound: {fileID: 0}
+  dropItemSound: {fileID: 0}
 --- !u!222 &167462152
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -56337,7 +56342,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 18cad136db3aec84580cd0f6bfaebc01, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 2100000, guid: 18cad136db3aec84580cd0f6bfaebc01, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -93804,7 +93810,6 @@ MonoBehaviour:
   playerMenuUIController: {fileID: 167462151}
   currentWeaponUIController: {fileID: 114884577}
   healthUIController: {fileID: 1648740736}
-  proximityUIs: []
   interactionSensor: {fileID: 0}
   menuOverlayController: {fileID: 0}
 --- !u!1001 &469141736
@@ -111441,6 +111446,7 @@ MonoBehaviour:
   menuRoot: {fileID: 557484656}
   grid: {fileID: 1489192892}
   equipButton: {fileID: 1869767933}
+  unequipButton: {fileID: 0}
   useButton: {fileID: 645448146}
   combineButton: {fileID: 826554080}
   shortcutButton: {fileID: 618855441}
@@ -133634,7 +133640,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -145004,7 +145011,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 18cad136db3aec84580cd0f6bfaebc01, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 2100000, guid: 18cad136db3aec84580cd0f6bfaebc01, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -146118,7 +146126,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -155916,7 +155925,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -221938,7 +221948,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 18cad136db3aec84580cd0f6bfaebc01, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 2100000, guid: 18cad136db3aec84580cd0f6bfaebc01, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -242768,7 +242779,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 18cad136db3aec84580cd0f6bfaebc01, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 2100000, guid: 18cad136db3aec84580cd0f6bfaebc01, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -327797,7 +327809,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_sharedMaterial: {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 4299220722095240433, guid: 5ad3bd70008689c418483dba1db4c2c2, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -330794,6 +330807,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBar: {fileID: 1648740735}
+  canvasGroup: {fileID: 0}
   Value: 100
   ChangeBarValueBtn: 0
 --- !u!1001 &1649120373
@@ -343997,6 +344011,7 @@ MonoBehaviour:
   movementThreshold: 0.2
   animationSmoothTime: 0.05
   maxInputThreshold: 0.6
+  sprintStopThreshold: 0.15
 --- !u!114 &1717255712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -344046,17 +344061,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0847ae42376a94341baab88add06f1c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  masterIKWeight: 1
-  headLookWeight: 1
-  debugOverrideIKWeight: 0
-  ikBlendPhaseThreshold: 0.25
-  phase1BlendSpeed: 1
-  phase2BlendSpeed: 3
-  aimIKWeight: 1
-  fbbIKWeight: 1
-  lookAtIKWeight: 1
-  debugOverridePerComponentIKWeight: 0
-  aimIKCurrentWeight: 1
+  IKEnabled: 0
+  targetAimIKWeight: 1
+  targetFBBIKWeight: 1
+  targetHeadLookWeight: 1
+  aimIKBlendInSpeed: 3
+  aimIKBlendOutSpeed: 3
+  fbbikBlendInSpeed: 3
+  fbbikBlendOutSpeed: 3
+  headLookBlendInSpeed: 3
+  headLookBlendOutSpeed: 3
   gunHoldOffset: {x: 0, y: 0, z: 0}
   leftHandOffset: {x: 0, y: 0, z: 0}
   recoil: {fileID: 1717255707}
@@ -344154,8 +344168,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4adddc78228213c49a9fb571b2755efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerTransform: {fileID: 0}
   capacity: 8
   itemStacks: []
+  playerWeaponManager: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []
 --- !u!1001 &1717560231
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -379856,9 +379875,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7de40c70d3393a34bbff565ae6084c81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractionSensor
-  arrowColliderRadius: 10
-  buttonLineOfSightDistance: 4
-  lineofSightRadius: 0.2
+  ArrowDetectionRadius: 10
+  PickupButtonDistance: 5
+  LineOfSightSphereRadius: 0.5
 --- !u!1001 &1914703697
 PrefabInstance:
   m_ObjectHideFlags: 0

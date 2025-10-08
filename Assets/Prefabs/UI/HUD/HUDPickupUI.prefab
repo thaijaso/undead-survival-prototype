@@ -1707,7 +1707,7 @@ GameObject:
   - component: {fileID: 2621525943665964012}
   - component: {fileID: 1652859665970846211}
   m_Layer: 0
-  m_Name: PickupUI
+  m_Name: HUDPickupUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -78,11 +78,57 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         private void Awake()
         {
+            EnsurePlayerCameraAssigned();
+            EnsurePlayerMenuUIControllerAssigned();
             SetupNoise();
             SetupOrbitalFollow();
             SetupCameraRecoil();
             SetupCinemachineInputAxisController();
             SetupCinemachineCameraOffset();
+        }
+
+        private void EnsurePlayerCameraAssigned()
+        {
+            if (playerCamera != null) return;
+
+            // Try to find the camera GameObject used by the project (editor auto-setup uses this path)
+            var playerCameraGO = GameObject.Find("Cameras/PlayerCamera");
+            if (playerCameraGO != null)
+            {
+                var cm = playerCameraGO.GetComponent<CinemachineCamera>();
+                if (cm != null)
+                {
+                    playerCamera = cm;
+                    Debug.Log($"[{gameObject.name}] PlayerCameraController.EnsurePlayerCameraAssigned(): Assigned playerCamera from Cameras/PlayerCamera ({cm.gameObject.name}).");
+                    return;
+                }
+            }
+
+            // Fallback: find any CinemachineCamera in the scene
+            var any = Object.FindFirstObjectByType<CinemachineCamera>();
+            if (any != null)
+            {
+                playerCamera = any;
+                Debug.Log($"[{gameObject.name}] PlayerCameraController.EnsurePlayerCameraAssigned(): Assigned playerCamera by FindObjectOfType ({any.gameObject.name}).");
+                return;
+            }
+
+            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.EnsurePlayerCameraAssigned(): Could not find a CinemachineCamera in the scene. Please assign the PlayerCamera field in the inspector.");
+        }
+
+        private void EnsurePlayerMenuUIControllerAssigned()
+        {
+            if (playerMenuUIController != null) return;
+
+            var any = FindFirstObjectByType<PlayerMenuUIController>();
+            if (any != null)
+            {
+                playerMenuUIController = any;
+                Debug.Log($"[{gameObject.name}] PlayerCameraController.EnsurePlayerMenuUIControllerAssigned(): Assigned playerMenuUIController by FindObjectOfType ({any.gameObject.name}).");
+                return;
+            }
+
+            Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.EnsurePlayerMenuUIControllerAssigned(): Could not find a PlayerMenuUIController in the scene. Please assign the PlayerMenuUIController field in the inspector.");
         }
 
         private void Start()

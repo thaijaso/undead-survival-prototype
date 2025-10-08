@@ -21,6 +21,29 @@ namespace UndeadSurvivalGame.UI
             SetupUIMap();
         }
 
+        private void OnEnable()
+        {
+            // Ensure actions and map are ready and enabled when the object becomes active
+            SetupInputActions();
+            SetupUIMap();
+            if (uiMap != null)
+            {
+                uiMap.Enable();
+            }
+        }
+
+        private void OnDisable()
+        {
+            // Remove handlers and disable map to avoid duplicated callbacks
+            if (rightClick != null)
+                rightClick.performed -= OnRightClickPerformed;
+            if (dropItem != null)
+                dropItem.performed -= OnDropItemPerformed;
+
+            if (uiMap != null)
+                uiMap.Disable();
+        }
+
         private void SetupInputActions()
         {
             if (inputActions == null)
@@ -58,36 +81,38 @@ namespace UndeadSurvivalGame.UI
             if (rightClick == null)
             {
                 Debug.LogWarning("UIInput: No RightClick action found in UI InputActionMap.");
+                return;
             }
 
-            if (rightClick != null)
-            {
-                rightClick.performed += ctx =>
-                {
-                    Debug.Log($"RightClick action performed by {gameObject.name} ({GetInstanceID()})");
-                    OnRightClick?.Invoke();
-                };
-            }
+            // Ensure we don't double-subscribe
+            rightClick.performed -= OnRightClickPerformed;
+            rightClick.performed += OnRightClickPerformed;
         }
 
         private void SetupDropItemAction()
         {
-
             dropItem = uiMap.FindAction("DropItem");
 
             if (dropItem == null)
             {
                 Debug.LogWarning("UIInput: No DropItem action found in UI InputActionMap.");
+                return;
             }
 
-            if (dropItem != null)
-            {
-                dropItem.performed += ctx =>
-                {
-                    Debug.Log("DropItem action performed.");
-                    OnDropItem?.Invoke();
-                };
-            }
+            dropItem.performed -= OnDropItemPerformed;
+            dropItem.performed += OnDropItemPerformed;
+        }
+
+        private void OnRightClickPerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+        {
+            Debug.Log($"RightClick action performed by {gameObject.name} ({GetInstanceID()})");
+            OnRightClick?.Invoke();
+        }
+
+        private void OnDropItemPerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+        {
+            Debug.Log("DropItem action performed.");
+            OnDropItem?.Invoke();
         }
     }
 }
