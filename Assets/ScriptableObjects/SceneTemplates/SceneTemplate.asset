@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d00482966958ead4eace8ddc03e474e6, type: 3}
+  m_Name: SceneTemplate
+  m_EditorClassIdentifier: Assembly-CSharp::SceneTemplate
+  prefabs:
+  - {fileID: 7269862957693602542, guid: ebf37864ac70c2f4f98a300d270e80c2, type: 3}
+  - {fileID: 39188053380638141, guid: 84e96bbb0430bff4588700eb1fc0621a, type: 3}
+  - {fileID: 3162530004371618522, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+  - {fileID: 2760967417451618594, guid: f176cc5c4facef0488e24f88700b9815, type: 3}
+  - {fileID: 8911263664919065127, guid: 1161bd23ebaacb146b7cfef0bda6a5b8, type: 3}
+  - {fileID: 6751845269133479924, guid: 12aa4cd5853cccf46a591ebef329518e, type: 3}
+  - {fileID: 100010, guid: 7d70c3369e40ca049847f98571aeca15, type: 3}
+  - {fileID: 5772819025078333476, guid: f4b290cb0713d1a4eb473606bffa6dc2, type: 3}
