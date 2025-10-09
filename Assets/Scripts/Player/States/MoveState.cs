@@ -117,9 +117,28 @@ namespace UndeadSurvivalGame.PlayerSystems
             }
 
             // 7. Player rotation
-            Quaternion targetRotation = faceMoveDirection
-                ? (moveDirection.sqrMagnitude > 0.001f ? Quaternion.LookRotation(moveDirection) : player.transform.rotation)
-                : Quaternion.LookRotation(cameraForward);
+            // Use a flattened direction for rotation so the character doesn't pitch/roll on slopes.
+            // Keep the slope-projected moveDirection for movement, but remove its vertical component when
+            // computing the look rotation.
+            Vector3 rotationDirection;
+            if (faceMoveDirection)
+            {
+                rotationDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
+                // If the flattened direction is (almost) zero, fall back to the player's current horizontal forward
+                if (rotationDirection.sqrMagnitude < 0.001f)
+                {
+                    Vector3 currentForward = player.transform.forward;
+                    rotationDirection = new Vector3(currentForward.x, 0f, currentForward.z);
+                    if (rotationDirection.sqrMagnitude < 0.001f)
+                        rotationDirection = Vector3.forward; // final fallback
+                }
+            }
+            else
+            {
+                rotationDirection = cameraForward; // cameraForward was already flattened earlier
+            }
+
+            Quaternion targetRotation = Quaternion.LookRotation(rotationDirection);
 
             float rotationSpeed = player.PlayerInput.IsAiming
                 ? playerRotationSpeedAiming

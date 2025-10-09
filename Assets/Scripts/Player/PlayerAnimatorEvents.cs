@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace UndeadSurvivalGame.PlayerSystems
 {
-
     public class PlayerAnimatorEvents : MonoBehaviour
     {
         private Player player;
@@ -23,13 +22,11 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         public void OnRightFootPlant()
         {
-            Debug.Log("[PlayerAnimatorEvents] OnRightFootPlant() called.");
             lastPlantedFoot = Foot.Right;
         }
 
         public void OnLeftFootPlant()
         {
-            Debug.Log("[PlayerAnimatorEvents] OnLeftFootPlant() called.");
             lastPlantedFoot = Foot.Left;
         }
 
