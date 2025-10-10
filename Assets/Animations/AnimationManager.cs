@@ -277,4 +277,9 @@ public class AnimationManager
     {
         Animator.SetTrigger(reloadTriggerName);
     }
+
+    public void IsFacingWall(bool isWallDetected)
+    {
+        Animator.SetBool("IsFacingWall", isWallDetected);
+    }
 }

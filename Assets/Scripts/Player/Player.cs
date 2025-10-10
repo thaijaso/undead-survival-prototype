@@ -33,6 +33,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         public Inventory PlayerInventory { get; private set; }
 
         public InteractionSensor InteractionSensor { get; private set; }
+        public WallDetector WallDetector { get; private set; }
 
         public StateMachine<PlayerState> stateMachine;
         
@@ -105,6 +106,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupAimPoseLayerWeightController();
             SetupAimPitchLayerWeightController();
             SetupUpperBodyLayerWeightController();
+            SetupWallDetector();
 
             stateMachine = new StateMachine<PlayerState>(gameObject.name);
         }
@@ -287,6 +289,14 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (UpperBodyLayerWeightController == null)
                 Debug.LogError($"[{gameObject.name}] Player.SetupUpperBodyLayerWeightController(): UpperBodyLayerWeightController component is missing!");
+        }
+
+        private void SetupWallDetector()
+        {
+            WallDetector = GetComponentInChildren<WallDetector>();
+
+            if (WallDetector == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupWallDetector(): WallDetector component is missing!");
         }
 
         void Start()

@@ -377,7 +377,6 @@ Transform:
   - {fileID: 8805511481209893198}
   - {fileID: 5191163627501458593}
   - {fileID: 3684678720069237972}
-  - {fileID: 2234685408586861103}
   - {fileID: 1644198940475486108}
   - {fileID: 8912191752658118569}
   - {fileID: 5848844353814325444}
@@ -387,6 +386,7 @@ Transform:
   - {fileID: 6448022545851308865}
   - {fileID: 3682153511849454967}
   - {fileID: 4887365408368994371}
+  - {fileID: 2234685408586861103}
   - {fileID: 3234405625257739419}
   m_Father: {fileID: 4586930799483852730}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2915,7 +2915,7 @@ GameObject:
   - component: {fileID: 1999245308769474420}
   - component: {fileID: 5361807349761659599}
   m_Layer: 0
-  m_Name: Collider (24)
+  m_Name: Collider (25)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

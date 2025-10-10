@@ -76,6 +76,15 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetIsPistolEquipped(weaponManager.IsPistolEquipped);
             animationManager.SetIsRevolverEquipped(weaponManager.IsRevolverEquipped);
             animationManager.SetIsLocke17Equipped(weaponManager.IsLocke17Equipped);
+            
+            if (player.WallDetector.IsWallDetected)
+            {
+                animationManager.IsFacingWall(true);
+            }
+            else
+            {
+                animationManager.IsFacingWall(false);
+            }
         }
 
         public virtual void PhysicsUpdate()
