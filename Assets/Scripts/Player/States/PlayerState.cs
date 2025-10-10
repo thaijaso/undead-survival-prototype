@@ -76,14 +76,31 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetIsPistolEquipped(weaponManager.IsPistolEquipped);
             animationManager.SetIsRevolverEquipped(weaponManager.IsRevolverEquipped);
             animationManager.SetIsLocke17Equipped(weaponManager.IsLocke17Equipped);
-            
+            HandleWallDetectedAnimatorParam();
+            HandleStairDetectedAnimatorParam();
+        }
+
+        private void HandleWallDetectedAnimatorParam()
+        {
             if (player.WallDetector.IsWallDetected)
             {
-                animationManager.IsFacingWall(true);
+                animationManager.SetIsFacingWall(true);
             }
             else
             {
-                animationManager.IsFacingWall(false);
+                animationManager.SetIsFacingWall(false);
+            }
+        }
+        
+        private void HandleStairDetectedAnimatorParam()
+        {
+            if (player.StairDetector.IsStairDetected)
+            {
+                animationManager.SetIsOnStairs(true);
+            }
+            else
+            {
+                animationManager.SetIsOnStairs(false);
             }
         }
 

@@ -9,6 +9,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 {
     public class Player : MonoBehaviour
     {
+        public PlayerDebugger Debugger { get; private set; }
         public PlayerInput PlayerInput { get; private set; }
         public PlayerCharacterController PlayerCharacterController { get; private set; }
         public PlayerCameraController PlayerCameraController { get; private set; }
@@ -34,6 +35,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         public InteractionSensor InteractionSensor { get; private set; }
         public WallDetector WallDetector { get; private set; }
+        public StairDetector StairDetector { get; private set; }
 
         public StateMachine<PlayerState> stateMachine;
         
@@ -87,6 +89,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         private void Awake()
         {
+            SetupPlayerDebugger();
             SetupPlayerInput();
             SetupPlayerCharacterController();
             SetupPlayerCameraController();
@@ -107,8 +110,17 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupAimPitchLayerWeightController();
             SetupUpperBodyLayerWeightController();
             SetupWallDetector();
+            SetupStairDetector();
 
             stateMachine = new StateMachine<PlayerState>(gameObject.name);
+        }
+
+        private void SetupPlayerDebugger()
+        {
+            Debugger = GetComponent<PlayerDebugger>();
+
+            if (Debugger == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupPlayerDebugger(): PlayerDebugger component is missing!");
         }
 
         private void SetupPlayerInput()
@@ -297,6 +309,14 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (WallDetector == null)
                 Debug.LogError($"[{gameObject.name}] Player.SetupWallDetector(): WallDetector component is missing!");
+        }
+
+        private void SetupStairDetector()
+        {
+            StairDetector = GetComponentInChildren<StairDetector>();
+
+            if (StairDetector == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupStairDetector(): StairDetector component is missing!");
         }
 
         void Start()

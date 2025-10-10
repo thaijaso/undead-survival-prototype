@@ -153,11 +153,14 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (leftHandIKTarget != null && fullBodyBipedIK != null && fullBodyBipedIK.references.leftHand != null)
             {
-                Debug.DrawLine(
-                    fullBodyBipedIK.references.leftHand.position,
-                    leftHandIKTarget.position,
-                    Color.magenta
-                );
+                if (player.Debugger != null && player.Debugger.DrawDebugGizmos)
+                {                    
+                    Debug.DrawLine(
+                        fullBodyBipedIK.references.leftHand.position,
+                        leftHandIKTarget.position,
+                        Color.magenta
+                    );
+                }
             }
         }
 

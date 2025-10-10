@@ -50,6 +50,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             }
         }
 
+        // TODO: refactor steps into helper methods
         protected void HandleMovement(float speed, bool faceMoveDirection)
         {
             // 1. Get input direction
@@ -111,8 +112,11 @@ namespace UndeadSurvivalGame.PlayerSystems
             // 6. Slope adjustment
             if (Physics.Raycast(player.transform.position, Vector3.down, out RaycastHit hit, 1.5f))
             {
-                Debug.DrawRay(player.transform.position, hit.normal, Color.red);
-                Debug.DrawRay(player.transform.position, moveDirection, Color.green);
+                if (player.Debugger != null && player.Debugger.DrawDebugGizmos)
+                {
+                    Debug.DrawRay(player.transform.position, hit.normal, Color.red);
+                    Debug.DrawRay(player.transform.position, moveDirection, Color.green);
+                }
                 moveDirection = Vector3.ProjectOnPlane(moveDirection, hit.normal);
             }
 
@@ -154,9 +158,12 @@ namespace UndeadSurvivalGame.PlayerSystems
             player.PlayerCharacterController.Move(moveDirection, speed);
 
             // 9. Debug lines for visualization
-            Debug.DrawLine(player.transform.position, player.transform.position + cameraForward * 2f, Color.blue);
-            Debug.DrawLine(player.transform.position, player.transform.position + cameraRight * 2f, Color.red);
-            Debug.DrawLine(player.transform.position, player.transform.position + moveDirection * 2f, Color.green);
+            if (player.Debugger != null && player.Debugger.DrawDebugGizmos)
+            {
+                Debug.DrawLine(player.transform.position, player.transform.position + cameraForward * 2f, Color.blue);
+                Debug.DrawLine(player.transform.position, player.transform.position + cameraRight * 2f, Color.red);
+                Debug.DrawLine(player.transform.position, player.transform.position + moveDirection * 2f, Color.green);
+            }
         }
     }
 }

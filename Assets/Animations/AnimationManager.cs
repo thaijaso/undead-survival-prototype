@@ -278,8 +278,13 @@ public class AnimationManager
         Animator.SetTrigger(reloadTriggerName);
     }
 
-    public void IsFacingWall(bool isWallDetected)
+    public void SetIsFacingWall(bool isWallDetected)
     {
         Animator.SetBool("IsFacingWall", isWallDetected);
+    }
+
+    public void SetIsOnStairs(bool isOnStairs)
+    {
+        Animator.SetBool("IsOnStairs", isOnStairs);
     }
 }

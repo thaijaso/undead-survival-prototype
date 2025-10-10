@@ -57,6 +57,8 @@ namespace UndeadSurvivalGame.PlayerSystems
         [ShowIf("@player != null && player.playerTemplate != null")]
         public float StrafeSpeed => player?.playerTemplate?.strafeSpeed ?? 0;
 
+        public bool DrawDebugGizmos = true;
+
         private void Awake()
         {
             // Auto-assign player if not set

@@ -35,12 +35,21 @@ public class WallDetector : MonoBehaviour
 
     void Reset()
     {
-        // Try to default the mask to a layer named "Wall" if present
-        int wallLayer = LayerMask.NameToLayer("Wall");
-        if (wallLayer != -1)
-            wallLayerMask = 1 << wallLayer;
+        // Prefer using LayerMask.GetMask which accepts layer names and returns a safe mask (0 if not found)
+        int mask = LayerMask.GetMask("Wall");
+        if (mask != 0)
+        {
+            wallLayerMask = mask;
+        }
         else
-            wallLayerMask = ~0; // default to everything if the layer doesn't exist
+        {
+            // Fallback: if a layer named "Wall" exists, use its index safely; otherwise default to everything
+            int wallLayer = LayerMask.NameToLayer("Wall");
+            if (wallLayer >= 0)
+                wallLayerMask = 1 << wallLayer;
+            else
+                wallLayerMask = ~0; // default to everything if the layer doesn't exist
+        }
     }
 
     void Update()
@@ -61,12 +70,6 @@ public class WallDetector : MonoBehaviour
             LastHit = default;
             lastHitPoint = Vector3.zero;
             lastHitColliderName = string.Empty;
-        }
-
-        if (drawDebug)
-        {
-            Color col = IsWallDetected ? Color.red : Color.green;
-            Debug.DrawRay(origin, direction * maxDistance, col);
         }
     }
 
