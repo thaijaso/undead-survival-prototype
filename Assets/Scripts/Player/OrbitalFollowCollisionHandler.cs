@@ -27,17 +27,11 @@ public class OrbitalFollowCollisionHandler : CinemachineExtension
     [SerializeField]
     private float collisionPadding = .15f;
 
-    [SerializeField]
-    private float collisionDeadZone = 0.02f; // 2 cm threshold
-
     private CinemachineOrbitalFollow orbitalFollow;
     private CinemachineCamera playerCamera;
 
     [SerializeField, ReadOnly(true)]
     private float currentRadius = 1f;
-    private float previousHitDist = 0f;
-    private bool isColliding = false;
-    private float stableRadius = 0f;
     private float smoothedHitDist = 0f; // <-- new: filtered hit distance
 
     protected override void OnEnable()
@@ -46,9 +40,6 @@ public class OrbitalFollowCollisionHandler : CinemachineExtension
         orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
         if (orbitalFollow != null)
             currentRadius = orbitalFollow.Radius;
-        // initialize previousHitDist to the current radius so smoothing starts from
-        // a sensible value instead of 0 (avoids first-frame artifacts)
-        previousHitDist = currentRadius;
         playerCamera = GetComponent<CinemachineCamera>();
         if (playerCamera == null)
             Debug.LogError("OrbitalFollowCollisionHandler requires a CinemachineCamera component on the same GameObject.");
@@ -70,34 +61,40 @@ public class OrbitalFollowCollisionHandler : CinemachineExtension
         float near = state.Lens.NearClipPlane;
 
         // 2️⃣ cast along the ideal direction, not from the moved camera
-        bool hit = Physics.Linecast(pivotPos, desiredPos, out var info, collisionMask, QueryTriggerInteraction.Ignore);
+        bool isHit = Physics.Linecast(pivotPos, desiredPos, out var hitInfo, collisionMask, QueryTriggerInteraction.Ignore);
 
-        float targetRadius;
-
-        if (hit)
+        if (isHit)
         {
             // low-pass filter the raw hit distance
-            smoothedHitDist = (smoothedHitDist == 0)
-                ? info.distance
-                : Mathf.Lerp(smoothedHitDist, info.distance, deltaTime * hitSmooth);
-
-            targetRadius = Mathf.Clamp(smoothedHitDist - (near + collisionPadding), minRadius, maxRadius);
-
-            // snap in when closer, smooth out when clearing
-            if (targetRadius < currentRadius)
-                currentRadius = targetRadius;
+            if (smoothedHitDist <= 0f)
+            {
+                smoothedHitDist = hitInfo.distance;
+            }
             else
-                currentRadius = Mathf.Lerp(currentRadius, targetRadius, deltaTime * smoothSpeed);
+            {
+                smoothedHitDist = Mathf.Lerp(smoothedHitDist, hitInfo.distance, deltaTime * hitSmooth);
+            }
 
-            isColliding = true;
-            Debug.DrawLine(pivotPos, info.point, Color.green);
+            float targetRadius = Mathf.Clamp(smoothedHitDist - (near + collisionPadding), minRadius, maxRadius);
+
+            if (targetRadius < currentRadius)
+            {
+                currentRadius = targetRadius;
+            }
+            else
+            {
+                currentRadius = Mathf.Lerp(currentRadius, targetRadius, deltaTime * smoothSpeed);
+            }
+
+            Debug.DrawLine(pivotPos, hitInfo.point, Color.green);
         }
         else
         {
             smoothedHitDist = 0f;
-            targetRadius = Mathf.Clamp(maxBoom, minRadius, maxRadius);
+            
+            float targetRadius = Mathf.Clamp(maxBoom, minRadius, maxRadius);
             currentRadius = Mathf.Lerp(currentRadius, targetRadius, deltaTime * smoothSpeed);
-            isColliding = false;
+            
             Debug.DrawLine(pivotPos, desiredPos, Color.red);
         }
 

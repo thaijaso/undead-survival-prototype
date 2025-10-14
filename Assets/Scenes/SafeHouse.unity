@@ -2860,7 +2860,7 @@ MonoBehaviour:
   maxRadius: 2
   hitSmooth: 10
   collisionPadding: 0.05
-  collisionDeadZone: 0.05
+  collisionDeadZone: 0.01
   currentRadius: 1
   showGizmos: 1
 --- !u!114 &1748634994
