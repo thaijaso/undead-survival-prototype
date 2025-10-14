@@ -3470,6 +3470,59 @@ Transform:
   - {fileID: 4905090128345022524}
   m_Father: {fileID: 3995795128473821895}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4906182197740324752
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2612646809301632292}
+  - component: {fileID: 5300371310980098553}
+  m_Layer: 3
+  m_Name: StairDetector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2612646809301632292
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4906182197740324752}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8601410752257101139}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5300371310980098553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4906182197740324752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30dd28519c4140a45b69f13efa2d4ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  MaxDistance: 1.5
+  StairLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
+  OriginOffset: {x: 0, y: 0, z: 0}
+  DrawDebug: 1
+  isStairDetected: 0
+  lastHitPoint: {x: 0, y: 0, z: 0}
+  lastHitColliderName: 
 --- !u!1 &5083875031481656239
 GameObject:
   m_ObjectHideFlags: 0
@@ -6213,6 +6266,7 @@ Transform:
   - {fileID: 3574583871394114258}
   - {fileID: 653006463966971362}
   - {fileID: 8009108565442893349}
+  - {fileID: 2612646809301632292}
   m_Father: {fileID: 2757276727008103032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &7397391629076124220
@@ -6269,6 +6323,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 6813975493758155784}
+  DrawDebugGizmos: 0
 --- !u!114 &1641949252337833288
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -23,7 +23,7 @@ TagManager:
   - IconPreview
   - Interactable
   - Sky
-  - 
+  - CameraCollision
   - 
   - 
   - 

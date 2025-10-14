@@ -22,6 +22,9 @@ namespace UndeadSurvivalGame.PlayerSystems
         private Transform bulletHitTarget;
 
         [SerializeField]
+        private float orbitalFollowRadius = 1f;
+        
+        [SerializeField]
         private float followFOV = 40f;
 
         [SerializeField]
@@ -33,6 +36,12 @@ namespace UndeadSurvivalGame.PlayerSystems
         [SerializeField]
         private float aimCamOffsetX = 0.5f;
 
+        [SerializeField]
+        private float offsetLerpSpeed = 5f; // Internal lerp speed
+
+        [SerializeField]
+        private PlayerMenuUIController playerMenuUIController;
+        
         private CinemachineBasicMultiChannelPerlin noise;
 
         private CinemachineOrbitalFollow orbitalFollow;
@@ -55,11 +64,6 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         private float targetOffsetX = 0f;
 
-        [SerializeField]
-        private float offsetLerpSpeed = 5f; // Internal lerp speed
-
-        [SerializeField]
-        private PlayerMenuUIController playerMenuUIController;
 
         private bool isPlayerMenuActive = false;
 
@@ -105,7 +109,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             }
 
             // Fallback: find any CinemachineCamera in the scene
-            var any = Object.FindFirstObjectByType<CinemachineCamera>();
+            var any = FindFirstObjectByType<CinemachineCamera>();
             if (any != null)
             {
                 playerCamera = any;
@@ -211,7 +215,6 @@ namespace UndeadSurvivalGame.PlayerSystems
         void LateUpdate()
         {
             UpdateRotationSpeed();
-            //how do i UpdateCameraOffsetLerp();
         }
 
         private void HandleCursorLock()
@@ -219,14 +222,12 @@ namespace UndeadSurvivalGame.PlayerSystems
             // Fallback ESC key handling - detect ESC press and unlock cursor manually
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): ESC key detected - unlocking cursor.");
                 CursorUtils.ShowCursor();
             }
 
             // Detect mouse click to re-lock cursor
             if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked && !isPlayerMenuActive)
             {
-                Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Mouse click detected - locking cursor.");
                 CursorUtils.HideCursor();
             }
 
@@ -237,14 +238,10 @@ namespace UndeadSurvivalGame.PlayerSystems
             // Only update inputAxisController if cursor lock state has changed
             if (lastLockCursorState != currentCursorLocked)
             {
-                Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Cursor lock state changed to: {currentCursorLocked}." +
-                        $"(lockState: {Cursor.lockState}, visible: {Cursor.visible})");
-
                 // Enable/disable input axis controller based on cursor lock state
                 if (inputAxisController != null)
                 {
                     inputAxisController.enabled = currentCursorLocked;
-                    Debug.Log($"[{gameObject.name}] PlayerCameraController.HandleCursorLock(): Set inputAxisController.enabled to: {currentCursorLocked}.");
                 }
 
                 lastLockCursorState = currentCursorLocked;
@@ -316,11 +313,11 @@ namespace UndeadSurvivalGame.PlayerSystems
         {
             if (Mathf.Abs(playerCamera.Lens.FieldOfView - aimFOV) > 0.01f)
             {
-                playerCamera.Lens.FieldOfView = Mathf.Lerp(
-                    playerCamera.Lens.FieldOfView,
-                    aimFOV,
-                    Time.deltaTime * zoomSpeed
-                );
+                // playerCamera.Lens.FieldOfView = Mathf.Lerp(
+                //     playerCamera.Lens.FieldOfView,
+                //     aimFOV,
+                //     Time.deltaTime * zoomSpeed
+                // );
             }
         }
 
@@ -328,11 +325,11 @@ namespace UndeadSurvivalGame.PlayerSystems
         {
             if (Mathf.Abs(playerCamera.Lens.FieldOfView - followFOV) > 0.01f)
             {
-                playerCamera.Lens.FieldOfView = Mathf.Lerp(
-                    playerCamera.Lens.FieldOfView,
-                    followFOV,
-                    Time.deltaTime * zoomSpeed
-                );
+                // playerCamera.Lens.FieldOfView = Mathf.Lerp(
+                //     playerCamera.Lens.FieldOfView,
+                //     followFOV,
+                //     Time.deltaTime * zoomSpeed
+                // );
             }
         }
 
