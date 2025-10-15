@@ -1,48 +1,43 @@
-using System;
-using System.ComponentModel;
-using Unity.Cinemachine;
 using UnityEngine;
+using Unity.Cinemachine;
 
 [ExecuteAlways]
-public class OrbitalFollowCollisionHandler : CinemachineExtension
+[SaveDuringPlay]
+[AddComponentMenu("")]
+public class OrbitalFollowCollision_Fixed : CinemachineExtension
 {
-    [Header("Collision Settings")]
-    [SerializeField]
-    private LayerMask collisionMask;
+    [Header("Collision")]
+    public LayerMask collisionMask;
+    [Range(0.05f, 1f)] public float sphereCastRadius = 0.3f;
+    public bool useSphereCast = true;
 
-    [SerializeField]
-    [Min(0.1f)]
-    private float minRadius = 0.8f;
-
-    [SerializeField]
-    [Min(0.1f)]
-    private float maxRadius = 2f;
-
-    [Min(0.1f)]
-    private float smoothSpeed = 8f;
-
-    [SerializeField] 
-    private float hitSmooth = 10f; // <-- new: filter strength (higher = smoother)
-
-    [SerializeField]
-    private float collisionPadding = .15f;
+    [Header("Boom Settings")]
+    public float minBoom = 0.5f;
+    public float maxBoom = 2f;
+    [Tooltip("Smoothing speed for boom changes")]
+    public float boomSmooth = 10f;
+    [Tooltip("How far off the wall to keep the camera")]
+    public float wallBackoff = 0.20f;
 
     private CinemachineOrbitalFollow orbitalFollow;
-    private CinemachineCamera playerCamera;
 
-    [SerializeField, ReadOnly(true)]
-    private float currentRadius = 1f;
-    private float smoothedHitDist = 0f; // <-- new: filtered hit distance
+    // boom smoothing (we keep our own boom, don't touch OrbitalFollow.Radius)
+    private float currentBoom;
+    private bool initialized = false;
 
-    protected override void OnEnable()
+    // state cooldown to prevent hit/miss flapping
+    private float insideCooldown = 0f;
+
+    // distance buffer (temporal averaging)
+    private const int bufferSize = 5;
+    private readonly float[] distBuffer = new float[bufferSize];
+    private int bufferIndex = 0;
+    private bool bufferFilled = false;
+
+    protected override void Awake()
     {
-        base.OnEnable();
-        orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
-        if (orbitalFollow != null)
-            currentRadius = orbitalFollow.Radius;
-        playerCamera = GetComponent<CinemachineCamera>();
-        if (playerCamera == null)
-            Debug.LogError("OrbitalFollowCollisionHandler requires a CinemachineCamera component on the same GameObject.");
+        base.Awake();
+        orbitalFollow = GetComponentInChildren<CinemachineOrbitalFollow>(true);
     }
 
     protected override void PostPipelineStageCallback(
@@ -51,75 +46,110 @@ public class OrbitalFollowCollisionHandler : CinemachineExtension
         ref CameraState state,
         float deltaTime)
     {
-        if (stage != CinemachineCore.Stage.Finalize) return;
+        // 🔑 Do collision at Body stage so Aim/Noise apply AFTER our correction
+        if (stage != CinemachineCore.Stage.Body || orbitalFollow == null)
+            return;
 
-        // 1️⃣ always measure from pivot to the IDEAL camera position
-        Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
-        Vector3 desiredPos = state.GetFinalPosition();   // full boom
-        Vector3 camDir = (desiredPos - pivotPos).normalized;
-        float maxBoom = Vector3.Distance(pivotPos, desiredPos);
-        float near = state.Lens.NearClipPlane;
-
-        // 2️⃣ cast along the ideal direction, not from the moved camera
-        bool isHit = Physics.Linecast(pivotPos, desiredPos, out var hitInfo, collisionMask, QueryTriggerInteraction.Ignore);
-
-        if (isHit)
+        // --- read current orbit ---
+        Vector3 pivotPos   = orbitalFollow.FollowTargetPosition;  // follow target/pivot
+        Vector3 desiredPos = state.RawPosition;                   // camera pos computed this frame by OrbitalFollow (Body)
+        // Optional: account for CameraOffset (if one exists on the same vcam)
+        var offsetComp = vcam.GetComponent<CinemachineCameraOffset>();
+        if (offsetComp != null)
         {
-            // low-pass filter the raw hit distance
-            if (smoothedHitDist <= 0f)
-            {
-                smoothedHitDist = hitInfo.distance;
-            }
+            Vector3 localOffset = new Vector3(offsetComp.Offset.x, offsetComp.Offset.y, offsetComp.Offset.z);
+            desiredPos += state.RawOrientation * localOffset; // apply local offset in world space
+        }
+        Vector3 camDir     = (desiredPos - pivotPos).normalized;
+        float   desiredLen = Vector3.Distance(pivotPos, desiredPos);
+
+        if (!initialized)
+        {
+            currentBoom = maxBoom; // start fully extended
+            initialized = true;
+        }
+
+        float castLength = desiredLen;
+        Vector3 castOrigin = pivotPos;
+
+        // --- collision checks ---
+        bool insideHit = Physics.CheckSphere(castOrigin, sphereCastRadius, collisionMask);
+
+        bool sweepHit = false;
+        RaycastHit hitInfo = new RaycastHit();
+
+        if (!insideHit)
+        {
+            if (useSphereCast)
+                sweepHit = Physics.SphereCast(
+                    castOrigin, sphereCastRadius, camDir, out hitInfo,
+                    castLength, collisionMask, QueryTriggerInteraction.Ignore);
             else
-            {
-                smoothedHitDist = Mathf.Lerp(smoothedHitDist, hitInfo.distance, deltaTime * hitSmooth);
-            }
+                sweepHit = Physics.Raycast(
+                    castOrigin, camDir, out hitInfo,
+                    castLength, collisionMask, QueryTriggerInteraction.Ignore);
+        }
 
-            float targetRadius = Mathf.Clamp(smoothedHitDist - (near + collisionPadding), minRadius, maxRadius);
+        // ✅ safer cooldown decay that handles 0 deltaTime frames
+        float dt = Mathf.Max(Time.deltaTime, 0.001f);
+        if (insideHit || sweepHit)
+            insideCooldown = 0.12f;
+        else if (insideCooldown > 0f)
+            insideCooldown = Mathf.Max(0f, insideCooldown - dt);
+        else
+            insideCooldown = 0f;
 
-            if (targetRadius < currentRadius)
-            {
-                currentRadius = targetRadius;
-            }
-            else
-            {
-                currentRadius = Mathf.Lerp(currentRadius, targetRadius, deltaTime * smoothSpeed);
-            }
 
-            Debug.DrawLine(pivotPos, hitInfo.point, Color.green);
+        bool effectiveHit = insideHit || sweepHit || insideCooldown > 0f;
+
+        // --- debug (optional) ---
+        Color lineColor = effectiveHit ? Color.green : Color.red;
+        Debug.DrawRay(castOrigin, camDir * castLength, lineColor);
+        if (sweepHit) Debug.DrawLine(castOrigin, hitInfo.point, Color.cyan);
+        else if (insideHit) Debug.DrawRay(castOrigin, camDir * 0.1f, Color.yellow);
+
+        // --- boom solve (buffered + contract-only) ---
+        if (sweepHit)
+        {
+            float rawDist = hitInfo.distance;
+
+            // ring buffer
+            distBuffer[bufferIndex] = rawDist;
+            bufferIndex = (bufferIndex + 1) % bufferSize;
+            if (bufferIndex == 0) bufferFilled = true;
+
+            int count = bufferFilled ? bufferSize : bufferIndex;
+            float avgDist = 0f; for (int i = 0; i < count; i++) avgDist += distBuffer[i];
+            avgDist /= Mathf.Max(1, count);
+
+            float contractedTarget = Mathf.Clamp(avgDist - wallBackoff, minBoom, maxBoom);
+            float targetBoom = Mathf.Min(contractedTarget, currentBoom); // contract-only while colliding
+            currentBoom = Mathf.Lerp(currentBoom, targetBoom, deltaTime * boomSmooth);
+        }
+        else if (insideHit)
+        {
+            float targetBoom = minBoom + 0.05f;                     // push out of geometry
+            currentBoom = Mathf.Lerp(currentBoom, targetBoom, deltaTime * (boomSmooth * 2f));
+        }
+        else if (effectiveHit)
+        {
+            // during cooldown: hold boom, no expansion yet
         }
         else
         {
-            smoothedHitDist = 0f;
-            
-            float targetRadius = Mathf.Clamp(maxBoom, minRadius, maxRadius);
-            currentRadius = Mathf.Lerp(currentRadius, targetRadius, deltaTime * smoothSpeed);
-            
-            Debug.DrawLine(pivotPos, desiredPos, Color.red);
+            // free: expand smoothly
+            currentBoom = Mathf.Lerp(currentBoom, Mathf.Clamp(desiredLen, minBoom, maxBoom), deltaTime * (boomSmooth * 0.5f));
         }
 
-        // 3️⃣ compute final camera pos from pivot + direction * radius
-        orbitalFollow.Radius = currentRadius;
+        currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
+
+
+
+        // --- write corrected camera position into the state (NOT into OrbitalFollow.Radius) ---
+        Vector3 correctedPos = pivotPos + camDir * currentBoom;
+        state.RawPosition = correctedPos;
+
+        // optional log
+        Debug.Log($"[Boom] insideHit={insideHit}, sweepHit={sweepHit}, cooldown={insideCooldown:F2}, len={desiredLen:F2}, boom={currentBoom:F2}");
     }
-    
-    
-
-#if UNITY_EDITOR
-    public bool showGizmos = true;
-
-    void OnDrawGizmosSelected()  // only when the vcam is selected
-    {
-        if (!showGizmos || playerCamera == null || playerCamera.Follow == null) return;
-
-        var vcam = playerCamera;
-
-        Vector3 pivotPos = vcam.Follow.position;                  // orbit center / pivot
-        Vector3 camPos   = vcam.State.GetFinalPosition();         // camera world pos
-        Vector3 camDir   = (camPos - pivotPos).normalized;        // pivot -> camera
-        Vector3 start    = pivotPos + camDir * minRadius;         // cast origin
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(start, start + camDir * (maxRadius - minRadius));
-    }
-#endif
 }
