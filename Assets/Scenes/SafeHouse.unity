@@ -2864,8 +2864,9 @@ MonoBehaviour:
   useSphereCast: 1
   minBoom: 0.1
   maxBoom: 2
-  boomSmooth: 18
+  boomSmooth: 12
   wallBackoff: 0.2
+  sweepSamples: 3
 --- !u!114 &1748634994
 MonoBehaviour:
   m_ObjectHideFlags: 0

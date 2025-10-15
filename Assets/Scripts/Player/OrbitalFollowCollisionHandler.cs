@@ -8,31 +8,39 @@ public class OrbitalFollowCollision_Fixed : CinemachineExtension
 {
     [Header("Collision")]
     public LayerMask collisionMask;
-    [Range(0.05f, 1f)] public float sphereCastRadius = 0.3f;
+    [Range(0.05f, 1f)] public float sphereCastRadius = 0.35f;
     public bool useSphereCast = true;
 
     [Header("Boom Settings")]
     public float minBoom = 0.5f;
     public float maxBoom = 2f;
-    [Tooltip("Smoothing speed for boom changes")]
-    public float boomSmooth = 10f;
-    [Tooltip("How far off the wall to keep the camera")]
-    public float wallBackoff = 0.20f;
+    [Tooltip("Smooth speed for boom contraction/expansion.")]
+    public float boomSmooth = 14f;
+    [Tooltip("How far the camera stays off walls.")]
+    public float wallBackoff = 0.2f;
+
+    [Header("Arc Sweep")]
+    [Tooltip("Extra directions sampled between last and current aim to catch fast rotations.")]
+    [Range(0, 6)] public int sweepSamples = 3;
 
     private CinemachineOrbitalFollow orbitalFollow;
-
-    // boom smoothing (we keep our own boom, don't touch OrbitalFollow.Radius)
     private float currentBoom;
-    private bool initialized = false;
+    private bool initialized;
+    private float insideCooldown;
 
-    // state cooldown to prevent hit/miss flapping
-    private float insideCooldown = 0f;
-
-    // distance buffer (temporal averaging)
-    private const int bufferSize = 5;
+    private Vector3 prevDir;
+    private const int bufferSize = 4;
     private readonly float[] distBuffer = new float[bufferSize];
-    private int bufferIndex = 0;
-    private bool bufferFilled = false;
+    private int bufferIndex;
+    private bool bufferFilled;
+
+    private float prevDist = 0f;
+    private float smoothedTarget = 0f;
+
+    // Contact stability (persist across frames)
+    private Vector3 lastNormal;
+    private float lastPlaneD;
+    private bool hadContact;
 
     protected override void Awake()
     {
@@ -46,110 +54,183 @@ public class OrbitalFollowCollision_Fixed : CinemachineExtension
         ref CameraState state,
         float deltaTime)
     {
-        // 🔑 Do collision at Body stage so Aim/Noise apply AFTER our correction
         if (stage != CinemachineCore.Stage.Body || orbitalFollow == null)
             return;
 
-        // --- read current orbit ---
-        Vector3 pivotPos   = orbitalFollow.FollowTargetPosition;  // follow target/pivot
-        Vector3 desiredPos = state.RawPosition;                   // camera pos computed this frame by OrbitalFollow (Body)
-        // Optional: account for CameraOffset (if one exists on the same vcam)
+        Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
+        Vector3 desiredPos = state.RawPosition;
+
+        // Include CameraOffset if present
         var offsetComp = vcam.GetComponent<CinemachineCameraOffset>();
         if (offsetComp != null)
-        {
-            Vector3 localOffset = new Vector3(offsetComp.Offset.x, offsetComp.Offset.y, offsetComp.Offset.z);
-            desiredPos += state.RawOrientation * localOffset; // apply local offset in world space
-        }
-        Vector3 camDir     = (desiredPos - pivotPos).normalized;
-        float   desiredLen = Vector3.Distance(pivotPos, desiredPos);
+            desiredPos += state.RawOrientation * offsetComp.Offset;
+
+        Vector3 rawDir = (desiredPos - pivotPos).sqrMagnitude > 1e-6f
+            ? (desiredPos - pivotPos).normalized
+            : (prevDir == Vector3.zero ? Vector3.back : prevDir);
 
         if (!initialized)
         {
-            currentBoom = maxBoom; // start fully extended
+            currentBoom = maxBoom;
+            prevDir = rawDir;
             initialized = true;
         }
 
-        float castLength = desiredLen;
-        Vector3 castOrigin = pivotPos;
+        // --- sweep for fast rotation coverage ---
+        bool insideHit = Physics.CheckSphere(pivotPos, sphereCastRadius, collisionMask);
 
-        // --- collision checks ---
-        bool insideHit = Physics.CheckSphere(castOrigin, sphereCastRadius, collisionMask);
+        bool anyHit = false;
+        float nearestDist = float.PositiveInfinity;
+        Vector3 useDir = rawDir;
 
-        bool sweepHit = false;
-        RaycastHit hitInfo = new RaycastHit();
-
-        if (!insideHit)
+        void ProbeDir(Vector3 dir, Color debugColor)
         {
-            if (useSphereCast)
-                sweepHit = Physics.SphereCast(
-                    castOrigin, sphereCastRadius, camDir, out hitInfo,
-                    castLength, collisionMask, QueryTriggerInteraction.Ignore);
-            else
-                sweepHit = Physics.Raycast(
-                    castOrigin, camDir, out hitInfo,
-                    castLength, collisionMask, QueryTriggerInteraction.Ignore);
+            if (dir == Vector3.zero) return;
+            RaycastHit hit;
+            bool hitSomething = useSphereCast
+                ? Physics.SphereCast(pivotPos, sphereCastRadius, dir, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore)
+                : Physics.Raycast(pivotPos, dir, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore);
+
+            Debug.DrawRay(pivotPos, dir * maxBoom, debugColor);
+
+            if (hitSomething)
+            {
+                Debug.DrawLine(pivotPos, hit.point, Color.cyan);
+                anyHit = true;
+                if (hit.distance < nearestDist)
+                {
+                    nearestDist = hit.distance;
+                    useDir = dir;
+                }
+            }
         }
 
-        // ✅ safer cooldown decay that handles 0 deltaTime frames
-        float dt = Mathf.Max(Time.deltaTime, 0.001f);
-        if (insideHit || sweepHit)
-            insideCooldown = 0.12f;
-        else if (insideCooldown > 0f)
-            insideCooldown = Mathf.Max(0f, insideCooldown - dt);
-        else
-            insideCooldown = 0f;
-
-
-        bool effectiveHit = insideHit || sweepHit || insideCooldown > 0f;
-
-        // --- debug (optional) ---
-        Color lineColor = effectiveHit ? Color.green : Color.red;
-        Debug.DrawRay(castOrigin, camDir * castLength, lineColor);
-        if (sweepHit) Debug.DrawLine(castOrigin, hitInfo.point, Color.cyan);
-        else if (insideHit) Debug.DrawRay(castOrigin, camDir * 0.1f, Color.yellow);
-
-        // --- boom solve (buffered + contract-only) ---
-        if (sweepHit)
+        // current, mids, previous
+        ProbeDir(rawDir, Color.green);
+        if (sweepSamples > 0)
         {
-            float rawDist = hitInfo.distance;
+            Vector3 from = (prevDir == Vector3.zero) ? rawDir : prevDir;
+            for (int i = 1; i <= sweepSamples; i++)
+            {
+                float t = (float)i / (sweepSamples + 1);
+                Vector3 mid = Vector3.Slerp(from, rawDir, t).normalized;
+                ProbeDir(mid, Color.yellow);
+            }
+        }
+        if (prevDir != Vector3.zero && Vector3.Dot(prevDir, rawDir) < 0.9995f)
+            ProbeDir(prevDir, Color.red);
 
-            // ring buffer
-            distBuffer[bufferIndex] = rawDist;
+        prevDir = rawDir;
+
+        // --- cooldown ---
+        float dt = Mathf.Max(Time.deltaTime, 0.001f);
+        if (insideHit || anyHit) insideCooldown = 0.12f;
+        else if (insideCooldown > 0f) insideCooldown = Mathf.Max(0f, insideCooldown - dt);
+        bool effectiveHit = insideHit || anyHit || insideCooldown > 0f;
+
+        // --- low-pass + temporal damp on raw nearestDist ---
+        if (nearestDist < float.PositiveInfinity)
+        {
+            if (prevDist <= 0f) prevDist = nearestDist;
+            nearestDist = Mathf.Lerp(prevDist, nearestDist, 0.25f);
+            prevDist = nearestDist;
+
+            if (smoothedTarget <= 0f) smoothedTarget = nearestDist;
+            smoothedTarget = Mathf.Lerp(smoothedTarget, nearestDist, 0.15f);
+            nearestDist = smoothedTarget;
+        }
+
+        // --- boom logic ---
+        if (anyHit)
+        {
+            // Contact-plane projection (compile-safe)
+            RaycastHit hit;
+            bool gotHit = useSphereCast
+                ? Physics.SphereCast(pivotPos, sphereCastRadius, useDir, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore)
+                : Physics.Raycast(pivotPos, useDir, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore);
+
+            // Initialize to a valid value so it's always assigned
+            Vector3 stablePos = desiredPos;
+
+            if (gotHit)
+            {
+                float planeD = Vector3.Dot(hit.normal, hit.point);
+
+                if (hadContact && Vector3.Dot(hit.normal, lastNormal) > 0.9f)
+                {
+                    // project desiredPos onto previous plane along useDir
+                    float denom = Vector3.Dot(lastNormal, useDir);
+                    if (Mathf.Abs(denom) > 1e-4f)
+                    {
+                        float t = (lastPlaneD - Vector3.Dot(lastNormal, desiredPos)) / denom;
+                        stablePos = desiredPos + useDir * t;
+                    }
+                    else
+                    {
+                        // fallback if nearly parallel: back off along normal
+                        stablePos = hit.point - hit.normal * wallBackoff;
+                    }
+                }
+                else
+                {
+                    // new surface contact
+                    stablePos = hit.point - hit.normal * wallBackoff;
+                    lastNormal = hit.normal;
+                    lastPlaneD = planeD;
+                    hadContact = true;
+                }
+            }
+            else
+            {
+                hadContact = false;
+            }
+
+            float stableDist = Vector3.Distance(pivotPos, stablePos);
+
+            // buffer average
+            distBuffer[bufferIndex] = stableDist;
             bufferIndex = (bufferIndex + 1) % bufferSize;
             if (bufferIndex == 0) bufferFilled = true;
 
             int count = bufferFilled ? bufferSize : bufferIndex;
-            float avgDist = 0f; for (int i = 0; i < count; i++) avgDist += distBuffer[i];
+            float avgDist = 0f;
+            for (int i = 0; i < count; i++) avgDist += distBuffer[i];
             avgDist /= Mathf.Max(1, count);
 
-            float contractedTarget = Mathf.Clamp(avgDist - wallBackoff, minBoom, maxBoom);
-            float targetBoom = Mathf.Min(contractedTarget, currentBoom); // contract-only while colliding
+            float contractedTarget = Mathf.Clamp(avgDist, minBoom, maxBoom); // already offset by normal backoff in stablePos
+            float targetBoom = Mathf.Min(contractedTarget, currentBoom);     // contract-only on hit
             currentBoom = Mathf.Lerp(currentBoom, targetBoom, deltaTime * boomSmooth);
         }
         else if (insideHit)
         {
-            float targetBoom = minBoom + 0.05f;                     // push out of geometry
-            currentBoom = Mathf.Lerp(currentBoom, targetBoom, deltaTime * (boomSmooth * 2f));
+            float targetBoom = minBoom + 0.05f;
+            currentBoom = Mathf.Lerp(currentBoom, targetBoom, deltaTime * boomSmooth * 2f);
         }
         else if (effectiveHit)
         {
-            // during cooldown: hold boom, no expansion yet
+            // hold during cooldown
         }
         else
         {
-            // free: expand smoothly
-            currentBoom = Mathf.Lerp(currentBoom, Mathf.Clamp(desiredLen, minBoom, maxBoom), deltaTime * (boomSmooth * 0.5f));
+            hadContact = false;
+            float desiredLen = Mathf.Clamp(Vector3.Distance(pivotPos, desiredPos), minBoom, maxBoom);
+            currentBoom = Mathf.Lerp(currentBoom, desiredLen, deltaTime * (boomSmooth * 0.5f));
         }
 
         currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
 
+        // --- final camera position ---
+        Vector3 correctedPos = pivotPos + useDir * currentBoom;
 
+        // safety depenetration
+        if (Physics.CheckSphere(correctedPos, sphereCastRadius, collisionMask))
+        {
+            if (Physics.SphereCast(pivotPos, sphereCastRadius, useDir, out var hit2, maxBoom, collisionMask, QueryTriggerInteraction.Ignore))
+                correctedPos = pivotPos + useDir * Mathf.Max(minBoom, hit2.distance - wallBackoff);
+        }
 
-        // --- write corrected camera position into the state (NOT into OrbitalFollow.Radius) ---
-        Vector3 correctedPos = pivotPos + camDir * currentBoom;
-        state.RawPosition = correctedPos;
-
-        // optional log
-        Debug.Log($"[Boom] insideHit={insideHit}, sweepHit={sweepHit}, cooldown={insideCooldown:F2}, len={desiredLen:F2}, boom={currentBoom:F2}");
+        // micro dead-zone
+        if ((correctedPos - state.RawPosition).sqrMagnitude > 0.0001f)
+            state.RawPosition = correctedPos;
     }
 }
