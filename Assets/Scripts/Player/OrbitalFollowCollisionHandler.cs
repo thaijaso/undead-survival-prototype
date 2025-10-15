@@ -4,38 +4,55 @@ using Unity.Cinemachine;
 [ExecuteAlways]
 [SaveDuringPlay]
 [AddComponentMenu("")]
-public class OrbitalFollowCollision_Fixed : CinemachineExtension
+public class OrbitalFollowCollision : CinemachineExtension
 {
+    [Header("Debug")]
+    public bool showDebug = false;
+
     [Header("Collision")]
     public LayerMask collisionMask;
-    [Range(0.05f, 1f)] public float sphereCastRadius = 0.35f;
+
+    [Range(0.05f, 1f)] 
+    public float sphereCastRadius = 0.35f;
     public bool useSphereCast = true;
 
     [Header("Boom Settings")]
     public float minBoom = 0.5f;
     public float maxBoom = 2f;
+    
     [Tooltip("Smooth speed for boom contraction/expansion.")]
     public float boomSmooth = 14f;
+    
     [Tooltip("How far the camera stays off walls.")]
     public float wallBackoff = 0.2f;
 
     [Header("Arc Sweep")]
     [Tooltip("Extra directions sampled between last and current aim to catch fast rotations.")]
-    [Range(0, 6)] public int sweepSamples = 3;
+    [Range(0, 12)] 
+    public int sweepSamples = 3;
 
     private CinemachineOrbitalFollow orbitalFollow;
+    private CinemachineCameraOffset cameraOffset;
+
+    private Vector3 desiredPosition; // The ideal camera position before collision adjustment
+    private Vector3 correctedPosition; // The final camera position after collision adjustment
+    private Vector3 useDirection; // The direction from the pivot to the final camera position
+    private Vector3 previousDirection; // The previous frame's direction used for the final camera position
+    private bool didAnyProbesHit = false; // Did any of the probes hit something?
+    private float nearestDistance = float.PositiveInfinity; // The raw physics distance to the nearest wall
+    private Vector3 pivotPosition; // the player position
     private float currentBoom;
     private bool initialized;
     private float insideCooldown;
 
-    private Vector3 prevDir;
+
     private const int bufferSize = 4;
     private readonly float[] distBuffer = new float[bufferSize];
     private int bufferIndex;
     private bool bufferFilled;
 
-    private float prevDist = 0f;
-    private float smoothedTarget = 0f;
+    private float previousSmoothedHitDistance = 0f; // Previous smoothed hit distance
+    private float smoothedTargetHitDistance = 0f;
 
     // Contact stability (persist across frames)
     private Vector3 lastNormal;
@@ -45,7 +62,8 @@ public class OrbitalFollowCollision_Fixed : CinemachineExtension
     protected override void Awake()
     {
         base.Awake();
-        orbitalFollow = GetComponentInChildren<CinemachineOrbitalFollow>(true);
+        orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
+        cameraOffset = GetComponent<CinemachineCameraOffset>();
     }
 
     protected override void PostPipelineStageCallback(
@@ -54,103 +72,163 @@ public class OrbitalFollowCollision_Fixed : CinemachineExtension
         ref CameraState state,
         float deltaTime)
     {
-        if (stage != CinemachineCore.Stage.Body || orbitalFollow == null)
+        if (stage != CinemachineCore.Stage.Body)
+        {
             return;
+        }
 
-        Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
-        Vector3 desiredPos = state.RawPosition;
+        if (orbitalFollow == null)
+        {
+            Debug.LogWarning("OrbitalFollowCollision requires CinemachineOrbitalFollow component on the same GameObject.");
+            return;
+        }
 
-        // Include CameraOffset if present
-        var offsetComp = vcam.GetComponent<CinemachineCameraOffset>();
-        if (offsetComp != null)
-            desiredPos += state.RawOrientation * offsetComp.Offset;
+        // If Cinemachine passes a negative dt, it’s a re-init tick: reset smoothing.
+        if (deltaTime < 0f)
+        {
+            initialized = false;
+            hadContact = false;
+            previousDirection = Vector3.zero;
+            previousSmoothedHitDistance = 0f;
+            smoothedTargetHitDistance = 0f;
+            bufferFilled = false;
+            bufferIndex = 0;
+            return;
+        }
 
-        Vector3 rawDir = (desiredPos - pivotPos).sqrMagnitude > 1e-6f
-            ? (desiredPos - pivotPos).normalized
-            : (prevDir == Vector3.zero ? Vector3.back : prevDir);
+        Vector3 offset = GetCameraOffset();
+        pivotPosition = orbitalFollow.FollowTargetPosition;
+        desiredPosition = state.RawPosition + (state.RawOrientation * offset);
+        Vector3 probeDirection = GetProbeDirection();
 
         if (!initialized)
         {
             currentBoom = maxBoom;
-            prevDir = rawDir;
+            previousDirection = probeDirection;
             initialized = true;
         }
 
         // --- sweep for fast rotation coverage ---
-        bool insideHit = Physics.CheckSphere(pivotPos, sphereCastRadius, collisionMask);
+        bool insideHit = Physics.CheckSphere(pivotPosition, sphereCastRadius, collisionMask);
 
-        bool anyHit = false;
-        float nearestDist = float.PositiveInfinity;
-        Vector3 useDir = rawDir;
+        didAnyProbesHit = false;
+        nearestDistance = float.PositiveInfinity;                                                           // The raw physics distance to the nearest wall
+        useDirection = probeDirection;
 
-        void ProbeDir(Vector3 dir, Color debugColor)
-        {
-            if (dir == Vector3.zero) return;
-            RaycastHit hit;
-            bool hitSomething = useSphereCast
-                ? Physics.SphereCast(pivotPos, sphereCastRadius, dir, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore)
-                : Physics.Raycast(pivotPos, dir, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore);
+        ProbeDirection(probeDirection, Color.green);                                                        // probe current direction
+        ProbeSweep(probeDirection);                                                                         // probe intermediate directions between previous probe direction and current probe direction
+        if (previousDirection != Vector3.zero && Vector3.Dot(previousDirection, probeDirection) < 0.9995f)
+            ProbeDirection(previousDirection, Color.red);                                                   // probe previous direction if significantly different
 
-            Debug.DrawRay(pivotPos, dir * maxBoom, debugColor);
-
-            if (hitSomething)
-            {
-                Debug.DrawLine(pivotPos, hit.point, Color.cyan);
-                anyHit = true;
-                if (hit.distance < nearestDist)
-                {
-                    nearestDist = hit.distance;
-                    useDir = dir;
-                }
-            }
-        }
-
-        // current, mids, previous
-        ProbeDir(rawDir, Color.green);
-        if (sweepSamples > 0)
-        {
-            Vector3 from = (prevDir == Vector3.zero) ? rawDir : prevDir;
-            for (int i = 1; i <= sweepSamples; i++)
-            {
-                float t = (float)i / (sweepSamples + 1);
-                Vector3 mid = Vector3.Slerp(from, rawDir, t).normalized;
-                ProbeDir(mid, Color.yellow);
-            }
-        }
-        if (prevDir != Vector3.zero && Vector3.Dot(prevDir, rawDir) < 0.9995f)
-            ProbeDir(prevDir, Color.red);
-
-        prevDir = rawDir;
+        previousDirection = probeDirection;
 
         // --- cooldown ---
-        float dt = Mathf.Max(Time.deltaTime, 0.001f);
-        if (insideHit || anyHit) insideCooldown = 0.12f;
-        else if (insideCooldown > 0f) insideCooldown = Mathf.Max(0f, insideCooldown - dt);
-        bool effectiveHit = insideHit || anyHit || insideCooldown > 0f;
+        deltaTime = Mathf.Max(deltaTime, 0.001f);
+        if (insideHit || didAnyProbesHit) insideCooldown = 0.12f;
+        else if (insideCooldown > 0f) insideCooldown = Mathf.Max(0f, insideCooldown - deltaTime);
+        bool effectiveHit = insideHit || didAnyProbesHit || insideCooldown > 0f;
 
-        // --- low-pass + temporal damp on raw nearestDist ---
-        if (nearestDist < float.PositiveInfinity)
+        SmoothHitDistance();
+        HandleBoom(deltaTime, effectiveHit, insideHit);
+        
+        // safety depenetration
+        if (Physics.CheckSphere(correctedPosition, sphereCastRadius, collisionMask))
         {
-            if (prevDist <= 0f) prevDist = nearestDist;
-            nearestDist = Mathf.Lerp(prevDist, nearestDist, 0.25f);
-            prevDist = nearestDist;
-
-            if (smoothedTarget <= 0f) smoothedTarget = nearestDist;
-            smoothedTarget = Mathf.Lerp(smoothedTarget, nearestDist, 0.15f);
-            nearestDist = smoothedTarget;
+            if (Physics.SphereCast(pivotPosition, sphereCastRadius, useDirection, out var hit2, maxBoom, collisionMask, QueryTriggerInteraction.Ignore))
+                correctedPosition = pivotPosition + useDirection * Mathf.Max(minBoom, hit2.distance - wallBackoff);
         }
 
+        // micro dead-zone
+        if ((correctedPosition - state.RawPosition).sqrMagnitude > 0.0001f)
+            state.RawPosition = correctedPosition;
+
+        if (showDebug)
+        {
+            Debug.Log($"nearestDistance: {nearestDistance:F2}, prevDistance: {previousSmoothedHitDistance:F2}, smoothedTarget: {smoothedTargetHitDistance:F2}, insideHit: {insideHit}, cooldown: {insideCooldown:F2}, currentBoom: {currentBoom:F2})");
+        }
+    }
+
+    private Vector3 GetCameraOffset()
+    {
+        var cameraOffset = GetComponent<CinemachineCameraOffset>();
+        if (cameraOffset != null)
+            return cameraOffset.Offset;
+        return Vector3.zero;
+    }
+
+    private Vector3 GetProbeDirection()
+    {
+        Vector3 probeDirection = (desiredPosition - pivotPosition).sqrMagnitude > 1e-6f
+            ? (desiredPosition - pivotPosition).normalized
+            : (previousDirection == Vector3.zero ? Vector3.back : previousDirection);
+        return probeDirection;
+    }
+
+    private void ProbeSweep(Vector3 probeDirection)
+    {
+        if (sweepSamples > 0)
+        {
+            Vector3 from = (previousDirection == Vector3.zero) ? probeDirection : previousDirection;
+            for (int sweepSample = 1; sweepSample <= sweepSamples; sweepSample++)
+            {
+                float t = (float)sweepSample / (sweepSamples + 1);
+                Vector3 mid = Vector3.Slerp(from, probeDirection, t).normalized;
+                ProbeDirection(mid, Color.yellow);
+            }
+        }
+    }
+
+    private void ProbeDirection(Vector3 direction, Color debugColor)
+    {
+        if (direction == Vector3.zero) return;
+        bool hitSomething = useSphereCast
+            ? Physics.SphereCast(pivotPosition, sphereCastRadius, direction, out RaycastHit hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore)
+            : Physics.Raycast(pivotPosition, direction, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore);
+
+        Debug.DrawRay(pivotPosition, direction * maxBoom, debugColor);
+
+        if (hitSomething)
+        {
+            Debug.DrawLine(pivotPosition, hit.point, Color.cyan);
+            didAnyProbesHit = true;
+            if (hit.distance < nearestDistance)
+            {
+                nearestDistance = hit.distance;
+                useDirection = direction;
+            }
+        }
+    }
+
+    // --- low-pass + temporal damp on raw nearestDist ---
+    private void SmoothHitDistance()
+    {
+        if (nearestDistance < float.PositiveInfinity)
+        {
+            // smooth the previous filtered measurements and the current measurement:
+            if (previousSmoothedHitDistance <= 0f) previousSmoothedHitDistance = nearestDistance;
+            nearestDistance = Mathf.Lerp(previousSmoothedHitDistance, nearestDistance, 0.25f);
+            previousSmoothedHitDistance = nearestDistance;
+
+            // smooth the target distance: 
+            if (smoothedTargetHitDistance <= 0f) smoothedTargetHitDistance = nearestDistance;
+            smoothedTargetHitDistance = Mathf.Lerp(smoothedTargetHitDistance, nearestDistance, 0.15f);
+            nearestDistance = smoothedTargetHitDistance;
+        }
+    }
+
+    private void HandleBoom(float deltaTime, bool effectiveHit, bool insideHit)
+    {
         // --- boom logic ---
-        if (anyHit)
+        if (didAnyProbesHit)
         {
             // Contact-plane projection (compile-safe)
             RaycastHit hit;
             bool gotHit = useSphereCast
-                ? Physics.SphereCast(pivotPos, sphereCastRadius, useDir, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore)
-                : Physics.Raycast(pivotPos, useDir, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore);
+                ? Physics.SphereCast(pivotPosition, sphereCastRadius, useDirection, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore)
+                : Physics.Raycast(pivotPosition, useDirection, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore);
 
             // Initialize to a valid value so it's always assigned
-            Vector3 stablePos = desiredPos;
+            Vector3 stablePos = desiredPosition;
 
             if (gotHit)
             {
@@ -159,11 +237,11 @@ public class OrbitalFollowCollision_Fixed : CinemachineExtension
                 if (hadContact && Vector3.Dot(hit.normal, lastNormal) > 0.9f)
                 {
                     // project desiredPos onto previous plane along useDir
-                    float denom = Vector3.Dot(lastNormal, useDir);
+                    float denom = Vector3.Dot(lastNormal, useDirection);
                     if (Mathf.Abs(denom) > 1e-4f)
                     {
-                        float t = (lastPlaneD - Vector3.Dot(lastNormal, desiredPos)) / denom;
-                        stablePos = desiredPos + useDir * t;
+                        float t = (lastPlaneD - Vector3.Dot(lastNormal, desiredPosition)) / denom;
+                        stablePos = desiredPosition + useDirection * t;
                     }
                     else
                     {
@@ -185,7 +263,7 @@ public class OrbitalFollowCollision_Fixed : CinemachineExtension
                 hadContact = false;
             }
 
-            float stableDist = Vector3.Distance(pivotPos, stablePos);
+            float stableDist = Vector3.Distance(pivotPosition, stablePos);
 
             // buffer average
             distBuffer[bufferIndex] = stableDist;
@@ -213,24 +291,72 @@ public class OrbitalFollowCollision_Fixed : CinemachineExtension
         else
         {
             hadContact = false;
-            float desiredLen = Mathf.Clamp(Vector3.Distance(pivotPos, desiredPos), minBoom, maxBoom);
+            float desiredLen = Mathf.Clamp(Vector3.Distance(pivotPosition, desiredPosition), minBoom, maxBoom);
             currentBoom = Mathf.Lerp(currentBoom, desiredLen, deltaTime * (boomSmooth * 0.5f));
         }
 
         currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
 
         // --- final camera position ---
-        Vector3 correctedPos = pivotPos + useDir * currentBoom;
+        correctedPosition = pivotPosition + useDirection * currentBoom;
+    }
 
-        // safety depenetration
-        if (Physics.CheckSphere(correctedPos, sphereCastRadius, collisionMask))
+#if UNITY_EDITOR
+    // ───────────────────────────── Gizmos ─────────────────────────────
+    void OnDrawGizmosSelected()
+    {
+        if (!enabled) return;
+        if (orbitalFollow == null) orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
+        if (orbitalFollow == null) return;
+
+        var vcam = GetComponent<CinemachineCamera>();
+        if (vcam == null) return;
+
+        var state = vcam.State;
+        Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
+        Vector3 desiredPos = state.GetFinalPosition();
+        Vector3 direction = (desiredPos - pivotPos).normalized;
+        float idealBoomLength = Vector3.Distance(pivotPos, desiredPos);
+
+        Vector3 castOrigin = pivotPos + direction;
+        float castDist = Mathf.Max(0.001f, idealBoomLength * 0.5f);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawSphere(pivotPos, 0.03f);
+        UnityEditor.Handles.Label(pivotPos, "Pivot");
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(castOrigin, sphereCastRadius);
+        UnityEditor.Handles.Label(castOrigin, $"Cast Origin (r={sphereCastRadius:0.00})");
+
+        Gizmos.color = Color.white;
+        Gizmos.DrawLine(castOrigin, castOrigin + direction * castDist);
+
+        bool startsInside = Physics.CheckSphere(castOrigin, sphereCastRadius, collisionMask, QueryTriggerInteraction.Ignore);
+        if (startsInside)
         {
-            if (Physics.SphereCast(pivotPos, sphereCastRadius, useDir, out var hit2, maxBoom, collisionMask, QueryTriggerInteraction.Ignore))
-                correctedPos = pivotPos + useDir * Mathf.Max(minBoom, hit2.distance - wallBackoff);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(castOrigin, sphereCastRadius * 1.05f);
+            UnityEditor.Handles.Label(castOrigin + Vector3.up * 0.1f, "Starts INSIDE collider!");
         }
 
-        // micro dead-zone
-        if ((correctedPos - state.RawPosition).sqrMagnitude > 0.0001f)
-            state.RawPosition = correctedPos;
+        if (Physics.SphereCast(castOrigin, sphereCastRadius, direction, out var hit, castDist, collisionMask, QueryTriggerInteraction.Ignore))
+        {
+            Vector3 hitCenter = castOrigin + direction * hit.distance;
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(hitCenter, sphereCastRadius);
+            Gizmos.DrawSphere(hit.point, 0.02f);
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawLine(hit.point, hit.point + hit.normal * 0.25f);
+            UnityEditor.Handles.Label(hit.point + hit.normal * 0.1f, $"HIT d={hit.distance:0.###}");
+        }
+
+        // Draw current boom line
+        Gizmos.color = Color.blue;
+        Vector3 cameraPos = pivotPos + direction * currentBoom;
+        Gizmos.DrawLine(pivotPos, cameraPos);
+        Gizmos.DrawWireSphere(cameraPos, 0.05f);
+        UnityEditor.Handles.Label(cameraPos, $"Current Boom {currentBoom:F2}");
     }
+#endif
 }
