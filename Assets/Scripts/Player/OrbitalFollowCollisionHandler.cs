@@ -216,9 +216,14 @@ public class OrbitalFollowCollision : CinemachineExtension
         }
     }
 
+    // <summary>
+    // Decides the final camera distance (the “boom”) from the player, based on collision results, smooths it, and ensures stability against wall jitter.
+    // <param name="deltaTime">The current frame delta time. used for smoothing</param>
+    // <param name="effectiveHit">True if any probe or cooldown says “stay short”</param>
+    // <param name="insideHit">True if the camera pivot is currently inside a wall</param>
+    /// </summary>
     private void HandleBoom(float deltaTime, bool effectiveHit, bool insideHit)
     {
-        // --- boom logic ---
         if (didAnyProbesHit)
         {
             // Contact-plane projection (compile-safe)
@@ -230,6 +235,7 @@ public class OrbitalFollowCollision : CinemachineExtension
             // Initialize to a valid value so it's always assigned
             Vector3 stablePos = desiredPosition;
 
+            // Project onto contact plane for stability
             if (gotHit)
             {
                 float planeD = Vector3.Dot(hit.normal, hit.point);
@@ -312,14 +318,9 @@ public class OrbitalFollowCollision : CinemachineExtension
         var vcam = GetComponent<CinemachineCamera>();
         if (vcam == null) return;
 
-        var state = vcam.State;
         Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
-        Vector3 desiredPos = state.GetFinalPosition();
-        Vector3 direction = (desiredPos - pivotPos).normalized;
-        float idealBoomLength = Vector3.Distance(pivotPos, desiredPos);
-
-        Vector3 castOrigin = pivotPos + direction;
-        float castDist = Mathf.Max(0.001f, idealBoomLength * 0.5f);
+        Vector3 castOrigin = pivotPos + useDirection;
+        float castDist = currentBoom;
 
         Gizmos.color = Color.cyan;
         Gizmos.DrawSphere(pivotPos, 0.03f);
@@ -330,19 +331,21 @@ public class OrbitalFollowCollision : CinemachineExtension
         UnityEditor.Handles.Label(castOrigin, $"Cast Origin (r={sphereCastRadius:0.00})");
 
         Gizmos.color = Color.white;
-        Gizmos.DrawLine(castOrigin, castOrigin + direction * castDist);
+        Gizmos.DrawLine(castOrigin, castOrigin + useDirection * castDist);
 
         bool startsInside = Physics.CheckSphere(castOrigin, sphereCastRadius, collisionMask, QueryTriggerInteraction.Ignore);
         if (startsInside)
-        {
-            Gizmos.color = Color.red;
+        {   
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(castOrigin, sphereCastRadius);
+            Gizmos.color = new Color(1f, 0f, 0f, 0.35f); // subtle red halo
             Gizmos.DrawWireSphere(castOrigin, sphereCastRadius * 1.05f);
             UnityEditor.Handles.Label(castOrigin + Vector3.up * 0.1f, "Starts INSIDE collider!");
         }
 
-        if (Physics.SphereCast(castOrigin, sphereCastRadius, direction, out var hit, castDist, collisionMask, QueryTriggerInteraction.Ignore))
+        if (Physics.SphereCast(castOrigin, sphereCastRadius, useDirection, out var hit, castDist, collisionMask, QueryTriggerInteraction.Ignore))
         {
-            Vector3 hitCenter = castOrigin + direction * hit.distance;
+            Vector3 hitCenter = castOrigin + useDirection * hit.distance;
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(hitCenter, sphereCastRadius);
             Gizmos.DrawSphere(hit.point, 0.02f);
@@ -353,7 +356,7 @@ public class OrbitalFollowCollision : CinemachineExtension
 
         // Draw current boom line
         Gizmos.color = Color.blue;
-        Vector3 cameraPos = pivotPos + direction * currentBoom;
+        Vector3 cameraPos = pivotPos + useDirection * currentBoom;
         Gizmos.DrawLine(pivotPos, cameraPos);
         Gizmos.DrawWireSphere(cameraPos, 0.05f);
         UnityEditor.Handles.Label(cameraPos, $"Current Boom {currentBoom:F2}");
