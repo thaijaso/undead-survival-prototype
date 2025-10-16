@@ -45,7 +45,6 @@ public class OrbitalFollowCollision : CinemachineExtension
     private bool initialized;
     private float insideCooldown;
 
-
     private const int bufferSize = 4;
     private readonly float[] distBuffer = new float[bufferSize];
     private int bufferIndex;
@@ -58,6 +57,15 @@ public class OrbitalFollowCollision : CinemachineExtension
     private Vector3 lastNormal;
     private float lastPlaneD;
     private bool hadContact;
+
+    private Vector3 lastCastOrigin;
+
+    [SerializeField]
+    [Range(-.5f, .5f)]
+    [Tooltip("Offset from pivot to cast origin. Negative values are behind the pivot, positive values are in front.")]
+    private float castOffset = 0f;
+
+    private float lastCastDistance; // Distance from cast origin to desired camera position
 
     protected override void Awake()
     {
@@ -83,7 +91,7 @@ public class OrbitalFollowCollision : CinemachineExtension
             return;
         }
 
-        // If Cinemachine passes a negative dt, it’s a re-init tick: reset smoothing.
+        // If Cinemachine passes a negative deltaTime, it’s a re-init tick: reset smoothing.
         if (deltaTime < 0f)
         {
             initialized = false;
@@ -100,6 +108,9 @@ public class OrbitalFollowCollision : CinemachineExtension
         pivotPosition = orbitalFollow.FollowTargetPosition;
         desiredPosition = state.RawPosition + (state.RawOrientation * offset);
         Vector3 probeDirection = GetProbeDirection();
+
+        lastCastOrigin = pivotPosition + probeDirection * (sphereCastRadius * castOffset);
+        lastCastDistance = maxBoom - sphereCastRadius * castOffset;
 
         if (!initialized)
         {
@@ -182,8 +193,8 @@ public class OrbitalFollowCollision : CinemachineExtension
     {
         if (direction == Vector3.zero) return;
         bool hitSomething = useSphereCast
-            ? Physics.SphereCast(pivotPosition, sphereCastRadius, direction, out RaycastHit hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore)
-            : Physics.Raycast(pivotPosition, direction, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore);
+            ? Physics.SphereCast(lastCastOrigin, sphereCastRadius, direction, out RaycastHit hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore)
+            : Physics.Raycast(lastCastOrigin, direction, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore);
 
         Debug.DrawRay(pivotPosition, direction * maxBoom, debugColor);
 
@@ -229,8 +240,8 @@ public class OrbitalFollowCollision : CinemachineExtension
             // Contact-plane projection (compile-safe)
             RaycastHit hit;
             bool gotHit = useSphereCast
-                ? Physics.SphereCast(pivotPosition, sphereCastRadius, useDirection, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore)
-                : Physics.Raycast(pivotPosition, useDirection, out hit, maxBoom, collisionMask, QueryTriggerInteraction.Ignore);
+                ? Physics.SphereCast(lastCastOrigin, sphereCastRadius, useDirection, out hit, lastCastDistance, collisionMask, QueryTriggerInteraction.Ignore)
+                : Physics.Raycast(lastCastOrigin, useDirection, out hit, lastCastDistance, collisionMask, QueryTriggerInteraction.Ignore);
 
             // Initialize to a valid value so it's always assigned
             Vector3 stablePos = desiredPosition;
@@ -310,67 +321,62 @@ public class OrbitalFollowCollision : CinemachineExtension
 
     // ───────────────────────────── Gizmos ─────────────────────────────
 #if UNITY_EDITOR
-void OnDrawGizmosSelected()
-{
-    if (!enabled) return;
-    if (orbitalFollow == null) orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
-    if (orbitalFollow == null) return;
-
-    // Use the live runtime values if available; fall back to transform if needed
-    Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
-    Vector3 dir = (useDirection != Vector3.zero)
-        ? useDirection
-        : ((transform.position - pivotPos).sqrMagnitude > 1e-6f ? (transform.position - pivotPos).normalized : Vector3.back);
-    float castDist = Mathf.Max(currentBoom, 0.001f); // visualize current reach (use maxBoom if you prefer full preview)
-    float r = sphereCastRadius;
-
-    // Pivot marker
-    Gizmos.color = Color.cyan;
-    Gizmos.DrawSphere(pivotPos, 0.03f);
-    UnityEditor.Handles.Label(pivotPos, "Pivot");
-
-    // Cast origin = PIVOT (matches the real SphereCast origin)
-    Vector3 castOrigin = pivotPos;
-
-    // Draw the probe path and the origin sphere at the pivot
-    Gizmos.color = Color.yellow;
-    Gizmos.DrawWireSphere(castOrigin, r);
-    UnityEditor.Handles.Label(castOrigin, $"Cast Origin (r={r:0.00})");
-    Gizmos.DrawLine(castOrigin, castOrigin + dir * castDist);
-
-    // Inside check at the true origin
-    bool startsInside = Physics.CheckSphere(castOrigin, r, collisionMask, QueryTriggerInteraction.Ignore);
-    if (startsInside)
+    void OnDrawGizmosSelected()
     {
-        // Same color scheme, but origin-aligned
-        Gizmos.color = Color.green;                     // contact color
-        Gizmos.DrawWireSphere(castOrigin, r);
-        Gizmos.color = new Color(1f, 0f, 0f, 0.35f);    // subtle red halo to denote "inside"
-        Gizmos.DrawWireSphere(castOrigin, r * 1.05f);
-        UnityEditor.Handles.Label(castOrigin + Vector3.up * 0.1f, "Starts INSIDE collider!");
+        if (!enabled) return;
+        if (orbitalFollow == null) orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
+        if (orbitalFollow == null) return;
+
+        // Use the live runtime values if available; fall back to transform if needed
+        Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
+        Vector3 dir = (useDirection != Vector3.zero)
+            ? useDirection
+            : ((transform.position - pivotPos).sqrMagnitude > 1e-6f ? (transform.position - pivotPos).normalized : Vector3.back);
+        float castDist = Mathf.Max(currentBoom, 0.001f); // visualize current reach (use maxBoom if you prefer full preview)
+        float r = sphereCastRadius;
+
+        // Pivot marker
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawSphere(pivotPos, 0.03f);
+        UnityEditor.Handles.Label(pivotPos, "Pivot");
+
+        // Draw the probe path and the origin sphere at the pivot
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(lastCastOrigin, r);
+        UnityEditor.Handles.Label(lastCastOrigin, $"Cast Origin (r={r:0.00})");
+        Gizmos.DrawLine(lastCastOrigin, lastCastOrigin + dir * castDist);
+
+        // Inside check at the true origin
+        bool startsInside = Physics.CheckSphere(lastCastOrigin, r, collisionMask, QueryTriggerInteraction.Ignore);
+        if (startsInside)
+        {
+            // Same color scheme, but origin-aligned
+            Gizmos.color = Color.green;                     // contact color
+            Gizmos.DrawWireSphere(lastCastOrigin, r);
+            Gizmos.color = new Color(1f, 0f, 0f, 0.35f);    // subtle red halo to denote "inside"
+            Gizmos.DrawWireSphere(lastCastOrigin, r * 1.05f);
+            UnityEditor.Handles.Label(lastCastOrigin + Vector3.up * 0.1f, "Starts INSIDE collider!");
+        }
+
+        // Sweep hit from the true origin
+        if (Physics.SphereCast(lastCastOrigin, r, dir, out var hit, castDist, collisionMask, QueryTriggerInteraction.Ignore))
+        {
+            Vector3 hitCenter = lastCastOrigin + dir * hit.distance;
+            Gizmos.color = Color.green;         // "contact" color
+            Gizmos.DrawWireSphere(hitCenter, r);
+            Gizmos.DrawSphere(hit.point, 0.02f);
+
+            Gizmos.color = Color.magenta;       // normal
+            Gizmos.DrawLine(hit.point, hit.point + hit.normal * 0.25f);
+            UnityEditor.Handles.Label(hit.point + hit.normal * 0.1f, $"HIT d={hit.distance:0.###}");
+        }
+
+        // Current boom (actual camera)
+        Gizmos.color = Color.blue;
+        Vector3 cameraPos = pivotPos + dir * currentBoom;
+        Gizmos.DrawLine(pivotPos, cameraPos);
+        Gizmos.DrawWireSphere(cameraPos, 0.05f);
+        UnityEditor.Handles.Label(cameraPos, $"Current Boom {currentBoom:F2}");
     }
-
-    // Sweep hit from the true origin
-    if (Physics.SphereCast(castOrigin, r, dir, out var hit, castDist, collisionMask, QueryTriggerInteraction.Ignore))
-    {
-        Vector3 hitCenter = castOrigin + dir * hit.distance;
-        Gizmos.color = Color.green;         // "contact" color
-        Gizmos.DrawWireSphere(hitCenter, r);
-        Gizmos.DrawSphere(hit.point, 0.02f);
-
-        Gizmos.color = Color.magenta;       // normal
-        Gizmos.DrawLine(hit.point, hit.point + hit.normal * 0.25f);
-        UnityEditor.Handles.Label(hit.point + hit.normal * 0.1f, $"HIT d={hit.distance:0.###}");
-    }
-
-    // Current boom (actual camera)
-    Gizmos.color = Color.blue;
-    Vector3 cameraPos = pivotPos + dir * currentBoom;
-    Gizmos.DrawLine(pivotPos, cameraPos);
-    Gizmos.DrawWireSphere(cameraPos, 0.05f);
-    UnityEditor.Handles.Label(cameraPos, $"Current Boom {currentBoom:F2}");
-}
-
-
 #endif
 }
