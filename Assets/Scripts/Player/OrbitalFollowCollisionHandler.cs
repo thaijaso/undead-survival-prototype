@@ -362,13 +362,15 @@ public class OrbitalFollowCollision : CinemachineExtension
         if (Physics.SphereCast(lastCastOrigin, r, dir, out var hit, castDist, collisionMask, QueryTriggerInteraction.Ignore))
         {
             Vector3 hitCenter = lastCastOrigin + dir * hit.distance;
-            Gizmos.color = Color.green;         // "contact" color
-            Gizmos.DrawWireSphere(hitCenter, r);
-            Gizmos.DrawSphere(hit.point, 0.02f);
+            Vector3 contactSurface = hitCenter - hit.normal * sphereCastRadius;
 
-            Gizmos.color = Color.magenta;       // normal
-            Gizmos.DrawLine(hit.point, hit.point + hit.normal * 0.25f);
-            UnityEditor.Handles.Label(hit.point + hit.normal * 0.1f, $"HIT d={hit.distance:0.###}");
+            Gizmos.color = Color.green;   // center at impact
+            Gizmos.DrawWireSphere(hitCenter, sphereCastRadius);
+
+            Gizmos.color = Color.cyan;    // actual wall contact point
+            Gizmos.DrawSphere(contactSurface, 0.025f);
+            
+            UnityEditor.Handles.Label(hit.point, $"hit.distance={hit.distance:0.###}");
         }
 
         // Current boom (actual camera)
