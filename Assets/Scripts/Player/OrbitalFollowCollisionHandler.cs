@@ -307,59 +307,70 @@ public class OrbitalFollowCollision : CinemachineExtension
         correctedPosition = pivotPosition + useDirection * currentBoom;
     }
 
-#if UNITY_EDITOR
+
     // ───────────────────────────── Gizmos ─────────────────────────────
-    void OnDrawGizmosSelected()
+#if UNITY_EDITOR
+void OnDrawGizmosSelected()
+{
+    if (!enabled) return;
+    if (orbitalFollow == null) orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
+    if (orbitalFollow == null) return;
+
+    // Use the live runtime values if available; fall back to transform if needed
+    Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
+    Vector3 dir = (useDirection != Vector3.zero)
+        ? useDirection
+        : ((transform.position - pivotPos).sqrMagnitude > 1e-6f ? (transform.position - pivotPos).normalized : Vector3.back);
+    float castDist = Mathf.Max(currentBoom, 0.001f); // visualize current reach (use maxBoom if you prefer full preview)
+    float r = sphereCastRadius;
+
+    // Pivot marker
+    Gizmos.color = Color.cyan;
+    Gizmos.DrawSphere(pivotPos, 0.03f);
+    UnityEditor.Handles.Label(pivotPos, "Pivot");
+
+    // Cast origin = PIVOT (matches the real SphereCast origin)
+    Vector3 castOrigin = pivotPos;
+
+    // Draw the probe path and the origin sphere at the pivot
+    Gizmos.color = Color.yellow;
+    Gizmos.DrawWireSphere(castOrigin, r);
+    UnityEditor.Handles.Label(castOrigin, $"Cast Origin (r={r:0.00})");
+    Gizmos.DrawLine(castOrigin, castOrigin + dir * castDist);
+
+    // Inside check at the true origin
+    bool startsInside = Physics.CheckSphere(castOrigin, r, collisionMask, QueryTriggerInteraction.Ignore);
+    if (startsInside)
     {
-        if (!enabled) return;
-        if (orbitalFollow == null) orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
-        if (orbitalFollow == null) return;
-
-        var vcam = GetComponent<CinemachineCamera>();
-        if (vcam == null) return;
-
-        Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
-        Vector3 castOrigin = pivotPos + useDirection;
-        float castDist = currentBoom;
-
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawSphere(pivotPos, 0.03f);
-        UnityEditor.Handles.Label(pivotPos, "Pivot");
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(castOrigin, sphereCastRadius);
-        UnityEditor.Handles.Label(castOrigin, $"Cast Origin (r={sphereCastRadius:0.00})");
-
-        Gizmos.color = Color.white;
-        Gizmos.DrawLine(castOrigin, castOrigin + useDirection * castDist);
-
-        bool startsInside = Physics.CheckSphere(castOrigin, sphereCastRadius, collisionMask, QueryTriggerInteraction.Ignore);
-        if (startsInside)
-        {   
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(castOrigin, sphereCastRadius);
-            Gizmos.color = new Color(1f, 0f, 0f, 0.35f); // subtle red halo
-            Gizmos.DrawWireSphere(castOrigin, sphereCastRadius * 1.05f);
-            UnityEditor.Handles.Label(castOrigin + Vector3.up * 0.1f, "Starts INSIDE collider!");
-        }
-
-        if (Physics.SphereCast(castOrigin, sphereCastRadius, useDirection, out var hit, castDist, collisionMask, QueryTriggerInteraction.Ignore))
-        {
-            Vector3 hitCenter = castOrigin + useDirection * hit.distance;
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(hitCenter, sphereCastRadius);
-            Gizmos.DrawSphere(hit.point, 0.02f);
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawLine(hit.point, hit.point + hit.normal * 0.25f);
-            UnityEditor.Handles.Label(hit.point + hit.normal * 0.1f, $"HIT d={hit.distance:0.###}");
-        }
-
-        // Draw current boom line
-        Gizmos.color = Color.blue;
-        Vector3 cameraPos = pivotPos + useDirection * currentBoom;
-        Gizmos.DrawLine(pivotPos, cameraPos);
-        Gizmos.DrawWireSphere(cameraPos, 0.05f);
-        UnityEditor.Handles.Label(cameraPos, $"Current Boom {currentBoom:F2}");
+        // Same color scheme, but origin-aligned
+        Gizmos.color = Color.green;                     // contact color
+        Gizmos.DrawWireSphere(castOrigin, r);
+        Gizmos.color = new Color(1f, 0f, 0f, 0.35f);    // subtle red halo to denote "inside"
+        Gizmos.DrawWireSphere(castOrigin, r * 1.05f);
+        UnityEditor.Handles.Label(castOrigin + Vector3.up * 0.1f, "Starts INSIDE collider!");
     }
+
+    // Sweep hit from the true origin
+    if (Physics.SphereCast(castOrigin, r, dir, out var hit, castDist, collisionMask, QueryTriggerInteraction.Ignore))
+    {
+        Vector3 hitCenter = castOrigin + dir * hit.distance;
+        Gizmos.color = Color.green;         // "contact" color
+        Gizmos.DrawWireSphere(hitCenter, r);
+        Gizmos.DrawSphere(hit.point, 0.02f);
+
+        Gizmos.color = Color.magenta;       // normal
+        Gizmos.DrawLine(hit.point, hit.point + hit.normal * 0.25f);
+        UnityEditor.Handles.Label(hit.point + hit.normal * 0.1f, $"HIT d={hit.distance:0.###}");
+    }
+
+    // Current boom (actual camera)
+    Gizmos.color = Color.blue;
+    Vector3 cameraPos = pivotPos + dir * currentBoom;
+    Gizmos.DrawLine(pivotPos, cameraPos);
+    Gizmos.DrawWireSphere(cameraPos, 0.05f);
+    UnityEditor.Handles.Label(cameraPos, $"Current Boom {currentBoom:F2}");
+}
+
+
 #endif
 }
