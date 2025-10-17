@@ -752,12 +752,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2117321311155262169, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1748634993}
-    - targetCorrespondingSourceObject: {fileID: 2117321311155262169, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1748634994}
-    - targetCorrespondingSourceObject: {fileID: 2117321311155262169, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1748634995}
   m_SourcePrefab: {fileID: 100100000, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
 --- !u!1 &919306329 stripped
 GameObject:
@@ -1071,11 +1065,6 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!4 &1544322648 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8601410752257101139, guid: 84e96bbb0430bff4588700eb1fc0621a, type: 3}
-  m_PrefabInstance: {fileID: 607781232}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1615746157
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2857,53 +2846,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40c6d0d31960a3c4ca5e0a17e69fe056, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrbitalFollowCollisionHandler
-  showDebug: 0
+  showDebug: 1
   collisionMask:
     serializedVersion: 2
     m_Bits: 65536
-  sphereCastRadius: 0.3
+  sphereCastRadius: 0.4
   useSphereCast: 1
   minBoom: 0.1
   maxBoom: 2
   boomSmooth: 12
   wallBackoff: 0.2
   sweepSamples: 3
-  castOffset: -0.1
---- !u!114 &1748634994
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1748634985}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfd18b57e8fc1c44caf6f0325c45f24c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CameraCollisionTest
-  mask:
-    serializedVersion: 2
-    m_Bits: 65536
-  radius: 0.3
-  distance: 5
---- !u!114 &1748634995
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1748634985}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15dcef217b8b3ff46804e0583153d680, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  mask:
-    serializedVersion: 2
-    m_Bits: 65536
-  target: {fileID: 1544322648}
-  radius: 0.3
-  distance: 5
+  lastCastOrigin: {x: -0.09099175, y: 1.515, z: 0.455967}
+  lastHitPoint: {x: 0, y: 0, z: 0}
+  lastHitNormal: {x: 0, y: 0, z: 0}
+  lastHadHit: 0
+  insideHit: 0
+  startSkin: 0
+  backoffStep: 0
+  maxBackoffIters: 4
+  debugEveryNFrames: 10
 --- !u!1001 &2077296751
 PrefabInstance:
   m_ObjectHideFlags: 0
