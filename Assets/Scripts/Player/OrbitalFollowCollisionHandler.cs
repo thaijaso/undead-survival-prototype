@@ -8,6 +8,7 @@ public class OrbitalFollowCollision : CinemachineExtension
 {
     [Header("Debug")]
     public bool showDebug = true;
+    public bool showHUD = true; // ✅ Toggle for the on-screen debug overlay
 
     [Header("Collision")]
     public LayerMask collisionMask;
@@ -25,7 +26,7 @@ public class OrbitalFollowCollision : CinemachineExtension
     private CinemachineOrbitalFollow orbitalFollow;
     private Vector3 desiredPosition;
     private Vector3 correctedPosition;
-    private Vector3 useDirection;
+
     private Vector3 previousDirection;
     private bool didAnyProbesHit;
     private Vector3 pivotPosition;
@@ -47,6 +48,7 @@ public class OrbitalFollowCollision : CinemachineExtension
     {
         base.Awake();
         orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
+        correctedPosition = transform.position; // ✅ safe fallback
     }
 
     protected override void PostPipelineStageCallback(
@@ -72,8 +74,10 @@ public class OrbitalFollowCollision : CinemachineExtension
             return;
         }
 
+        float dt = Mathf.Max(0.0001f, deltaTime);
         pivotPosition = orbitalFollow.FollowTargetPosition;
         desiredPosition = state.RawPosition;
+
         Vector3 probeDirection = (desiredPosition - pivotPosition).sqrMagnitude > 1e-6f
             ? (desiredPosition - pivotPosition).normalized
             : (previousDirection == Vector3.zero ? Vector3.back : previousDirection);
@@ -86,12 +90,10 @@ public class OrbitalFollowCollision : CinemachineExtension
         }
 
         didAnyProbesHit = false;
-        useDirection = probeDirection;
         previousDirection = probeDirection;
 
-        HandleBoom(deltaTime);
+        HandleBoom(dt);
 
-        // Apply final position
         state.RawPosition = correctedPosition;
     }
 
@@ -101,10 +103,6 @@ public class OrbitalFollowCollision : CinemachineExtension
     private void HandleBoom(float deltaTime)
     {
         hadContact = false;
-
-        // --------------------------------------------------------------------
-        // --- PHASE 1: Quick probe before main collision logic ---------------
-        // --------------------------------------------------------------------
         didAnyProbesHit = false;
         bool nearbyCollision = false;
 
@@ -119,15 +117,20 @@ public class OrbitalFollowCollision : CinemachineExtension
 
         bool pivotInside = Physics.CheckSphere(pivotPosition, sphereCastRadius * 0.75f, collisionMask, QueryTriggerInteraction.Ignore);
         if (pivotInside)
-        {
             nearbyCollision = true;
-        }
 
         if (showDebug)
         {
             Color c = nearbyCollision ? (pivotInside ? Color.red : Color.yellow) : Color.gray;
             Debug.DrawRay(pivotPosition, probeDir * maxBoom, c);
             Debug.Log($"[ProbePhase] nearby={nearbyCollision} inside={pivotInside} didAnyProbesHit={didAnyProbesHit}");
+        }
+
+        if (pivotInside)
+        {
+            correctedPosition = pivotPosition - probeDir * (sphereCastRadius + wallBackoff);
+            currentBoom = minBoom;
+            return;
         }
 
         if (!nearbyCollision)
@@ -139,16 +142,11 @@ public class OrbitalFollowCollision : CinemachineExtension
             return;
         }
 
-        // --------------------------------------------------------------------
-        // --- PHASE 2: Main collision handling -------------------------------
-        // --------------------------------------------------------------------
-
         Vector3 dir = probeDir;
         float startOffset = sphereCastRadius + startSkin + backoffStep;
         lastCastOrigin = pivotPosition - dir * startOffset;
         float castDist = maxBoom + startOffset + 0.05f;
 
-        // Ensure start not inside
         for (int i = 0; i < 3; i++)
         {
             if (!Physics.CheckSphere(lastCastOrigin, sphereCastRadius, collisionMask, QueryTriggerInteraction.Ignore))
@@ -156,22 +154,23 @@ public class OrbitalFollowCollision : CinemachineExtension
             lastCastOrigin -= dir * (sphereCastRadius * 0.25f);
         }
 
-        // --- Perform main cast ---
+        RaycastHit hit;
         bool gotHit = useSphereCast
-            ? Physics.SphereCast(lastCastOrigin, sphereCastRadius, dir, out RaycastHit hit, castDist, collisionMask, QueryTriggerInteraction.Ignore)
+            ? Physics.SphereCast(lastCastOrigin, sphereCastRadius, dir, out hit, castDist, collisionMask, QueryTriggerInteraction.Ignore)
             : Physics.Raycast(lastCastOrigin, dir, out hit, castDist, collisionMask, QueryTriggerInteraction.Ignore);
 
         if (gotHit)
         {
             Debug.DrawRay(hit.point, hit.normal * 0.3f, Color.magenta);
-            Debug.Log($"[Cast HIT] {hit.collider.name} dist={hit.distance:0.###} normal={hit.normal}");
+            if (showDebug)
+                Debug.Log($"[Cast HIT] {hit.collider.name} dist={hit.distance:0.###} normal={hit.normal}");
 
-            // Compute target distance with radius and wallBackoff
             Vector3 contactPoint = hit.point + hit.normal * (sphereCastRadius + wallBackoff);
             float contactDist = Mathf.Max(minBoom, Vector3.Distance(pivotPosition, contactPoint));
             float contractedTarget = Mathf.Clamp(contactDist, minBoom, maxBoom);
 
-            Debug.Log($"[Boom Contract] contactDist={contactDist:0.###} → target={contractedTarget:0.###}");
+            if (showDebug)
+                Debug.Log($"[Boom Contract] contactDist={contactDist:0.###} → target={contractedTarget:0.###}");
 
             currentBoom = Mathf.Lerp(currentBoom, contractedTarget, deltaTime * boomSmooth * 4f);
             hadContact = true;
@@ -182,10 +181,10 @@ public class OrbitalFollowCollision : CinemachineExtension
         else
         {
             lastHadHit = false;
-            Debug.Log("[Cast MISS]");
+            if (showDebug)
+                Debug.Log("[Cast MISS]");
         }
 
-        // --- Expansion logic ---
         if (!gotHit)
         {
             float expandedTarget = Mathf.Clamp(maxBoom, minBoom, maxBoom);
@@ -194,14 +193,15 @@ public class OrbitalFollowCollision : CinemachineExtension
 
         currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
         correctedPosition = pivotPosition + dir * currentBoom;
-        Debug.DrawLine(pivotPosition, correctedPosition, Color.blue);
+        Debug.DrawLine(pivotPosition, correctedPosition, hadContact ? Color.red : Color.blue);
     }
 
-    private Color GetDebugColor(bool nearbyCollision, bool hadContact)
+    private Color GetDebugColor()
     {
-        if (hadContact) return Color.Lerp(Color.yellow, Color.red, 0.6f);   // collision → warm red
-        if (nearbyCollision) return Color.Lerp(Color.yellow, Color.white, 0.4f); // near wall → pale yellow
-        return Color.Lerp(Color.yellow, Color.gray, 0.7f);                 // open space → faded gray
+        if (lastHadHit) return Color.red;
+        if (hadContact) return Color.yellow;
+        if (didAnyProbesHit) return Color.white;
+        return Color.gray;
     }
 
 #if UNITY_EDITOR
@@ -216,7 +216,7 @@ public class OrbitalFollowCollision : CinemachineExtension
         Gizmos.color = Color.cyan;
         Gizmos.DrawSphere(pivotPos, 0.025f);
 
-        Color fadeCol = GetDebugColor(didAnyProbesHit, hadContact);
+        Color fadeCol = GetDebugColor();
         Gizmos.color = fadeCol;
         Gizmos.DrawWireSphere(lastCastOrigin, sphereCastRadius);
         UnityEditor.Handles.Label(lastCastOrigin, "Cast Origin");
@@ -232,6 +232,25 @@ public class OrbitalFollowCollision : CinemachineExtension
         Gizmos.color = Color.blue;
         Gizmos.DrawSphere(correctedPosition, 0.03f);
         UnityEditor.Handles.Label(correctedPosition, "Camera Position");
+
+        // ✅ HUD Overlay (Scene View only)
+        if (showHUD)
+        {
+            string state = lastHadHit ? "Contracting" : (didAnyProbesHit ? "Probing" : "Free");
+            Color textColor = lastHadHit ? Color.red :
+                              (didAnyProbesHit ? new Color(1f, 0.9f, 0.3f) : Color.cyan);
+
+            Vector3 hudPos = pivotPos + Vector3.up * 0.25f;
+            float percent = (currentBoom / maxBoom) * 100f;
+            string hudText = $"State: {state}\n" +
+                             $"Boom: {currentBoom:0.00}/{maxBoom:0.00} ({percent:0.#}%)\n";
+
+            if (lastHadHit)
+                hudText += $"Hit: {lastHitPoint.magnitude:0.00} → {lastHitPoint}";
+
+            UnityEditor.Handles.color = textColor;
+            UnityEditor.Handles.Label(hudPos, hudText);
+        }
     }
 #endif
 }
