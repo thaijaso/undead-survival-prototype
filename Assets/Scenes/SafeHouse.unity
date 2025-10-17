@@ -2847,25 +2847,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrbitalFollowCollisionHandler
   showDebug: 1
+  showHUD: 1
   collisionMask:
     serializedVersion: 2
     m_Bits: 65536
-  sphereCastRadius: 0.4
+  sphereCastRadius: 0.341
   useSphereCast: 1
   minBoom: 0.1
-  maxBoom: 2
+  maxBoom: 1.6
   boomSmooth: 12
   wallBackoff: 0.2
-  sweepSamples: 3
+  startSkin: 0
+  backoffStep: 0
   lastCastOrigin: {x: -0.09099175, y: 1.515, z: 0.455967}
   lastHitPoint: {x: 0, y: 0, z: 0}
   lastHitNormal: {x: 0, y: 0, z: 0}
   lastHadHit: 0
-  insideHit: 0
-  startSkin: 0
-  backoffStep: 0
-  maxBackoffIters: 4
-  debugEveryNFrames: 10
 --- !u!1001 &2077296751
 PrefabInstance:
   m_ObjectHideFlags: 0

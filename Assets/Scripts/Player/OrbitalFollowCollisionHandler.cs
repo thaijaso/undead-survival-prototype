@@ -12,7 +12,7 @@ public class OrbitalFollowCollision : CinemachineExtension
 
     [Header("Collision")]
     public LayerMask collisionMask;
-    [Range(0.05f, 1f)] public float sphereCastRadius = 0.35f;
+    [Range(0.05f, 1f), HideInInspector] public float sphereCastRadius = 0.341f;
     public bool useSphereCast = true;
 
     [Header("Boom Settings")]
@@ -44,6 +44,10 @@ public class OrbitalFollowCollision : CinemachineExtension
     public Vector3 lastHitNormal;
     public bool lastHadHit;
 
+    private float prevBoom;
+    private string boomState = "Free";
+
+
     protected override void Awake()
     {
         base.Awake();
@@ -74,6 +78,14 @@ public class OrbitalFollowCollision : CinemachineExtension
             return;
         }
 
+        if (stage == CinemachineCore.Stage.Body)
+        {
+            Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
+            Vector3 camPos   = state.GetFinalPosition();
+
+            Debug.DrawLine(pivotPos, camPos, Color.green);
+        }
+
         float dt = Mathf.Max(0.0001f, deltaTime);
         pivotPosition = orbitalFollow.FollowTargetPosition;
         desiredPosition = state.RawPosition;
@@ -85,6 +97,7 @@ public class OrbitalFollowCollision : CinemachineExtension
         if (!initialized)
         {
             currentBoom = maxBoom;
+            prevBoom = currentBoom;
             previousDirection = probeDirection;
             initialized = true;
         }
@@ -100,100 +113,160 @@ public class OrbitalFollowCollision : CinemachineExtension
     // -----------------------------------------------------------------------
     // MAIN LOGIC
     // -----------------------------------------------------------------------
-    private void HandleBoom(float deltaTime)
+private void HandleBoom(float deltaTime)
+{
+    hadContact = false;
+    didAnyProbesHit = false;
+
+    //--------------------------------------------------------------------
+    // 1️⃣ Direction: pivot → camera
+    //--------------------------------------------------------------------
+    Vector3 offset = desiredPosition - pivotPosition;
+    Vector3 dir = offset.sqrMagnitude > 1e-6f
+        ? offset.normalized
+        : (previousDirection == Vector3.zero ? -transform.forward : previousDirection);
+    previousDirection = dir;
+
+    //--------------------------------------------------------------------
+    // 2️⃣ Define cast origin (behind pivot, toward camera)
+    //--------------------------------------------------------------------
+    float originBackoff = Mathf.Max(sphereCastRadius * 0.5f, sphereCastRadius + startSkin + backoffStep);
+    lastCastOrigin = pivotPosition + dir * originBackoff; // ✅ behind pivot now
+
+    bool nearbyCollision = false;
+
+    //--------------------------------------------------------------------
+    // 3️⃣ Quick proximity probes
+    //--------------------------------------------------------------------
+    if (Physics.CheckSphere(pivotPosition + dir * (maxBoom * 0.5f),
+        sphereCastRadius * 1.25f, collisionMask, QueryTriggerInteraction.Ignore))
     {
-        hadContact = false;
-        didAnyProbesHit = false;
-        bool nearbyCollision = false;
+        nearbyCollision = true;
+        didAnyProbesHit = true;
+    }
 
-        Vector3 probeDir = (desiredPosition - pivotPosition).normalized;
+    bool pivotInside = Physics.CheckSphere(pivotPosition, sphereCastRadius * 0.75f,
+        collisionMask, QueryTriggerInteraction.Ignore);
+    if (pivotInside) nearbyCollision = true;
 
-        if (Physics.CheckSphere(pivotPosition + probeDir * (maxBoom * 0.5f),
-            sphereCastRadius * 1.25f, collisionMask, QueryTriggerInteraction.Ignore))
-        {
-            nearbyCollision = true;
-            didAnyProbesHit = true;
-        }
+    if (showDebug)
+    {
+        Color c = nearbyCollision ? (pivotInside ? Color.red : Color.yellow) : Color.gray;
+        Debug.DrawRay(pivotPosition, dir * maxBoom, c);
+    }
 
-        bool pivotInside = Physics.CheckSphere(pivotPosition, sphereCastRadius * 0.75f, collisionMask, QueryTriggerInteraction.Ignore);
-        if (pivotInside)
-            nearbyCollision = true;
+    //--------------------------------------------------------------------
+    // 4️⃣ If pivot starts inside geometry
+    //--------------------------------------------------------------------
+    if (pivotInside)
+    {
+        correctedPosition = pivotPosition - dir * (sphereCastRadius + wallBackoff);
+        currentBoom = minBoom;
+        UpdateBoomState();
+        return;
+    }
+
+    //--------------------------------------------------------------------
+    // 5️⃣ Free space: expand or stabilize
+    //--------------------------------------------------------------------
+    if (!nearbyCollision)
+    {
+        float desiredLen = Mathf.Clamp(Vector3.Distance(pivotPosition, desiredPosition), minBoom, maxBoom);
+        currentBoom = Mathf.Lerp(currentBoom, desiredLen, deltaTime * boomSmooth * 0.5f);
+        correctedPosition = pivotPosition + dir * currentBoom;
+        Debug.DrawLine(pivotPosition, correctedPosition, Color.blue);
+        UpdateBoomState();
+        return;
+    }
+
+    //--------------------------------------------------------------------
+    // 6️⃣ Main collision cast (origin hugs pivot)
+    //--------------------------------------------------------------------
+    float startOffset = sphereCastRadius * 0.5f;   // ✅ keep cast origin very close to pivot
+    lastCastOrigin = pivotPosition - dir * startOffset;  // ✅ now hugs pivot (pivot → camera direction)
+    float castDist = maxBoom + startOffset + 0.05f;
+
+    // If the origin happens to start inside geometry, nudge it slightly backward
+    for (int i = 0; i < 3; i++)
+    {
+        if (!Physics.CheckSphere(lastCastOrigin, sphereCastRadius, collisionMask, QueryTriggerInteraction.Ignore))
+            break;
+        lastCastOrigin -= dir * (sphereCastRadius * 0.25f);
+    }
+
+    //--------------------------------------------------------------------
+    // 7️⃣ Sphere cast for obstacles
+    //--------------------------------------------------------------------
+    RaycastHit hit;
+    bool gotHit = useSphereCast
+        ? Physics.SphereCast(lastCastOrigin, sphereCastRadius, dir, out hit, castDist, collisionMask, QueryTriggerInteraction.Ignore)
+        : Physics.Raycast(lastCastOrigin, dir, out hit, castDist, collisionMask, QueryTriggerInteraction.Ignore);
+
+    if (gotHit)
+    {
+        Debug.DrawRay(hit.point, hit.normal * 0.3f, Color.magenta);
+
+        Vector3 contactPoint = hit.point + hit.normal * (sphereCastRadius + wallBackoff);
+        float contactDist = Mathf.Max(minBoom, Vector3.Distance(pivotPosition, contactPoint));
+        float contractedTarget = Mathf.Clamp(contactDist, minBoom, maxBoom);
 
         if (showDebug)
-        {
-            Color c = nearbyCollision ? (pivotInside ? Color.red : Color.yellow) : Color.gray;
-            Debug.DrawRay(pivotPosition, probeDir * maxBoom, c);
-            Debug.Log($"[ProbePhase] nearby={nearbyCollision} inside={pivotInside} didAnyProbesHit={didAnyProbesHit}");
-        }
+            Debug.Log($"[Boom Contract] hit={hit.collider.name} contactDist={contactDist:0.###} target={contractedTarget:0.###}");
 
-        if (pivotInside)
-        {
-            correctedPosition = pivotPosition - probeDir * (sphereCastRadius + wallBackoff);
-            currentBoom = minBoom;
-            return;
-        }
+        currentBoom = Mathf.Lerp(currentBoom, contractedTarget, deltaTime * boomSmooth * 4f);
+        hadContact = true;
+        lastHitPoint = hit.point;
+        lastHitNormal = hit.normal;
+        lastHadHit = true;
+    }
+    else
+    {
+        lastHadHit = false;
+        if (showDebug)
+            Debug.Log("[Cast MISS]");
+    }
 
-        if (!nearbyCollision)
-        {
-            float desiredLen = Mathf.Clamp(Vector3.Distance(pivotPosition, desiredPosition), minBoom, maxBoom);
-            currentBoom = Mathf.Lerp(currentBoom, desiredLen, deltaTime * boomSmooth * 0.5f);
-            correctedPosition = pivotPosition + probeDir * currentBoom;
-            Debug.DrawLine(pivotPosition, correctedPosition, Color.blue);
-            return;
-        }
+    //--------------------------------------------------------------------
+    // 8️⃣ Expansion (if no collision)
+    //--------------------------------------------------------------------
+    if (!gotHit)
+    {
+        float expandedTarget = Mathf.Clamp(maxBoom, minBoom, maxBoom);
+        currentBoom = Mathf.Lerp(currentBoom, expandedTarget, deltaTime * boomSmooth * 0.5f);
+    }
 
-        Vector3 dir = probeDir;
-        float startOffset = sphereCastRadius + startSkin + backoffStep;
-        lastCastOrigin = pivotPosition - dir * startOffset;
-        float castDist = maxBoom + startOffset + 0.05f;
+    //--------------------------------------------------------------------
+    // 9️⃣ Final clamp + position update
+    //--------------------------------------------------------------------
+    currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
+    correctedPosition = pivotPosition + dir * currentBoom;
+    Debug.DrawLine(pivotPosition, correctedPosition, hadContact ? Color.red : Color.blue);
 
-        for (int i = 0; i < 3; i++)
-        {
-            if (!Physics.CheckSphere(lastCastOrigin, sphereCastRadius, collisionMask, QueryTriggerInteraction.Ignore))
-                break;
-            lastCastOrigin -= dir * (sphereCastRadius * 0.25f);
-        }
+    UpdateBoomState();
+}
 
-        RaycastHit hit;
-        bool gotHit = useSphereCast
-            ? Physics.SphereCast(lastCastOrigin, sphereCastRadius, dir, out hit, castDist, collisionMask, QueryTriggerInteraction.Ignore)
-            : Physics.Raycast(lastCastOrigin, dir, out hit, castDist, collisionMask, QueryTriggerInteraction.Ignore);
 
-        if (gotHit)
-        {
-            Debug.DrawRay(hit.point, hit.normal * 0.3f, Color.magenta);
-            if (showDebug)
-                Debug.Log($"[Cast HIT] {hit.collider.name} dist={hit.distance:0.###} normal={hit.normal}");
 
-            Vector3 contactPoint = hit.point + hit.normal * (sphereCastRadius + wallBackoff);
-            float contactDist = Mathf.Max(minBoom, Vector3.Distance(pivotPosition, contactPoint));
-            float contractedTarget = Mathf.Clamp(contactDist, minBoom, maxBoom);
 
-            if (showDebug)
-                Debug.Log($"[Boom Contract] contactDist={contactDist:0.###} → target={contractedTarget:0.###}");
 
-            currentBoom = Mathf.Lerp(currentBoom, contractedTarget, deltaTime * boomSmooth * 4f);
-            hadContact = true;
-            lastHitPoint = hit.point;
-            lastHitNormal = hit.normal;
-            lastHadHit = true;
-        }
+
+
+
+
+    private void UpdateBoomState()
+    {
+        // --- Update boom state ---
+        float diff = currentBoom - prevBoom;
+        float eps = 0.001f; // small tolerance
+
+        if (Mathf.Abs(diff) <= eps)
+            boomState = "Stable";
+        else if (diff < 0f)
+            boomState = "Contracting";
         else
-        {
-            lastHadHit = false;
-            if (showDebug)
-                Debug.Log("[Cast MISS]");
-        }
+            boomState = "Expanding";
 
-        if (!gotHit)
-        {
-            float expandedTarget = Mathf.Clamp(maxBoom, minBoom, maxBoom);
-            currentBoom = Mathf.Lerp(currentBoom, expandedTarget, deltaTime * boomSmooth * 0.5f);
-        }
-
-        currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
-        correctedPosition = pivotPosition + dir * currentBoom;
-        Debug.DrawLine(pivotPosition, correctedPosition, hadContact ? Color.red : Color.blue);
+        prevBoom = currentBoom;
     }
 
     private Color GetDebugColor()
@@ -236,9 +309,12 @@ public class OrbitalFollowCollision : CinemachineExtension
         // ✅ HUD Overlay (Scene View only)
         if (showHUD)
         {
-            string state = lastHadHit ? "Contracting" : (didAnyProbesHit ? "Probing" : "Free");
-            Color textColor = lastHadHit ? Color.red :
-                              (didAnyProbesHit ? new Color(1f, 0.9f, 0.3f) : Color.cyan);
+            string state = boomState;
+            Color textColor =
+                state == "Contracting" ? Color.red :
+                state == "Expanding"   ? Color.green :
+                Color.cyan;
+
 
             Vector3 hudPos = pivotPos + Vector3.up * 0.25f;
             float percent = (currentBoom / maxBoom) * 100f;
