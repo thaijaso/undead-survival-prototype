@@ -22,27 +22,15 @@ public class OrbitalFollowCollision : CinemachineExtension
     [Tooltip("How far the camera stays off walls.")]
     public float wallBackoff = 0.2f;
 
-    [Header("Arc Sweep")]
-    [Range(0, 12)] public int sweepSamples = 3;
-
     private CinemachineOrbitalFollow orbitalFollow;
     private Vector3 desiredPosition;
     private Vector3 correctedPosition;
     private Vector3 useDirection;
     private Vector3 previousDirection;
     private bool didAnyProbesHit;
-    private float nearestDistance = float.PositiveInfinity;
     private Vector3 pivotPosition;
     private float currentBoom;
     private bool initialized;
-    private float insideCooldown;
-
-    private const int bufferSize = 4;
-    private readonly float[] distBuffer = new float[bufferSize];
-    private int bufferIndex;
-    private bool bufferFilled;
-
-    private Vector3 lastNormal;
     private bool hadContact;
 
     [Header("Offsets")]
@@ -54,11 +42,6 @@ public class OrbitalFollowCollision : CinemachineExtension
     public Vector3 lastHitPoint;
     public Vector3 lastHitNormal;
     public bool lastHadHit;
-
-    bool dbgGrazeActive;
-    Vector3 dbgGrazePos;
-    float dbgGrazeRadius;
-    Vector3 dbgGrazeLineA, dbgGrazeLineB;
 
     protected override void Awake()
     {
@@ -86,8 +69,6 @@ public class OrbitalFollowCollision : CinemachineExtension
             initialized = false;
             hadContact = false;
             previousDirection = Vector3.zero;
-            bufferFilled = false;
-            bufferIndex = 0;
             return;
         }
 
@@ -104,13 +85,11 @@ public class OrbitalFollowCollision : CinemachineExtension
             initialized = true;
         }
 
-        bool insideHit = Physics.CheckSphere(pivotPosition, sphereCastRadius, collisionMask);
         didAnyProbesHit = false;
-
         useDirection = probeDirection;
         previousDirection = probeDirection;
 
-        HandleBoom(deltaTime, false, insideHit);
+        HandleBoom(deltaTime);
 
         // Apply final position
         state.RawPosition = correctedPosition;
@@ -119,9 +98,8 @@ public class OrbitalFollowCollision : CinemachineExtension
     // -----------------------------------------------------------------------
     // MAIN LOGIC
     // -----------------------------------------------------------------------
-    private void HandleBoom(float deltaTime, bool effectiveHit, bool insideHit)
+    private void HandleBoom(float deltaTime)
     {
-        dbgGrazeActive = false;
         hadContact = false;
 
         // --------------------------------------------------------------------
@@ -131,7 +109,6 @@ public class OrbitalFollowCollision : CinemachineExtension
         bool nearbyCollision = false;
 
         Vector3 probeDir = (desiredPosition - pivotPosition).normalized;
-        float probeRange = maxBoom + sphereCastRadius;
 
         if (Physics.CheckSphere(pivotPosition + probeDir * (maxBoom * 0.5f),
             sphereCastRadius * 1.25f, collisionMask, QueryTriggerInteraction.Ignore))
@@ -143,7 +120,6 @@ public class OrbitalFollowCollision : CinemachineExtension
         bool pivotInside = Physics.CheckSphere(pivotPosition, sphereCastRadius * 0.75f, collisionMask, QueryTriggerInteraction.Ignore);
         if (pivotInside)
         {
-            insideHit = true;
             nearbyCollision = true;
         }
 
@@ -221,6 +197,13 @@ public class OrbitalFollowCollision : CinemachineExtension
         Debug.DrawLine(pivotPosition, correctedPosition, Color.blue);
     }
 
+    private Color GetDebugColor(bool nearbyCollision, bool hadContact)
+    {
+        if (hadContact) return Color.Lerp(Color.yellow, Color.red, 0.6f);   // collision → warm red
+        if (nearbyCollision) return Color.Lerp(Color.yellow, Color.white, 0.4f); // near wall → pale yellow
+        return Color.Lerp(Color.yellow, Color.gray, 0.7f);                 // open space → faded gray
+    }
+
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
@@ -233,7 +216,8 @@ public class OrbitalFollowCollision : CinemachineExtension
         Gizmos.color = Color.cyan;
         Gizmos.DrawSphere(pivotPos, 0.025f);
 
-        Gizmos.color = Color.yellow;
+        Color fadeCol = GetDebugColor(didAnyProbesHit, hadContact);
+        Gizmos.color = fadeCol;
         Gizmos.DrawWireSphere(lastCastOrigin, sphereCastRadius);
         UnityEditor.Handles.Label(lastCastOrigin, "Cast Origin");
 
