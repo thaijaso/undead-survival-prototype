@@ -12,7 +12,7 @@ public class OrbitalFollowCollision : CinemachineExtension
 
     [Header("Collision")]
     public LayerMask collisionMask;
-    [Range(0.05f, 1f), HideInInspector] public float sphereCastRadius = 0.341f;
+    [Range(0.05f, 1f)] public float sphereCastRadius = 0.4f;
     public bool useSphereCast = true;
 
     [Header("Boom Settings")]
@@ -160,15 +160,26 @@ public class OrbitalFollowCollision : CinemachineExtension
 
         // 🟡 Case 3: Probing (nearby collision but not yet in contact)
         // ✅ Sphere cast origin: start slightly BEHIND the pivot (toward camera)
-        float startOffset = sphereCastRadius + startSkin + backoffStep;
+        float startOffset = (sphereCastRadius * 2f) + startSkin + backoffStep;
+        Debug.DrawLine(lastCastOrigin, lastCastOrigin + dir * (maxBoom + sphereCastRadius), Color.red);
         lastCastOrigin = pivotPosition - dir * startOffset;
 
-        float castDist = maxBoom + startOffset + wallBackoff;
+        // visualize the actual cast path in scene
+        float debugDist = maxBoom + sphereCastRadius;
+        Vector3 debugEnd = lastCastOrigin + dir * debugDist;
+        Debug.DrawLine(lastCastOrigin, debugEnd, Color.red);
+        Debug.DrawRay(lastCastOrigin, dir * 0.1f, Color.blue);
+
+        // log the details so we can check distances
+        Debug.Log($"[Cast] origin={lastCastOrigin:F3}, startOffset={startOffset:F3}, castDist={debugDist:F3}");
+
+        float castDist = maxBoom + startOffset + wallBackoff + sphereCastRadius;
         RaycastHit hit;
 
         bool gotHit = useSphereCast
             ? Physics.SphereCast(lastCastOrigin, sphereCastRadius, dir, out hit, castDist, collisionMask, QueryTriggerInteraction.Ignore)
             : Physics.Raycast(lastCastOrigin, dir, out hit, castDist, collisionMask, QueryTriggerInteraction.Ignore);
+
 
         // Draw actual cast path
         if (showDebug)
@@ -176,13 +187,17 @@ public class OrbitalFollowCollision : CinemachineExtension
 
         if (gotHit)
         {
+            Debug.Log($"[Hit] dist={hit.distance:F3}, fromOrigin={Vector3.Distance(lastCastOrigin, hit.point):F3}");
             Debug.DrawRay(hit.point, hit.normal * 0.3f, Color.magenta);
             if (showDebug)
                 Debug.Log($"[Cast HIT] {hit.collider.name} dist={hit.distance:0.###}");
 
-            Vector3 contactPoint = hit.point + hit.normal * (sphereCastRadius + wallBackoff);
-            float contactDist = Mathf.Max(minBoom, Vector3.Distance(pivotPosition, contactPoint));
+            float rawHitDist = Mathf.Max(0f, hit.distance - startOffset);
+            float contactDist = Mathf.Max(minBoom, rawHitDist - wallBackoff);
             float contractedTarget = Mathf.Clamp(contactDist, minBoom, maxBoom);
+
+            // Optional debug
+            Debug.Log($"[HitDist] hit.distance={hit.distance:F3}, fromPivot={rawHitDist:F3}, contactDist={contactDist:F3}");
 
             currentBoom = Mathf.Lerp(currentBoom, contractedTarget, deltaTime * boomSmooth * 4f);
             hadContact = true;
