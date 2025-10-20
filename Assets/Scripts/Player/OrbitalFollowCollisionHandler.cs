@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using Unity.Cinemachine;
 
 [ExecuteAlways]
@@ -13,7 +14,6 @@ public class OrbitalFollowCollision : CinemachineExtension
     [Header("Collision")]
     public LayerMask collisionMask;
     [Range(0.05f, 1f)] public float sphereCastRadius = 0.4f;
-    public bool useSphereCast = true;
 
     [Header("Boom Settings")]
     public float minBoom = 0.5f;
@@ -21,7 +21,9 @@ public class OrbitalFollowCollision : CinemachineExtension
     [Tooltip("Smooth speed for boom contraction/expansion.")]
     public float boomSmooth = 14f;
     [Tooltip("How far the camera stays off walls.")]
-    public float wallBackoff = 0.2f;
+    public float wallBackoff = 0.3f;
+    [SerializeField, Range(0f, 60f), Tooltip("Whisker spread angle in degrees (tune: 10-25º typical).")]
+    private float spreadAngle = 25f;
 
     private CinemachineOrbitalFollow orbitalFollow;
     private Vector3 desiredPosition;
@@ -33,10 +35,6 @@ public class OrbitalFollowCollision : CinemachineExtension
     private float currentBoom;
     private bool initialized;
     private bool hadContact;
-
-    [Header("Offsets")]
-    [SerializeField, Range(0f, 0.3f)] private float startSkin = 0.05f;
-    [SerializeField, Range(0f, 0.5f)] private float backoffStep = 0.1f;
 
     // Debug fields
     public Vector3 lastCastOrigin;
@@ -115,107 +113,124 @@ public class OrbitalFollowCollision : CinemachineExtension
     {
         hadContact = false;
         didAnyProbesHit = false;
-        bool nearbyCollision = false;
 
+        // -------- Setup --------
         Vector3 dir = (desiredPosition - pivotPosition).normalized;
+        if (dir.sqrMagnitude < 1e-8f)
+            dir = previousDirection == Vector3.zero ? Vector3.back : previousDirection;
+        previousDirection = dir;
 
-        // ✅ Phase 1: Early proximity probe
-        if (Physics.CheckSphere(pivotPosition + dir * (maxBoom * 0.5f),
-            sphereCastRadius * 1.25f, collisionMask, QueryTriggerInteraction.Ignore))
-        {
-            nearbyCollision = true;
-            didAnyProbesHit = true;
-        }
+        float maxLen = maxBoom;
+        float nearestHit = maxLen;
+        bool gotHit = false;
 
-        bool pivotInside = Physics.CheckSphere(pivotPosition, sphereCastRadius * 0.75f,
-            collisionMask, QueryTriggerInteraction.Ignore);
-        if (pivotInside)
-            nearbyCollision = true;
+        // Early proximity check (cheap skip)
+        bool nearbyCollision = Physics.CheckSphere(
+            pivotPosition + dir * (maxLen * 0.5f),
+            sphereCastRadius,
+            collisionMask,
+            QueryTriggerInteraction.Ignore
+        );
 
-        if (showDebug)
-        {
-            Color c = nearbyCollision ? (pivotInside ? Color.red : Color.yellow) : Color.gray;
-            Debug.DrawRay(pivotPosition, dir * maxBoom, c);
-        }
-
-        // 🚨 Case 1: Pivot inside geometry
-        if (pivotInside)
-        {
-            correctedPosition = pivotPosition - dir * (sphereCastRadius + wallBackoff);
-            currentBoom = minBoom;
-            UpdateBoomState();
-            return;
-        }
-
-        // 🟢 Case 2: No nearby collision — free space
         if (!nearbyCollision)
         {
             float desiredLen = Mathf.Clamp(Vector3.Distance(pivotPosition, desiredPosition), minBoom, maxBoom);
             currentBoom = Mathf.Lerp(currentBoom, desiredLen, deltaTime * boomSmooth * 0.5f);
             correctedPosition = pivotPosition + dir * currentBoom;
-            Debug.DrawLine(pivotPosition, correctedPosition, Color.blue);
+            if (showDebug)
+                Debug.DrawLine(pivotPosition, correctedPosition, Color.blue);
             UpdateBoomState();
             return;
         }
 
-        // 🟡 Case 3: Probing (nearby collision but not yet in contact)
-        // ✅ Sphere cast origin: start slightly BEHIND the pivot (toward camera)
-        float startOffset = (sphereCastRadius * 2f) + startSkin + backoffStep;
-        Debug.DrawLine(lastCastOrigin, lastCastOrigin + dir * (maxBoom + sphereCastRadius), Color.red);
-        lastCastOrigin = pivotPosition - dir * startOffset;
+    // -------- Build whisker directions (center + 8) --------
+    // uses serialized `spreadAngle` (degrees)
+        Vector3 right = Vector3.Cross(Vector3.up, dir);
+        if (right.sqrMagnitude < 1e-6f)
+            right = Vector3.Cross(Vector3.forward, dir);
+        right.Normalize();
+        Vector3 up = Vector3.Cross(dir, right);
 
-        // visualize the actual cast path in scene
-        float debugDist = maxBoom + sphereCastRadius;
-        Vector3 debugEnd = lastCastOrigin + dir * debugDist;
-        Debug.DrawLine(lastCastOrigin, debugEnd, Color.red);
-        Debug.DrawRay(lastCastOrigin, dir * 0.1f, Color.blue);
-
-        // log the details so we can check distances
-        Debug.Log($"[Cast] origin={lastCastOrigin:F3}, startOffset={startOffset:F3}, castDist={debugDist:F3}");
-
-        float castDist = maxBoom + startOffset + wallBackoff + sphereCastRadius;
-        RaycastHit hit;
-
-        bool gotHit = useSphereCast
-            ? Physics.SphereCast(lastCastOrigin, sphereCastRadius, dir, out hit, castDist, collisionMask, QueryTriggerInteraction.Ignore)
-            : Physics.Raycast(lastCastOrigin, dir, out hit, castDist, collisionMask, QueryTriggerInteraction.Ignore);
-
-
-        // Draw actual cast path
-        if (showDebug)
-            Debug.DrawRay(lastCastOrigin, dir * maxBoom, gotHit ? Color.magenta : Color.white);
-
-        if (gotHit)
+        List<Vector3> whiskerDirs = new List<Vector3>(9) { dir };
+        for (int x = -1; x <= 1; x++)
+        for (int y = -1; y <= 1; y++)
         {
-            Debug.Log($"[Hit] dist={hit.distance:F3}, fromOrigin={Vector3.Distance(lastCastOrigin, hit.point):F3}");
-            Debug.DrawRay(hit.point, hit.normal * 0.3f, Color.magenta);
+            if (x == 0 && y == 0) continue;
+            Quaternion rot = Quaternion.AngleAxis(x * spreadAngle, up) * Quaternion.AngleAxis(y * spreadAngle, right);
+            whiskerDirs.Add((rot * dir).normalized);
+        }
+
+        Vector3 origin = pivotPosition;
+        float rayRange = maxLen + wallBackoff;
+
+        // Track nearest hit
+        bool hasNearest = false;
+        RaycastHit nearestInfo = default;
+
+        // -------- Fire whiskers --------
+        foreach (var d in whiskerDirs)
+        {
             if (showDebug)
-                Debug.Log($"[Cast HIT] {hit.collider.name} dist={hit.distance:0.###}");
+                Debug.DrawRay(origin, d * rayRange, new Color(0f, 1f, 1f, 0.25f));
 
-            float rawHitDist = Mathf.Max(0f, hit.distance - startOffset);
-            float contactDist = Mathf.Max(minBoom, rawHitDist - wallBackoff);
-            float contractedTarget = Mathf.Clamp(contactDist, minBoom, maxBoom);
+            if (Physics.Raycast(origin, d, out RaycastHit hit, rayRange, collisionMask, QueryTriggerInteraction.Ignore))
+            {
+                gotHit = true;
+                didAnyProbesHit = true;
 
-            // Optional debug
-            Debug.Log($"[HitDist] hit.distance={hit.distance:F3}, fromPivot={rawHitDist:F3}, contactDist={contactDist:F3}");
+                if (hit.distance < nearestHit)
+                {
+                    nearestHit = hit.distance;
+                    nearestInfo = hit;
+                    hasNearest = true;
+                }
 
-            currentBoom = Mathf.Lerp(currentBoom, contractedTarget, deltaTime * boomSmooth * 4f);
+                if (showDebug)
+                    Debug.Log($"[WHISKER HIT] {hit.collider.name} dist={hit.distance:F3}");
+            }
+        }
+
+        // -------- Apply results + magenta marker for nearest --------
+        if (gotHit && hasNearest)
+        {
+            float targetDist = Mathf.Clamp(nearestHit - wallBackoff, minBoom, maxBoom);
+            currentBoom = Mathf.Lerp(currentBoom, targetDist, deltaTime * boomSmooth * 4f);
+            correctedPosition = pivotPosition + dir * currentBoom;
             hadContact = true;
             lastHadHit = true;
-            lastHitPoint = hit.point;
-            lastHitNormal = hit.normal;
+            lastHitPoint = nearestInfo.point;
+            lastHitNormal = nearestInfo.normal;
+
+            if (showDebug)
+            {
+                Debug.DrawLine(pivotPosition, correctedPosition, Color.red);
+                Debug.Log($"[CONTRACT] nearest={nearestHit:F3}, boom={currentBoom:F3}");
+
+                // 🟣 Draw small magenta cross + normal at nearest hit
+                float size = 0.05f;
+                Vector3 p = nearestInfo.point;
+
+                Debug.DrawRay(p, nearestInfo.normal * 0.25f, Color.magenta, 0.5f); // normal
+                Debug.DrawLine(p + Vector3.up * size, p - Vector3.up * size, Color.magenta, 0.5f);
+                Debug.DrawLine(p + Vector3.right * size, p - Vector3.right * size, Color.magenta, 0.5f);
+                Debug.DrawLine(p + Vector3.forward * size, p - Vector3.forward * size, Color.magenta, 0.5f);
+            }
         }
         else
         {
             lastHadHit = false;
             float expandedTarget = Mathf.Clamp(maxBoom, minBoom, maxBoom);
             currentBoom = Mathf.Lerp(currentBoom, expandedTarget, deltaTime * boomSmooth * 0.5f);
+            correctedPosition = pivotPosition + dir * currentBoom;
+
+            if (showDebug)
+            {
+                Debug.DrawLine(pivotPosition, correctedPosition, Color.yellow);
+                Debug.Log("[FREE] expanding to full boom");
+            }
         }
 
         currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
-        correctedPosition = pivotPosition + dir * currentBoom;
-        Debug.DrawLine(pivotPosition, correctedPosition, hadContact ? Color.red : Color.yellow);
-
         UpdateBoomState();
     }
 
