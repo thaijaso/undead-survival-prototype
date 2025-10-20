@@ -5,7 +5,7 @@ using Unity.Cinemachine;
 [ExecuteAlways]
 [SaveDuringPlay]
 [AddComponentMenu("")]
-public class OrbitalFollowCollision : CinemachineExtension
+public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 {
     [Header("Debug")]
     public bool showDebug = true;
@@ -37,10 +37,10 @@ public class OrbitalFollowCollision : CinemachineExtension
     private bool hadContact;
 
     // Debug fields
-    public Vector3 lastCastOrigin;
-    public Vector3 lastHitPoint;
-    public Vector3 lastHitNormal;
-    public bool lastHadHit;
+    private Vector3 lastCastOrigin;
+    private Vector3 lastHitPoint;
+    private Vector3 lastHitNormal;
+    private bool lastHadHit;
 
     private float prevBoom;
     private string boomState = "Free";

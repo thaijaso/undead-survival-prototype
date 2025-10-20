@@ -535,18 +535,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 18483873282220745, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      propertyPath: Lens.FieldOfView
-      value: 35
-      objectReference: {fileID: 0}
-    - target: {fileID: 18483873282220745, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      propertyPath: Lens.FarClipPlane
-      value: 1000
-      objectReference: {fileID: 0}
-    - target: {fileID: 18483873282220745, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      propertyPath: Lens.NearClipPlane
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 18483873282220745, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: Target.TrackingTarget
       value: 
       objectReference: {fileID: 607781233}
@@ -555,20 +543,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2837556301741051919, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      propertyPath: Offset.x
-      value: 0.35
-      objectReference: {fileID: 0}
-    - target: {fileID: 2837556301741051919, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3162530004371618522, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_Name
       value: Cameras
-      objectReference: {fileID: 0}
-    - target: {fileID: 3323263748478920432, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      propertyPath: Radius
-      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3323263748478920432, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: RecenteringTarget
@@ -2855,16 +2835,12 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 128
-  sphereCastRadius: 0.5
+  sphereCastRadius: 0.45
   minBoom: 0.1
   maxBoom: 1.6
-  boomSmooth: 12
+  boomSmooth: 4
   wallBackoff: 0.5
-  spreadAngle: 20
-  lastCastOrigin: {x: -0.09099175, y: 1.515, z: 0.455967}
-  lastHitPoint: {x: 0, y: 0, z: 0}
-  lastHitNormal: {x: 0, y: 0, z: 0}
-  lastHadHit: 0
+  spreadAngle: 20.5
 --- !u!1001 &2077296751
 PrefabInstance:
   m_ObjectHideFlags: 0

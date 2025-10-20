@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 6931492403435051996}
   - component: {fileID: 5651643304536383461}
   - component: {fileID: 2313311480106592556}
-  - component: {fileID: 4126663186764552960}
   - component: {fileID: 5120934784439003418}
+  - component: {fileID: 4126663186764552960}
   - component: {fileID: 7450241212195067231}
   - component: {fileID: 124758245402961570}
   m_Layer: 3
@@ -62,10 +62,10 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 50
+    FieldOfView: 35
     OrthographicSize: 10
-    NearClipPlane: 0.3
-    FarClipPlane: 3000
+    NearClipPlane: 0.01
+    FarClipPlane: 1000
     Dutch: 0
     ModeOverride: 0
     PhysicalProperties:
@@ -101,7 +101,7 @@ MonoBehaviour:
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
   OrbitStyle: 0
-  Radius: 1.5
+  Radius: 2
   Orbits:
     Top:
       Radius: 2
@@ -173,6 +173,21 @@ MonoBehaviour:
     Time: 0
     Smoothing: 0
     IgnoreY: 0
+--- !u!114 &5120934784439003418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9012281070411443148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Offset: {x: 0.35, y: 0, z: 0}
+  ApplyAfter: 1
+  PreserveComposition: 0
 --- !u!114 &4126663186764552960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,21 +246,6 @@ MonoBehaviour:
         DecelTime: 0
   PlayerIndex: -1
   AutoEnableInputs: 1
---- !u!114 &5120934784439003418
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9012281070411443148}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Offset: {x: 0.5, y: 0, z: 0}
-  ApplyAfter: 1
-  PreserveComposition: 0
 --- !u!114 &7450241212195067231
 MonoBehaviour:
   m_ObjectHideFlags: 0
