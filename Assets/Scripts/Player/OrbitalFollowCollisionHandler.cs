@@ -147,22 +147,34 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 
         // -------- Build whisker directions (center + 8) --------
         // uses serialized `spreadAngle` (degrees)
-        Vector3 right = Vector3.Cross(Vector3.up, dir);
-        if (right.sqrMagnitude < 1e-6f)
-            right = Vector3.Cross(Vector3.forward, dir);
-        right.Normalize();
-        Vector3 up = Vector3.Cross(dir, right);
+        // Vector3 right = Vector3.Cross(Vector3.up, dir);
+        // if (right.sqrMagnitude < 1e-6f)
+        //     right = Vector3.Cross(Vector3.forward, dir);
+        // right.Normalize();
+        // Vector3 up = Vector3.Cross(dir, right);
 
-        List<Vector3> whiskerDirs = new List<Vector3>(9) { dir };
-        for (int x = -1; x <= 1; x++)
+        // List<Vector3> whiskerDirs = new List<Vector3>(9) { dir };
+        // for (int x = -1; x <= 1; x++)
+        // {
+        //     for (int y = -1; y <= 1; y++)
+        //     {
+        //         if (x == 0 && y == 0) continue;
+        //         Quaternion rot = Quaternion.AngleAxis(x * spreadAngle, up) * Quaternion.AngleAxis(y * spreadAngle, right);
+        //         whiskerDirs.Add((rot * dir).normalized);
+        //     }
+        // }
+        Vector3 right = Vector3.Cross(Vector3.up, dir).normalized;
+        Vector3 flatUp = Vector3.Cross(dir, right).normalized; // this is the local up plane
+
+        List<Vector3> whiskerDirs = new()
         {
-            for (int y = -1; y <= 1; y++)
-            {
-                if (x == 0 && y == 0) continue;
-                Quaternion rot = Quaternion.AngleAxis(x * spreadAngle, up) * Quaternion.AngleAxis(y * spreadAngle, right);
-                whiskerDirs.Add((rot * dir).normalized);
-            }
-        }
+            dir,
+            Quaternion.AngleAxis(-spreadAngle, flatUp) * dir,  // left
+            Quaternion.AngleAxis(spreadAngle,  flatUp) * dir,  // right
+            Quaternion.AngleAxis(-spreadAngle * 2f, flatUp) * dir,  // far left
+            Quaternion.AngleAxis(spreadAngle * 2f,  flatUp) * dir,  // far right
+        };
+
 
         Vector3 origin = pivotPosition;
         float rayRange = maxLen + wallBackoff;
