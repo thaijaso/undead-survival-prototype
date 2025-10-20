@@ -132,6 +132,8 @@ public class OrbitalFollowCollision : CinemachineExtension
             QueryTriggerInteraction.Ignore
         );
 
+        lastCastOrigin = pivotPosition + dir * (maxLen * 0.5f);
+
         if (!nearbyCollision)
         {
             float desiredLen = Mathf.Clamp(Vector3.Distance(pivotPosition, desiredPosition), minBoom, maxBoom);
@@ -143,8 +145,8 @@ public class OrbitalFollowCollision : CinemachineExtension
             return;
         }
 
-    // -------- Build whisker directions (center + 8) --------
-    // uses serialized `spreadAngle` (degrees)
+        // -------- Build whisker directions (center + 8) --------
+        // uses serialized `spreadAngle` (degrees)
         Vector3 right = Vector3.Cross(Vector3.up, dir);
         if (right.sqrMagnitude < 1e-6f)
             right = Vector3.Cross(Vector3.forward, dir);
@@ -153,11 +155,13 @@ public class OrbitalFollowCollision : CinemachineExtension
 
         List<Vector3> whiskerDirs = new List<Vector3>(9) { dir };
         for (int x = -1; x <= 1; x++)
-        for (int y = -1; y <= 1; y++)
         {
-            if (x == 0 && y == 0) continue;
-            Quaternion rot = Quaternion.AngleAxis(x * spreadAngle, up) * Quaternion.AngleAxis(y * spreadAngle, right);
-            whiskerDirs.Add((rot * dir).normalized);
+            for (int y = -1; y <= 1; y++)
+            {
+                if (x == 0 && y == 0) continue;
+                Quaternion rot = Quaternion.AngleAxis(x * spreadAngle, up) * Quaternion.AngleAxis(y * spreadAngle, right);
+                whiskerDirs.Add((rot * dir).normalized);
+            }
         }
 
         Vector3 origin = pivotPosition;
@@ -187,6 +191,11 @@ public class OrbitalFollowCollision : CinemachineExtension
 
                 if (showDebug)
                     Debug.Log($"[WHISKER HIT] {hit.collider.name} dist={hit.distance:F3}");
+            }
+            else
+            {
+                if (showDebug)
+                    Debug.DrawRay(origin, d * rayRange, Color.white);
             }
         }
 
@@ -265,22 +274,21 @@ public class OrbitalFollowCollision : CinemachineExtension
         Gizmos.DrawSphere(pivotPos, 0.025f);
         UnityEditor.Handles.Label(pivotPos, "Pivot");
 
-        // --- Cast origin ---
-        bool showOrigin = didAnyProbesHit || hadContact || lastHadHit;
-        if (showOrigin)
-        {
-            Color originCol =
-                lastHadHit ? Color.yellow :
-                hadContact ? Color.yellow :
-                didAnyProbesHit ? new Color(1f, 1f, 1f, 0.7f) :
-                new Color(0.8f, 0.8f, 0.8f, 0.4f);
+        // --- Always draw Cast Origin (fallback if we don't have a runtime value yet) ---
+        // If we're in play mode and we have a valid lastCastOrigin, use it.
+        // Otherwise, preview the origin at the pivot (safe + matches ray origin in your whiskers code).
+        Vector3 previewDir = (correctedPosition - pivotPos);
+        if (previewDir.sqrMagnitude < 1e-6f) previewDir = -transform.forward; // editor fallback
+        previewDir.Normalize();
 
-            Gizmos.color = originCol;
-            Gizmos.DrawWireSphere(lastCastOrigin, sphereCastRadius);
-            UnityEditor.Handles.Label(lastCastOrigin, "Cast Origin");
-        }
+        bool hasRuntimeOrigin = Application.isPlaying && lastCastOrigin != default;
+        Vector3 castOrigin = hasRuntimeOrigin ? lastCastOrigin : pivotPos; // whiskers ray origin = pivot
 
-        // --- Contact ---
+        Gizmos.color = new Color(0.95f, 0.95f, 0.95f, 0.8f);
+        Gizmos.DrawWireSphere(castOrigin, sphereCastRadius);
+        UnityEditor.Handles.Label(castOrigin, "CheckSphere Cast Origin");
+
+        // --- Contact marker (draw if we have one) ---
         if (lastHadHit)
         {
             Gizmos.color = Color.magenta;
@@ -319,3 +327,4 @@ public class OrbitalFollowCollision : CinemachineExtension
     }
 #endif
 }
+

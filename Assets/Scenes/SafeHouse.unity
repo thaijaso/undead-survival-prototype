@@ -134,7 +134,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &238167701
 Transform:
   m_ObjectHideFlags: 0
@@ -2854,13 +2854,13 @@ MonoBehaviour:
   showHUD: 1
   collisionMask:
     serializedVersion: 2
-    m_Bits: 65536
-  sphereCastRadius: 0.4
+    m_Bits: 128
+  sphereCastRadius: 0.5
   minBoom: 0.1
   maxBoom: 1.6
   boomSmooth: 12
   wallBackoff: 0.5
-  spreadAngle: 25
+  spreadAngle: 20
   lastCastOrigin: {x: -0.09099175, y: 1.515, z: 0.455967}
   lastHitPoint: {x: 0, y: 0, z: 0}
   lastHitNormal: {x: 0, y: 0, z: 0}
