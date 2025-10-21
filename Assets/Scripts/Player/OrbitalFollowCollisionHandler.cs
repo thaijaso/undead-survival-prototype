@@ -35,6 +35,9 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     public float offsetSmooth = 8f;
     private float currentOffsetX;
 
+    [SerializeField]
+    private float hysteresis = 0.05f;
+    private float lastNearestHitDist = float.PositiveInfinity;
 
     private CinemachineOrbitalFollow orbitalFollow;
     private CinemachineCameraOffset cameraOffset;
@@ -47,6 +50,8 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     private float currentBoom;
     private bool initialized;
     private bool hadContact;
+
+    
 
     // Debug fields
     private Vector3 lastHitPoint;
@@ -160,12 +165,12 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         RaycastHit nearestInfo = default;
 
         // -------- Fire whiskers --------
-        foreach (var d in whiskerDirs)
+        foreach (var whiskerDirection in whiskerDirs)
         {
             if (showDebug)
-                Debug.DrawRay(origin, d * rayRange, new Color(0f, 1f, 1f, 0.25f));
+                Debug.DrawRay(origin, whiskerDirection * rayRange, new Color(0f, 1f, 1f, 0.25f));
 
-            if (Physics.Raycast(origin, d, out RaycastHit hit, rayRange, collisionMask, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(origin, whiskerDirection, out RaycastHit hit, rayRange, collisionMask, QueryTriggerInteraction.Ignore))
             {
                 gotHit = true;
                 didAnyProbesHit = true;
@@ -183,13 +188,24 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             else
             {
                 if (showDebug)
-                    Debug.DrawRay(origin, d * rayRange, Color.white);
+                {
+                    Debug.Log("[WHISKER MISS]");
+                    Debug.DrawRay(origin, whiskerDirection * rayRange, Color.white);
+                }
+
             }
-        }
+        } 
 
         // -------- Apply results + magenta marker for nearest --------
         if (gotHit && hasNearest)
         {
+            if (nearestHit > lastNearestHitDist + hysteresis)
+            {
+                nearestHit = lastNearestHitDist; // hold expansion
+            }
+            
+            lastNearestHitDist = nearestHit;
+            
             float targetDist = Mathf.Clamp(nearestHit - wallBackoff, minBoom, maxBoom);
             currentBoom = Mathf.Lerp(currentBoom, targetDist, deltaTime * boomSmooth * 4f);
             correctedPosition = pivotPosition + dir * currentBoom;
@@ -201,7 +217,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             if (showDebug)
             {
                 Debug.DrawLine(pivotPosition, correctedPosition, Color.red);
-                Debug.Log($"[CONTRACT] nearest={nearestHit:F3}, boom={currentBoom:F3}");
+                Debug.Log($"[CONTRACT] nearestHit={nearestHit:F3}, lastNearestHitDist={lastNearestHitDist:F3}, boom={currentBoom:F3}");
 
                 // 🟣 Draw small magenta cross + normal at nearest hit
                 float size = 0.05f;
@@ -215,6 +231,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         }
         else
         {
+            lastNearestHitDist = float.PositiveInfinity;
             lastHadHit = false;
             float expandedTarget = Mathf.Clamp(maxBoom, minBoom, maxBoom);
             currentBoom = Mathf.Lerp(currentBoom, expandedTarget, deltaTime * boomSmooth * 0.5f);
