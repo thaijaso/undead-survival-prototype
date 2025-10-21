@@ -13,7 +13,6 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 
     [Header("Collision")]
     public LayerMask collisionMask;
-    [Range(0.05f, 1f)] public float sphereCastRadius = 0.4f;
 
     [Header("Boom Settings")]
     public float minBoom = 0.5f;
@@ -25,7 +24,20 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     [SerializeField, Range(0f, 60f), Tooltip("Whisker spread angle in degrees (tune: 10-25º typical).")]
     private float spreadAngle = 25f;
 
+    [Header("Camera Offset")]
+    [Tooltip("Base camera offset (X = side, Y = vertical). Usually 0.5 on X for right shoulder.")]
+    public float maxOffsetX = 0.5f;
+    
+    [Tooltip("Minimum camera offset (X) when close to walls.")]
+    public float minOffsetX = 0.25f;
+
+    [Tooltip("How quickly the camera recenters in tight spaces.")]
+    public float offsetSmooth = 8f;
+    private float currentOffsetX;
+
+
     private CinemachineOrbitalFollow orbitalFollow;
+    private CinemachineCameraOffset cameraOffset;
     private Vector3 desiredPosition;
     private Vector3 correctedPosition;
 
@@ -37,9 +49,9 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     private bool hadContact;
 
     // Debug fields
-    private Vector3 lastCastOrigin;
     private Vector3 lastHitPoint;
     private Vector3 lastHitNormal;
+    private Vector3 lastSafeContact;
     private bool lastHadHit;
 
     private float prevBoom;
@@ -49,7 +61,9 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     {
         base.Awake();
         orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
+        cameraOffset = GetComponent<CinemachineCameraOffset>();
         correctedPosition = transform.position; // safe fallback
+        maxOffsetX = cameraOffset.Offset.x;
     }
 
     protected override void PostPipelineStageCallback(
@@ -124,45 +138,6 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         float nearestHit = maxLen;
         bool gotHit = false;
 
-        // Early proximity check (cheap skip)
-        bool nearbyCollision = Physics.CheckSphere(
-            pivotPosition + dir * (maxLen * 0.5f),
-            sphereCastRadius,
-            collisionMask,
-            QueryTriggerInteraction.Ignore
-        );
-
-        lastCastOrigin = pivotPosition + dir * (maxLen * 0.5f);
-
-        if (!nearbyCollision)
-        {
-            float desiredLen = Mathf.Clamp(Vector3.Distance(pivotPosition, desiredPosition), minBoom, maxBoom);
-            currentBoom = Mathf.Lerp(currentBoom, desiredLen, deltaTime * boomSmooth * 0.5f);
-            correctedPosition = pivotPosition + dir * currentBoom;
-            if (showDebug)
-                Debug.DrawLine(pivotPosition, correctedPosition, Color.blue);
-            UpdateBoomState();
-            return;
-        }
-
-        // -------- Build whisker directions (center + 8) --------
-        // uses serialized `spreadAngle` (degrees)
-        // Vector3 right = Vector3.Cross(Vector3.up, dir);
-        // if (right.sqrMagnitude < 1e-6f)
-        //     right = Vector3.Cross(Vector3.forward, dir);
-        // right.Normalize();
-        // Vector3 up = Vector3.Cross(dir, right);
-
-        // List<Vector3> whiskerDirs = new List<Vector3>(9) { dir };
-        // for (int x = -1; x <= 1; x++)
-        // {
-        //     for (int y = -1; y <= 1; y++)
-        //     {
-        //         if (x == 0 && y == 0) continue;
-        //         Quaternion rot = Quaternion.AngleAxis(x * spreadAngle, up) * Quaternion.AngleAxis(y * spreadAngle, right);
-        //         whiskerDirs.Add((rot * dir).normalized);
-        //     }
-        // }
         Vector3 right = Vector3.Cross(Vector3.up, dir).normalized;
         Vector3 flatUp = Vector3.Cross(dir, right).normalized; // this is the local up plane
 
@@ -176,7 +151,8 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         };
 
 
-        Vector3 origin = pivotPosition;
+        Vector3 camRight = Vector3.Cross(dir, Vector3.up).normalized;
+        Vector3 origin = pivotPosition + camRight * currentOffsetX * 0.5f; 
         float rayRange = maxLen + wallBackoff;
 
         // Track nearest hit
@@ -253,6 +229,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 
         currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
         UpdateBoomState();
+        UpdateCameraOffset(deltaTime);
     }
 
     private void UpdateBoomState()
@@ -268,6 +245,20 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             boomState = "Expanding";
 
         prevBoom = currentBoom;
+    }
+
+
+    private void UpdateCameraOffset(float deltaTime)
+    {
+        // Dynamic X Offset (centers camera in tight spaces)
+        float proximity = Mathf.InverseLerp(maxBoom, minBoom, currentBoom); // 0 = far, 1 = close
+        float targetOffsetX = Mathf.Lerp(maxOffsetX, minOffsetX, proximity);
+        currentOffsetX = Mathf.Lerp(currentOffsetX, targetOffsetX, deltaTime * offsetSmooth);
+
+        if (cameraOffset != null)
+        {
+            cameraOffset.Offset.x = currentOffsetX;
+        }
     }
 
 #if UNITY_EDITOR
@@ -286,27 +277,19 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         Gizmos.DrawSphere(pivotPos, 0.025f);
         UnityEditor.Handles.Label(pivotPos, "Pivot");
 
-        // --- Always draw Cast Origin (fallback if we don't have a runtime value yet) ---
-        // If we're in play mode and we have a valid lastCastOrigin, use it.
-        // Otherwise, preview the origin at the pivot (safe + matches ray origin in your whiskers code).
-        Vector3 previewDir = (correctedPosition - pivotPos);
-        if (previewDir.sqrMagnitude < 1e-6f) previewDir = -transform.forward; // editor fallback
-        previewDir.Normalize();
-
-        bool hasRuntimeOrigin = Application.isPlaying && lastCastOrigin != default;
-        Vector3 castOrigin = hasRuntimeOrigin ? lastCastOrigin : pivotPos; // whiskers ray origin = pivot
-
-        Gizmos.color = new Color(0.95f, 0.95f, 0.95f, 0.8f);
-        Gizmos.DrawWireSphere(castOrigin, sphereCastRadius);
-        UnityEditor.Handles.Label(castOrigin, "CheckSphere Cast Origin");
-
         // --- Contact marker (draw if we have one) ---
         if (lastHadHit)
         {
+            // (a) Raw hit (optional, faint)
+            Gizmos.color = new Color(1f, 1f, 1f, 0.35f);
+            Gizmos.DrawWireSphere(lastHitPoint, 0.035f);
+            UnityEditor.Handles.Label(lastHitPoint + Vector3.up * 0.02f, "Raw Hit");
+            
+            // (b) Safe contact used by solver (primary)
             Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(lastHitPoint, 0.05f);
-            Gizmos.DrawRay(lastHitPoint, lastHitNormal * 0.3f);
-            UnityEditor.Handles.Label(lastHitPoint, "Contact");
+            Gizmos.DrawWireSphere(lastSafeContact, 0.05f);
+            Gizmos.DrawRay(lastSafeContact, lastHitNormal * 0.3f);
+            UnityEditor.Handles.Label(lastSafeContact, "Safe Contact");
         }
 
         // --- Final camera position ---

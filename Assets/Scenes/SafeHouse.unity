@@ -650,17 +650,9 @@ PrefabInstance:
       propertyPath: Target.TrackingTarget
       value: 
       objectReference: {fileID: 607781233}
-    - target: {fileID: 2837556301741051919, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      propertyPath: Offset.x
-      value: 0.5
-      objectReference: {fileID: 0}
     - target: {fileID: 3162530004371618522, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_Name
       value: Cameras
-      objectReference: {fileID: 0}
-    - target: {fileID: 4221287555448168086, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.51261
       objectReference: {fileID: 0}
     - target: {fileID: 6108030970037480437, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.x
@@ -703,16 +695,36 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      propertyPath: minBoom
-      value: 0.3
+      propertyPath: maxBoom
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: showHUD
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+      propertyPath: boomSmooth
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+      propertyPath: minOffsetX
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      propertyPath: collisionMask.m_Bits
-      value: 65664
+      propertyPath: spreadAngle
+      value: 9.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+      propertyPath: wallBackoff
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+      propertyPath: offsetSmooth
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+      propertyPath: sphereCastRadius
+      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
