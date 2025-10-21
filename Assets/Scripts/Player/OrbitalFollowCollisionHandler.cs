@@ -19,11 +19,18 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     public float maxBoom = 2f;
     [Tooltip("Smooth speed for boom contraction/expansion.")]
     public float boomSmooth = 14f;
+    
+    
+    [Header("Whisker Settings")]
     [Tooltip("How far the camera stays off walls.")]
     public float wallBackoff = 0.3f;
+    
     [SerializeField, Range(0f, 60f), Tooltip("Whisker spread angle in degrees (tune: 10-25º typical).")]
     private float spreadAngle = 25f;
 
+    [SerializeField]
+    private float whiskerRadius = 0.04f;
+    
     [Header("Camera Offset")]
     [Tooltip("Base camera offset (X = side, Y = vertical). Usually 0.5 on X for right shoulder.")]
     public float maxOffsetX = 0.5f;
@@ -38,6 +45,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     [SerializeField]
     private float hysteresis = 0.05f;
     private float lastNearestHitDist = float.PositiveInfinity;
+
 
     private CinemachineOrbitalFollow orbitalFollow;
     private CinemachineCameraOffset cameraOffset;
@@ -170,7 +178,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             if (showDebug)
                 Debug.DrawRay(origin, whiskerDirection * rayRange, new Color(0f, 1f, 1f, 0.25f));
 
-            if (Physics.Raycast(origin, whiskerDirection, out RaycastHit hit, rayRange, collisionMask, QueryTriggerInteraction.Ignore))
+            if (Physics.SphereCast(origin, whiskerRadius, whiskerDirection, out RaycastHit hit, rayRange, collisionMask, QueryTriggerInteraction.Ignore))
             {
                 gotHit = true;
                 didAnyProbesHit = true;
@@ -189,10 +197,8 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             {
                 if (showDebug)
                 {
-                    Debug.Log("[WHISKER MISS]");
                     Debug.DrawRay(origin, whiskerDirection * rayRange, Color.white);
                 }
-
             }
         } 
 
@@ -205,8 +211,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             }
             
             lastNearestHitDist = nearestHit;
-            
-            float targetDist = Mathf.Clamp(nearestHit - wallBackoff, minBoom, maxBoom);
+            float targetDist = Mathf.Clamp(lastNearestHitDist - wallBackoff, minBoom, maxBoom);
             currentBoom = Mathf.Lerp(currentBoom, targetDist, deltaTime * boomSmooth * 4f);
             correctedPosition = pivotPosition + dir * currentBoom;
             hadContact = true;
