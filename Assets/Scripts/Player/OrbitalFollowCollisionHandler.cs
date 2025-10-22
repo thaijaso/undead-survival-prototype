@@ -2,6 +2,13 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 
+// -----------------------------------------------------------------------------
+// CinemachineOrbitalCollisionHandler — ANTI-JITTER BUILD
+//  - Adds re-entry hysteresis (prevents fast Free/Contracting toggles)
+//  - Adds smooth fade when hits are lost (temporal stability)
+//  - Optional soft low-pass on target
+//  - GUI safely isolated in OnDrawGizmos()
+// -----------------------------------------------------------------------------
 [ExecuteAlways]
 [SaveDuringPlay]
 [AddComponentMenu("")]
@@ -10,6 +17,8 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     [Header("Debug")]
     public bool showDebug = true;
     public bool showHUD = true;
+    [Tooltip("Print event-driven logs when something meaningful changes.")]
+    public bool verboseLogs = true;
 
     [Header("Collision")]
     public LayerMask collisionMask;
@@ -19,329 +28,263 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     public float maxBoom = 2f;
     [Tooltip("Smooth speed for boom contraction/expansion.")]
     public float boomSmooth = 14f;
-    
-    
+
     [Header("Whisker Settings")]
     [Tooltip("How far the camera stays off walls.")]
     public float wallBackoff = 0.3f;
-    
-    [SerializeField, Range(0f, 60f), Tooltip("Whisker spread angle in degrees (tune: 10-25º typical).")]
-    private float spreadAngle = 25f;
+    [SerializeField, Range(0f, 60f)] private float spreadAngle = 25f;
+    [SerializeField] private float whiskerRadius = 0.04f;
 
-    [SerializeField]
-    private float whiskerRadius = 0.04f;
-    
     [Header("Camera Offset")]
-    [Tooltip("Base camera offset (X = side, Y = vertical). Usually 0.5 on X for right shoulder.")]
     public float maxOffsetX = 0.5f;
-    
-    [Tooltip("Minimum camera offset (X) when close to walls.")]
     public float minOffsetX = 0.25f;
-
-    [Tooltip("How quickly the camera recenters in tight spaces.")]
     public float offsetSmooth = 8f;
+
+    [Header("Stability")]
+    [Tooltip("Frames to keep last hit alive before expanding when rays miss.")]
+    public int missFrameHold = 6; // was 3
+    [Tooltip("Ignore hit distance changes smaller than this (meters).")]
+    public float distanceEpsilon = 0.03f;
+    [Tooltip("Additional hysteresis on re-expansion (meters).")]
+    public float hysteresis = 0.1f; // was 0.05f
+
     private float currentOffsetX;
-
-    [SerializeField]
-    private float hysteresis = 0.05f;
     private float lastNearestHitDist = float.PositiveInfinity;
-
 
     private CinemachineOrbitalFollow orbitalFollow;
     private CinemachineCameraOffset cameraOffset;
     private Vector3 desiredPosition;
     private Vector3 correctedPosition;
-
     private Vector3 previousDirection;
-    private bool didAnyProbesHit;
     private Vector3 pivotPosition;
+
     private float currentBoom;
     private bool initialized;
-    private bool hadContact;
 
-    
+    private enum BoomState { Free, Hold, Contracting }
+    private BoomState state = BoomState.Free;
+    private int missFrames = 0;
 
-    // Debug fields
-    private Vector3 lastHitPoint;
-    private Vector3 lastHitNormal;
-    private Vector3 lastSafeContact;
-    private bool lastHadHit;
+    private readonly float[] _hitBuf = new float[3];
+    private int _hitCount = 0;
 
-    private float prevBoom;
-    private string boomState = "Free";
+    private struct LogSnap { public BoomState state; public float boom; public float target; public float nearest; public int miss; }
+    private LogSnap lastLog;
 
     protected override void Awake()
     {
         base.Awake();
         orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
         cameraOffset = GetComponent<CinemachineCameraOffset>();
-        correctedPosition = transform.position; // safe fallback
-        maxOffsetX = cameraOffset.Offset.x;
+        correctedPosition = transform.position;
+        if (cameraOffset != null) maxOffsetX = cameraOffset.Offset.x;
+        lastLog = new LogSnap { state = (BoomState)999, boom = -999f, target = -999f, nearest = -999f, miss = -999 };
     }
 
     protected override void PostPipelineStageCallback(
         CinemachineVirtualCameraBase vcam,
         CinemachineCore.Stage stage,
-        ref CameraState state,
+        ref CameraState stateArg,
         float deltaTime)
     {
-        if (stage != CinemachineCore.Stage.Body)
-            return;
-
-        if (orbitalFollow == null)
-        {
-            Debug.LogWarning("OrbitalFollowCollision requires CinemachineOrbitalFollow on the same GameObject.");
-            return;
-        }
+        if (stage != CinemachineCore.Stage.Body) return;
+        if (orbitalFollow == null) return;
 
         if (deltaTime < 0f)
         {
             initialized = false;
-            hadContact = false;
             previousDirection = Vector3.zero;
+            state = BoomState.Free;
+            missFrames = 0;
+            lastNearestHitDist = float.PositiveInfinity;
+            _hitCount = 0;
             return;
-        }
-
-        if (stage == CinemachineCore.Stage.Body)
-        {
-            Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
-            Vector3 camPos = state.GetFinalPosition();
-            Debug.DrawLine(pivotPos, camPos, Color.green);
         }
 
         float dt = Mathf.Max(0.0001f, deltaTime);
         pivotPosition = orbitalFollow.FollowTargetPosition;
-        desiredPosition = state.RawPosition;
+        desiredPosition = stateArg.RawPosition;
 
-        Vector3 probeDirection = (desiredPosition - pivotPosition).sqrMagnitude > 1e-6f
+        Vector3 probeDir = (desiredPosition - pivotPosition).sqrMagnitude > 1e-6f
             ? (desiredPosition - pivotPosition).normalized
             : (previousDirection == Vector3.zero ? Vector3.back : previousDirection);
+        if (!probeDir.IsFinite()) probeDir = Vector3.back;
 
         if (!initialized)
         {
             currentBoom = maxBoom;
-            prevBoom = currentBoom;
-            previousDirection = probeDirection;
+            previousDirection = probeDir;
             initialized = true;
         }
 
-        didAnyProbesHit = false;
-        previousDirection = probeDirection;
-
+        previousDirection = probeDir;
         HandleBoom(dt);
 
-        state.RawPosition = correctedPosition;
+        if (!correctedPosition.IsFinite())
+            correctedPosition = pivotPosition + previousDirection * maxBoom;
+
+        stateArg.RawPosition = correctedPosition;
     }
 
-    // -----------------------------------------------------------------------
-    // MAIN LOGIC
-    // -----------------------------------------------------------------------
     private void HandleBoom(float deltaTime)
     {
-        hadContact = false;
-        didAnyProbesHit = false;
-
-        // -------- Setup --------
         Vector3 dir = (desiredPosition - pivotPosition).normalized;
-        if (dir.sqrMagnitude < 1e-8f)
+        if (dir.sqrMagnitude < 1e-8f || !dir.IsFinite())
             dir = previousDirection == Vector3.zero ? Vector3.back : previousDirection;
         previousDirection = dir;
 
-        float maxLen = maxBoom;
-        float nearestHit = maxLen;
-        bool gotHit = false;
+        float rayRange = maxBoom + wallBackoff;
 
+        // Whisker fan setup
         Vector3 right = Vector3.Cross(Vector3.up, dir).normalized;
-        Vector3 flatUp = Vector3.Cross(dir, right).normalized; // this is the local up plane
-
+        Vector3 flatUp = Vector3.Cross(dir, right).normalized;
         List<Vector3> whiskerDirs = new()
         {
             dir,
-            Quaternion.AngleAxis(-spreadAngle, flatUp) * dir,  // left
-            Quaternion.AngleAxis(spreadAngle,  flatUp) * dir,  // right
-            Quaternion.AngleAxis(-spreadAngle * 2f, flatUp) * dir,  // far left
-            Quaternion.AngleAxis(spreadAngle * 2f,  flatUp) * dir,  // far right
+            Quaternion.AngleAxis(-spreadAngle, flatUp) * dir,
+            Quaternion.AngleAxis(spreadAngle,  flatUp) * dir,
+            Quaternion.AngleAxis(-spreadAngle * 2f, flatUp) * dir,
+            Quaternion.AngleAxis(spreadAngle * 2f,  flatUp) * dir,
         };
 
-
         Vector3 camRight = Vector3.Cross(dir, Vector3.up).normalized;
-        Vector3 origin = pivotPosition + camRight * currentOffsetX * 0.5f; 
-        float rayRange = maxLen + wallBackoff;
+        Vector3 origin = pivotPosition + camRight * currentOffsetX * 0.5f;
 
-        // Track nearest hit
-        bool hasNearest = false;
+        bool gotHit = false;
+        float nearestRaw = float.PositiveInfinity;
         RaycastHit nearestInfo = default;
 
-        // -------- Fire whiskers --------
-        foreach (var whiskerDirection in whiskerDirs)
+        for (int i = 0; i < whiskerDirs.Count; i++)
         {
-            if (showDebug)
-                Debug.DrawRay(origin, whiskerDirection * rayRange, new Color(0f, 1f, 1f, 0.25f));
-
-            if (Physics.SphereCast(origin, whiskerRadius, whiskerDirection, out RaycastHit hit, rayRange, collisionMask, QueryTriggerInteraction.Ignore))
+            Vector3 wdir = whiskerDirs[i];
+            if (Physics.SphereCast(origin, whiskerRadius, wdir, out RaycastHit hit, rayRange, collisionMask, QueryTriggerInteraction.Ignore))
             {
                 gotHit = true;
-                didAnyProbesHit = true;
-
-                if (hit.distance < nearestHit)
+                if (hit.distance < nearestRaw)
                 {
-                    nearestHit = hit.distance;
+                    nearestRaw = hit.distance;
                     nearestInfo = hit;
-                    hasNearest = true;
                 }
+                if (showDebug) Debug.DrawLine(origin, hit.point, Color.red);
+            }
+            else if (showDebug) Debug.DrawRay(origin, wdir * rayRange, Color.white);
+        }
 
-                if (showDebug)
-                    Debug.Log($"[WHISKER HIT] {hit.collider.name} dist={hit.distance:F3}");
+        float nearestFiltered = lastNearestHitDist;
+        if (gotHit && float.IsFinite(nearestRaw))
+        {
+            PushHit(nearestRaw);
+            nearestFiltered = Median3();
+            if (Mathf.Abs(nearestFiltered - lastNearestHitDist) < distanceEpsilon)
+                nearestFiltered = lastNearestHitDist;
+            lastNearestHitDist = nearestFiltered;
+        }
+
+        float target = maxBoom;
+        BoomState prevState = state;
+
+        if (gotHit && float.IsFinite(nearestFiltered))
+        {
+            missFrames = 0;
+            state = BoomState.Contracting;
+            target = Mathf.Clamp(nearestFiltered - wallBackoff, minBoom, maxBoom);
+        }
+        else
+        {
+            // --- Anti-jitter: hold for hysteresis period before freeing ---
+            missFrames++;
+
+            float hitConfidence = Mathf.Clamp01(1f - missFrames / (float)missFrameHold);
+            float blendedNearest = Mathf.Lerp(maxBoom, lastNearestHitDist, hitConfidence);
+
+            if (state != BoomState.Free)
+                state = BoomState.Hold;
+
+            if (missFrames >= missFrameHold && currentBoom >= lastNearestHitDist + hysteresis)
+            {
+                state = BoomState.Free;
+                target = maxBoom;
+                _hitCount = 0;
+                lastNearestHitDist = float.PositiveInfinity;
             }
             else
             {
-                if (showDebug)
-                {
-                    Debug.DrawRay(origin, whiskerDirection * rayRange, Color.white);
-                }
-            }
-        } 
-
-        // -------- Apply results + magenta marker for nearest --------
-        if (gotHit && hasNearest)
-        {
-            if (nearestHit > lastNearestHitDist + hysteresis)
-            {
-                nearestHit = lastNearestHitDist; // hold expansion
-            }
-            
-            lastNearestHitDist = nearestHit;
-            float targetDist = Mathf.Clamp(lastNearestHitDist - wallBackoff, minBoom, maxBoom);
-            currentBoom = Mathf.Lerp(currentBoom, targetDist, deltaTime * boomSmooth * 4f);
-            correctedPosition = pivotPosition + dir * currentBoom;
-            hadContact = true;
-            lastHadHit = true;
-            lastHitPoint = nearestInfo.point;
-            lastHitNormal = nearestInfo.normal;
-
-            if (showDebug)
-            {
-                Debug.DrawLine(pivotPosition, correctedPosition, Color.red);
-                Debug.Log($"[CONTRACT] nearestHit={nearestHit:F3}, lastNearestHitDist={lastNearestHitDist:F3}, boom={currentBoom:F3}");
-
-                // 🟣 Draw small magenta cross + normal at nearest hit
-                float size = 0.05f;
-                Vector3 p = nearestInfo.point;
-
-                Debug.DrawRay(p, nearestInfo.normal * 0.25f, Color.magenta, 0.5f); // normal
-                Debug.DrawLine(p + Vector3.up * size, p - Vector3.up * size, Color.magenta, 0.5f);
-                Debug.DrawLine(p + Vector3.right * size, p - Vector3.right * size, Color.magenta, 0.5f);
-                Debug.DrawLine(p + Vector3.forward * size, p - Vector3.forward * size, Color.magenta, 0.5f);
-            }
-        }
-        else
-        {
-            lastNearestHitDist = float.PositiveInfinity;
-            lastHadHit = false;
-            float expandedTarget = Mathf.Clamp(maxBoom, minBoom, maxBoom);
-            currentBoom = Mathf.Lerp(currentBoom, expandedTarget, deltaTime * boomSmooth * 0.5f);
-            correctedPosition = pivotPosition + dir * currentBoom;
-
-            if (showDebug)
-            {
-                Debug.DrawLine(pivotPosition, correctedPosition, Color.yellow);
-                Debug.Log("[FREE] expanding to full boom");
+                target = Mathf.Clamp(blendedNearest - wallBackoff, minBoom, maxBoom);
+                if (!float.IsFinite(target)) target = currentBoom;
             }
         }
 
+        // Optional low-pass for target (further smoothness)
+        target = Mathf.Lerp(lastLog.target, target, deltaTime * 6f);
+
+        float before = currentBoom;
+        float lerpSpeed = (state == BoomState.Contracting) ? boomSmooth * 4f : boomSmooth * 0.5f;
+        currentBoom = Mathf.Lerp(currentBoom, target, deltaTime * lerpSpeed);
         currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
-        UpdateBoomState();
-        UpdateCameraOffset(deltaTime);
-    }
 
-    private void UpdateBoomState()
-    {
-        float diff = currentBoom - prevBoom;
-        float eps = 0.001f;
+        correctedPosition = pivotPosition + dir * currentBoom;
 
-        if (Mathf.Abs(diff) <= eps)
-            boomState = "Stable";
-        else if (diff < 0f)
-            boomState = "Contracting";
-        else
-            boomState = "Expanding";
+        if (verboseLogs)
+        {
+            bool stateChanged = state != lastLog.state;
+            bool targetChanged = Mathf.Abs(target - lastLog.target) > 0.01f;
+            bool nearestChanged = Mathf.Abs(lastNearestHitDist - lastLog.nearest) > 0.01f;
+            bool boomChanged = Mathf.Abs(currentBoom - lastLog.boom) > 0.01f;
+            bool missChanged = missFrames != lastLog.miss;
 
-        prevBoom = currentBoom;
-    }
+            if (stateChanged || targetChanged || nearestChanged || boomChanged || missChanged)
+            {
+                Debug.Log($"[CineDiag f={Time.frameCount}] state={state} prev={prevState} gotHit={(gotHit?1:0)} missFrames={missFrames}/{missFrameHold} raw={nearestRaw:0.000} filt={lastNearestHitDist:0.000} target={target:0.000} boom(before/after)={before:0.000}/{currentBoom:0.000}");
+                lastLog = new LogSnap { state = state, boom = currentBoom, target = target, nearest = lastNearestHitDist, miss = missFrames };
+            }
+        }
 
-
-    private void UpdateCameraOffset(float deltaTime)
-    {
-        // Dynamic X Offset (centers camera in tight spaces)
-        float proximity = Mathf.InverseLerp(maxBoom, minBoom, currentBoom); // 0 = far, 1 = close
+        // Smooth camera side-offset
+        float proximity = Mathf.InverseLerp(maxBoom, minBoom, currentBoom);
         float targetOffsetX = Mathf.Lerp(maxOffsetX, minOffsetX, proximity);
         currentOffsetX = Mathf.Lerp(currentOffsetX, targetOffsetX, deltaTime * offsetSmooth);
-
-        if (cameraOffset != null)
-        {
-            cameraOffset.Offset.x = currentOffsetX;
-        }
+        if (cameraOffset != null) cameraOffset.Offset.x = currentOffsetX;
     }
 
 #if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
-        if (!enabled) return;
+        if (!showHUD) return;
+        if (!Application.isPlaying) return;
 
-        if (orbitalFollow == null)
-            orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
-        if (orbitalFollow == null) return;
-
-        Vector3 pivotPos = orbitalFollow.FollowTargetPosition;
-
-        // --- Pivot ---
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawSphere(pivotPos, 0.025f);
-        UnityEditor.Handles.Label(pivotPos, "Pivot");
-
-        // --- Contact marker (draw if we have one) ---
-        if (lastHadHit)
-        {
-            // (a) Raw hit (optional, faint)
-            Gizmos.color = new Color(1f, 1f, 1f, 0.35f);
-            Gizmos.DrawWireSphere(lastHitPoint, 0.035f);
-            UnityEditor.Handles.Label(lastHitPoint + Vector3.up * 0.02f, "Raw Hit");
-            
-            // (b) Safe contact used by solver (primary)
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(lastSafeContact, 0.05f);
-            Gizmos.DrawRay(lastSafeContact, lastHitNormal * 0.3f);
-            UnityEditor.Handles.Label(lastSafeContact, "Safe Contact");
-        }
-
-        // --- Final camera position ---
-        Gizmos.color = Color.blue;
-        Gizmos.DrawSphere(correctedPosition, 0.03f);
-        UnityEditor.Handles.Label(correctedPosition, "Camera Position");
-
-        // --- Boom line ---
-        Gizmos.color = hadContact ? Color.red :
-                       didAnyProbesHit ? Color.yellow :
-                       Color.gray;
-        Gizmos.DrawLine(pivotPos, correctedPosition);
-
-        // --- HUD ---
-        if (showHUD)
-        {
-            string stateText = hadContact ? "Contracting" :
-                               didAnyProbesHit ? "Probing" : "Free";
-            float pct = (maxBoom > 1e-6f) ? (currentBoom / maxBoom) * 100f : 0f;
-
-            string hud = $"State: {stateText}\n" +
-                         $"Boom: {currentBoom:0.00}/{maxBoom:0.00} ({pct:0.#}%)";
-
-            if (lastHadHit)
-                hud += $"\nHit: {Vector3.Distance(pivotPos, lastHitPoint):0.00} m";
-
-            UnityEditor.Handles.color = Color.white;
-            UnityEditor.Handles.Label(pivotPos + Vector3.up * 0.25f, hud);
-        }
+        UnityEditor.Handles.color = Color.white;
+        UnityEditor.Handles.Label(
+            pivotPosition + Vector3.up * 0.25f,
+            $"State: {state}\nBoom: {currentBoom:0.00}/{maxBoom:0.00}\nMissHold: {missFrames}/{missFrameHold}\nNearest: {(float.IsInfinity(lastNearestHitDist) ? "∞" : lastNearestHitDist.ToString("0.000"))}");
     }
 #endif
+
+    private void PushHit(float d)
+    {
+        if (_hitCount < 3) _hitCount++;
+        _hitBuf[2] = _hitBuf[1];
+        _hitBuf[1] = _hitBuf[0];
+        _hitBuf[0] = d;
+    }
+
+    private float Median3()
+    {
+        if (_hitCount == 0) return float.PositiveInfinity;
+        if (_hitCount == 1) return _hitBuf[0];
+        if (_hitCount == 2) return 0.5f * (_hitBuf[0] + _hitBuf[1]);
+        float a = _hitBuf[0], b = _hitBuf[1], c = _hitBuf[2];
+        if (a > b) (a, b) = (b, a);
+        if (b > c) (b, c) = (c, b);
+        if (a > b) (a, b) = (b, a);
+        return b;
+    }
 }
 
+// -----------------------------------------------------------------------------
+// Global helpers
+// -----------------------------------------------------------------------------
+public static class Vector3Extensions
+{
+    public static bool IsFinite(this Vector3 v)
+        => float.IsFinite(v.x) && float.IsFinite(v.y) && float.IsFinite(v.z);
+}
