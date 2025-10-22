@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using Unity.Cinemachine;
 
 // -----------------------------------------------------------------------------
-// CinemachineOrbitalCollisionHandler — ANTI-JITTER BUILD
-//  - Adds re-entry hysteresis (prevents fast Free/Contracting toggles)
-//  - Adds smooth fade when hits are lost (temporal stability)
-//  - Optional soft low-pass on target
-//  - GUI safely isolated in OnDrawGizmos()
+// CinemachineOrbitalCollisionHandler — FINAL STABLE BUILD
+//  - Anti-jitter logic (hysteresis + smooth fade + low-pass target)
+//  - lastLog always updates (even if verboseLogs is false)
+//  - Clean OnDrawGizmos HUD (no runtime GUI calls)
 // -----------------------------------------------------------------------------
 [ExecuteAlways]
 [SaveDuringPlay]
@@ -42,11 +41,11 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 
     [Header("Stability")]
     [Tooltip("Frames to keep last hit alive before expanding when rays miss.")]
-    public int missFrameHold = 6; // was 3
+    public int missFrameHold = 6;
     [Tooltip("Ignore hit distance changes smaller than this (meters).")]
     public float distanceEpsilon = 0.03f;
     [Tooltip("Additional hysteresis on re-expansion (meters).")]
-    public float hysteresis = 0.1f; // was 0.05f
+    public float hysteresis = 0.1f;
 
     private float currentOffsetX;
     private float lastNearestHitDist = float.PositiveInfinity;
@@ -78,7 +77,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         cameraOffset = GetComponent<CinemachineCameraOffset>();
         correctedPosition = transform.position;
         if (cameraOffset != null) maxOffsetX = cameraOffset.Offset.x;
-        lastLog = new LogSnap { state = (BoomState)999, boom = -999f, target = -999f, nearest = -999f, miss = -999 };
+        lastLog = new LogSnap { state = (BoomState)999, boom = -999f, target = maxBoom, nearest = float.PositiveInfinity, miss = 0 };
     }
 
     protected override void PostPipelineStageCallback(
@@ -214,7 +213,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             }
         }
 
-        // Optional low-pass for target (further smoothness)
+        // Smooth target low-pass
         target = Mathf.Lerp(lastLog.target, target, deltaTime * 6f);
 
         float before = currentBoom;
@@ -224,20 +223,20 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 
         correctedPosition = pivotPosition + dir * currentBoom;
 
-        if (verboseLogs)
-        {
-            bool stateChanged = state != lastLog.state;
-            bool targetChanged = Mathf.Abs(target - lastLog.target) > 0.01f;
-            bool nearestChanged = Mathf.Abs(lastNearestHitDist - lastLog.nearest) > 0.01f;
-            bool boomChanged = Mathf.Abs(currentBoom - lastLog.boom) > 0.01f;
-            bool missChanged = missFrames != lastLog.miss;
+        // --- Logging and lastLog update ---
+        bool stateChanged = state != lastLog.state;
+        bool targetChanged = Mathf.Abs(target - lastLog.target) > 0.01f;
+        bool nearestChanged = Mathf.Abs(lastNearestHitDist - lastLog.nearest) > 0.01f;
+        bool boomChanged = Mathf.Abs(currentBoom - lastLog.boom) > 0.01f;
+        bool missChanged = missFrames != lastLog.miss;
 
-            if (stateChanged || targetChanged || nearestChanged || boomChanged || missChanged)
-            {
-                Debug.Log($"[CineDiag f={Time.frameCount}] state={state} prev={prevState} gotHit={(gotHit?1:0)} missFrames={missFrames}/{missFrameHold} raw={nearestRaw:0.000} filt={lastNearestHitDist:0.000} target={target:0.000} boom(before/after)={before:0.000}/{currentBoom:0.000}");
-                lastLog = new LogSnap { state = state, boom = currentBoom, target = target, nearest = lastNearestHitDist, miss = missFrames };
-            }
+        if (verboseLogs && (stateChanged || targetChanged || nearestChanged || boomChanged || missChanged))
+        {
+            Debug.Log($"[CineDiag f={Time.frameCount}] state={state} prev={prevState} gotHit={(gotHit?1:0)} missFrames={missFrames}/{missFrameHold} raw={nearestRaw:0.000} filt={lastNearestHitDist:0.000} target={target:0.000} boom(before/after)={before:0.000}/{currentBoom:0.000}");
         }
+
+        // ✅ Always keep lastLog current
+        lastLog = new LogSnap { state = state, boom = currentBoom, target = target, nearest = lastNearestHitDist, miss = missFrames };
 
         // Smooth camera side-offset
         float proximity = Mathf.InverseLerp(maxBoom, minBoom, currentBoom);
