@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using Unity.Cinemachine;
 
 // -----------------------------------------------------------------------------
-// CinemachineOrbitalCollisionHandler — FINAL STABLE BUILD
-//  - Anti-jitter logic (hysteresis + smooth fade + low-pass target)
-//  - lastLog always updates (even if verboseLogs is false)
-//  - Clean OnDrawGizmos HUD (no runtime GUI calls)
+//  CinemachineOrbitalCollisionHandler — FINAL ULTRA-STABLE BUILD
+//  • Snappy contraction (MoveTowards)
+//  • Smooth expansion (Lerp)
+//  • Noise-resistant target filtering + dead-zone
+//  • No GUI calls outside OnDrawGizmos
 // -----------------------------------------------------------------------------
 [ExecuteAlways]
 [SaveDuringPlay]
@@ -16,8 +17,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     [Header("Debug")]
     public bool showDebug = true;
     public bool showHUD = true;
-    [Tooltip("Print event-driven logs when something meaningful changes.")]
-    public bool verboseLogs = true;
+    public bool verboseLogs = false;
 
     [Header("Collision")]
     public LayerMask collisionMask;
@@ -25,11 +25,14 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     [Header("Boom Settings")]
     public float minBoom = 0.5f;
     public float maxBoom = 2f;
-    [Tooltip("Smooth speed for boom contraction/expansion.")]
-    public float boomSmooth = 14f;
+
+    [Header("Speed Settings")]
+    [Tooltip("Speed (m/s) for contracting toward wall.")]
+    public float contractionSpeed = 25f;
+    [Tooltip("Lerp smoothing for expansion away from wall.")]
+    public float expansionSmooth = 6f;
 
     [Header("Whisker Settings")]
-    [Tooltip("How far the camera stays off walls.")]
     public float wallBackoff = 0.3f;
     [SerializeField, Range(0f, 60f)] private float spreadAngle = 25f;
     [SerializeField] private float whiskerRadius = 0.04f;
@@ -40,11 +43,8 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     public float offsetSmooth = 8f;
 
     [Header("Stability")]
-    [Tooltip("Frames to keep last hit alive before expanding when rays miss.")]
-    public int missFrameHold = 6;
-    [Tooltip("Ignore hit distance changes smaller than this (meters).")]
+    public int missFrameHold = 8;
     public float distanceEpsilon = 0.03f;
-    [Tooltip("Additional hysteresis on re-expansion (meters).")]
     public float hysteresis = 0.1f;
 
     private float currentOffsetX;
@@ -132,9 +132,9 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             dir = previousDirection == Vector3.zero ? Vector3.back : previousDirection;
         previousDirection = dir;
 
-        float rayRange = maxBoom + wallBackoff;
+        float rayRange = maxBoom + wallBackoff + 0.15f;
 
-        // Whisker fan setup
+        // --- Whisker setup ---
         Vector3 right = Vector3.Cross(Vector3.up, dir).normalized;
         Vector3 flatUp = Vector3.Cross(dir, right).normalized;
         List<Vector3> whiskerDirs = new()
@@ -153,9 +153,8 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         float nearestRaw = float.PositiveInfinity;
         RaycastHit nearestInfo = default;
 
-        for (int i = 0; i < whiskerDirs.Count; i++)
+        foreach (var wdir in whiskerDirs)
         {
-            Vector3 wdir = whiskerDirs[i];
             if (Physics.SphereCast(origin, whiskerRadius, wdir, out RaycastHit hit, rayRange, collisionMask, QueryTriggerInteraction.Ignore))
             {
                 gotHit = true;
@@ -190,9 +189,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         }
         else
         {
-            // --- Anti-jitter: hold for hysteresis period before freeing ---
             missFrames++;
-
             float hitConfidence = Mathf.Clamp01(1f - missFrames / (float)missFrameHold);
             float blendedNearest = Mathf.Lerp(maxBoom, lastNearestHitDist, hitConfidence);
 
@@ -213,32 +210,41 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             }
         }
 
-        // Smooth target low-pass
-        target = Mathf.Lerp(lastLog.target, target, deltaTime * 6f);
+        // --- NEW: stability filters ---
+        if (Mathf.Abs(target - currentBoom) < 0.01f)
+            target = currentBoom;                               // ignore micro changes
+        target = Mathf.Lerp(lastLog.target, target, deltaTime * 20f); // smooth target
 
         float before = currentBoom;
-        float lerpSpeed = (state == BoomState.Contracting) ? boomSmooth * 4f : boomSmooth * 0.5f;
-        currentBoom = Mathf.Lerp(currentBoom, target, deltaTime * lerpSpeed);
-        currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
 
-        correctedPosition = pivotPosition + dir * currentBoom;
-
-        // --- Logging and lastLog update ---
-        bool stateChanged = state != lastLog.state;
-        bool targetChanged = Mathf.Abs(target - lastLog.target) > 0.01f;
-        bool nearestChanged = Mathf.Abs(lastNearestHitDist - lastLog.nearest) > 0.01f;
-        bool boomChanged = Mathf.Abs(currentBoom - lastLog.boom) > 0.01f;
-        bool missChanged = missFrames != lastLog.miss;
-
-        if (verboseLogs && (stateChanged || targetChanged || nearestChanged || boomChanged || missChanged))
+        if (state == BoomState.Contracting)
         {
-            Debug.Log($"[CineDiag f={Time.frameCount}] state={state} prev={prevState} gotHit={(gotHit?1:0)} missFrames={missFrames}/{missFrameHold} raw={nearestRaw:0.000} filt={lastNearestHitDist:0.000} target={target:0.000} boom(before/after)={before:0.000}/{currentBoom:0.000}");
+            currentBoom = Mathf.MoveTowards(currentBoom, target, deltaTime * contractionSpeed);
+            if (currentBoom < target) currentBoom = target; // prevent overshoot
+        }
+        else
+        {
+            currentBoom = Mathf.Lerp(currentBoom, target, deltaTime * expansionSmooth);
         }
 
-        // ✅ Always keep lastLog current
+        currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
+        correctedPosition = pivotPosition + dir * currentBoom;
+
+        // --- Logging & snapshot ---
+        bool changed =
+            Mathf.Abs(currentBoom - lastLog.boom) > 0.01f ||
+            Mathf.Abs(target - lastLog.target) > 0.01f ||
+            state != lastLog.state ||
+            missFrames != lastLog.miss;
+
+        if (verboseLogs && changed)
+        {
+            Debug.Log($"[CineDiag f={Time.frameCount}] state={state} gotHit={(gotHit?1:0)} raw={nearestRaw:0.000} filt={lastNearestHitDist:0.000} target={target:0.000} boom(before/after)={before:0.000}/{currentBoom:0.000}");
+        }
+
         lastLog = new LogSnap { state = state, boom = currentBoom, target = target, nearest = lastNearestHitDist, miss = missFrames };
 
-        // Smooth camera side-offset
+        // side-offset smoothing
         float proximity = Mathf.InverseLerp(maxBoom, minBoom, currentBoom);
         float targetOffsetX = Mathf.Lerp(maxOffsetX, minOffsetX, proximity);
         currentOffsetX = Mathf.Lerp(currentOffsetX, targetOffsetX, deltaTime * offsetSmooth);
@@ -248,8 +254,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        if (!showHUD) return;
-        if (!Application.isPlaying) return;
+        if (!showHUD || !Application.isPlaying) return;
 
         UnityEditor.Handles.color = Color.white;
         UnityEditor.Handles.Label(
@@ -280,7 +285,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 }
 
 // -----------------------------------------------------------------------------
-// Global helpers
+//  Vector3 helper
 // -----------------------------------------------------------------------------
 public static class Vector3Extensions
 {
