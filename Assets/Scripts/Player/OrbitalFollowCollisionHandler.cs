@@ -8,23 +8,23 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 {
     [Header("Collision")]
     public LayerMask collisionMask;
-    [Range(0.05f, 1f)] public float whiskerRadius = 0.3f;
+    [Range(0.05f, 1f)] public float whiskerRadius = 0.15f;   // was 0.1; 0.15-0.2 detects edges earlier
     [Range(3, 9)] public int whiskerCount = 5;
-    [Range(10f, 90f)] public float whiskerArc = 45f;
+    [Range(10f, 120f)] public float whiskerArc = 90f;
 
     [Header("Boom Settings")]
-    public float minBoom = 0.3f;
+    public float minBoom = 0.2f;
     public float maxBoom = 2f;
     [Tooltip("Smooth speed for boom contraction/expansion")]
-    public float boomSmooth = 8f;
+    public float boomSmooth = 14f;
 
     [Header("Offset Settings")]
     [Tooltip("Maximum shoulder offset when boom is fully extended")]
-    public float maxOffsetX = 0.3f;
+    public float maxOffsetX = 0.5f;
     [Tooltip("Minimum shoulder offset when boom is fully contracted")]
-    public float minOffsetX = 0f;
+    public float minOffsetX = 0.3f;
     [Tooltip("How fast shoulder offset transitions")]
-    public float offsetSmooth = 8f;
+    public float offsetSmooth = 20f;
 
     [Header("Debug")]
     public bool showDebug = true;
@@ -49,7 +49,6 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         ref CameraState stateRef,
         float deltaTime)
     {
-        // Do everything here; we set the final position directly.
         if (stage != CinemachineCore.Stage.Finalize || vcam.Follow == null)
             return;
 
@@ -67,7 +66,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         Vector3 dir = GetDir(_pivotPos, _desiredPos);
         Vector3 corrected = _pivotPos + dir * currentBoom;
 
-        // Apply shoulder offset directly to position (no CameraOffset dependency)
+        // Apply shoulder offset directly to position
         ApplyCameraOffset(ref corrected, _pivotPos, _desiredPos, deltaTime);
 
         stateRef.RawPosition = corrected;
@@ -82,15 +81,17 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         // Whisker origin: pivot-based, nudged forward to avoid inside-player casts
         Vector3 origin = _pivotPos + dir * 0.1f;
 
-        // Draw boom for debugging (runtime-safe)
         if (showDebug) Debug.DrawLine(_pivotPos, _pivotPos + dir * currentBoom, Color.yellow);
 
-        // Fan whiskers in an arc around dir (Y-up)
+        // Fan whiskers in an arc (Y-up), biased toward the camera's offset side
         for (int i = 0; i < whiskerCount; i++)
         {
             float t = (whiskerCount == 1) ? 0.5f : (i / (float)(whiskerCount - 1));
-            float sideBias = -Mathf.Sign(currentOffsetX) * 10f; // flipped bias direction
-            float angle = (t - 0.5f) * whiskerArc + sideBias;
+
+            // Bias toward camera side; flipped sign to lean toward the visible shoulder
+            float sideBiasDeg = -Mathf.Sign(currentOffsetX) * 10f; // tweak 5–15° to taste
+            float angle = (t - 0.5f) * whiskerArc + sideBiasDeg;
+
             Vector3 rayDir = Quaternion.AngleAxis(angle, Vector3.up) * dir;
 
             if (Physics.SphereCast(origin, whiskerRadius, rayDir, out RaycastHit hit, maxBoom,
@@ -98,7 +99,12 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             {
                 gotHit = true;
                 if (hit.distance < nearest) nearest = hit.distance;
-                if (showDebug) Debug.DrawLine(origin, hit.point, Color.red);
+
+                if (showDebug)
+                {
+                    Debug.DrawLine(origin, hit.point, Color.red);
+                    Debug.DrawRay(hit.point, hit.normal * 0.2f, Color.magenta);
+                }
             }
             else
             {
@@ -128,24 +134,21 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         }
 
         currentBoom = Mathf.Lerp(currentBoom, targetBoom, dt * boomSmooth);
-        
+
         if (showDebug)
         {
             Debug.Log($"[CineDiag f={Time.frameCount}] state={_state} " +
-                    $"boom={currentBoom:0.000}/{maxBoom:0.000} " +
-                    $"target={targetBoom:0.000} " +
-                    $"offsetX={currentOffsetX:0.000} " +
-                    $"nearest={_lastNearest:0.000}");
+                      $"boom={currentBoom:0.000}/{maxBoom:0.000} " +
+                      $"target={targetBoom:0.000} " +
+                      $"offsetX={currentOffsetX:0.000} " +
+                      $"nearest={_lastNearest:0.000}");
         }
     }
 
     private void ApplyCameraOffset(ref Vector3 correctedPosition, Vector3 pivotPos, Vector3 desiredPos, float dt)
     {
-        // Nonlinear scaling: stays wide longer, collapses faster near close walls
+        // Nonlinear scaling: keep wide longer, collapse faster near close walls
         float proximity = Mathf.Pow(Mathf.InverseLerp(maxBoom, minBoom, currentBoom), 2f);
-
-        Debug.Log($"Boom={currentBoom:0.00}  proximity={proximity:0.00}  " +
-          $"targetOffset={Mathf.Lerp(maxOffsetX, minOffsetX, proximity):0.00}");
 
         float targetOffsetX = Mathf.Lerp(maxOffsetX, minOffsetX, proximity);
         currentOffsetX = Mathf.Lerp(currentOffsetX, targetOffsetX, dt * offsetSmooth);
@@ -155,7 +158,11 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 
         correctedPosition += right * currentOffsetX;
 
-        if (showDebug) Debug.DrawLine(pivotPos, correctedPosition, Color.cyan);
+        if (showDebug)
+        {
+            Debug.DrawLine(pivotPos, correctedPosition, Color.cyan);
+            Debug.Log($"Boom={currentBoom:0.00}  proximity={proximity:0.00}  targetOffset={targetOffsetX:0.00}");
+        }
     }
 
     private static Vector3 GetDir(Vector3 from, Vector3 to)
