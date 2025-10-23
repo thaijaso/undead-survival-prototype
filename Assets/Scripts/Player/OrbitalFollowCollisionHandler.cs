@@ -89,7 +89,8 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         for (int i = 0; i < whiskerCount; i++)
         {
             float t = (whiskerCount == 1) ? 0.5f : (i / (float)(whiskerCount - 1));
-            float angle = (t - 0.5f) * whiskerArc;
+            float sideBias = -Mathf.Sign(currentOffsetX) * 10f; // flipped bias direction
+            float angle = (t - 0.5f) * whiskerArc + sideBias;
             Vector3 rayDir = Quaternion.AngleAxis(angle, Vector3.up) * dir;
 
             if (Physics.SphereCast(origin, whiskerRadius, rayDir, out RaycastHit hit, maxBoom,
@@ -140,7 +141,9 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 
     private void ApplyCameraOffset(ref Vector3 correctedPosition, Vector3 pivotPos, Vector3 desiredPos, float dt)
     {
-        float proximity = Mathf.InverseLerp(maxBoom, minBoom, currentBoom);
+        // Nonlinear scaling: stays wide longer, collapses faster near close walls
+        float proximity = Mathf.Pow(Mathf.InverseLerp(maxBoom, minBoom, currentBoom), 2f);
+
         Debug.Log($"Boom={currentBoom:0.00}  proximity={proximity:0.00}  " +
           $"targetOffset={Mathf.Lerp(maxOffsetX, minOffsetX, proximity):0.00}");
 
