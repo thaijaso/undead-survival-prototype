@@ -148,7 +148,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         currentOffsetX = Mathf.Lerp(currentOffsetX, targetOffsetX, dt * offsetSmooth);
 
         Vector3 dir = GetDir(pivotPos, desiredPos);
-        Vector3 right = Vector3.Cross(Vector3.up, dir);
+        Vector3 right = Vector3.Cross(dir, Vector3.up);
 
         correctedPosition += right * currentOffsetX;
 
