@@ -725,7 +725,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: verboseLogs
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: wallBackoff

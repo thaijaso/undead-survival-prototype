@@ -1,254 +1,166 @@
 using UnityEngine;
-using System.Collections.Generic;
 using Unity.Cinemachine;
 
-// -----------------------------------------------------------------------------
-//  CinemachineOrbitalCollisionHandler — FINAL ULTRA-STABLE BUILD
-//  • Snappy contraction (MoveTowards)
-//  • Smooth expansion (Lerp)
-//  • Noise-resistant target filtering + dead-zone
-//  • No GUI calls outside OnDrawGizmos
-// -----------------------------------------------------------------------------
 [ExecuteAlways]
 [SaveDuringPlay]
 [AddComponentMenu("")]
 public class CinemachineOrbitalCollisionHandler : CinemachineExtension
 {
+    [Header("Collision")]
+    public LayerMask collisionMask;
+    [Range(0.05f, 1f)] public float whiskerRadius = 0.3f;
+    [Range(3, 9)] public int whiskerCount = 5;
+    [Range(10f, 90f)] public float whiskerArc = 45f;
+
+    [Header("Boom Settings")]
+    public float minBoom = 0.3f;
+    public float maxBoom = 2f;
+    [Tooltip("Smooth speed for boom contraction/expansion")]
+    public float boomSmooth = 8f;
+
+    [Header("Offset Settings")]
+    [Tooltip("Maximum shoulder offset when boom is fully extended")]
+    public float maxOffsetX = 0.3f;
+    [Tooltip("Minimum shoulder offset when boom is fully contracted")]
+    public float minOffsetX = 0f;
+    [Tooltip("How fast shoulder offset transitions")]
+    public float offsetSmooth = 8f;
+
     [Header("Debug")]
     public bool showDebug = true;
     public bool showHUD = true;
-    public bool verboseLogs = false;
 
-    [Header("Collision")]
-    public LayerMask collisionMask;
-
-    [Header("Boom Settings")]
-    public float minBoom = 0.5f;
-    public float maxBoom = 2f;
-
-    [Header("Speed Settings")]
-    [Tooltip("Speed (m/s) for contracting toward wall.")]
-    public float contractionSpeed = 25f;
-    [Tooltip("Lerp smoothing for expansion away from wall.")]
-    public float expansionSmooth = 6f;
-
-    [Header("Whisker Settings")]
-    public float wallBackoff = 0.3f;
-    [SerializeField, Range(0f, 60f)] private float spreadAngle = 25f;
-    [SerializeField] private float whiskerRadius = 0.04f;
-
-    [Header("Camera Offset")]
-    public float maxOffsetX = 0.5f;
-    public float minOffsetX = 0.25f;
-    public float offsetSmooth = 8f;
-
-    [Header("Stability")]
-    public int missFrameHold = 8;
-    public float distanceEpsilon = 0.03f;
-    public float hysteresis = 0.1f;
-
-    private float currentOffsetX;
-    private float lastNearestHitDist = float.PositiveInfinity;
-
-    private CinemachineOrbitalFollow orbitalFollow;
-    private CinemachineCameraOffset cameraOffset;
-    private Vector3 desiredPosition;
-    private Vector3 correctedPosition;
-    private Vector3 previousDirection;
-    private Vector3 pivotPosition;
-
+    // runtime state
     private float currentBoom;
-    private bool initialized;
+    private float targetBoom;
+    private float currentOffsetX;
 
-    private enum BoomState { Free, Hold, Contracting }
-    private BoomState state = BoomState.Free;
-    private int missFrames = 0;
+    private enum BoomState { Free, Contracting, Hold }
+    private BoomState _state = BoomState.Free;
 
-    private readonly float[] _hitBuf = new float[3];
-    private int _hitCount = 0;
-
-    private struct LogSnap { public BoomState state; public float boom; public float target; public float nearest; public int miss; }
-    private LogSnap lastLog;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        orbitalFollow = GetComponent<CinemachineOrbitalFollow>();
-        cameraOffset = GetComponent<CinemachineCameraOffset>();
-        correctedPosition = transform.position;
-        if (cameraOffset != null) maxOffsetX = cameraOffset.Offset.x;
-        lastLog = new LogSnap { state = (BoomState)999, boom = -999f, target = maxBoom, nearest = float.PositiveInfinity, miss = 0 };
-    }
+    private Vector3 _pivotPos;
+    private Vector3 _desiredPos;
+    private float _lastNearest = Mathf.Infinity;
+    private int _hitMemory = 0;
 
     protected override void PostPipelineStageCallback(
         CinemachineVirtualCameraBase vcam,
         CinemachineCore.Stage stage,
-        ref CameraState stateArg,
+        ref CameraState stateRef,
         float deltaTime)
     {
-        if (stage != CinemachineCore.Stage.Body) return;
-        if (orbitalFollow == null) return;
-
-        if (deltaTime < 0f)
-        {
-            initialized = false;
-            previousDirection = Vector3.zero;
-            state = BoomState.Free;
-            missFrames = 0;
-            lastNearestHitDist = float.PositiveInfinity;
-            _hitCount = 0;
+        // Do everything here; we set the final position directly.
+        if (stage != CinemachineCore.Stage.Finalize || vcam.Follow == null)
             return;
-        }
 
-        float dt = Mathf.Max(0.0001f, deltaTime);
-        pivotPosition = orbitalFollow.FollowTargetPosition;
-        desiredPosition = stateArg.RawPosition;
+        if (deltaTime <= 0f) deltaTime = Time.deltaTime;
 
-        Vector3 probeDir = (desiredPosition - pivotPosition).sqrMagnitude > 1e-6f
-            ? (desiredPosition - pivotPosition).normalized
-            : (previousDirection == Vector3.zero ? Vector3.back : previousDirection);
-        if (!probeDir.IsFinite()) probeDir = Vector3.back;
+        _pivotPos   = vcam.Follow.position;
+        _desiredPos = stateRef.GetFinalPosition();
 
-        if (!initialized)
-        {
-            currentBoom = maxBoom;
-            previousDirection = probeDir;
-            initialized = true;
-        }
+        if (currentBoom <= 0f)
+            currentBoom = Mathf.Clamp(Vector3.Distance(_pivotPos, _desiredPos), minBoom, maxBoom);
 
-        previousDirection = probeDir;
-        HandleBoom(dt);
+        HandleBoom(deltaTime);
 
-        if (!correctedPosition.IsFinite())
-            correctedPosition = pivotPosition + previousDirection * maxBoom;
+        // Final corrected position along boom
+        Vector3 dir = GetDir(_pivotPos, _desiredPos);
+        Vector3 corrected = _pivotPos + dir * currentBoom;
 
-        stateArg.RawPosition = correctedPosition;
+        // Apply shoulder offset directly to position (no CameraOffset dependency)
+        ApplyCameraOffset(ref corrected, _pivotPos, _desiredPos, deltaTime);
+
+        stateRef.RawPosition = corrected;
     }
 
-    private void HandleBoom(float deltaTime)
+    private void HandleBoom(float dt)
     {
-        Vector3 dir = (desiredPosition - pivotPosition).normalized;
-        if (dir.sqrMagnitude < 1e-8f || !dir.IsFinite())
-            dir = previousDirection == Vector3.zero ? Vector3.back : previousDirection;
-        previousDirection = dir;
-
-        float rayRange = maxBoom + wallBackoff + 0.15f;
-
-        // --- Whisker setup ---
-        Vector3 right = Vector3.Cross(Vector3.up, dir).normalized;
-        Vector3 flatUp = Vector3.Cross(dir, right).normalized;
-        List<Vector3> whiskerDirs = new()
-        {
-            dir,
-            Quaternion.AngleAxis(-spreadAngle, flatUp) * dir,
-            Quaternion.AngleAxis(spreadAngle,  flatUp) * dir,
-            Quaternion.AngleAxis(-spreadAngle * 2f, flatUp) * dir,
-            Quaternion.AngleAxis(spreadAngle * 2f,  flatUp) * dir,
-        };
-
-        Vector3 camRight = Vector3.Cross(dir, Vector3.up).normalized;
-        Vector3 origin = pivotPosition + camRight * currentOffsetX * 0.5f;
-
+        Vector3 dir = GetDir(_pivotPos, _desiredPos);
         bool gotHit = false;
-        float nearestRaw = float.PositiveInfinity;
-        RaycastHit nearestInfo = default;
+        float nearest = Mathf.Infinity;
 
-        foreach (var wdir in whiskerDirs)
+        // Whisker origin: pivot-based, nudged forward to avoid inside-player casts
+        Vector3 origin = _pivotPos + dir * 0.1f;
+
+        // Draw boom for debugging (runtime-safe)
+        if (showDebug) Debug.DrawLine(_pivotPos, _pivotPos + dir * currentBoom, Color.yellow);
+
+        // Fan whiskers in an arc around dir (Y-up)
+        for (int i = 0; i < whiskerCount; i++)
         {
-            if (Physics.SphereCast(origin, whiskerRadius, wdir, out RaycastHit hit, rayRange, collisionMask, QueryTriggerInteraction.Ignore))
+            float t = (whiskerCount == 1) ? 0.5f : (i / (float)(whiskerCount - 1));
+            float angle = (t - 0.5f) * whiskerArc;
+            Vector3 rayDir = Quaternion.AngleAxis(angle, Vector3.up) * dir;
+
+            if (Physics.SphereCast(origin, whiskerRadius, rayDir, out RaycastHit hit, maxBoom,
+                collisionMask, QueryTriggerInteraction.Ignore))
             {
                 gotHit = true;
-                if (hit.distance < nearestRaw)
-                {
-                    nearestRaw = hit.distance;
-                    nearestInfo = hit;
-                }
+                if (hit.distance < nearest) nearest = hit.distance;
                 if (showDebug) Debug.DrawLine(origin, hit.point, Color.red);
-            }
-            else if (showDebug) Debug.DrawRay(origin, wdir * rayRange, Color.white);
-        }
-
-        float nearestFiltered = lastNearestHitDist;
-        if (gotHit && float.IsFinite(nearestRaw))
-        {
-            PushHit(nearestRaw);
-            nearestFiltered = Median3();
-            if (Mathf.Abs(nearestFiltered - lastNearestHitDist) < distanceEpsilon)
-                nearestFiltered = lastNearestHitDist;
-            lastNearestHitDist = nearestFiltered;
-        }
-
-        float target = maxBoom;
-        BoomState prevState = state;
-
-        if (gotHit && float.IsFinite(nearestFiltered))
-        {
-            missFrames = 0;
-            state = BoomState.Contracting;
-            target = Mathf.Clamp(nearestFiltered - wallBackoff, minBoom, maxBoom);
-        }
-        else
-        {
-            missFrames++;
-            float hitConfidence = Mathf.Clamp01(1f - missFrames / (float)missFrameHold);
-            float blendedNearest = Mathf.Lerp(maxBoom, lastNearestHitDist, hitConfidence);
-
-            if (state != BoomState.Free)
-                state = BoomState.Hold;
-
-            if (missFrames >= missFrameHold && currentBoom >= lastNearestHitDist + hysteresis)
-            {
-                state = BoomState.Free;
-                target = maxBoom;
-                _hitCount = 0;
-                lastNearestHitDist = float.PositiveInfinity;
             }
             else
             {
-                target = Mathf.Clamp(blendedNearest - wallBackoff, minBoom, maxBoom);
-                if (!float.IsFinite(target)) target = currentBoom;
+                if (showDebug) Debug.DrawLine(origin, origin + rayDir * maxBoom, Color.white);
             }
         }
 
-        // --- NEW: stability filters ---
-        if (Mathf.Abs(target - currentBoom) < 0.01f)
-            target = currentBoom;                               // ignore micro changes
-        target = Mathf.Lerp(lastLog.target, target, deltaTime * 20f); // smooth target
-
-        float before = currentBoom;
-
-        if (state == BoomState.Contracting)
+        if (gotHit)
         {
-            currentBoom = Mathf.MoveTowards(currentBoom, target, deltaTime * contractionSpeed);
-            if (currentBoom < target) currentBoom = target; // prevent overshoot
+            _lastNearest = nearest;
+            targetBoom = Mathf.Clamp(nearest, minBoom, maxBoom);
+            _state = BoomState.Contracting;
+            _hitMemory = Mathf.Min(_hitMemory + 1, 10);
         }
         else
         {
-            currentBoom = Mathf.Lerp(currentBoom, target, deltaTime * expansionSmooth);
+            _hitMemory = Mathf.Max(_hitMemory - 1, 0);
+            if (_hitMemory == 0)
+            {
+                targetBoom = maxBoom;
+                _state = BoomState.Free;
+            }
+            else
+            {
+                _state = BoomState.Hold;
+            }
         }
 
-        currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
-        correctedPosition = pivotPosition + dir * currentBoom;
-
-        // --- Logging & snapshot ---
-        bool changed =
-            Mathf.Abs(currentBoom - lastLog.boom) > 0.01f ||
-            Mathf.Abs(target - lastLog.target) > 0.01f ||
-            state != lastLog.state ||
-            missFrames != lastLog.miss;
-
-        if (verboseLogs && changed)
+        currentBoom = Mathf.Lerp(currentBoom, targetBoom, dt * boomSmooth);
+        
+        if (showDebug)
         {
-            Debug.Log($"[CineDiag f={Time.frameCount}] state={state} gotHit={(gotHit?1:0)} raw={nearestRaw:0.000} filt={lastNearestHitDist:0.000} target={target:0.000} boom(before/after)={before:0.000}/{currentBoom:0.000}");
+            Debug.Log($"[CineDiag f={Time.frameCount}] state={_state} " +
+                    $"boom={currentBoom:0.000}/{maxBoom:0.000} " +
+                    $"target={targetBoom:0.000} " +
+                    $"offsetX={currentOffsetX:0.000} " +
+                    $"nearest={_lastNearest:0.000}");
         }
+    }
 
-        lastLog = new LogSnap { state = state, boom = currentBoom, target = target, nearest = lastNearestHitDist, miss = missFrames };
-
-        // side-offset smoothing
+    private void ApplyCameraOffset(ref Vector3 correctedPosition, Vector3 pivotPos, Vector3 desiredPos, float dt)
+    {
         float proximity = Mathf.InverseLerp(maxBoom, minBoom, currentBoom);
+        Debug.Log($"Boom={currentBoom:0.00}  proximity={proximity:0.00}  " +
+          $"targetOffset={Mathf.Lerp(maxOffsetX, minOffsetX, proximity):0.00}");
+
         float targetOffsetX = Mathf.Lerp(maxOffsetX, minOffsetX, proximity);
-        currentOffsetX = Mathf.Lerp(currentOffsetX, targetOffsetX, deltaTime * offsetSmooth);
-        if (cameraOffset != null) cameraOffset.Offset.x = currentOffsetX;
+        currentOffsetX = Mathf.Lerp(currentOffsetX, targetOffsetX, dt * offsetSmooth);
+
+        Vector3 dir = GetDir(pivotPos, desiredPos);
+        Vector3 right = Vector3.Cross(Vector3.up, dir);
+
+        correctedPosition += right * currentOffsetX;
+
+        if (showDebug) Debug.DrawLine(pivotPos, correctedPosition, Color.cyan);
+    }
+
+    private static Vector3 GetDir(Vector3 from, Vector3 to)
+    {
+        Vector3 d = to - from;
+        if (d.sqrMagnitude < 1e-8f) return Vector3.forward;
+        d.Normalize();
+        return d;
     }
 
 #if UNITY_EDITOR
@@ -256,39 +168,11 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     {
         if (!showHUD || !Application.isPlaying) return;
 
-        UnityEditor.Handles.color = Color.white;
+        string nearestTxt = float.IsInfinity(_lastNearest) ? "∞" : _lastNearest.ToString("0.000");
         UnityEditor.Handles.Label(
-            pivotPosition + Vector3.up * 0.25f,
-            $"State: {state}\nBoom: {currentBoom:0.00}/{maxBoom:0.00}\nMissHold: {missFrames}/{missFrameHold}\nNearest: {(float.IsInfinity(lastNearestHitDist) ? "∞" : lastNearestHitDist.ToString("0.000"))}");
+            _pivotPos + Vector3.up * 0.25f,
+            $"State: {_state}\nBoom: {currentBoom:0.00}/{maxBoom:0.00}\nNearest: {nearestTxt}\nHitMemory: {_hitMemory}\nOffsetX: {currentOffsetX:0.000}"
+        );
     }
 #endif
-
-    private void PushHit(float d)
-    {
-        if (_hitCount < 3) _hitCount++;
-        _hitBuf[2] = _hitBuf[1];
-        _hitBuf[1] = _hitBuf[0];
-        _hitBuf[0] = d;
-    }
-
-    private float Median3()
-    {
-        if (_hitCount == 0) return float.PositiveInfinity;
-        if (_hitCount == 1) return _hitBuf[0];
-        if (_hitCount == 2) return 0.5f * (_hitBuf[0] + _hitBuf[1]);
-        float a = _hitBuf[0], b = _hitBuf[1], c = _hitBuf[2];
-        if (a > b) (a, b) = (b, a);
-        if (b > c) (b, c) = (c, b);
-        if (a > b) (a, b) = (b, a);
-        return b;
-    }
-}
-
-// -----------------------------------------------------------------------------
-//  Vector3 helper
-// -----------------------------------------------------------------------------
-public static class Vector3Extensions
-{
-    public static bool IsFinite(this Vector3 v)
-        => float.IsFinite(v.x) && float.IsFinite(v.y) && float.IsFinite(v.z);
 }
