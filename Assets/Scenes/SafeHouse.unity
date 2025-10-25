@@ -823,17 +823,33 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -1.7602301
       objectReference: {fileID: 0}
+    - target: {fileID: 7647805801827883242, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+      propertyPath: m_Antialiasing
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+      propertyPath: minBoom
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: boomSmooth
       value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+      propertyPath: highRotationDampen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: expansionMultiplier
-      value: 0.25
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: contractionMultiplier
-      value: 5
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+      propertyPath: rotationSpeedThreshold
+      value: 600
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

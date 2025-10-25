@@ -20,6 +20,12 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     public float contractionMultiplier = 2.5f;
     public float expansionMultiplier = 1f; // feels best in your setup
 
+    [Header("Rotation Clamp Settings")]
+    [Tooltip("Maximum allowed camera rotation speed in degrees per second before clamping")]
+    public float rotationSpeedThreshold = 720f;
+    [Tooltip("Multiplier to dampen boom response when above threshold (0–1 range)")]
+    [Range(0f, 1f)] public float highRotationDampen = 0.35f;
+
     [Header("Offset Settings")]
     [Tooltip("Maximum shoulder offset when boom is fully extended")]
     public float maxOffsetX = 0.5f;
@@ -36,13 +42,16 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     private float currentBoom;
     private float targetBoom;
     private float currentOffsetX;
-
-    private enum BoomState { Free, Contracting }
-    private BoomState state = BoomState.Free;
-
     private Vector3 pivotPos;
     private Vector3 desiredPos;
     private float lastNearest = Mathf.Infinity;
+
+    // Rotation tracking
+    private Vector3 lastDir;
+    private float angularVelocity;
+
+    private enum BoomState { Free, Contracting }
+    private BoomState state = BoomState.Free;
 
     protected override void PostPipelineStageCallback(
         CinemachineVirtualCameraBase vcam,
@@ -58,14 +67,22 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         pivotPos = vcam.Follow.position;
         desiredPos = stateRef.GetFinalPosition();
 
+        // Compute angular velocity (deg/sec)
+        Vector3 currentDir = GetDir(pivotPos, desiredPos);
+        if (lastDir != Vector3.zero)
+        {
+            float angle = Vector3.Angle(lastDir, currentDir);
+            angularVelocity = Mathf.Lerp(angularVelocity, angle / deltaTime, deltaTime * 10f);
+        }
+        lastDir = currentDir;
+
         if (currentBoom <= 0f)
             currentBoom = Mathf.Clamp(Vector3.Distance(pivotPos, desiredPos), minBoom, maxBoom);
 
         HandleBoom(deltaTime);
 
         // Final corrected position along boom
-        Vector3 dir = GetDir(pivotPos, desiredPos);
-        Vector3 corrected = pivotPos + dir * currentBoom;
+        Vector3 corrected = pivotPos + currentDir * currentBoom;
 
         // Apply shoulder offset directly to position
         ApplyCameraOffset(ref corrected, pivotPos, desiredPos, deltaTime);
@@ -82,7 +99,6 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         Vector3 origin = pivotPos + dir * 0.1f;
         if (showDebug) Debug.DrawLine(pivotPos, pivotPos + dir * currentBoom, Color.yellow);
 
-        // Fan whiskers in an arc (Y-up), biased toward the camera's offset side
         for (int i = 0; i < whiskerCount; i++)
         {
             float arcFraction = (whiskerCount == 1) ? 0.5f : (i / (float)(whiskerCount - 1));
@@ -121,23 +137,24 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             state = BoomState.Free;
         }
 
-        // --- Smooth boom update ---
+        // --- Smooth boom update with rotation dampening ---
         float smoothSpeed = (state == BoomState.Contracting)
             ? boomSmooth * contractionMultiplier
             : boomSmooth * expansionMultiplier;
 
+        // If rotating too fast, dampen boom speed to prevent clipping pops
+        if (angularVelocity > rotationSpeedThreshold)
+            smoothSpeed *= highRotationDampen;
+
         float blendFactor = 1f - Mathf.Exp(-deltaTime * smoothSpeed);
         currentBoom = Mathf.Lerp(currentBoom, targetBoom, blendFactor);
-
-        // Optional clamp for consistency
         currentBoom = Mathf.Clamp(currentBoom, minBoom, maxBoom);
 
         if (showDebug)
         {
             Debug.Log(
-                $"[CineDiag f={Time.frameCount}] " +
-                $"state={state}  boom={currentBoom:0.000}/{maxBoom:0.000}  " +
-                $"target={targetBoom:0.000}  nearest={lastNearest:0.000}  gotHit={gotHit}"
+                $"[CineDiag f={Time.frameCount}] state={state}  boom={currentBoom:0.000}/{maxBoom:0.000}  " +
+                $"target={targetBoom:0.000}  nearest={lastNearest:0.000}  gotHit={gotHit}  angVel={angularVelocity:0.0}"
             );
         }
     }
@@ -172,7 +189,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         string nearestTxt = float.IsInfinity(lastNearest) ? "∞" : lastNearest.ToString("0.000");
         UnityEditor.Handles.Label(
             pivotPos + Vector3.up * 0.25f,
-            $"State: {state}\nBoom: {currentBoom:0.00}/{maxBoom:0.00}\nNearest: {nearestTxt}\nOffsetX: {currentOffsetX:0.000}"
+            $"State: {state}\nBoom: {currentBoom:0.00}/{maxBoom:0.00}\nNearest: {nearestTxt}\nAngularVel: {angularVelocity:0.0}\nOffsetX: {currentOffsetX:0.000}"
         );
     }
 #endif
