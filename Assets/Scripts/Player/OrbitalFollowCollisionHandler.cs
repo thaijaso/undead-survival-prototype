@@ -13,32 +13,27 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     [Range(10f, 120f)] public float whiskerArc = 90f;
 
     [Header("Boom Settings")]
+    [Tooltip("Minimum and maximum boom length (camera distance).")]
     public float minBoom = 0.2f;
     public float maxBoom = 2f;
-    [Tooltip("Smooth speed for boom contraction/expansion")]
+    [Tooltip("Base smooth speed for boom contraction / expansion.")]
     public float boomSmooth = 14f;
     public float contractionMultiplier = 2.5f;
-    public float expansionMultiplier = 1f; // feels best in your setup
-
-    [Header("Rotation Clamp Settings")]
-    [Tooltip("Maximum allowed camera rotation speed in degrees per second before clamping")]
-    public float rotationSpeedThreshold = 720f;
-    [Tooltip("Multiplier to dampen boom response when above threshold (0–1 range)")]
-    [Range(0f, 1f)] public float highRotationDampen = 0.35f;
+    public float expansionMultiplier = 1f;
 
     [Header("Offset Settings")]
-    [Tooltip("Maximum shoulder offset when boom is fully extended")]
+    [Tooltip("Maximum shoulder offset when boom is fully extended.")]
     public float maxOffsetX = 0.5f;
-    [Tooltip("Minimum shoulder offset when boom is fully contracted")]
+    [Tooltip("Minimum shoulder offset when boom is fully contracted.")]
     public float minOffsetX = 0.3f;
-    [Tooltip("How fast shoulder offset transitions")]
+    [Tooltip("How fast shoulder offset transitions.")]
     public float offsetSmooth = 20f;
 
     [Header("Debug")]
     public bool showDebug = true;
     public bool showHUD = true;
 
-    // Runtime state
+    // --- Runtime state ---
     private float currentBoom;
     private float targetBoom;
     private float currentOffsetX;
@@ -46,12 +41,14 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
     private Vector3 desiredPos;
     private float lastNearest = Mathf.Infinity;
 
-    // Rotation tracking
+    // --- Optional diagnostic data ---
     private Vector3 lastDir;
     private float angularVelocity;
 
-    private enum BoomState { Free, Contracting }
-    private BoomState state = BoomState.Free;
+    private enum BoomState { Expanding, Contracting }
+    private BoomState state = BoomState.Expanding;
+
+    // ----------------------------------------------------------------------
 
     protected override void PostPipelineStageCallback(
         CinemachineVirtualCameraBase vcam,
@@ -67,7 +64,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         pivotPos = vcam.Follow.position;
         desiredPos = stateRef.GetFinalPosition();
 
-        // Compute angular velocity (deg/sec)
+        // Track angular velocity (deg/sec) – useful for future tuning or debugging.
         Vector3 currentDir = GetDir(pivotPos, desiredPos);
         if (lastDir != Vector3.zero)
         {
@@ -84,11 +81,13 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         // Final corrected position along boom
         Vector3 corrected = pivotPos + currentDir * currentBoom;
 
-        // Apply shoulder offset directly to position
+        // Apply shoulder offset
         ApplyCameraOffset(ref corrected, pivotPos, desiredPos, deltaTime);
 
         stateRef.RawPosition = corrected;
     }
+
+    // ----------------------------------------------------------------------
 
     private void HandleBoom(float deltaTime)
     {
@@ -99,6 +98,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         Vector3 origin = pivotPos + dir * 0.1f;
         if (showDebug) Debug.DrawLine(pivotPos, pivotPos + dir * currentBoom, Color.yellow);
 
+        // Whisker probes in an arc
         for (int i = 0; i < whiskerCount; i++)
         {
             float arcFraction = (whiskerCount == 1) ? 0.5f : (i / (float)(whiskerCount - 1));
@@ -124,7 +124,7 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
             }
         }
 
-        // --- State logic ---
+        // --- Boom state update ---
         if (gotHit)
         {
             lastNearest = nearest;
@@ -134,17 +134,13 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         else
         {
             targetBoom = maxBoom;
-            state = BoomState.Free;
+            state = BoomState.Expanding;
         }
 
-        // --- Smooth boom update with rotation dampening ---
+        // --- Smooth boom interpolation ---
         float smoothSpeed = (state == BoomState.Contracting)
             ? boomSmooth * contractionMultiplier
             : boomSmooth * expansionMultiplier;
-
-        // If rotating too fast, dampen boom speed to prevent clipping pops
-        if (angularVelocity > rotationSpeedThreshold)
-            smoothSpeed *= highRotationDampen;
 
         float blendFactor = 1f - Mathf.Exp(-deltaTime * smoothSpeed);
         currentBoom = Mathf.Lerp(currentBoom, targetBoom, blendFactor);
@@ -153,11 +149,13 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         if (showDebug)
         {
             Debug.Log(
-                $"[CineDiag f={Time.frameCount}] state={state}  boom={currentBoom:0.000}/{maxBoom:0.000}  " +
-                $"target={targetBoom:0.000}  nearest={lastNearest:0.000}  gotHit={gotHit}  angVel={angularVelocity:0.0}"
+                $"[CineDiag f={Time.frameCount}] state={state} boom={currentBoom:0.000}/{maxBoom:0.000} " +
+                $"target={targetBoom:0.000} nearest={lastNearest:0.000} gotHit={gotHit} angVel={angularVelocity:0.0}"
             );
         }
     }
+
+    // ----------------------------------------------------------------------
 
     private void ApplyCameraOffset(ref Vector3 correctedPosition, Vector3 pivotPos, Vector3 desiredPos, float dt)
     {
@@ -172,6 +170,8 @@ public class CinemachineOrbitalCollisionHandler : CinemachineExtension
         if (showDebug)
             Debug.DrawLine(pivotPos, correctedPosition, Color.cyan);
     }
+
+    // ----------------------------------------------------------------------
 
     private static Vector3 GetDir(Vector3 from, Vector3 to)
     {
