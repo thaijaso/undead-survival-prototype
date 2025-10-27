@@ -65,7 +65,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 252622574203300566, guid: ad44c878d5163af408bda8458c9887a3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.7602301
+      value: -0.76023
       objectReference: {fileID: 0}
     - target: {fileID: 252622574203300566, guid: ad44c878d5163af408bda8458c9887a3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -138,19 +138,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrbitalFollowCollisionHandler
   collisionMask:
     serializedVersion: 2
-    m_Bits: 65664
+    m_Bits: 327808
   whiskerRadius: 0.15
   whiskerCount: 3
   whiskerArc: 90
   minBoom: 0.1
-  maxBoom: 2
+  maxBoom: 1
   boomSmooth: 16
   contractionMultiplier: 10
   expansionMultiplier: 1
   maxOffsetX: 0.5
   minOffsetX: 0.27
   offsetSmooth: 20
-  showDebug: 1
+  showDebug: 0
   showHUD: 1
 --- !u!4 &7201624713246675907 stripped
 Transform:
@@ -211,7 +211,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5339522340983477718, guid: 700fabe6e55ed5c439882363313f672e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.7602301
+      value: -0.76023
       objectReference: {fileID: 0}
     - target: {fileID: 5339522340983477718, guid: 700fabe6e55ed5c439882363313f672e, type: 3}
       propertyPath: m_LocalRotation.w
