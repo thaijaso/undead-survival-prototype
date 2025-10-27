@@ -67,6 +67,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             }
 
             HandleAnimatorParams();
+            HandleOrbitalCollisionParams();
         }
 
         private void HandleAnimatorParams()
@@ -91,7 +92,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 animationManager.SetIsFacingWall(false);
             }
         }
-        
+
         private void HandleStairDetectedAnimatorParam()
         {
             if (player.StairDetector.IsStairDetected)
@@ -101,6 +102,18 @@ namespace UndeadSurvivalGame.PlayerSystems
             else
             {
                 animationManager.SetIsOnStairs(false);
+            }
+        }
+        
+        private void HandleOrbitalCollisionParams()
+        {
+            if (player.IsInside)
+            {
+                player.PlayerCameraController.SetMaxBoomTarget(1f); // TODO: define in player template
+            }
+            else
+            {
+                player.PlayerCameraController.SetMaxBoomTarget(2f); // TODO: define in player template
             }
         }
 

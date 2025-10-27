@@ -41,6 +41,17 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         [SerializeField]
         private PlayerMenuUIController playerMenuUIController;
+
+        [SerializeField]
+        private float exteriorMaxBoom = 2f;
+
+        [SerializeField]
+        private float interiorMaxBoom = 1f;
+
+        [SerializeField]
+        private float boomLerpSpeed = 4f;
+
+        private float targetMaxBoom;
         
         private CinemachineBasicMultiChannelPerlin noise;
 
@@ -61,9 +72,9 @@ namespace UndeadSurvivalGame.PlayerSystems
         private CinemachineInputAxisController inputAxisController;
 
         private CinemachineCameraOffset cameraOffset;
+        private CinemachineOrbitalCollisionHandler orbitalCollisionHandler;
 
         private float targetOffsetX = 0f;
-
 
         private bool isPlayerMenuActive = false;
 
@@ -89,6 +100,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupCameraRecoil();
             SetupCinemachineInputAxisController();
             SetupCinemachineCameraOffset();
+            SetupCinemachineOrbitalCollisionHandler();
         }
 
         private void EnsurePlayerCameraAssigned()
@@ -137,6 +149,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         private void Start()
         {
+            targetMaxBoom = exteriorMaxBoom;
             currentHorizontalAxisValue = orbitalFollow.HorizontalAxis.Value;
             currentVerticalAxisValue = orbitalFollow.VerticalAxis.Value;
 
@@ -189,6 +202,15 @@ namespace UndeadSurvivalGame.PlayerSystems
             }
         }
 
+        private void SetupCinemachineOrbitalCollisionHandler()
+        {
+            orbitalCollisionHandler = playerCamera.GetComponent<CinemachineOrbitalCollisionHandler>();
+            if (orbitalCollisionHandler == null)
+            {
+                Debug.LogWarning($"[{gameObject.name}] PlayerCameraController.SetupCinemachineOrbitalCollisionHandler(): CinemachineOrbitalCollisionHandler component not found on the follow camera.");
+            }
+        }
+
         private void SetupPlayerMenuToggledHandler()
         {
             if (playerMenuUIController != null)
@@ -210,6 +232,19 @@ namespace UndeadSurvivalGame.PlayerSystems
         void Update()
         {
             HandleCursorLock();
+            HandleMaxBoomLerp();
+        }
+
+        private void HandleMaxBoomLerp()
+        {
+            if (orbitalCollisionHandler != null)
+            {
+                orbitalCollisionHandler.maxBoom = Mathf.Lerp(
+                    orbitalCollisionHandler.maxBoom,
+                    targetMaxBoom,
+                    Time.deltaTime * boomLerpSpeed
+                );
+            }
         }
 
         void LateUpdate()
@@ -448,6 +483,11 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (pitch > 180f)
                 pitch -= 360f;
             return -pitch; // Invert so aiming up is positive
+        }
+
+        public void SetMaxBoomTarget(float maxBoom)
+        {
+            targetMaxBoom = maxBoom;
         }
     }
 }

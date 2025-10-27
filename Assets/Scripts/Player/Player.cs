@@ -9,6 +9,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 {
     public class Player : MonoBehaviour
     {
+        public bool IsInside = false;
         public PlayerDebugger Debugger { get; private set; }
         public PlayerInput PlayerInput { get; private set; }
         public PlayerCharacterController PlayerCharacterController { get; private set; }
