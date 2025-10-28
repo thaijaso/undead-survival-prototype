@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using andywiecko.BurstTriangulator;
+using UnityEngine;
 
 namespace UndeadSurvivalGame.PlayerSystems
 {
@@ -68,6 +69,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             HandleAnimatorParams();
             HandleOrbitalCollisionParams();
+            HandleFadeCutoffParam();
         }
 
         private void HandleAnimatorParams()
@@ -104,7 +106,7 @@ namespace UndeadSurvivalGame.PlayerSystems
                 animationManager.SetIsOnStairs(false);
             }
         }
-        
+
         private void HandleOrbitalCollisionParams()
         {
             if (player.IsInside)
@@ -115,6 +117,13 @@ namespace UndeadSurvivalGame.PlayerSystems
             {
                 player.PlayerCameraController.SetMaxBoomTarget(2f); // TODO: define in player template
             }
+        }
+        
+        private void HandleFadeCutoffParam()
+        {
+            bool isBlocking = player.CenterZoneOverlapCalculator.isPlayerBlockingView;
+            float cutoffValue = isBlocking ? 1f : 0f; // 1 = fully cut, 0 = opaque
+            player.AlphaCutoffController.SetCutoff(cutoffValue);
         }
 
         public virtual void PhysicsUpdate()

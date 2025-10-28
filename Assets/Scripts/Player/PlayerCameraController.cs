@@ -25,10 +25,10 @@ namespace UndeadSurvivalGame.PlayerSystems
         private float orbitalFollowRadius = 1f;
         
         [SerializeField]
-        private float followFOV = 40f;
+        private float followFOV = 50f;
 
         [SerializeField]
-        private float aimFOV = 28.7f;
+        private float aimFOV = 40f;
 
         [SerializeField]
         private float zoomSpeed = 5f;
@@ -348,11 +348,11 @@ namespace UndeadSurvivalGame.PlayerSystems
         {
             if (Mathf.Abs(playerCamera.Lens.FieldOfView - aimFOV) > 0.01f)
             {
-                // playerCamera.Lens.FieldOfView = Mathf.Lerp(
-                //     playerCamera.Lens.FieldOfView,
-                //     aimFOV,
-                //     Time.deltaTime * zoomSpeed
-                // );
+                playerCamera.Lens.FieldOfView = Mathf.Lerp(
+                    playerCamera.Lens.FieldOfView,
+                    aimFOV,
+                    Time.deltaTime * zoomSpeed
+                );
             }
         }
 
@@ -360,11 +360,11 @@ namespace UndeadSurvivalGame.PlayerSystems
         {
             if (Mathf.Abs(playerCamera.Lens.FieldOfView - followFOV) > 0.01f)
             {
-                // playerCamera.Lens.FieldOfView = Mathf.Lerp(
-                //     playerCamera.Lens.FieldOfView,
-                //     followFOV,
-                //     Time.deltaTime * zoomSpeed
-                // );
+                playerCamera.Lens.FieldOfView = Mathf.Lerp(
+                    playerCamera.Lens.FieldOfView,
+                    followFOV,
+                    Time.deltaTime * zoomSpeed
+                );
             }
         }
 

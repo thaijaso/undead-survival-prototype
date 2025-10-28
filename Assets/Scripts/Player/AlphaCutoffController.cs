@@ -3,6 +3,9 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class AlphaCutoffController : MonoBehaviour
 {
+    [Header("Camera")]
+    public Camera mainCamera;
+
     [Tooltip("Renderers using All-in-1 3D Shader (URP variant).")]
     public Renderer[] targets;
 
@@ -12,6 +15,8 @@ public class AlphaCutoffController : MonoBehaviour
 
     MaterialPropertyBlock materialPropertyBlock;
     int cutoffId = -1;
+
+    private float targetCutoff;
 
     void Awake()
     {
@@ -27,6 +32,11 @@ public class AlphaCutoffController : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        cutoff = Mathf.MoveTowards(cutoff, targetCutoff, Time.deltaTime * 4f);
+    }
+
     void LateUpdate()
     {
         if (cutoffId == -1 || targets == null) return;
@@ -40,5 +50,7 @@ public class AlphaCutoffController : MonoBehaviour
         }
     }
 
-    public void SetCutoff(float value) => cutoff = Mathf.Clamp01(value);
+    public void SetCutoff(float value) {
+        targetCutoff = Mathf.Clamp01(value);
+    }
 }

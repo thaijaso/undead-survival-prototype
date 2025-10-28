@@ -37,6 +37,8 @@ namespace UndeadSurvivalGame.PlayerSystems
         public InteractionSensor InteractionSensor { get; private set; }
         public WallDetector WallDetector { get; private set; }
         public StairDetector StairDetector { get; private set; }
+        public AlphaCutoffController AlphaCutoffController { get; private set; }
+        public CenterZoneOverlapCalculator CenterZoneOverlapCalculator { get; private set; }
 
         public StateMachine<PlayerState> stateMachine;
         
@@ -112,6 +114,8 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupUpperBodyLayerWeightController();
             SetupWallDetector();
             SetupStairDetector();
+            SetupAlhpaCutoffController();
+            SetupCenterZoneOverlapCalculator();
 
             stateMachine = new StateMachine<PlayerState>(gameObject.name);
         }
@@ -318,6 +322,22 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (StairDetector == null)
                 Debug.LogError($"[{gameObject.name}] Player.SetupStairDetector(): StairDetector component is missing!");
+        }
+
+        private void SetupAlhpaCutoffController()
+        {
+            AlphaCutoffController = GetComponent<AlphaCutoffController>();
+
+            if (AlphaCutoffController == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupAlphaCutoffController(): AlphaCutoffController component is missing!");
+        }
+
+        private void SetupCenterZoneOverlapCalculator()
+        {
+            CenterZoneOverlapCalculator = GetComponent<CenterZoneOverlapCalculator>();
+
+            if (CenterZoneOverlapCalculator == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupCenterZoneOverlapCalculator(): CenterZoneOverlapCalculator component is missing!");
         }
 
         void Start()
