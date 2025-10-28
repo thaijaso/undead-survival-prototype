@@ -138,7 +138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrbitalFollowCollisionHandler
   collisionMask:
     serializedVersion: 2
-    m_Bits: 327808
+    m_Bits: 65664
   whiskerRadius: 0.15
   whiskerCount: 3
   whiskerArc: 90

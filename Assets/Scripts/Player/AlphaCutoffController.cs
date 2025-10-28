@@ -40,6 +40,5 @@ public class AlphaCutoffController : MonoBehaviour
         }
     }
 
-    // Call this from your camera/boom logic
     public void SetCutoff(float value) => cutoff = Mathf.Clamp01(value);
 }
