@@ -141,16 +141,16 @@ MonoBehaviour:
     m_Bits: 65664
   whiskerRadius: 0.15
   whiskerCount: 3
-  whiskerArc: 90
+  whiskerArc: 45
   minBoom: 0.1
   maxBoom: 1
   boomSmooth: 16
   contractionMultiplier: 10
   expansionMultiplier: 1
   maxOffsetX: 0.5
-  minOffsetX: 0.27
-  offsetSmooth: 20
-  showDebug: 0
+  minOffsetX: 0.2
+  offsetSmooth: 30
+  showDebug: 1
   showHUD: 1
 --- !u!4 &7201624713246675907 stripped
 Transform:
