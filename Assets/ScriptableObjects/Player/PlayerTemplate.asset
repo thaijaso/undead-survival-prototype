@@ -22,6 +22,10 @@ MonoBehaviour:
   weaponHandPrefab: {fileID: 7043368164534432167, guid: d5b6f3aaa243f2246bf9632173a1071c, type: 3}
   aimIKTargetPrefab: {fileID: 7020015362888870630, guid: 2015b64ff3c87c4439b7161311fb9e74, type: 3}
   leftHandIKTargetPrefab: {fileID: 2450963587049482100, guid: 13c3b19425707924293392e8db98d2c1, type: 3}
+  playerInteractionSensorPrefab: {fileID: 8695299655488019408, guid: 15335c41f23997a4a9bf92289206ad12, type: 3}
+  wallDetectorPrefab: {fileID: 3786378305688985398, guid: 677473aa0a830f449bab51bfa803759e, type: 3}
+  stairDetectorPrefab: {fileID: 5936155349824361412, guid: 5b03352a22eafbf4eb23e4e1620dc467, type: 3}
+  fadeColliderPrefab: {fileID: 6000144781523894166, guid: 99c1c6447a7ca00458a965e11aad2b69, type: 3}
   followFOV: 40
   aimFOV: 28.7
   zoomSpeed: 5

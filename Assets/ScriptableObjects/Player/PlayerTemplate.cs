@@ -29,25 +29,41 @@ public class PlayerTemplate : ScriptableObject
     [InfoBox("Assign the animator controller for this player template.")]
     public RuntimeAnimatorController animatorController;
 
-    [TabGroup("References")]
+    [TabGroup("Prefabs")]
     [InfoBox("Assign the prefab reference for the ForwardFollowTarget child object (not an in-game object).")]
     public GameObject followTargetPrefab;
 
-    [TabGroup("References")]
+    [TabGroup("Prefabs")]
     [InfoBox("Assign the prefab reference for the BulletHitTarget child object (not an in-game object).")]
     public GameObject bulletHitTargetPrefab;
 
-    [TabGroup("References")]
+    [TabGroup("Prefabs")]
     [InfoBox("Assign the prefab reference for the Player's WeaponHand (not an in-game object).")]
     public GameObject weaponHandPrefab;
 
-    [TabGroup("References")]
+    [TabGroup("Prefabs")]
     [InfoBox("Assign the prefab reference for the AimIKTarget child object (not an in-game object).")]
     public GameObject aimIKTargetPrefab;
 
-    [TabGroup("References")]
+    [TabGroup("Prefabs")]
     [InfoBox("Assign the prefab reference for LeftHandIKTarget child object (not an in-game object).")]
     public GameObject leftHandIKTargetPrefab;
+
+    [TabGroup("Prefabs")]
+    [InfoBox("Assign the prefab reference for PlayerInteractionSensor (not an in-game object).")]
+    public GameObject playerInteractionSensorPrefab;
+
+    [TabGroup("Prefabs")]
+    [InfoBox("Assign the prefab reference for the WallDetector child gameobject (not an in-game object).")]
+    public GameObject wallDetectorPrefab;
+
+    [TabGroup("Prefabs")]
+    [InfoBox("Assign the prefab reference for the StairDetector child gameobject (not an in-game object).")]
+    public GameObject stairDetectorPrefab;
+
+    [TabGroup("Prefabs")]
+    [InfoBox("Assign the prefab reference for the FadeCollider child gameobject (not an in-game object).")]
+    public GameObject fadeColliderPrefab;
 
     [TabGroup("Camera")]
     [MinValue(1f)]
@@ -105,7 +121,7 @@ public class PlayerTemplate : ScriptableObject
     [InfoBox("Validates template settings and checks for potential configuration issues")]
     private void ValidateSettings()
     {
-        Debug.Log($"[PlayerTemplate] Player Settings for {name}:");
+        Debug.Log($"[PlayerTemplate]   Player Settings for {name}:");
         Debug.Log($"[PlayerTemplate]   Max Health: {maxHealth} HP");
         Debug.Log($"[PlayerTemplate]   Strafe Speed: {strafeSpeed} units/sec");
         Debug.Log($"[PlayerTemplate]   Sprint Speed: {sprintSpeed} units/sec");
@@ -113,7 +129,12 @@ public class PlayerTemplate : ScriptableObject
         Debug.Log($"[PlayerTemplate]   Follow FOV: {followFOV} deg");
         Debug.Log($"[PlayerTemplate]   Aim FOV: {aimFOV} deg");
         Debug.Log($"[PlayerTemplate]   Zoom Speed: {zoomSpeed} units/sec");
+        Debug.Log($"[PlayerTemplate]   FollowTarget Prefab: {(followTargetPrefab != null ? followTargetPrefab.name : "null")}");
         Debug.Log($"[PlayerTemplate]   BulletHitTarget Prefab: {(bulletHitTargetPrefab != null ? bulletHitTargetPrefab.name : "null")}");
+        Debug.Log($"[PlayerTemplate]   WeaponHand Prefab: {(weaponHandPrefab != null ? weaponHandPrefab.name : "null")}");
+        Debug.Log($"[PlayerTemplate]   AimIKTarget Prefab: {(aimIKTargetPrefab != null ? aimIKTargetPrefab.name : "null")}");
+        Debug.Log($"[PlayerTemplate]   LeftHandIKTarget Prefab: {(leftHandIKTargetPrefab != null ? leftHandIKTargetPrefab.name : "null")}");
+        Debug.Log($"[PlayerTemplate]   PlayerInteractionSensor Prefab: {(playerInteractionSensorPrefab != null ? playerInteractionSensorPrefab.name : "null")}");
 
         // --- Reference validation ---
         if (animatorController == null)
@@ -139,8 +160,8 @@ public class PlayerTemplate : ScriptableObject
     }
 
 #if UNITY_EDITOR
-    [TabGroup("References")]
-    [Button("Auto-Setup References")]
+    [TabGroup("Prefabs")]
+    [Button("Auto-Setup Prefab references")]
     [InfoBox("Automatically finds and assigns prefab references for this PlayerTemplate asset.")]
     [ShowInInspector]
     public void AutoSetupReferences()

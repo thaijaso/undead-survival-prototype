@@ -58,6 +58,17 @@ namespace UndeadSurvivalGame.Editor
             SetupPlayerAnimatorEvents(player);
             SetupPlayerComponentReferences(player);
             SetupBipedRagdollCreator(player, overwriteExisting);
+            SetupPlayerInventory(player);
+            SetupInventoryBootstrap(player);
+            SetupAimPoseLayerWeightController(player, overwriteExisting);
+            SetupAimPitchLayerWeightController(player, overwriteExisting);
+            SetupUpperBodyLayerWeightController(player, overwriteExisting);
+            SetupAlphaCutoffController(player, overwriteExisting);
+            SetupCenterZoneOverlapCalculator(player, overwriteExisting);
+            SetupPlayerInteractionSensor(player, overwriteExisting);
+            SetupWallDetector(player, overwriteExisting);
+            SetupStairDetector(player, overwriteExisting);
+            SetupFadeCollider(player, overwriteExisting);
             AssignPlayerToEnemies(player);
             
             if (player.gameObject != null)
@@ -473,11 +484,11 @@ namespace UndeadSurvivalGame.Editor
                 if (prefab == null)
                 {
                     // Try to find a prefab in the project named "BulletHitTarget" or of type GameObject
-                    string[] guids = UnityEditor.AssetDatabase.FindAssets("BulletHitTarget t:Prefab");
+                    string[] guids = AssetDatabase.FindAssets("BulletHitTarget t:Prefab");
                     if (guids != null && guids.Length > 0)
                     {
-                        string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
-                        prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                        prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                         Debug.Log($"[AutoSetup] Fallback: Found BulletHitTarget prefab at {path}.");
                     }
                 }
@@ -1599,17 +1610,6 @@ namespace UndeadSurvivalGame.Editor
                 type.GetProperty("PlayerIKController")?.SetValue(player, playerIKController);
                 EditorUtility.SetDirty(playerIKController);
                 PrefabUtility.RecordPrefabInstancePropertyModifications(playerIKController);
-                // If auto setup is pressed and overwrite is true, set debugOverrideIKWeight to false
-                var debugOverrideField = playerIKController.GetType().GetField("debugOverrideIKWeight", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (debugOverrideField != null)
-                {
-                    debugOverrideField.SetValue(playerIKController, false);
-                    Debug.Log($"[AutoSetup] PlayerIKController.debugOverrideIKWeight set to false for {player.gameObject.name}.");
-                }
-                else
-                {
-                    Debug.LogWarning($"[AutoSetup] Could not find 'debugOverrideIKWeight' field on PlayerIKController for {player.gameObject.name}.");
-                }
                 // Assign LeftHandIKTarget if it exists
                 var leftHandIKTarget = FindDirectChildByName(player.transform, "LeftHandIKTarget");
                 if (leftHandIKTarget != null)
@@ -1773,7 +1773,7 @@ namespace UndeadSurvivalGame.Editor
             }
             Debug.Log($"[AutoSetup] SetupEnemyPlayerReference: Set Player Transform for {setCount} Enemy components.");
         }
-        
+
         private static void SetupBipedRagdollCreator(Player player, bool overwriteExisting = true)
         {
             if (player == null) return;
@@ -1800,6 +1800,390 @@ namespace UndeadSurvivalGame.Editor
             // Mark as dirty for persistence
             EditorUtility.SetDirty(bipedRagdollCreator);
             PrefabUtility.RecordPrefabInstancePropertyModifications(bipedRagdollCreator);
+        }
+
+        private static void SetupPlayerInventory(Player player)
+        {
+            if (player == null)
+                return;
+
+            var inventory = player.GetComponent<Inventory>();
+            if (inventory == null)
+            {
+                inventory = player.gameObject.AddComponent<Inventory>();
+                Debug.Log($"[AutoSetup] Inventory component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] Inventory component already exists on {player.gameObject.name}.");
+            }
+
+            // Mark as dirty for persistence
+            EditorUtility.SetDirty(inventory);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(inventory);
+        }
+
+        private static void SetupInventoryBootstrap(Player player)
+        {
+            if (player == null)
+                return;
+
+            var inventoryBootstrap = player.GetComponent<InventoryBootstrap>();
+            if (inventoryBootstrap == null)
+            {
+                inventoryBootstrap = player.gameObject.AddComponent<InventoryBootstrap>();
+                Debug.Log($"[AutoSetup] InventoryBootstrap component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] InventoryBootstrap component already exists on {player.gameObject.name}.");
+            }
+
+            // Assign Inventory reference to InventoryBootstrap
+            var inventory = player.GetComponent<Inventory>();
+            if (inventory != null)
+            {
+                var inventoryField = inventoryBootstrap.GetType().GetField("inventory", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (inventoryField != null)
+                {
+                    inventoryField.SetValue(inventoryBootstrap, inventory);
+                    Debug.Log($"[AutoSetup] Assigned Inventory reference to InventoryBootstrap for {player.gameObject.name}.");
+                }
+                else
+                {
+                    var inventoryProp = inventoryBootstrap.GetType().GetProperty("inventory", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (inventoryProp != null && inventoryProp.CanWrite)
+                    {
+                        inventoryProp.SetValue(inventoryBootstrap, inventory);
+                        Debug.Log($"[AutoSetup] Assigned Inventory property to InventoryBootstrap for {player.gameObject.name}.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[AutoSetup] Could not find field or writable property 'inventory' on InventoryBootstrap for {player.gameObject.name}.");
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] Inventory component not found on {player.gameObject.name}, cannot assign to InventoryBootstrap.");
+            }
+
+            // Assign InventoryPreset
+            var inventoryPreset = FindFirstInventoryPreset();
+            if (inventoryPreset != null)
+            {
+                var presetField = inventoryBootstrap.GetType().GetField("preset", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (presetField != null)
+                {
+                    presetField.SetValue(inventoryBootstrap, inventoryPreset);
+                    Debug.Log($"[AutoSetup] Assigned InventoryPreset reference to InventoryBootstrap for {player.gameObject.name}.");
+                }
+                else
+                {
+                    var presetProp = inventoryBootstrap.GetType().GetProperty("preset", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (presetProp != null && presetProp.CanWrite)
+                    {
+                        presetProp.SetValue(inventoryBootstrap, inventoryPreset);
+                        Debug.Log($"[AutoSetup] Assigned InventoryPreset property to InventoryBootstrap for {player.gameObject.name}.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[AutoSetup] Could not find field or writable property 'preset' on InventoryBootstrap for {player.gameObject.name}.");
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[AutoSetup] InventoryPreset asset not found, cannot assign to InventoryBootstrap.");
+            }
+
+            // Mark as dirty for persistence
+            EditorUtility.SetDirty(inventoryBootstrap);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(inventoryBootstrap);
+        }
+
+        private static InventoryPreset FindFirstInventoryPreset()
+        {
+            // Finds assets of type InventoryPreset and returns the first one (or null)
+            string[] guids = AssetDatabase.FindAssets("t:InventoryPreset");
+            if (guids == null || guids.Length == 0) return null;
+
+            string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            if (string.IsNullOrEmpty(path)) return null;
+
+            var preset = AssetDatabase.LoadAssetAtPath<InventoryPreset>(path);
+            return preset;
+        }
+
+        private static void SetupAimPoseLayerWeightController(Player player, bool overwriteExisting)
+        {
+            if (player == null) return;
+
+            var aimPoseLayerWeightController = player.GetComponent<AimPoseLayerWeightController>();
+            if (aimPoseLayerWeightController == null)
+            {
+                aimPoseLayerWeightController = player.gameObject.AddComponent<AimPoseLayerWeightController>();
+                Debug.Log($"[AutoSetup] AimPoseLayerWeightController component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] AimPoseLayerWeightController component already exists on {player.gameObject.name}.");
+            }
+
+            // Persist the change so it survives entering Play Mode / domain reload
+            EditorUtility.SetDirty(aimPoseLayerWeightController);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(aimPoseLayerWeightController);
+        }
+
+        private static void SetupAimPitchLayerWeightController(Player player, bool overwriteExisting)
+        {
+            if (player == null) 
+                return;
+
+            var aimPitchLayerWeightController = player.GetComponent<AimPitchLayerWeightController>();
+            if (aimPitchLayerWeightController == null)
+            {
+                aimPitchLayerWeightController = player.gameObject.AddComponent<AimPitchLayerWeightController>();
+                Debug.Log($"[AutoSetup] AimPitchLayerWeightController component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] AimPitchLayerWeightController component already exists on {player.gameObject.name}.");
+            }
+
+            EditorUtility.SetDirty(aimPitchLayerWeightController);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(aimPitchLayerWeightController);
+        }
+
+        private static void SetupUpperBodyLayerWeightController(Player player, bool overwriteExisting)
+        {
+            if (player == null)
+                return;
+
+            var upperBodyLayerWeightController = player.GetComponent<UpperBodyLayerWeightController>();
+            if (upperBodyLayerWeightController == null)
+            {
+                upperBodyLayerWeightController = player.gameObject.AddComponent<UpperBodyLayerWeightController>();
+                Debug.Log($"[AutoSetup] UpperBodyLayerWeightController component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] UpperBodyLayerWeightController component already exists on {player.gameObject.name}.");
+            }
+
+            EditorUtility.SetDirty(upperBodyLayerWeightController);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(upperBodyLayerWeightController);
+        }
+
+        private static void SetupAlphaCutoffController(Player player, bool overwriteExisting)
+        {
+            if (player == null)
+                return;
+
+            var alphaCutoffController = player.GetComponent<AlphaCutoffController>();
+            if (alphaCutoffController == null)
+            {
+                alphaCutoffController = player.gameObject.AddComponent<AlphaCutoffController>();
+                Debug.Log($"[AutoSetup] AlphaCutoffController component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] AlphaCutoffController component already exists on {player.gameObject.name}.");
+            }
+
+            // Assign mainCamera if it's missing or if we're allowed to overwrite existing reference
+            if (alphaCutoffController != null)
+            {
+                if (overwriteExisting || alphaCutoffController.mainCamera == null)
+                {
+                    // Try to find a GameObject named "MainCamera" and get its Camera component
+                    Camera foundCam = null;
+                    var camGO = GameObject.Find("MainCamera");
+                    if (camGO != null)
+                        foundCam = camGO.GetComponent<Camera>();
+
+                    // Fallback to Camera.main (tag-based) if name-based lookup failed
+                    if (foundCam == null)
+                        foundCam = Camera.main;
+
+                    if (foundCam != null)
+                    {
+                        alphaCutoffController.mainCamera = foundCam;
+                        Debug.Log($"[AutoSetup] Assigned AlphaCutoffController.mainCamera on {player.gameObject.name} to {foundCam.gameObject.name}.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[AutoSetup] Could not find a GameObject named 'MainCamera' with a Camera component (or Camera.main). AlphaCutoffController.mainCamera remains unset on {player.gameObject.name}.");
+                    }
+                }
+            }
+
+            EditorUtility.SetDirty(alphaCutoffController);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(alphaCutoffController);
+        }
+        
+        private static void SetupCenterZoneOverlapCalculator(Player player, bool overwriteExisting)
+        {
+            if (player == null)
+                return;
+
+            var centerZoneOverlapCalculator = player.GetComponent<CenterZoneOverlapCalculator>();
+            if (centerZoneOverlapCalculator == null)
+            {
+                centerZoneOverlapCalculator = player.gameObject.AddComponent<CenterZoneOverlapCalculator>();
+                Debug.Log($"[AutoSetup] CenterZoneOverlapCalculator component added to {player.gameObject.name}.");
+            }
+            else
+            {
+                Debug.Log($"[AutoSetup] CenterZoneOverlapCalculator component already exists on {player.gameObject.name}.");
+            }
+
+            centerZoneOverlapCalculator.renderCam = Camera.main;
+            centerZoneOverlapCalculator.playerFadeMask = LayerMask.GetMask("FadeCollider");
+            centerZoneOverlapCalculator.sphereRadius = .1f;
+            centerZoneOverlapCalculator.maxDistance = 3f;
+            centerZoneOverlapCalculator.backOffset = 1f;
+
+            EditorUtility.SetDirty(centerZoneOverlapCalculator);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(centerZoneOverlapCalculator);
+        }
+
+        private static void SetupPlayerInteractionSensor(Player player, bool overwriteExisting)
+        {
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            // Find the PlayerInteractionSensor in the player's hierarchy
+            Transform sensor = FindDirectChildByName(player.transform, "PlayerInteractionSensor");
+            if (sensor == null)
+            {
+                GameObject prefab = player.playerTemplate.playerInteractionSensorPrefab;
+                if (prefab == null)
+                {
+                    // Try to find a prefab named "PlayerInteractionSensor" in the project
+                    string[] guids = AssetDatabase.FindAssets("PlayerInteractionSensor t:Prefab");
+                    if (guids != null && guids.Length > 0)
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                        prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                        Debug.Log($"[AutoSetup] Fallback: Found PlayerInteractionSensor prefab at {path}.");
+                    }
+                }
+                if (prefab != null)
+                {
+                    GameObject sensorInstance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                    sensorInstance.name = "PlayerInteractionSensor";
+                    Debug.Log($"[AutoSetup] PlayerInteractionSensor prefab instantiated and added to {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] PlayerInteractionSensor prefab not found. Cannot add to {player.gameObject.name}.");
+                }
+            }
+        }
+
+        private static void SetupWallDetector(Player player, bool overwriteExisting)
+        {
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            // Find the WallDetector in the player's hierarchy
+            Transform detector = FindDirectChildByName(player.transform, "WallDetector");
+            if (detector == null)
+            {
+                GameObject prefab = player.playerTemplate.wallDetectorPrefab;
+                if (prefab == null)
+                {
+                    // Try to find a prefab named "WallDetector" in the project
+                    string[] guids = AssetDatabase.FindAssets("WallDetector t:Prefab");
+                    if (guids != null && guids.Length > 0)
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                        prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                        Debug.Log($"[AutoSetup] Fallback: Found WallDetector prefab at {path}.");
+                    }
+                }
+                if (prefab != null)
+                {
+                    GameObject detectorInstance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                    detectorInstance.name = "WallDetector";
+                    Debug.Log($"[AutoSetup] WallDetector prefab instantiated and added to {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] WallDetector prefab not found. Cannot add to {player.gameObject.name}.");
+                }
+            }
+        }
+
+        private static void SetupStairDetector(Player player, bool overwriteExisting)
+        {
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            // Find the StairDetector in the player's hierarchy
+            Transform detector = FindDirectChildByName(player.transform, "StairDetector");
+            if (detector == null)
+            {
+                GameObject prefab = player.playerTemplate.stairDetectorPrefab;
+                if (prefab == null)
+                {
+                    // Try to find a prefab named "StairDetector" in the project
+                    string[] guids = AssetDatabase.FindAssets("StairDetector t:Prefab");
+                    if (guids != null && guids.Length > 0)
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                        prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                        Debug.Log($"[AutoSetup] Fallback: Found StairDetector prefab at {path}.");
+                    }
+                }
+                if (prefab != null)
+                {
+                    GameObject detectorInstance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                    detectorInstance.name = "StairDetector";
+                    Debug.Log($"[AutoSetup] StairDetector prefab instantiated and added to {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] StairDetector prefab not found. Cannot add to {player.gameObject.name}.");
+                }
+            }
+        }
+
+        private static void SetupFadeCollider(Player player, bool overwriteExisting)
+        {
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            // Find the FadeCollider in the player's hierarchy
+            Transform collider = FindDirectChildByName(player.transform, "FadeCollider");
+            if (collider == null)
+            {
+                GameObject prefab = player.playerTemplate.fadeColliderPrefab;
+                if (prefab == null)
+                {
+                    // Try to find a prefab named "FadeCollider" in the project
+                    string[] guids = AssetDatabase.FindAssets("FadeCollider t:Prefab");
+                    if (guids != null && guids.Length > 0)
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                        prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                        Debug.Log($"[AutoSetup] Fallback: Found FadeCollider prefab at {path}.");
+                    }
+                }
+                if (prefab != null)
+                {
+                    GameObject colliderInstance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                    colliderInstance.name = "FadeCollider";
+                    Debug.Log($"[AutoSetup] FadeCollider prefab instantiated and added to {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] FadeCollider prefab not found. Cannot add to {player.gameObject.name}.");
+                }
+            }
+
+
         }
     }
 }

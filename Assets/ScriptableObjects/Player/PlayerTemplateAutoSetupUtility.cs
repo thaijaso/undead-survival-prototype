@@ -16,6 +16,11 @@ public static class PlayerTemplateAutoSetupUtility
         changed |= TryAssignPrefabByName(template, "weaponHandPrefab", "WeaponHand");
         changed |= TryAssignPrefabByName(template, "aimIKTargetPrefab", "AimIKTarget");
         changed |= TryAssignPrefabByName(template, "leftHandIKTargetPrefab", "LeftHandIKTarget");
+        changed |= TryAssignPrefabByName(template, "playerInteractionSensorPrefab", "PlayerInteractionSensor");
+        changed |= TryAssignPrefabByName(template, "wallDetectorPrefab", "WallDetector");
+        changed |= TryAssignPrefabByName(template, "stairDetectorPrefab", "StairDetector");
+        changed |= TryAssignPrefabByName(template, "fadeColliderPrefab", "FadeCollider"); 
+
         // Add more as needed
         if (changed)
         {
