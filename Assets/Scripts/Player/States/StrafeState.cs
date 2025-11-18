@@ -92,5 +92,12 @@ namespace UndeadSurvivalGame.PlayerSystems
                 animationManager.SetIsStrafing(false);
             }
         }
+
+        public override void LateUpdate()
+        {
+            base.LateUpdate();
+
+            player.PlayerIKController.UpdateLeftHand();
+        }
     }
 }

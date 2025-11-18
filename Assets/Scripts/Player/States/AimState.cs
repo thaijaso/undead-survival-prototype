@@ -229,22 +229,22 @@ namespace UndeadSurvivalGame.PlayerSystems
             }
         }
 
-    private void UpdateStrafeAndIdle()
-    {
-        if (player.PlayerInput.IsMoving)
+        private void UpdateStrafeAndIdle()
         {
-            animationManager.SetIsStrafing(true);
+            if (player.PlayerInput.IsMoving)
+            {
+                animationManager.SetIsStrafing(true);
+            }
+            else
+            {
+                animationManager.SetIsStrafing(false);
+                animationManager.SetIsIdle(true);
+            }
         }
-        else
-        {
-            animationManager.SetIsStrafing(false);
-            animationManager.SetIsIdle(true);
-        }
-    }
 
         public override void LateUpdate()
         {
-            base.LateUpdate();
+            //base.LateUpdate();
 
             player.PlayerCameraController.MoveAimIKTarget();
             player.PlayerCameraController.MoveBulletHitTarget();

@@ -31,6 +31,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetIsSprinting(true);
             animationManager.SetIsIdle(false);
             animationManager.SetIsStrafing(false);
+            player.AimPoseLayerWeightController.SetWeight(0f);
         }
 
         public override void Exit(PlayerState nextState)
@@ -68,6 +69,13 @@ namespace UndeadSurvivalGame.PlayerSystems
                 stateMachine.SetState(player.reload);
                 return;
             }
+        }
+
+        public override void LateUpdate()
+        {
+            base.LateUpdate();
+
+            player.PlayerIKController.UpdateLeftHand();
         }
     }
 }

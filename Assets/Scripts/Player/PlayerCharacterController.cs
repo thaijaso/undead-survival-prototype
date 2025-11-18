@@ -3,8 +3,8 @@ using UnityEngine;
 namespace UndeadSurvivalGame.PlayerSystems
 { 
 
-    [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(PlayerIKController))]
+    //[RequireComponent(typeof(CharacterController))]
+    //[RequireComponent(typeof(PlayerIKController))]
     public class PlayerCharacterController : MonoBehaviour
     {
         // Set this to true to enable debug logs

@@ -94,23 +94,23 @@ ModelImporter:
     - boneName: thigh_stretch.l
       humanName: LeftUpperLeg
       limit:
-        min: {x: -35.16, y: -14.4, z: -90}
-        max: {x: 27.960003, y: 45.41033, z: 50}
+        min: {x: -60.59478, y: -27.11739, z: -90}
+        max: {x: 69.04696, y: 70.84512, z: 83.260864}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: thigh_stretch.r
       humanName: RightUpperLeg
       limit:
-        min: {x: -35.16, y: -14.4, z: -90}
-        max: {x: 27.96, y: 45.41033, z: 50}
+        min: {x: -60.59478, y: -27.11739, z: -90}
+        max: {x: 69.04696, y: 70.84512, z: 83.26086}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: leg_stretch.l
       humanName: LeftLowerLeg
       limit:
-        min: {x: -38.16, y: 0, z: -47.6}
+        min: {x: -38.16, y: 0, z: -50.534782}
         max: {x: 53.280003, y: 0, z: 75.32}
         value: {x: 0, y: 0, z: 0}
         length: 0
@@ -118,7 +118,7 @@ ModelImporter:
     - boneName: leg_stretch.r
       humanName: RightLowerLeg
       limit:
-        min: {x: -38.16, y: 0, z: -47.6}
+        min: {x: -38.16, y: 0, z: -50.53478}
         max: {x: 53.28, y: 0, z: 75.32}
         value: {x: 0, y: 0, z: 0}
         length: 0
@@ -142,16 +142,16 @@ ModelImporter:
     - boneName: spine_01.x
       humanName: Spine
       limit:
-        min: {x: -40, y: -6, z: -67.045074}
-        max: {x: 40, y: 6, z: 40}
+        min: {x: -40, y: -35.347824, z: -67.045074}
+        max: {x: 40, y: 35, z: 40}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: spine_02.x
       humanName: Chest
       limit:
-        min: {x: -40, y: -8.025867, z: -40}
-        max: {x: 40, y: 8.640007, z: 40}
+        min: {x: -40, y: -33.3525, z: -40}
+        max: {x: 40, y: 32.157593, z: 40}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
@@ -174,40 +174,40 @@ ModelImporter:
     - boneName: shoulder.l
       humanName: LeftShoulder
       limit:
-        min: {x: 0, y: -20.790274, z: -15}
-        max: {x: 0, y: 39.399094, z: 15}
+        min: {x: 0, y: -33.508915, z: -32.381386}
+        max: {x: 0, y: 55.760853, z: 81.09592}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: shoulder.r
       humanName: RightShoulder
       limit:
-        min: {x: 0, y: -8.063439, z: -15}
-        max: {x: 0, y: 68.21368, z: 30}
+        min: {x: 0, y: -25, z: -25.53356}
+        max: {x: 0, y: 41.528656, z: 58.301956}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: arm_stretch.l
       humanName: LeftUpperArm
       limit:
-        min: {x: -57.9194, y: -64.5409, z: -23.873104}
-        max: {x: 89.999985, y: 94.590996, z: 68.8147}
+        min: {x: -57.9194, y: -64.5409, z: -37.493187}
+        max: {x: 89.999985, y: 95.56925, z: 89.509926}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: arm_stretch.r
       humanName: RightUpperArm
       limit:
-        min: {x: -56.34391, y: -64.5409, z: -23.8731}
-        max: {x: 90, y: 94.591, z: 68.8147}
+        min: {x: -57.9194, y: -56.71482, z: -24.285706}
+        max: {x: 89.99998, y: 71.9481, z: 65.698746}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: forearm_stretch.l
       humanName: LeftLowerArm
       limit:
-        min: {x: -61.66481, y: 0, z: -48.14691}
-        max: {x: 25.422234, y: 0, z: 62.31977}
+        min: {x: -69.4909, y: 0, z: -61.842564}
+        max: {x: 130.23251, y: 0, z: 83.84151}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
@@ -215,18 +215,18 @@ ModelImporter:
       humanName: RightLowerArm
       limit:
         min: {x: -61.66481, y: 0, z: -48.14691}
-        max: {x: 25.42223, y: 0, z: 71.77272}
+        max: {x: 91.1021, y: 0, z: 62.31977}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: hand.l
       humanName: LeftHand
       limit:
-        min: {x: 0, y: 0, z: 0}
-        max: {x: 0, y: 0, z: 0}
+        min: {x: 0, y: -40, z: -45.76087}
+        max: {x: 0, y: 40, z: 48.695656}
         value: {x: 0, y: 0, z: 0}
         length: 0
-        modified: 0
+        modified: 1
     - boneName: hand.r
       humanName: RightHand
       limit:
@@ -430,8 +430,8 @@ ModelImporter:
     - boneName: spine_03.x
       humanName: UpperChest
       limit:
-        min: {x: -20, y: -8.12, z: -20}
-        max: {x: 20, y: 9.56, z: 20}
+        min: {x: -20, y: -16.924347, z: -71.015076}
+        max: {x: 20, y: 21.299133, z: 42.35154}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
