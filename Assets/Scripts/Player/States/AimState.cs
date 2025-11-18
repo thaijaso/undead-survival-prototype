@@ -114,7 +114,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (ShouldResetAimState(nextState))
             {
                 animationManager.SetIsAiming(false);
-                player.PlayerIKController.DisableIK();
+                player.PlayerIKController.DisableAimAndHeadIK();
                 player.AimPoseLayerWeightController.SetWeight(1f);
                 player.AimPitchLayerWeightController.SetWeight(0f);
                 player.PlayerCameraController.DisableCameraSway();

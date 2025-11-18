@@ -137,6 +137,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             CurrentWeaponScript = weaponScript;
             CurrentWeaponConfig = weaponConfig;
             lastSpawnedWeaponPrefab = weaponConfig.weaponPrefab;
+            player.PlayerIKController.SetLeftHandGripSource(weaponScript.leftHandGripSource);
         }
 
         private void CleanupPreviousWeapon()

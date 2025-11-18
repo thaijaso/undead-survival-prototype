@@ -125,8 +125,8 @@ public class RecoilIK : OffsetModifier
         if (aimIK == null) aimIK = GetComponent<AimIK>();
         if (aimIK == null) Debug.LogWarning($"[RecoilIK] No AimIK component found on {gameObject.name}. Recoil direction will be based on character forward.");
 
-        if (headIK == null) headIK = GetComponent<AimIK>();
-        if (headIK == null) Debug.LogWarning($"[RecoilIK] No head AimIK component found on {gameObject.name}. Head will not be disabled during recoil.");
+        // if (headIK == null) headIK = GetComponent<AimIK>();
+        // if (headIK == null) Debug.LogWarning($"[RecoilIK] No head AimIK component found on {gameObject.name}. Head will not be disabled during recoil.");
     }
 
     /// <summary>

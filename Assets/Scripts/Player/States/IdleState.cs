@@ -70,5 +70,12 @@ namespace UndeadSurvivalGame.PlayerSystems
                 return;
             }     
         }
+
+        public override void LateUpdate()
+        {
+            base.LateUpdate();
+
+            player.PlayerIKController.UpdateLeftHand();
+        }
     }
 }

@@ -62,7 +62,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (!weaponManager.IsChamberEmpty())
             {
-                player.PlayerIKController.DisableIK();
+                player.PlayerIKController.DisableAimAndHeadIK();
             }
         }
 

@@ -133,7 +133,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
         public virtual void LateUpdate()
         {
-            // Late update logic to be implemented in derived classes
+            //player.PlayerIKController.UpdateLeftHand();
         }
     }
 }

@@ -122,11 +122,10 @@ namespace UndeadSurvivalGame.PlayerSystems
             targetHeadLookWeight = weight;
         }
 
-        public void DisableIK()
+        public void DisableAimAndHeadIK()
         {
             // zero targets
             targetAimIKWeight = 0f;
-            targetFBBIKWeight = 0f;
             targetHeadLookWeight = 0f;
         }
 
@@ -257,6 +256,13 @@ namespace UndeadSurvivalGame.PlayerSystems
             if (recoil != null) recoil.SetHandRotations(rightHandRotation * leftHandRotRelToRightHand, rightHandRotation);
 
             // Update FBBIK
+            if (!fullBodyBipedIK.solver.initiated)
+            {
+                Debug.Log("[PlayerIKController] Initiating FBBIK solver.");
+                var root = fullBodyBipedIK.references.root;
+                fullBodyBipedIK.solver.Initiate(root);
+            }
+            
             fullBodyBipedIK.solver.Update();
 
             // Rotating the hand bones after IK has finished
@@ -319,8 +325,14 @@ namespace UndeadSurvivalGame.PlayerSystems
             }
         }
 
+        public void UpdateLeftHand()
+        {
+            Read();
+            FBBIK();
+            UpdateLeftHandIKTarget();
+        }
 
-        public void UpdateLeftHandIKTarget()
+        private void UpdateLeftHandIKTarget()
         {
             if (leftHandIKTarget != null && leftHandGripSource != null)
             {
