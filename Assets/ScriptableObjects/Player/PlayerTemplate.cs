@@ -65,6 +65,10 @@ public class PlayerTemplate : ScriptableObject
     [InfoBox("Assign the prefab reference for the FadeCollider child gameobject (not an in-game object).")]
     public GameObject fadeColliderPrefab;
 
+    [TabGroup("Prefabs")]
+    [InfoBox("Assign the prefab reference for the FootstepEmitter child gameobject (not an in-game object).")]
+    public GameObject leftElbowBendGoalPrefab;
+
     [TabGroup("Camera")]
     [MinValue(1f)]
     [SuffixLabel("deg")] public float followFOV = 40f;

@@ -49,6 +49,7 @@ namespace UndeadSurvivalGame.Editor
             SetupCharacterControllerFromTemplate(player, overwriteExisting);
             SetupPlayerWeaponManager(player, overwriteExisting);
             SetupAimIK(player, overwriteExisting, cameraTargets.aimIKTarget);
+            SetupLeftHandElbowBendGoal(player, overwriteExisting);
             SetupFBBIK(player, overwriteExisting);
             SetupRecoilIK(player, overwriteExisting);
             SetupBulletDecalManager(player);
@@ -1229,6 +1230,39 @@ namespace UndeadSurvivalGame.Editor
             Debug.Log($"[AutoSetup] AimIK component set up for {player.gameObject.name} (disabled by default). Target: {aimIK.solver.target?.name}");
         }
 
+        private static void SetupLeftHandElbowBendGoal(Player player, bool overwriteExisting)
+        {
+            if (player == null || player.playerTemplate == null)
+                return;
+
+            Transform leftElbowBendGoal = FindChildRecursive(player.transform, "LeftElbowBendGoal");
+
+            if (leftElbowBendGoal == null)
+            {
+                GameObject prefab = player.playerTemplate.leftElbowBendGoalPrefab;
+                if (prefab == null)
+                {
+                    // Try to find a prefab named "LeftElbowBendGoal" in the project
+                    string[] guids = AssetDatabase.FindAssets("LeftElbowBendGoal t:Prefab");
+                    if (guids != null && guids.Length > 0)
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                        prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                    }
+                }
+                if (prefab != null)
+                {
+                    GameObject leftElbowBendGoalInstance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
+                    leftElbowBendGoalInstance.name = "LeftElbowBendGoal";
+                    Debug.Log($"[AutoSetup] Instantiated LeftElbowBendGoal from prefab '{prefab.name}' as child of Player {player.gameObject.name}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[AutoSetup] Could not find LeftElbowBendGoal prefab to instantiate for Player {player.gameObject.name}.");
+                }
+            }
+        }
+
         private static void SetAimIKBoneWeight(AimIK aimIK, string boneName, float weight)
         {
             if (aimIK?.solver?.bones == null) return;
@@ -1454,6 +1488,10 @@ namespace UndeadSurvivalGame.Editor
             {
                 Debug.LogWarning($"[AutoSetup] Failed to assign some FBBIK references for {player.gameObject.name}. Check bone names or rig.");
             }
+
+            // Set LeftHandElbowBendGoal reference
+            fbbik.solver.leftArmChain.bendConstraint.bendGoal = FindChildRecursive(player.transform, "LeftElbowBendGoal");
+            fbbik.solver.leftArmChain.bendConstraint.weight = .3f;
 
             EditorUtility.SetDirty(fbbik);
             PrefabUtility.RecordPrefabInstancePropertyModifications(fbbik);
@@ -2182,8 +2220,6 @@ namespace UndeadSurvivalGame.Editor
                     Debug.LogWarning($"[AutoSetup] FadeCollider prefab not found. Cannot add to {player.gameObject.name}.");
                 }
             }
-
-
         }
     }
 }

@@ -26,6 +26,7 @@ MonoBehaviour:
   wallDetectorPrefab: {fileID: 3786378305688985398, guid: 677473aa0a830f449bab51bfa803759e, type: 3}
   stairDetectorPrefab: {fileID: 5936155349824361412, guid: 5b03352a22eafbf4eb23e4e1620dc467, type: 3}
   fadeColliderPrefab: {fileID: 6000144781523894166, guid: 99c1c6447a7ca00458a965e11aad2b69, type: 3}
+  leftElbowBendGoalPrefab: {fileID: 7801571249450223440, guid: d5356316e0c3c674ca59352e7fee803a, type: 3}
   followFOV: 40
   aimFOV: 28.7
   zoomSpeed: 5

@@ -20,6 +20,7 @@ public static class PlayerTemplateAutoSetupUtility
         changed |= TryAssignPrefabByName(template, "wallDetectorPrefab", "WallDetector");
         changed |= TryAssignPrefabByName(template, "stairDetectorPrefab", "StairDetector");
         changed |= TryAssignPrefabByName(template, "fadeColliderPrefab", "FadeCollider"); 
+        changed |= TryAssignPrefabByName(template, "leftElbowBendGoalPrefab", "LeftElbowBendGoal");
 
         // Add more as needed
         if (changed)
