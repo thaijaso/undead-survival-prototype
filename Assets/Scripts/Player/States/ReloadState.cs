@@ -26,6 +26,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetIsReloading(true);
             weaponManager.TriggerReloadAnimation();
             player.PlayerInput.ConsumeAimBuffer(); // Consume any buffered aim input on entering reload
+            player.PlayerIKController.SetFBBIKWeight(.5f);
         }
 
         public override void Exit(PlayerState nextState)

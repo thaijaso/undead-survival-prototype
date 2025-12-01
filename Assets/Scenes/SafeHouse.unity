@@ -8978,6 +8978,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Yuki Root
       objectReference: {fileID: 0}
+    - target: {fileID: 8994656135150759762, guid: 1b3d1f57209225c4cb423067fe378f0d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
