@@ -141,9 +141,9 @@ MonoBehaviour:
     m_Bits: 65664
   whiskerRadius: 0.15
   whiskerCount: 3
-  whiskerArc: 45
+  whiskerArc: 20
   minBoom: 0.1
-  maxBoom: 1
+  maxBoom: 2
   boomSmooth: 16
   contractionMultiplier: 10
   expansionMultiplier: 1

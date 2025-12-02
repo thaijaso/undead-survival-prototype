@@ -427,11 +427,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4221287555448168086, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.74861
+      value: 0.746562
       objectReference: {fileID: 0}
     - target: {fileID: 4221287555448168086, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.57535005
+      value: 0.35434997
       objectReference: {fileID: 0}
     - target: {fileID: 4221287555448168086, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.z
@@ -479,11 +479,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7201624713246675907, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.74861
+      value: 0.746562
       objectReference: {fileID: 0}
     - target: {fileID: 7201624713246675907, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.57535005
+      value: 0.35434997
       objectReference: {fileID: 0}
     - target: {fileID: 7201624713246675907, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.z
@@ -494,12 +494,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
-      propertyPath: maxBoom
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: showDebug
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8940,15 +8936,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4841467319189763912, guid: 1b3d1f57209225c4cb423067fe378f0d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -87.205
+      value: -72.046
       objectReference: {fileID: 0}
     - target: {fileID: 4841467319189763912, guid: 1b3d1f57209225c4cb423067fe378f0d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -302.419
+      value: -369.774
       objectReference: {fileID: 0}
     - target: {fileID: 4841467319189763912, guid: 1b3d1f57209225c4cb423067fe378f0d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 221.966
+      value: 286.214
       objectReference: {fileID: 0}
     - target: {fileID: 6634434748210755617, guid: 1b3d1f57209225c4cb423067fe378f0d, type: 3}
       propertyPath: renderCam
