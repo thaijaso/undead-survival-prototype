@@ -427,7 +427,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4221287555448168086, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.746562
+      value: 0.74861
       objectReference: {fileID: 0}
     - target: {fileID: 4221287555448168086, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.y
@@ -479,7 +479,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7201624713246675907, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.746562
+      value: 0.74861
       objectReference: {fileID: 0}
     - target: {fileID: 7201624713246675907, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
       propertyPath: m_LocalPosition.y
@@ -8970,6 +8970,10 @@ PrefabInstance:
       propertyPath: currentWeaponUIController
       value: 
       objectReference: {fileID: 1615746161}
+    - target: {fileID: 8923338679706969304, guid: 1b3d1f57209225c4cb423067fe378f0d, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8994656135150759762, guid: 1b3d1f57209225c4cb423067fe378f0d, type: 3}
       propertyPath: m_Name
       value: Yuki Root
