@@ -18,9 +18,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationName,
             weaponManager
         )
-        {
-
-        }
+        {}
 
         public override void Enter()
         {
@@ -37,6 +35,7 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             player.AimPoseLayerWeightController.SetWeight(0f);
             player.AimPitchLayerWeightController.SetWeight(1f);
+            player.AimPoseArmsFixLayerWeightController.SetWeight(0f);
         }
 
         private void SetupCamera()

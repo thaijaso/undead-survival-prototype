@@ -27,6 +27,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             animationManager.SetIsStrafing(false);
             animationManager.SetMoveParams(0f, 0f);
             player.AimPoseLayerWeightController.SetWeight(1f);
+            player.AimPoseArmsFixLayerWeightController.SetWeight(1f);
             player.PlayerIKController.SetFBBIKWeight(1f);
         }
 

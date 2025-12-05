@@ -16,6 +16,7 @@ namespace UndeadSurvivalGame.PlayerSystems
         public PlayerCameraController PlayerCameraController { get; private set; }
         public PlayerIKController PlayerIKController { get; private set; }
         public AimPoseLayerWeightController AimPoseLayerWeightController { get; private set; }
+        public AimPoseArmsFixLayerWeightController AimPoseArmsFixLayerWeightController { get; private set; }
         public AimPitchLayerWeightController AimPitchLayerWeightController { get; private set; }
         public UpperBodyLayerWeightController UpperBodyLayerWeightController { get; private set; }
         public PlayerAnimatorEvents PlayerAnimatorEvents { get; private set; }
@@ -110,6 +111,7 @@ namespace UndeadSurvivalGame.PlayerSystems
             SetupPlayerMenuUIController();
             SetupPlayerInteractionSensor();
             SetupAimPoseLayerWeightController();
+            SetupAimPoseArmsFixLayerWeightController();
             SetupAimPitchLayerWeightController();
             SetupUpperBodyLayerWeightController();
             SetupWallDetector();
@@ -290,6 +292,14 @@ namespace UndeadSurvivalGame.PlayerSystems
 
             if (AimPoseLayerWeightController == null)
                 Debug.LogError($"[{gameObject.name}] Player.SetupAimPoseLayerWeightController(): AimPoseLayerWeightController component is missing!");
+        }
+
+        private void SetupAimPoseArmsFixLayerWeightController()
+        {
+            AimPoseArmsFixLayerWeightController = GetComponent<AimPoseArmsFixLayerWeightController>();
+
+            if (AimPoseArmsFixLayerWeightController == null)
+                Debug.LogError($"[{gameObject.name}] Player.SetupAimPoseArmsFixLayerWeightController(): AimPoseArmsFixLayerWeightController component is missing!");
         }
 
         private void SetupAimPitchLayerWeightController()
