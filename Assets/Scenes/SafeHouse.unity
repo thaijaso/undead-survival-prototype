@@ -5378,6 +5378,10 @@ PrefabInstance:
       propertyPath: showDebug
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8831244320455577330, guid: 219cda7856ecd8e45801cf3446ae5f55, type: 3}
+      propertyPath: collisionMask.m_Bits
+      value: 66176
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -17511,6 +17515,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4503129918353080601, guid: ea66567af6174dd4bb75de22820bd628, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5274951985924212687, guid: ea66567af6174dd4bb75de22820bd628, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7936738048814513211, guid: ea66567af6174dd4bb75de22820bd628, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -17549,6 +17561,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7936738048814513211, guid: ea66567af6174dd4bb75de22820bd628, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8667985506526010612, guid: ea66567af6174dd4bb75de22820bd628, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8693029346609280938, guid: ea66567af6174dd4bb75de22820bd628, type: 3}
@@ -19519,6 +19535,10 @@ PrefabInstance:
     - target: {fileID: 3509855076086700837, guid: 1b3d1f57209225c4cb423067fe378f0d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3994471637488933703, guid: 1b3d1f57209225c4cb423067fe378f0d, type: 3}
+      propertyPath: m_SlopeLimit
+      value: 46
       objectReference: {fileID: 0}
     - target: {fileID: 4841467319189763912, guid: 1b3d1f57209225c4cb423067fe378f0d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
