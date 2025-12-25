@@ -3,7 +3,27 @@ guid: da6a2448f2af4dc4d96be983791c58c5
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Brick_Material
+    second: {fileID: 2100000, guid: 2a23d56b0797f69499ba2951c4a75dc5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PolygonApocalypse_Material_01_A
+    second: {fileID: 2100000, guid: e85b4178e252930408330fa302a8ce13, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PolygonApocalypse_Material_Glass_01
+    second: {fileID: 2100000, guid: af272c24b75b4e845afae089b716bb67, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wood_Material
+    second: {fileID: 2100000, guid: 4708220bac6b7bb4c8f8bd788585d0b9, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
