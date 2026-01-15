@@ -32,6 +32,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Light_Material
+    second: {fileID: 2100000, guid: a3f3e275e4fc0e44f809d6a5282aaf30, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: PolygonApocalypse_Material_01_A
     second: {fileID: 2100000, guid: e85b4178e252930408330fa302a8ce13, type: 2}
   - first:
@@ -39,6 +44,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: PolygonApocalypse_Material_Glass_01
     second: {fileID: 2100000, guid: af272c24b75b4e845afae089b716bb67, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Props_Material
+    second: {fileID: 2100000, guid: 7c6991df63945b94b9711d9cf9ef139e, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -86,7 +96,7 @@ ModelImporter:
     nodeNameCollisionStrategy: 1
     fileIdsGeneration: 2
     swapUVChannels: 0
-    generateSecondaryUV: 0
+    generateSecondaryUV: 1
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 0
