@@ -27,6 +27,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Glow_Material
+    second: {fileID: 2100000, guid: ae9060c51ef6a0b4f931f957f498baa9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Grid_Concrete_Material
     second: {fileID: 2100000, guid: 14ba6e04c84dc3847ab1bdde924dfbec, type: 2}
   - first:
