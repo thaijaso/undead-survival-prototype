@@ -1,30 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7783687615947468712
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ef6d2d7bf3633e4baf72310f121f717, type: 3}
-  m_Name: PixelisationFeature
-  m_EditorClassIdentifier: ProPixelizer::ProPixelizer.PixelisationFeature
-  m_Active: 1
-  UseDepthTestingForIDOutlines: 1
-  DepthTestThreshold: 0.001
-  UseNormalsForEdgeDetection: 1
-  NormalEdgeDetectionSensitivity: 1
-  GenerateWarnings: 0
-  PixelizationShaders:
-    PixelizationMap: {fileID: 4800000, guid: 8dd346b62451e76418dabc2355815f15, type: 3}
-    CopyDepth: {fileID: 4800000, guid: 5854eec6cff8aa8449c5f14562cf9c11, type: 3}
-    CopyMainTexAndDepth: {fileID: 4800000, guid: 4fdd965c0d64e16468688f87fbca597d, type: 3}
-    ApplyPixelizationMap: {fileID: 4800000, guid: f47f4f650fb29834684600d9a95f41c7, type: 3}
-  OutlineShaders:
-    OutlineDetection: {fileID: 4800000, guid: c59878161c7e0ad40b0661b47620d0e5, type: 3}
 --- !u!114 &-7176638183695990239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
   m_Name: Render Feature  Outline Transparent
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.RenderObjects
-  m_Active: 1
+  m_Active: 0
   settings:
     passTag: Render Feature  Outline Transparent
     Event: 500
@@ -68,7 +43,7 @@ MonoBehaviour:
       restoreCamera: 1
       offset: {x: 0, y: 0, z: 0, w: 0}
       cameraFieldOfView: 60
---- !u!114 &-4337138165597594387
+--- !u!114 &-6313402845492299458
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -77,13 +52,85 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 052a0051f28380a49905d797cf6fd45d, type: 3}
-  m_Name: MKToonPerObjectOutlines
-  m_EditorClassIdentifier: MK.Toon.URP::MK.Toon.URP.MKToonPerObjectOutlines
-  m_Active: 0
-  _layerMask:
+  m_Script: {fileID: 11500000, guid: 7ef6d2d7bf3633e4baf72310f121f717, type: 3}
+  m_Name: ProPixelizerRenderFeature
+  m_EditorClassIdentifier: ProPixelizer::ProPixelizer.ProPixelizerRenderFeature
+  m_Active: 1
+  UseDepthTestingForIDOutlines: 1
+  DepthTestThreshold: 0.0001
+  UseNormalsForEdgeDetection: 1
+  NormalEdgeDetectionThreshold: 2
+  UseDepthTestingForEdgeOutlines: 1
+  DefaultLowResScale: 1
+  UsePixelExpansion: 1
+  PixelizedLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 0
+  EditorPixelExpansion: 1
+  GenerateWarnings: 1
+  PixelizationMapShaders:
+    PixelizationMap: {fileID: 4800000, guid: 8dd346b62451e76418dabc2355815f15, type: 3}
+  PixelizationShaders:
+    CopyDepth: {fileID: 4800000, guid: 5854eec6cff8aa8449c5f14562cf9c11, type: 3}
+    CopyMainTexAndDepth: {fileID: 4800000, guid: 4fdd965c0d64e16468688f87fbca597d, type: 3}
+    ApplyPixelizationMap: {fileID: 4800000, guid: f47f4f650fb29834684600d9a95f41c7, type: 3}
+  OutlineShaders:
+    OutlineDetection: {fileID: 4800000, guid: c59878161c7e0ad40b0661b47620d0e5, type: 3}
+  DepthRecompositionShaders:
+    SceneRecomposition: {fileID: 4800000, guid: 1daf70343df19d34f9bdaf78a137fdd5, type: 3}
+  FinalRecompositionPassShaders:
+    CopyDepth: {fileID: 4800000, guid: 5854eec6cff8aa8449c5f14562cf9c11, type: 3}
+    CopyMainTexAndDepth: {fileID: 4800000, guid: 4fdd965c0d64e16468688f87fbca597d, type: 3}
+  FullscreenColorGradingPassShaders:
+    FullScreenColorGrade: {fileID: 4800000, guid: d5205d08ab9a61a4fa1cdf7f0ab15dc2, type: 3}
+  RenderGraphUnredirectPassShaders:
+    CopyDepth: {fileID: 4800000, guid: 5854eec6cff8aa8449c5f14562cf9c11, type: 3}
+  CopySubcameraDepthPassShaders:
+    CopyDepth: {fileID: 4800000, guid: 5854eec6cff8aa8449c5f14562cf9c11, type: 3}
+--- !u!114 &-2368890700456513446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ef6d2d7bf3633e4baf72310f121f717, type: 3}
+  m_Name: ProPixelizerRenderFeature
+  m_EditorClassIdentifier: ProPixelizer::ProPixelizer.ProPixelizerRenderFeature
+  m_Active: 1
+  UseDepthTestingForIDOutlines: 1
+  DepthTestThreshold: 0.0001
+  UseNormalsForEdgeDetection: 1
+  NormalEdgeDetectionThreshold: 2
+  UseDepthTestingForEdgeOutlines: 1
+  DefaultLowResScale: 1
+  UsePixelExpansion: 1
+  PixelizedLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  EditorPixelExpansion: 1
+  GenerateWarnings: 1
+  PixelizationMapShaders:
+    PixelizationMap: {fileID: 4800000, guid: 8dd346b62451e76418dabc2355815f15, type: 3}
+  PixelizationShaders:
+    CopyDepth: {fileID: 4800000, guid: 5854eec6cff8aa8449c5f14562cf9c11, type: 3}
+    CopyMainTexAndDepth: {fileID: 4800000, guid: 4fdd965c0d64e16468688f87fbca597d, type: 3}
+    ApplyPixelizationMap: {fileID: 4800000, guid: f47f4f650fb29834684600d9a95f41c7, type: 3}
+  OutlineShaders:
+    OutlineDetection: {fileID: 4800000, guid: c59878161c7e0ad40b0661b47620d0e5, type: 3}
+  DepthRecompositionShaders:
+    SceneRecomposition: {fileID: 4800000, guid: 1daf70343df19d34f9bdaf78a137fdd5, type: 3}
+  FinalRecompositionPassShaders:
+    CopyDepth: {fileID: 4800000, guid: 5854eec6cff8aa8449c5f14562cf9c11, type: 3}
+    CopyMainTexAndDepth: {fileID: 4800000, guid: 4fdd965c0d64e16468688f87fbca597d, type: 3}
+  FullscreenColorGradingPassShaders:
+    FullScreenColorGrade: {fileID: 4800000, guid: d5205d08ab9a61a4fa1cdf7f0ab15dc2, type: 3}
+  RenderGraphUnredirectPassShaders:
+    CopyDepth: {fileID: 4800000, guid: 5854eec6cff8aa8449c5f14562cf9c11, type: 3}
+  CopySubcameraDepthPassShaders:
+    CopyDepth: {fileID: 4800000, guid: 5854eec6cff8aa8449c5f14562cf9c11, type: 3}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110,11 +157,10 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
-  - {fileID: -4337138165597594387}
   - {fileID: 8197360116202685125}
   - {fileID: -7176638183695990239}
-  - {fileID: -7783687615947468712}
-  m_RendererFeatureMap: ad6b866f10d7b46ced1cc449d163cfc3000000000000000000000000000000005810d8605ac9fa93
+  - {fileID: -2368890700456513446}
+  m_RendererFeatureMap: ad6b866f10d7b46cc542371e98dfc27121c24b6b9875679c5a309077750220df
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 0}
@@ -181,7 +227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
   m_Name: Render Feature  Outline Opaque
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.RenderObjects
-  m_Active: 1
+  m_Active: 0
   settings:
     passTag: Render Feature  Outline Opaque
     Event: 300

@@ -14,7 +14,6 @@ Material:
   m_ValidKeywords:
   - PROPIXELIZER_DITHERING_ON
   - RECEIVE_SHADOWS_ON
-  - USE_OBJECT_POSITION_ON
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -31,12 +30,8 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Albedo:
-        m_Texture: {fileID: 2800000, guid: e0e8eec379d5adb4d83aafeb3c1e5138, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 18dbbdc5cd59d094ba10ace922212687, type: 3}
+        m_Texture: {fileID: 2800000, guid: e0e8eec379d5adb4d83aafeb3c1e5138, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BlendingNormalMapB:
@@ -87,10 +82,6 @@ Material:
         m_Texture: {fileID: 2800000, guid: fcb69fdadf254834880fe3c443965278, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Emission:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -104,7 +95,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 18dbbdc5cd59d094ba10ace922212687, type: 3}
+        m_Texture: {fileID: 2800000, guid: e0e8eec379d5adb4d83aafeb3c1e5138, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MatcapTex:
@@ -117,10 +108,6 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MetallicMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: 120df76dc2d17ed4cb2d4b8b08292ed9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -184,7 +171,8 @@ Material:
     - COLOR_GRADING: 0
     - PROPIXELIZER_DITHERING: 1
     - RECEIVE_SHADOWS: 1
-    - USE_OBJECT_POSITION: 1
+    - USE_OBJECT_POSITION: 0
+    - USE_OBJECT_POSITION_FOR_PIXEL_GRID: 0
     - _AOContrast: 1
     - _AOMapEnabled: 0
     - _AOMapStrength: 1
@@ -194,7 +182,7 @@ Material:
     - _AlbedoVertexColorMode: 1
     - _AlbedoVertexColorOn: 0
     - _AlphaClip: 0
-    - _AlphaClipThreshold: 0
+    - _AlphaClipThreshold: 0.5
     - _AlphaCutoffOn: 1
     - _AlphaCutoffValue: 0.25
     - _AlphaRoundOn: 0
@@ -214,6 +202,7 @@ Material:
     - _Brightness: 0
     - _BrightnessLM: 0
     - _BumpScale: 1
+    - _CastShadows: 1
     - _CastShadowsOn: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -247,6 +236,7 @@ Material:
     - _DitherScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _EdgeBevelWeight: 0
     - _EmissionEnabled: 0
     - _EmissionSelfGlow: 1
     - _EmissiveVertexColorWeight: 0
@@ -334,6 +324,7 @@ Material:
     - _NormalMapEnabled: 0
     - _NormalStrength: 1
     - _OcclusionStrength: 1
+    - _Offset: 0
     - _OutlineMode: 6
     - _OutlineThickness: 0.3
     - _OutlineType: 1
@@ -344,7 +335,7 @@ Material:
     - _Posterize: 0
     - _PosterizeGamma: 0.75
     - _PosterizeNumColors: 8
-    - _QueueControl: -1
+    - _QueueControl: 0
     - _QueueOffset: 0
     - _RecalculateNormals: 0
     - _ReceiveShadows: 1
@@ -420,8 +411,10 @@ Material:
     - _WindVerticalMaskMinY: -1
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
+    - _ZTest: 4
     - _ZTestMode: 4
     - _ZWrite: 1
+    - _ZWriteControl: 0
     m_Colors:
     - _AOColor: {r: 0, g: 0, b: 0, a: 0}
     - _AmbientLight: {r: 0, g: 0, b: 0, a: 1}
@@ -429,19 +422,20 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CustomAmbientColor: {r: 0.65, g: 0.65, b: 0.65, a: 1}
     - _DepthGlowColor: {r: 1, g: 0.9869999, b: 0.6, a: 1}
-    - _EdgeHighlightColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _EdgeHighlightColor: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _FadeBurnColor: {r: 1, g: 1, b: 0, a: 1}
     - _GlitchOffset: {r: -0.5, g: 0, b: 0, a: 0}
     - _GradientHeightColor01: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _GradientHeightColor02: {r: 1, g: 1, b: 1, a: 1}
     - _GreyscaleTintColor: {r: 1, g: 1, b: 1, a: 1}
+    - _GridColor: {r: 0, g: 0, b: 0, a: 0}
     - _HighlightOffset: {r: 0, g: 0, b: 0, a: 0}
     - _HighlightsColor: {r: 2, g: 2, b: 2, a: 1}
     - _HitColor: {r: 1, g: 1, b: 1, a: 1}
     - _HologramColor: {r: 1.25, g: 2.8, b: 6.8, a: 1}
     - _HologramLineDirection: {r: 0, g: 1, b: 0, a: 0}
-    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 0}
     - _PixelGridOrigin: {r: 0, g: 0, b: 0, a: 0}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimOffset: {r: 0, g: 0, b: 0, a: 0}
