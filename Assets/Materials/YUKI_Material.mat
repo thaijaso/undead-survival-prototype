@@ -8,17 +8,16 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: YUKI_Material
-  m_Shader: {fileID: 4800000, guid: 71d6765ad72e11541bc1448c891bbcf9, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 877d2d61e529c384b8cb9cadb0f115e8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - PROPIXELIZER_DITHERING_ON
-  - RECEIVE_SHADOWS_ON
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -417,7 +416,7 @@ Material:
     - _ZWriteControl: 0
     m_Colors:
     - _AOColor: {r: 0, g: 0, b: 0, a: 0}
-    - _AmbientLight: {r: 0, g: 0, b: 0, a: 1}
+    - _AmbientLight: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CustomAmbientColor: {r: 0.65, g: 0.65, b: 0.65, a: 1}

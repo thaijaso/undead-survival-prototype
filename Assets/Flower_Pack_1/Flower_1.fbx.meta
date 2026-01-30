@@ -1,64 +1,9 @@
 fileFormatVersion: 2
-guid: da6a2448f2af4dc4d96be983791c58c5
+guid: d1e76badc00e4d443ba6bd7fcc46e1d9
 ModelImporter:
-  serializedVersion: 24200
+  serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Brick_Material
-    second: {fileID: 2100000, guid: 2a23d56b0797f69499ba2951c4a75dc5, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Concrete_Material
-    second: {fileID: 2100000, guid: 13b538f0a1c417e4b85555e3fdd65e87, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Cotton_Material
-    second: {fileID: 2100000, guid: 6c3eb2148e6ce054e9f455d0832a381e, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Floor_Material
-    second: {fileID: 2100000, guid: accfe7fd9009a454da19ee96a0171b35, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Glow_Material
-    second: {fileID: 2100000, guid: ae9060c51ef6a0b4f931f957f498baa9, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Grid_Concrete_Material
-    second: {fileID: 2100000, guid: 14ba6e04c84dc3847ab1bdde924dfbec, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Light_Material
-    second: {fileID: 2100000, guid: a3f3e275e4fc0e44f809d6a5282aaf30, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: PolygonApocalypse_Material_01_A
-    second: {fileID: 2100000, guid: e85b4178e252930408330fa302a8ce13, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: PolygonApocalypse_Material_Glass_01
-    second: {fileID: 2100000, guid: af272c24b75b4e845afae089b716bb67, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Props_Material
-    second: {fileID: 2100000, guid: 7c6991df63945b94b9711d9cf9ef139e, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Wood_Material
-    second: {fileID: 2100000, guid: 4708220bac6b7bb4c8f8bd788585d0b9, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -71,6 +16,8 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -104,17 +51,14 @@ ModelImporter:
     generateSecondaryUV: 0
     useFileUnits: 1
     keepQuads: 0
-    weldVertices: 0
+    weldVertices: 1
     bakeAxisConversion: 0
     preserveHierarchy: 0
     skinWeightsMode: 0
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
-    generateMeshLods: 0
-    meshLodGenerationFlags: 0
-    maximumMeshLod: -1
-    meshOptimizationFlags: 0
+    meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
@@ -132,7 +76,7 @@ ModelImporter:
     normalCalculationMode: 4
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
-    normalSmoothingSource: 1
+    normalSmoothingSource: 0
   referencedClips: []
   importAnimation: 1
   humanDescription:
