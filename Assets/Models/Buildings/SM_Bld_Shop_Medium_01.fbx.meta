@@ -12,6 +12,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Chairs
+    second: {fileID: 2100000, guid: 546648f083926b8429eff72aca5aab78, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Concrete_Material
     second: {fileID: 2100000, guid: 13b538f0a1c417e4b85555e3fdd65e87, type: 2}
   - first:
@@ -37,8 +42,33 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Kitchen_Misc
+    second: {fileID: 2100000, guid: 2ca38c2ee73f02b48b3d2a261f75fa6a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Light_Material
     second: {fileID: 2100000, guid: a3f3e275e4fc0e44f809d6a5282aaf30, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Living_Room_Misc
+    second: {fileID: 2100000, guid: eb0775450cd1ffe48b60e498ca122310, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Living_Room_Misc.001
+    second: {fileID: 2100000, guid: 7a7d7aeb8b9a10e448bbdde9e3a1dd44, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Living_Room_Misc.002
+    second: {fileID: 2100000, guid: 3045e7d205654f54d941b6f4409034e6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: MainText
+    second: {fileID: 2100000, guid: 8df9c5dc5c025404ab4bfb8870f2d862, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -54,6 +84,31 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Props_Material
     second: {fileID: 2100000, guid: 7c6991df63945b94b9711d9cf9ef139e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Table_Chairs_M
+    second: {fileID: 2100000, guid: 1bacd0b907de8a94fb9585266170d8c1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Table_Chairs_M.001
+    second: {fileID: 2100000, guid: c3ab50a84a02dcf4cae75940e7224d93, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Table_Chairs_M.002
+    second: {fileID: 2100000, guid: 8d50841ea69c5564082a59a59461e456, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wall_Material
+    second: {fileID: 2100000, guid: 5152e1b8fed9935439658c98ef8c7731, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wood Floor M
+    second: {fileID: 2100000, guid: fea4736a397853e4e90d20bb2b36049c, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -126,7 +181,7 @@ ModelImporter:
     useFileScale: 1
     strictVertexDataChecks: 0
   tangentSpace:
-    normalSmoothAngle: 60
+    normalSmoothAngle: 30
     normalImportMode: 0
     tangentImportMode: 3
     normalCalculationMode: 4
